@@ -14,13 +14,5 @@
 		<key>RootRelativeBundlePath</key>
 		<string>Library/Application Support/VFS For Git/VFS For Git.app</string>
 	</dict>
-	<dict>
-		<key>BundleIsVersionChecked</key>
-		<true/>
-		<key>BundleOverwriteAction</key>
-		<string>upgrade</string>
-		<key>RootRelativeBundlePath</key>
-		<string>Library/Extensions/PrjFSKext.kext</string>
-	</dict>
 </array>
 </plist>
