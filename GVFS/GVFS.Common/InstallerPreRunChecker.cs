@@ -1,5 +1,4 @@
 using GVFS.Common;
-using GVFS.Common.Git;
 using GVFS.Common.Tracing;
 using System;
 using System.Collections.Generic;
@@ -196,7 +195,7 @@ namespace GVFS.Upgrader
                     Environment.NewLine,
                     $"{GVFSConstants.UpgradeVerbMessages.GVFSUpgrade} is only supported after the \"Windows Projected File System\" optional feature has been enabled by a manual installation of VFS for Git, and only on versions of Windows that support this feature.",
                     "Check your team's documentation for how to upgrade.");
-                this.tracer.RelatedWarning(metadata: null, message:$"{nameof(this.IsGVFSUpgradeAllowed)}: Upgrade is not installable. {consoleError}", keywords: Keywords.Telemetry);
+                this.tracer.RelatedWarning(metadata: null, message: $"{nameof(this.IsGVFSUpgradeAllowed)}: Upgrade is not installable. {consoleError}", keywords: Keywords.Telemetry);
                 return false;
             }
 

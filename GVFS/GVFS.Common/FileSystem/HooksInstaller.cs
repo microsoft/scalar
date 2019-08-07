@@ -1,4 +1,5 @@
-﻿using GVFS.Common.Tracing;
+﻿using GVFS.Common.Git;
+using GVFS.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,7 +27,13 @@ namespace GVFS.Common.FileSystem
         {
             IEnumerable<string> valuableHooksLines = defaultHooksLines.Where(line => !string.IsNullOrEmpty(line.Trim()));
 
-            if (!valuableHooksLines.Any())
+            if (valuableHooksLines.Contains(GVFSPlatform.Instance.Constants.GVFSHooksExecutableName, StringComparer.OrdinalIgnoreCase))
+            {
+                throw new HooksConfigurationException(
+                    $"{GVFSPlatform.Instance.Constants.GVFSHooksExecutableName} should not be specified in the configuration for "
+                    + GVFSConstants.DotGit.Hooks.ReadObjectName + " hooks (" + filename + ").");
+            }
+            else if (!valuableHooksLines.Any())
             {
                 return GVFSPlatform.Instance.Constants.GVFSHooksExecutableName;
             }

@@ -131,6 +131,7 @@ namespace GVFS.CommandLine
                 { "core.untrackedCache", "false" },
                 { "core.repositoryformatversion", "0" },
                 { "core.filemode", GVFSPlatform.Instance.FileSystem.SupportsFileMode ? "true" : "false" },
+                { GitConfigSetting.CoreVirtualizeObjectsName, "true" },
                 { "core.bare", "false" },
                 { "core.logallrefupdates", "true" },
                 { "core.hookspath", expectedHooksPath },
