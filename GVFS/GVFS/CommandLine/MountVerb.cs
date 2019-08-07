@@ -6,10 +6,8 @@ using GVFS.Common.Http;
 using GVFS.Common.NamedPipes;
 using GVFS.Common.Tracing;
 using GVFS.DiskLayoutUpgrades;
-using GVFS.Virtualization.Projection;
 using System;
 using System.IO;
-using System.Security.Principal;
 
 namespace GVFS.CommandLine
 {
@@ -111,25 +109,6 @@ namespace GVFS.CommandLine
                         { "NamedPipeName", enlistment.NamedPipeName },
                         { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
                     });
-
-                if (!GVFSPlatform.Instance.KernelDriver.IsReady(tracer, enlistment.EnlistmentRoot, this.Output, out errorMessage))
-                {
-                    tracer.RelatedEvent(
-                        EventLevel.Informational,
-                        $"{nameof(MountVerb)}_{nameof(this.Execute)}_EnablingKernelDriverViaService",
-                        new EventMetadata
-                        {
-                            { "KernelDriver.IsReady_Error", errorMessage },
-                            { TracingConstants.MessageKey.InfoMessage, "Service will retry" }
-                        });
-
-                    if (!this.ShowStatusWhileRunning(
-                        () => { return this.TryEnableAndAttachPrjFltThroughService(enlistment.EnlistmentRoot, out errorMessage); },
-                        $"Attaching ProjFS to volume"))
-                    {
-                        this.ReportErrorAndExit(tracer, ReturnCode.FilterError, errorMessage);
-                    }
-                }
 
                 RetryConfig retryConfig = null;
                 ServerGVFSConfig serverGVFSConfig = this.DownloadedGVFSConfig;
@@ -235,20 +214,6 @@ namespace GVFS.CommandLine
             if (!git.IsValidRepo())
             {
                 errorMessage = "The .git folder is missing or has invalid contents";
-                return false;
-            }
-
-            try
-            {
-                GitIndexProjection.ReadIndex(tracer, Path.Combine(enlistment.WorkingDirectoryBackingRoot, GVFSConstants.DotGit.Index));
-            }
-            catch (Exception e)
-            {
-                EventMetadata metadata = new EventMetadata();
-                metadata.Add("Exception", e.ToString());
-                tracer.RelatedError(metadata, "Index validation failed");
-                errorMessage = "Index validation failed, run 'gvfs repair' to repair index.";
-
                 return false;
             }
 

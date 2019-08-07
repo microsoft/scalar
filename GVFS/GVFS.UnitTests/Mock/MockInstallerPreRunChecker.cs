@@ -19,7 +19,6 @@ namespace GVFS.UnitTests.Mock.Upgrader
         public enum FailOnCheckType
         {
             Invalid = 0,
-            ProjFSEnabled = 0x1,
             IsElevated = 0x2,
             BlockingProcessesRunning = 0x4,
             UnattendedMode = 0x8,
@@ -64,7 +63,7 @@ namespace GVFS.UnitTests.Mock.Upgrader
 
         protected override bool IsGVFSUpgradeSupported()
         {
-            return this.FakedResultOfCheck(FailOnCheckType.ProjFSEnabled);
+            return true;
         }
 
         protected override bool IsUnattended()

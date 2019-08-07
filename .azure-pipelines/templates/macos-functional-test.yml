@@ -26,9 +26,7 @@ steps:
 
   - bash: |
       chmod +x $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/*.sh
-      chmod +x $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/ProjFS.Mac/Scripts/*.sh
       chmod +x $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/Publish/*
-      chmod +x $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/BuildOutput/ProjFS.Mac/Native/$(configuration)/prjfs-log
     displayName: Ensure tests assets are executable
 
   - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/CleanupFunctionalTests.sh
@@ -36,11 +34,6 @@ steps:
 
   - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/PrepFunctionalTests.sh
     displayName: Prep functional tests
-
-  - bash: |
-      $BUILD_BINARIESDIRECTORY/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/ProjFS.Mac/Scripts/LoadPrjFSKext.sh $(configuration)
-      $BUILD_BINARIESDIRECTORY/FunctionalTests_$(platformFriendlyName)_$(configuration)/BuildOutput/ProjFS.Mac/Native/$(configuration)/prjfs-log > $BUILD_ARTIFACTSTAGINGDIRECTORY/kext.log 2>&1 &
-    displayName: Enable kext logging
 
   - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/RunFunctionalTests.sh $(configuration)
     displayName: Run functional tests

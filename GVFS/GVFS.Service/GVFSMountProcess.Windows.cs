@@ -16,16 +16,6 @@ namespace GVFS.Service
 
         public bool MountRepository(string repoRoot, int sessionId)
         {
-            if (!ProjFSFilter.IsServiceRunning(this.tracer))
-            {
-                string error;
-                if (!EnableAndAttachProjFSHandler.TryEnablePrjFlt(this.tracer, out error))
-                {
-                    this.tracer.RelatedError($"{nameof(this.MountRepository)}: Could not enable PrjFlt: {error}");
-                    return false;
-                }
-            }
-
             using (CurrentUser currentUser = new CurrentUser(this.tracer, sessionId))
             {
                 if (!this.CallGVFSMount(repoRoot, currentUser))

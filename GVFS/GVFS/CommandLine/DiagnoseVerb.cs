@@ -91,16 +91,6 @@ namespace GVFS.CommandLine
                         // .gvfs
                         this.CopyAllFiles(enlistment.EnlistmentRoot, archiveFolderPath, GVFSPlatform.Instance.Constants.DotGVFSRoot, copySubFolders: false);
 
-                        // driver
-                        if (this.FlushKernelDriverLogs())
-                        {
-                             string kernelLogsFolderPath = GVFSPlatform.Instance.KernelDriver.LogsFolderPath;
-
-                            // This copy sometimes fails because the OS has an exclusive lock on the etl files. The error is not actionable
-                            // for the user so we don't write the error message to stdout, just to our own log file.
-                            this.CopyAllFiles(Path.GetDirectoryName(kernelLogsFolderPath), archiveFolderPath, Path.GetFileName(kernelLogsFolderPath), copySubFolders: false, hideErrorsFromStdout: true);
-                        }
-
                         // .git
                         this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, GVFSConstants.DotGit.Root, copySubFolders: false);
                         this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, GVFSConstants.DotGit.Hooks.Root, copySubFolders: false);
@@ -514,14 +504,6 @@ namespace GVFS.CommandLine
 
                 return ReturnCode.GenericError;
             }
-        }
-
-        private bool FlushKernelDriverLogs()
-        {
-            string errors;
-            bool flushSuccess = GVFSPlatform.Instance.KernelDriver.TryFlushLogs(out errors);
-            this.diagnosticLogFileWriter.WriteLine(errors);
-            return flushSuccess;
         }
 
         private void PrintDiskSpaceInfo(string localCacheRoot, string enlistmentRootParameter)

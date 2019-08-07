@@ -96,24 +96,9 @@ function CopyBinariesToInstall()
     
     removeDataDirectory="rm -Rf \"${STAGINGDIR}/${VFSFORGITDESTINATION}/Data\""
     eval $removeDataDirectory || exit 1
-    
-    copyPrjFS="cp -Rf \"${VFS_OUTPUTDIR}/ProjFS.Mac/Native/$CONFIGURATION\"/*.dylib \"${STAGINGDIR}/${VFSFORGITDESTINATION}/.\""
-    eval $copyPrjFS || exit 1
-    
-    copyPrjFS="cp -Rf \"${VFS_OUTPUTDIR}/ProjFS.Mac/Native/$CONFIGURATION\"/prjfs-log \"${STAGINGDIR}/${VFSFORGITDESTINATION}/.\""
-    eval $copyPrjFS || exit 1
-    
-    copyPrjFS="cp -Rf \"${VFS_OUTPUTDIR}/ProjFS.Mac/Native/$CONFIGURATION\"/PrjFSKextLogDaemon \"${STAGINGDIR}/${VFSFORGITDESTINATION}/.\""
-    eval $copyPrjFS || exit 1
-    
+        
     copyUnInstaller="cp -f \"${UNINSTALLERPATH}\" \"${STAGINGDIR}/${VFSFORGITDESTINATION}/.\""
     eval $copyUnInstaller || exit 1
-    
-    copyPrjFS="cp -Rf \"${VFS_OUTPUTDIR}/ProjFS.Mac/Native/$CONFIGURATION\"/PrjFSKext.kext \"${STAGINGDIR}/${LIBRARYEXTENSIONSDESTINATION}/.\""
-    eval $copyPrjFS || exit 1
-    
-    copyPrjFS="cp -Rf \"${VFS_OUTPUTDIR}/ProjFS.Mac/Native/$CONFIGURATION/org.vfsforgit.prjfs.PrjFSKextLogDaemon.plist\" \"${STAGINGDIR}/${DAEMONPLISTDESTINATION}/.\""
-    eval $copyPrjFS || exit 1
     
     copyNotificationApp="cp -Rf \"${VFS_OUTPUTDIR}/GVFS.Notifications/VFSForGit.Mac/Build/Products/$CONFIGURATION/VFS For Git.app\" \"${STAGINGDIR}/${LIBRARYAPPSUPPORTDESTINATION}/.\""
     eval $copyNotificationApp || exit 1

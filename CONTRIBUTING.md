@@ -41,7 +41,7 @@ The design review process is as follows:
 
 - *Platform specific code, and only platform specific code, should go in `GVFSPlatform`*
 
-  When platform specific code is required, it should be placed in `GVFSPlatform` or one of the platforms it contains (e.g. `IKernelDriver`)
+  When platform specific code is required, it should be placed in `GVFSPlatform` or one of the platforms it contains.
 
 ## Tracing and Logging
 

@@ -57,7 +57,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GVFS.Common\GVFS.Common.csproj" />
-    <ProjectReference Include="..\GVFS.Virtualization\GVFS.Virtualization.csproj" />
   </ItemGroup>
 
   <ItemGroup>

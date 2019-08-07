@@ -12,20 +12,15 @@ fi
 # Set up some paths
 BUILDDROP_BUILDOUTPUT=$BUILDDROP_ROOT/BuildOutput
 BUILDDROP_SRC=$BUILDDROP_ROOT/src
-BUILDDROP_PROJFS=$BUILDDROP_SRC/ProjFS.Mac
-BUILDDROP_KEXT=$BUILDDROP_BUILDOUTPUT/ProjFS.Mac/Native
 
 # Set up the build drop directory structure
 rm -rf $BUILDDROP_ROOT
 mkdir -p $BUILDDROP_BUILDOUTPUT
 mkdir -p $BUILDDROP_SRC
-mkdir -p $BUILDDROP_PROJFS
 mkdir -p $BUILDDROP_KEXT
 
 # Copy to the build drop, retaining directory structure.
 rsync -avm $VFS_OUTPUTDIR/Git $BUILDDROP_BUILDOUTPUT
 rsync -avm $VFS_PUBLISHDIR $BUILDDROP_ROOT
 rsync -avm $VFS_SCRIPTDIR $BUILDDROP_SRC/Scripts
-rsync -avm $VFS_SRCDIR/ProjFS.Mac/Scripts $BUILDDROP_PROJFS
-rsync -avm $VFS_OUTPUTDIR/ProjFS.Mac/Native/$CONFIGURATION $BUILDDROP_KEXT
 cp $VFS_SRCDIR/nuget.config $BUILDDROP_SRC

@@ -1,7 +1,6 @@
 ﻿using GVFS.Common;
 using GVFS.Common.FileSystem;
 using GVFS.Common.Tracing;
-using GVFS.Virtualization.Projection;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -107,35 +106,6 @@ namespace GVFS.RepairJobs
             }
 
             return true;
-        }
-
-        protected IssueType TryParseIndex(string path, List<string> messages)
-        {
-            GVFSContext context = new GVFSContext(this.Tracer, null, null, this.Enlistment);
-
-            using (GitIndexProjection index = new GitIndexProjection(
-                context,
-                gitObjects: null,
-                blobSizes: null,
-                repoMetadata: null,
-                fileSystemVirtualizer: null,
-                placeholderDatabase: null,
-                sparseCollection: null,
-                modifiedPaths: null))
-            {
-                try
-                {
-                    index.BuildProjectionFromPath(this.Tracer, path);
-                }
-                catch (Exception ex)
-                {
-                    messages.Add("Failed to parse index at " + path);
-                    this.Tracer.RelatedInfo(ex.ToString());
-                    return IssueType.Fixable;
-                }
-            }
-
-            return IssueType.None;
         }
     }
 }

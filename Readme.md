@@ -69,8 +69,6 @@ Note that VFS for Git on Mac is under active development.
 
 * If you still do not have the `dotnet` cli `>= v2.1.300` installed [manually install it]. You can check what version you have with `dotnet --version`.(https://www.microsoft.com/net/download/dotnet-core/2.1)
 
-* If you're using `Xcode` for the first time, you may have to login to `Xcode` with your Apple ID to generate a codesigning certificate. You can do this by launching `Xcode.app`, opening the `ProjFS.Mac/PrjFS.xcodeproj` and trying to build. You can find the signing options in the `General`->`Accounts` tab of the project's settings.
-
 * Create a `VFSForGit` directory and Clone VFSForGit into a directory called `src` inside it:
   ```
   mkdir VFSForGit
@@ -121,12 +119,6 @@ Note that VFS for Git on Mac is under active development.
   # use "csrutil enable" to re-enable when you no longer need to build VFS for Git on Mac
   ```
   Then click the Apple logo in the top left and restart.
-
-* Now you have to load the ProjFS Kext.
-
-  ```
-  ProjFS.Mac/Scripts/LoadPrjFSKext.sh [Debug|Release]
-  ```
 
 * Add your built VFS for Git executable (`gvfs`) program to your path. A simple way to do that is by adding
 

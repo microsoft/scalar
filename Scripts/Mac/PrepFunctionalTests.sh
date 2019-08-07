@@ -2,9 +2,6 @@
 
 . "$(dirname ${BASH_SOURCE[0]})/InitializeEnvironment.sh"
 
-# Ensure the kext isn't loaded before installing Git
-$VFS_SRCDIR/ProjFS.Mac/Scripts/UnloadPrjFSKext.sh
-
 # Install GVFS-aware Git (that was published by the build script)
 GITPUBLISH=$VFS_OUTPUTDIR/Git
 if [[ ! -d $GITPUBLISH ]]; then

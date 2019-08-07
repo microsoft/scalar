@@ -29,7 +29,6 @@ namespace GVFS.Platform.Windows
         {
         }
 
-        public override IKernelDriver KernelDriver { get; } = new ProjFSFilter();
         public override IGitInstallation GitInstallation { get; } = new WindowsGitInstallation();
         public override IDiskLayoutUpgradeData DiskLayoutUpgrade { get; } = new WindowsDiskLayoutUpgradeData();
         public override IPlatformFileSystem FileSystem { get; } = new WindowsFileSystem();

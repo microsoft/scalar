@@ -114,7 +114,7 @@ namespace GVFS.Upgrader
 
         protected virtual bool IsGVFSUpgradeSupported()
         {
-            return GVFSPlatform.Instance.KernelDriver.IsGVFSUpgradeSupported();
+            return true;
         }
 
         protected virtual bool IsServiceInstalledAndNotRunning()

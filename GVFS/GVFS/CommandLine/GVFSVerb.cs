@@ -373,7 +373,6 @@ namespace GVFS.CommandLine
 
             this.CheckGVFSHooksVersion(tracer, out string hooksVersion);
             enlistment.SetGVFSHooksVersion(hooksVersion);
-            this.CheckFileSystemSupportsRequiredFeatures(tracer, enlistment);
 
             string errorMessage = null;
             bool errorIsFatal = false;
@@ -549,65 +548,6 @@ You can specify a URL, a name of a configured cache server, or the special names
             return true;
         }
 
-        /// <summary>
-        /// Request that PrjFlt be enabled and attached to the volume of the enlistment root
-        /// </summary>
-        /// <param name="enlistmentRoot">Enlistment root.  If string.Empty, PrjFlt will be enabled but not attached to any volumes</param>
-        /// <param name="errorMessage">Error meesage (in the case of failure)</param>
-        /// <returns>True is successful and false otherwise</returns>
-        protected bool TryEnableAndAttachPrjFltThroughService(string enlistmentRoot, out string errorMessage)
-        {
-            errorMessage = string.Empty;
-
-            NamedPipeMessages.EnableAndAttachProjFSRequest request = new NamedPipeMessages.EnableAndAttachProjFSRequest();
-            request.EnlistmentRoot = enlistmentRoot;
-
-            using (NamedPipeClient client = new NamedPipeClient(this.ServicePipeName))
-            {
-                if (!client.Connect())
-                {
-                    errorMessage = "GVFS.Service is not responding. " + GVFSVerb.StartServiceInstructions;
-                    return false;
-                }
-
-                try
-                {
-                    client.SendRequest(request.ToMessage());
-                    NamedPipeMessages.Message response = client.ReadResponse();
-                    if (response.Header == NamedPipeMessages.EnableAndAttachProjFSRequest.Response.Header)
-                    {
-                        NamedPipeMessages.EnableAndAttachProjFSRequest.Response message = NamedPipeMessages.EnableAndAttachProjFSRequest.Response.FromMessage(response);
-
-                        if (!string.IsNullOrEmpty(message.ErrorMessage))
-                        {
-                            errorMessage = message.ErrorMessage;
-                            return false;
-                        }
-
-                        if (message.State != NamedPipeMessages.CompletionState.Success)
-                        {
-                            errorMessage = $"Failed to attach ProjFS to volume.";
-                            return false;
-                        }
-                        else
-                        {
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        errorMessage = string.Format("GVFS.Service responded with unexpected message: {0}", response);
-                        return false;
-                    }
-                }
-                catch (BrokenPipeException e)
-                {
-                    errorMessage = "Unable to communicate with GVFS.Service: " + e.ToString();
-                    return false;
-                }
-            }
-        }
-
         protected void LogEnlistmentInfoAndSetConfigValues(ITracer tracer, GitProcess git, GVFSEnlistment enlistment)
         {
             string mountId = CreateMountId();
@@ -681,36 +621,6 @@ You can specify a URL, a name of a configured cache server, or the special names
         private string GetAlternatesPath(GVFSEnlistment enlistment)
         {
             return Path.Combine(enlistment.WorkingDirectoryBackingRoot, GVFSConstants.DotGit.Objects.Info.Alternates);
-        }
-
-        private void CheckFileSystemSupportsRequiredFeatures(ITracer tracer, Enlistment enlistment)
-        {
-            try
-            {
-                string warning;
-                string error;
-                if (!GVFSPlatform.Instance.KernelDriver.IsSupported(enlistment.EnlistmentRoot, out warning, out error))
-                {
-                    this.ReportErrorAndExit(tracer, $"Error: {error}");
-                }
-            }
-            catch (VerbAbortedException)
-            {
-                // ReportErrorAndExit throws VerbAbortedException.  Catch and re-throw here so that GVFS does not report that
-                // it failed to determine if file system supports required features
-                throw;
-            }
-            catch (Exception e)
-            {
-                if (tracer != null)
-                {
-                    EventMetadata metadata = new EventMetadata();
-                    metadata.Add("Exception", e.ToString());
-                    tracer.RelatedError(metadata, "Failed to determine if file system supports features required by GVFS");
-                }
-
-                this.ReportErrorAndExit(tracer, "Error: Failed to determine if file system supports features required by GVFS.");
-            }
         }
 
         private void CheckGitVersion(ITracer tracer, GVFSEnlistment enlistment, out string version)

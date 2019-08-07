@@ -1,14 +1,10 @@
 ﻿using GVFS.Common;
-using GVFS.Common.Database;
 using GVFS.Common.FileSystem;
 using GVFS.Common.Git;
 using GVFS.Common.Http;
 using GVFS.Common.Maintenance;
 using GVFS.Common.NamedPipes;
 using GVFS.Common.Tracing;
-using GVFS.PlatformLoader;
-using GVFS.Virtualization;
-using GVFS.Virtualization.FileSystem;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -20,14 +16,8 @@ namespace GVFS.Mount
 {
     public class InProcessMount
     {
-        // Tests show that 250 is the max supported pipe name length
-        private const int MaxPipeNameLength = 250;
-        private const int MutexMaxWaitTimeMS = 500;
-
         private readonly bool showDebugWindow;
 
-        private FileSystemCallbacks fileSystemCallbacks;
-        private GVFSDatabase gvfsDatabase;
         private GVFSEnlistment enlistment;
         private ITracer tracer;
         private GitMaintenanceScheduler maintenanceScheduler;
@@ -40,7 +30,6 @@ namespace GVFS.Mount
         private GVFSGitObjects gitObjects;
 
         private MountState currentState;
-        private HeartbeatThread heartbeat;
         private ManualResetEvent unmountEvent;
 
         public InProcessMount(ITracer tracer, GVFSEnlistment enlistment, CacheServerInfo cacheServer, RetryConfig retryConfig, GitStatusCacheConfig gitStatusCacheConfig, bool showDebugWindow)
@@ -203,12 +192,6 @@ namespace GVFS.Mount
                 Console.ReadLine();
             }
 
-            if (this.fileSystemCallbacks != null)
-            {
-                this.fileSystemCallbacks.Dispose();
-                this.fileSystemCallbacks = null;
-            }
-
             Environment.Exit((int)ReturnCode.GenericError);
         }
 
@@ -239,24 +222,8 @@ namespace GVFS.Mount
                     this.HandleUnmountRequest(connection);
                     break;
 
-                case NamedPipeMessages.AcquireLock.AcquireRequest:
-                    this.HandleLockRequest(message.Body, connection);
-                    break;
-
-                case NamedPipeMessages.ReleaseLock.Request:
-                    this.HandleReleaseLockRequest(message.Body, connection);
-                    break;
-
                 case NamedPipeMessages.DownloadObject.DownloadRequest:
                     this.HandleDownloadObjectRequest(message, connection);
-                    break;
-
-                case NamedPipeMessages.ModifiedPaths.ListRequest:
-                    this.HandleModifiedPathsListRequest(message, connection);
-                    break;
-
-                case NamedPipeMessages.PostIndexChanged.NotificationRequest:
-                    this.HandlePostIndexChangedRequest(message, connection);
                     break;
 
                 case NamedPipeMessages.RunPostFetchJob.PostFetchJob:
@@ -272,131 +239,6 @@ namespace GVFS.Mount
                     connection.TrySendResponse(NamedPipeMessages.UnknownRequest);
                     break;
             }
-        }
-
-        private void HandleLockRequest(string messageBody, NamedPipeServer.Connection connection)
-        {
-            NamedPipeMessages.AcquireLock.Response response;
-
-            NamedPipeMessages.LockRequest request = new NamedPipeMessages.LockRequest(messageBody);
-            NamedPipeMessages.LockData requester = request.RequestData;
-            if (this.currentState == MountState.Unmounting)
-            {
-                response = new NamedPipeMessages.AcquireLock.Response(NamedPipeMessages.AcquireLock.UnmountInProgressResult);
-
-                EventMetadata metadata = new EventMetadata();
-                metadata.Add("LockRequest", requester.ToString());
-                metadata.Add(TracingConstants.MessageKey.InfoMessage, "Request denied, unmount in progress");
-                this.tracer.RelatedEvent(EventLevel.Informational, "HandleLockRequest_UnmountInProgress", metadata);
-            }
-            else if (this.currentState != MountState.Ready)
-            {
-                response = new NamedPipeMessages.AcquireLock.Response(NamedPipeMessages.AcquireLock.MountNotReadyResult);
-            }
-            else
-            {
-                bool lockAcquired = false;
-
-                NamedPipeMessages.LockData existingExternalHolder = null;
-                string denyGVFSMessage = null;
-
-                bool lockAvailable = this.context.Repository.GVFSLock.IsLockAvailableForExternalRequestor(out existingExternalHolder);
-                bool isReadyForExternalLockRequests = this.fileSystemCallbacks.IsReadyForExternalAcquireLockRequests(requester, out denyGVFSMessage);
-
-                if (!requester.CheckAvailabilityOnly && isReadyForExternalLockRequests)
-                {
-                    lockAcquired = this.context.Repository.GVFSLock.TryAcquireLockForExternalRequestor(requester, out existingExternalHolder);
-                }
-
-                if (requester.CheckAvailabilityOnly && lockAvailable && isReadyForExternalLockRequests)
-                {
-                    response = new NamedPipeMessages.AcquireLock.Response(NamedPipeMessages.AcquireLock.AvailableResult);
-                }
-                else if (lockAcquired)
-                {
-                    response = new NamedPipeMessages.AcquireLock.Response(NamedPipeMessages.AcquireLock.AcceptResult);
-                    this.tracer.SetGitCommandSessionId(requester.GitCommandSessionId);
-                }
-                else if (existingExternalHolder == null)
-                {
-                    response = new NamedPipeMessages.AcquireLock.Response(NamedPipeMessages.AcquireLock.DenyGVFSResult, responseData: null, denyGVFSMessage: denyGVFSMessage);
-                }
-                else
-                {
-                    response = new NamedPipeMessages.AcquireLock.Response(NamedPipeMessages.AcquireLock.DenyGitResult, existingExternalHolder);
-                }
-            }
-
-            connection.TrySendResponse(response.CreateMessage());
-        }
-
-        private void HandleReleaseLockRequest(string messageBody, NamedPipeServer.Connection connection)
-        {
-            NamedPipeMessages.LockRequest request = new NamedPipeMessages.LockRequest(messageBody);
-
-            if (request.RequestData == null)
-            {
-                this.tracer.RelatedError($"{nameof(this.HandleReleaseLockRequest)} received invalid lock request with body '{messageBody}'");
-                this.UnmountAndStopWorkingDirectoryCallbacks();
-                Environment.Exit((int)ReturnCode.NullRequestData);
-            }
-
-            NamedPipeMessages.ReleaseLock.Response response = this.fileSystemCallbacks.TryReleaseExternalLock(request.RequestData.PID);
-            if (response.Result == NamedPipeMessages.ReleaseLock.SuccessResult)
-            {
-                this.tracer.SetGitCommandSessionId(string.Empty);
-            }
-
-            connection.TrySendResponse(response.CreateMessage());
-        }
-
-        private void HandlePostIndexChangedRequest(NamedPipeMessages.Message message, NamedPipeServer.Connection connection)
-        {
-            NamedPipeMessages.PostIndexChanged.Response response;
-            NamedPipeMessages.PostIndexChanged.Request request = new NamedPipeMessages.PostIndexChanged.Request(message);
-            if (request == null)
-            {
-                response = new NamedPipeMessages.PostIndexChanged.Response(NamedPipeMessages.UnknownRequest);
-            }
-            else if (this.currentState != MountState.Ready)
-            {
-                response = new NamedPipeMessages.PostIndexChanged.Response(NamedPipeMessages.MountNotReadyResult);
-            }
-            else
-            {
-                this.fileSystemCallbacks.ForceIndexProjectionUpdate(request.UpdatedWorkingDirectory, request.UpdatedSkipWorktreeBits);
-                response = new NamedPipeMessages.PostIndexChanged.Response(NamedPipeMessages.PostIndexChanged.SuccessResult);
-            }
-
-            connection.TrySendResponse(response.CreateMessage());
-        }
-
-        private void HandleModifiedPathsListRequest(NamedPipeMessages.Message message, NamedPipeServer.Connection connection)
-        {
-            NamedPipeMessages.ModifiedPaths.Response response;
-            NamedPipeMessages.ModifiedPaths.Request request = new NamedPipeMessages.ModifiedPaths.Request(message);
-            if (request == null)
-            {
-                response = new NamedPipeMessages.ModifiedPaths.Response(NamedPipeMessages.UnknownRequest);
-            }
-            else if (this.currentState != MountState.Ready)
-            {
-                response = new NamedPipeMessages.ModifiedPaths.Response(NamedPipeMessages.MountNotReadyResult);
-            }
-            else
-            {
-                if (request.Version != NamedPipeMessages.ModifiedPaths.CurrentVersion)
-                {
-                    response = new NamedPipeMessages.ModifiedPaths.Response(NamedPipeMessages.ModifiedPaths.InvalidVersion);
-                }
-                else
-                {
-                    string data = string.Join("\0", this.fileSystemCallbacks.GetAllModifiedPaths()) + "\0";
-                    response = new NamedPipeMessages.ModifiedPaths.Response(NamedPipeMessages.ModifiedPaths.SuccessResult, data);
-                }
-            }
-
-            connection.TrySendResponse(response.CreateMessage());
         }
 
         private void HandleDownloadObjectRequest(NamedPipeMessages.Message message, NamedPipeServer.Connection connection)
@@ -476,7 +318,6 @@ namespace GVFS.Mount
 
                 case MountState.Ready:
                     response.MountStatus = NamedPipeMessages.GetStatus.Ready;
-                    response.BackgroundOperationCount = this.fileSystemCallbacks.BackgroundOperationCount;
                     break;
 
                 case MountState.Unmounting:
@@ -539,7 +380,6 @@ namespace GVFS.Mount
 
             GitObjectsHttpRequestor objectRequestor = new GitObjectsHttpRequestor(this.context.Tracer, this.context.Enlistment, cache, this.retryConfig);
             this.gitObjects = new GVFSGitObjects(this.context, objectRequestor);
-            FileSystemVirtualizer virtualizer = this.CreateOrReportAndExit(() => GVFSPlatformLoader.CreateFileSystemVirtualizer(this.context, this.gitObjects), "Failed to create src folder virtualizer");
 
             GitStatusCache gitStatusCache = (!this.context.Unattended && GVFSPlatform.Instance.IsGitStatusCacheSupported()) ? new GitStatusCache(this.context, this.gitStatusCacheConfig) : null;
             if (gitStatusCache != null)
@@ -551,22 +391,6 @@ namespace GVFS.Mount
                 this.tracer.RelatedInfo("Git status cache is not enabled");
             }
 
-            this.gvfsDatabase = this.CreateOrReportAndExit(() => new GVFSDatabase(this.context.FileSystem, this.context.Enlistment.EnlistmentRoot, new SqliteDatabase()), "Failed to create database connection");
-            this.fileSystemCallbacks = this.CreateOrReportAndExit(
-                () =>
-                {
-                    return new FileSystemCallbacks(
-                        this.context,
-                        this.gitObjects,
-                        RepoMetadata.Instance,
-                        blobSizes: null,
-                        gitIndexProjection: null,
-                        backgroundFileSystemTaskRunner: null,
-                        fileSystemVirtualizer: virtualizer,
-                        placeholderDatabase: new PlaceholderTable(this.gvfsDatabase),
-                        sparseCollection: new SparseTable(this.gvfsDatabase),
-                        gitStatusCache: gitStatusCache);
-                }, "Failed to create src folder callback listener");
             this.maintenanceScheduler = this.CreateOrReportAndExit(() => new GitMaintenanceScheduler(this.context, this.gitObjects), "Failed to start maintenance scheduler");
 
             int majorVersion;
@@ -583,21 +407,6 @@ namespace GVFS.Mount
                     majorVersion,
                     GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion);
             }
-
-            try
-            {
-                if (!this.fileSystemCallbacks.TryStart(out error))
-                {
-                    this.FailMountAndExit("Error: {0}. \r\nPlease confirm that gvfs clone completed without error.", error);
-                }
-            }
-            catch (Exception e)
-            {
-                this.FailMountAndExit("Failed to initialize src folder callbacks. {0}", e.ToString());
-            }
-
-            this.heartbeat = new HeartbeatThread(this.tracer, this.fileSystemCallbacks);
-            this.heartbeat.Start();
         }
 
         private void UnmountAndStopWorkingDirectoryCallbacks()
@@ -607,22 +416,6 @@ namespace GVFS.Mount
                 this.maintenanceScheduler.Dispose();
                 this.maintenanceScheduler = null;
             }
-
-            if (this.heartbeat != null)
-            {
-                this.heartbeat.Stop();
-                this.heartbeat = null;
-            }
-
-            if (this.fileSystemCallbacks != null)
-            {
-                this.fileSystemCallbacks.Stop();
-                this.fileSystemCallbacks.Dispose();
-                this.fileSystemCallbacks = null;
-            }
-
-            this.gvfsDatabase?.Dispose();
-            this.gvfsDatabase = null;
         }
     }
 }

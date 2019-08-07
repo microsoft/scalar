@@ -13,7 +13,6 @@ namespace GVFS
         public static void Main(string[] args)
         {
             GVFSPlatformLoader.Initialize();
-            GVFSPlatform.Instance.KernelDriver.RegisterForOfflineIO();
 
             Type[] verbTypes = new Type[]
             {
@@ -23,7 +22,6 @@ namespace GVFS
                 typeof(DehydrateVerb),
                 typeof(DiagnoseVerb),
                 typeof(LogVerb),
-                typeof(SparseVerb),
                 typeof(MountVerb),
                 typeof(PrefetchVerb),
                 typeof(RepairVerb),

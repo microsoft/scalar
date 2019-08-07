@@ -1,7 +1,5 @@
 ﻿using CommandLine;
 using GVFS.Common;
-using GVFS.Common.Database;
-using GVFS.Common.FileSystem;
 using GVFS.Common.Git;
 using GVFS.Common.NamedPipes;
 using System;
@@ -53,7 +51,6 @@ namespace GVFS.CommandLine
 
             EnlistmentPathData pathData = new EnlistmentPathData();
 
-            this.GetPlaceholdersFromDatabase(enlistment, pathData);
             this.GetModifiedPathsFromPipe(enlistment, pathData);
             this.GetPathsFromGitIndex(enlistment, pathData);
 
@@ -183,28 +180,6 @@ namespace GVFS.CommandLine
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Get two lists of placeholders, one containing the files and the other the directories
-        /// Goes to the SQLite database for the placeholder lists
-        /// </summary>
-        /// <param name="enlistment">The current GVFS enlistment being operated on</param>
-        /// <param name="filePlaceholders">Out parameter where the list of file placeholders will end up</param>
-        /// <param name="folderPlaceholders">Out parameter where the list of folder placeholders will end up</param>
-        private void GetPlaceholdersFromDatabase(GVFSEnlistment enlistment, EnlistmentPathData pathData)
-        {
-            List<IPlaceholderData> filePlaceholders = new List<IPlaceholderData>();
-            List<IPlaceholderData> folderPlaceholders = new List<IPlaceholderData>();
-
-            using (GVFSDatabase database = new GVFSDatabase(new PhysicalFileSystem(), enlistment.EnlistmentRoot, new SqliteDatabase()))
-            {
-                PlaceholderTable placeholderTable = new PlaceholderTable(database);
-                placeholderTable.GetAllEntries(out filePlaceholders, out folderPlaceholders);
-            }
-
-            pathData.PlaceholderFilePaths.AddRange(filePlaceholders.Select(placeholderData => placeholderData.Path));
-            pathData.PlaceholderFolderPaths.AddRange(folderPlaceholders.Select(placeholderData => placeholderData.Path));
         }
 
         /// <summary>

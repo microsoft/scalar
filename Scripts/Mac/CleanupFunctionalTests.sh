@@ -6,8 +6,6 @@ pkill -9 -l gvfs
 pkill -9 -l GVFS.Mount
 pkill -9 -l prjfs-log
 
-$VFS_SRCDIR/ProjFS.Mac/Scripts/UnloadPrjFSKext.sh
-
 if [ -d /GVFS.FT ]; then
     sudo rm -r /GVFS.FT
 fi

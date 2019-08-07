@@ -19,8 +19,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ProjFS.Mac\PrjFSLib.Mac.Managed\PrjFSLib.Mac.Managed.csproj" />
-    <ProjectReference Include="..\GVFS.Virtualization\GVFS.Virtualization.csproj" />
     <ProjectReference Include="..\GVFS.Common\GVFS.Common.csproj" />
     <ProjectReference Include="..\GVFS.Platform.POSIX\GVFS.Platform.POSIX.csproj" />
   </ItemGroup>
@@ -30,9 +28,5 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT' And '$(CopyPrjFS)' == 'true'">
-    <None Include="$(BuildOutputDir)\ProjFS.Mac\Native\$(Configuration)\libPrjFSLib.dylib" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

@@ -20,9 +20,6 @@ if [ ! -d $VFS_OUTPUTDIR ]; then
   mkdir $VFS_OUTPUTDIR
 fi
 
-echo 'Building ProjFS kext and libraries...'
-$VFS_SRCDIR/ProjFS.Mac/Scripts/Build.sh $CONFIGURATION || exit 1
-
 # Create the directory where we'll do pre build tasks
 BUILDDIR=$VFS_OUTPUTDIR/GVFS.Build
 if [ ! -d $BUILDDIR ]; then

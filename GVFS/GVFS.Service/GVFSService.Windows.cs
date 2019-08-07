@@ -7,7 +7,6 @@ using GVFS.Service.Handlers;
 using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Security.AccessControl;
 using System.ServiceProcess;
 using System.Threading;
@@ -26,7 +25,6 @@ namespace GVFS.Service
         private string serviceDataLocation;
         private RepoRegistry repoRegistry;
         private ProductUpgradeTimer productUpgradeTimer;
-        private WindowsRequestHandler requestHandler;
 
         public GVFSService(JsonTracer tracer)
         {
@@ -51,7 +49,6 @@ namespace GVFS.Service
                     new GVFSMountProcess(this.tracer),
                     new NotificationHandler(this.tracer));
                 this.repoRegistry.Upgrade();
-                this.requestHandler = new WindowsRequestHandler(this.tracer, EtwArea, this.repoRegistry);
 
                 string pipeName = GVFSPlatform.Instance.GetGVFSServiceNamedPipeName(this.serviceName);
                 this.tracer.RelatedInfo("Starting pipe server with name: " + pipeName);
@@ -59,18 +56,8 @@ namespace GVFS.Service
                 using (NamedPipeServer pipeServer = NamedPipeServer.StartNewServer(
                     pipeName,
                     this.tracer,
-                    this.requestHandler.HandleRequest))
+                    null))
                 {
-                    this.CheckEnableGitStatusCacheTokenFile();
-
-                    using (ITracer activity = this.tracer.StartActivity("EnsurePrjFltHealthy", EventLevel.Informational))
-                    {
-                        // Make a best-effort to enable PrjFlt. Continue even if it fails.
-                        // This will be tried again when user attempts to mount an enlistment.
-                        string error;
-                        EnableAndAttachProjFSHandler.TryEnablePrjFlt(activity, out error);
-                    }
-
                     // Start product upgrade timer only after attempting to enable prjflt.
                     // On Windows server (where PrjFlt is not inboxed) this helps avoid
                     // a race between TryEnablePrjFlt() and installer pre-check which is
@@ -233,58 +220,6 @@ namespace GVFS.Service
             this.serviceThread = new Thread(this.Run);
 
             this.serviceThread.Start();
-        }
-
-        /// <summary>
-        /// To work around a behavior in ProjFS where notification masks on files that have been opened in virtualization instance are not invalidated
-        /// when the virtualization instance is restarted, GVFS waits until after there has been a reboot before enabling the GitStatusCache.
-        /// GVFS.Service signals that there has been a reboot since installing a version of GVFS that supports the GitStatusCache via
-        /// the existence of the file "EnableGitStatusCacheToken.dat" in {CommonApplicationData}\GVFS\GVFS.Service
-        /// (i.e. ProgramData\GVFS\GVFS.Service\EnableGitStatusCacheToken.dat on Windows).
-        /// </summary>
-        private void CheckEnableGitStatusCacheTokenFile()
-        {
-            try
-            {
-                string statusCacheVersionTokenPath = Path.Combine(GVFSPlatform.Instance.GetDataRootForGVFSComponent(GVFSConstants.Service.ServiceName), GVFSConstants.GitStatusCache.EnableGitStatusCacheTokenFile);
-                if (File.Exists(statusCacheVersionTokenPath))
-                {
-                    this.tracer.RelatedInfo($"CheckEnableGitStatusCache: EnableGitStatusCacheToken file already exists at {statusCacheVersionTokenPath}.");
-                    return;
-                }
-
-                DateTime lastRebootTime = NativeMethods.GetLastRebootTime();
-
-                // GitStatusCache was included with GVFS on disk version 16. The 1st time GVFS that is at or above on disk version
-                // is installed, it will write out a file indicating that the installation is "OnDiskVersion16Capable".
-                // We can query the properties of this file to get the installation time, and compare this with the last reboot time for
-                // this machine.
-                string fileToCheck = Path.Combine(Configuration.AssemblyPath, GVFSConstants.InstallationCapabilityFiles.OnDiskVersion16CapableInstallation);
-
-                if (File.Exists(fileToCheck))
-                {
-                    DateTime installTime = File.GetCreationTime(fileToCheck);
-                    if (lastRebootTime > installTime)
-                    {
-                        this.tracer.RelatedInfo($"CheckEnableGitStatusCache: Writing out EnableGitStatusCacheToken file. GVFS installation time: {installTime}, last Reboot time: {lastRebootTime}.");
-                        File.WriteAllText(statusCacheVersionTokenPath, string.Empty);
-                    }
-                    else
-                    {
-                        this.tracer.RelatedInfo($"CheckEnableGitStatusCache: Not writing EnableGitStatusCacheToken file - machine has not been rebooted since OnDiskVersion16Capable installation. GVFS installation time: {installTime}, last reboot time: {lastRebootTime}");
-                    }
-                }
-                else
-                {
-                    this.tracer.RelatedError($"Unable to determine GVFS installation time: {fileToCheck} does not exist.");
-                }
-            }
-            catch (Exception ex)
-            {
-                // Do not crash the service if there is an error here. Service is still healthy, but we
-                // might not create file indicating that it is OK to use GitStatusCache.
-                this.tracer.RelatedError($"{nameof(this.CheckEnableGitStatusCacheTokenFile)}: Unable to determine GVFS installation time or write EnableGitStatusCacheToken file due to exception. Exception: {ex.ToString()}");
-            }
         }
 
         private void LogExceptionAndExit(Exception e, string method)

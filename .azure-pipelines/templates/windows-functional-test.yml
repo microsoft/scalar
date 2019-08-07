@@ -14,7 +14,7 @@ steps:
   - script: git config --global credential.interactive never
     displayName: Disable interactive auth
 
-  - script: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/RunFunctionalTests.bat $(configuration) --test-gvfs-on-path --replace-inbox-projfs
+  - script: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/RunFunctionalTests.bat $(configuration) --test-gvfs-on-path
     displayName: Run functional tests
 
   - task: PublishTestResults@2

@@ -18,7 +18,6 @@ namespace GVFS.Common
 
         public static GVFSPlatform Instance { get; private set; }
 
-        public abstract IKernelDriver KernelDriver { get; }
         public abstract IGitInstallation GitInstallation { get; }
         public abstract IDiskLayoutUpgradeData DiskLayoutUpgrade { get; }
         public abstract IPlatformFileSystem FileSystem { get; }

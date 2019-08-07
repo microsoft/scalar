@@ -47,9 +47,6 @@
       <SubType>Designer</SubType>
     </BuildProps>
     <GeneratedPackageConfig Include="packages.config" />
-    <BuildProps Include="ProjFS.props">
-      <SubType>Designer</SubType>
-    </BuildProps>
   </ItemGroup>
 
   <Target Name="GetTargetFrameworkProperties" />

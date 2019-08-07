@@ -16,8 +16,6 @@ namespace GVFS.FunctionalTests
 
         public static bool TestGVFSOnPath { get; set; }
 
-        public static bool ReplaceInboxProjFS { get; set; }
-
         public static string PathToGVFS
         {
             get

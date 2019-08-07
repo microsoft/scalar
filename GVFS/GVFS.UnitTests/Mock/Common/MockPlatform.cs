@@ -19,8 +19,6 @@ namespace GVFS.UnitTests.Mock.Common
 
         public string MockCurrentUser { get; set; }
 
-        public override IKernelDriver KernelDriver => throw new NotSupportedException();
-
         public override IGitInstallation GitInstallation { get; } = new MockGitInstallation();
 
         public override IDiskLayoutUpgradeData DiskLayoutUpgrade => throw new NotSupportedException();

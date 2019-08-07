@@ -133,14 +133,10 @@ To actually execute any necessary repair(s), run 'gvfs repair --confirm'
                 List<RepairJob> jobs = new List<RepairJob>();
 
                 // Repair databases
-                jobs.Add(new BackgroundOperationDatabaseRepairJob(tracer, this.Output, enlistment));
                 jobs.Add(new RepoMetadataDatabaseRepairJob(tracer, this.Output, enlistment));
-                jobs.Add(new VFSForGitDatabaseRepairJob(tracer, this.Output, enlistment));
-                jobs.Add(new BlobSizeDatabaseRepairJob(tracer, this.Output, enlistment));
 
                 // Repair .git folder files
                 jobs.Add(new GitHeadRepairJob(tracer, this.Output, enlistment));
-                jobs.Add(new GitIndexRepairJob(tracer, this.Output, enlistment));
                 jobs.Add(new GitConfigRepairJob(tracer, this.Output, enlistment));
 
                 Dictionary<RepairJob, List<string>> healthy = new Dictionary<RepairJob, List<string>>();

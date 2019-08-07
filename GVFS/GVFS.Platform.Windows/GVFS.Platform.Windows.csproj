@@ -2,7 +2,6 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\GVFS.Build\GVFS.cs.props" />
-  <Import Project="..\GVFS.Build\ProjFS.props" />
   <PropertyGroup>
     <ProjectGuid>{4CE404E7-D3FC-471C-993C-64615861EA63}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -44,9 +43,6 @@
       <HintPath>..\..\..\packages\Microsoft.Database.Isam.1.9.4\lib\net40\Esent.Isam.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ProjectedFSLib.Managed, Version=1.1.19156.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\..\packages\Microsoft.Windows.ProjFS.1.1.19156.1\lib\net461\ProjectedFSLib.Managed.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management" />
@@ -63,30 +59,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CurrentUser.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout10to11Upgrade_NewOperationType.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout11to12Upgrade_SharedLocalCache.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout12to13Upgrade_FolderPlaceholder.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout12_0To12_1Upgrade_StatusAheadBehind.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout13to14Upgrade_BlobSizes.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout14to15Upgrade_ModifiedPaths.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout15to16Upgrade_GitStatusCache.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout16to17Upgrade_FolderPlaceholderValues.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout17to18Upgrade_TombstoneFolderPlaceholders.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout18to19Upgrade_SqlitePlacholders.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout7to8Upgrade_NewOperationType.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout8to9Upgrade_RepoMetadataToJson.cs" />
-    <Compile Include="DiskLayoutUpgrades\DiskLayout9to10Upgrade_BackgroundAndPlaceholderListToFileBased.cs" />
     <Compile Include="DiskLayoutUpgrades\WindowsDiskLayoutUpgradeData.cs" />
-    <Compile Include="ActiveEnumeration.cs" />
-    <Compile Include="HResultExtensions.cs" />
     <Compile Include="PatternMatcher.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
-    <Compile Include="ProjFSFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WindowsFileBasedLock.cs" />
     <Compile Include="WindowsFileSystem.Shared.cs" />
-    <Compile Include="WindowsFileSystemVirtualizer.cs" />
     <Compile Include="WindowsGitHooksInstaller.cs" />
     <Compile Include="WindowsGitInstallation.cs" />
     <Compile Include="WindowsPhysicalDiskInfo.cs" />
@@ -104,14 +83,6 @@
     <ProjectReference Include="..\GVFS.Common\GVFS.Common.csproj">
       <Project>{374bf1e5-0b2d-4d4a-bd5e-4212299def09}</Project>
       <Name>GVFS.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\GVFS.GVFlt\GVFS.GVFlt.csproj">
-      <Project>{1118b427-7063-422f-83b9-5023c8ec5a7a}</Project>
-      <Name>GVFS.GVFlt</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\GVFS.Virtualization\GVFS.Virtualization.csproj">
-      <Project>{f468b05a-95e5-46bc-8c67-b80a78527b7d}</Project>
-      <Name>GVFS.Virtualization</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

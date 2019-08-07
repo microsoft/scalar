@@ -28,12 +28,6 @@ namespace GVFS.FunctionalTests
                 GVFSTestConfig.TestGVFSOnPath = true;
             }
 
-            if (runner.HasCustomArg("--replace-inbox-projfs"))
-            {
-                Console.WriteLine("Tests will replace inbox ProjFS");
-                GVFSTestConfig.ReplaceInboxProjFS = true;
-            }
-
             GVFSTestConfig.LocalCacheRoot = runner.GetCustomArgWithParam("--shared-gvfs-cache-root");
 
             HashSet<string> includeCategories = new HashSet<string>();
@@ -135,11 +129,6 @@ namespace GVFS.FunctionalTests
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                if (GVFSTestConfig.ReplaceInboxProjFS)
-                {
-                    ProjFSFilterInstaller.ReplaceInboxProjFS();
-                }
-
                 GVFSServiceProcess.InstallService();
 
                 string statusCacheVersionTokenPath = Path.Combine(

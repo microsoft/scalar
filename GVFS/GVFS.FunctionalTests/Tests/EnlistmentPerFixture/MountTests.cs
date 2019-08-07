@@ -296,30 +296,6 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
             this.Enlistment.MountGVFS();
         }
 
-        // Ported from ProjFS's BugRegressionTest
-        [TestCase]
-        [Category(Categories.WindowsOnly)]
-        public void ProjFS_CMDHangNoneActiveInstance()
-        {
-            this.Enlistment.UnmountGVFS();
-
-            using (SafeFileHandle handle = NativeMethods.CreateFile(
-                Path.Combine(this.Enlistment.RepoRoot, "aaa", "aaaa"),
-                GenericRead,
-                FileShare.Read,
-                IntPtr.Zero,
-                FileMode.Open,
-                FileFlagBackupSemantics,
-                IntPtr.Zero))
-            {
-                int lastError = Marshal.GetLastWin32Error();
-                handle.IsInvalid.ShouldEqual(true);
-                lastError.ShouldNotEqual(0); // 0 == ERROR_SUCCESS
-            }
-
-            this.Enlistment.MountGVFS();
-        }
-
         private void MountShouldFail(int expectedExitCode, string expectedErrorMessage, string mountWorkingDirectory = null)
         {
             string enlistmentRoot = this.Enlistment.EnlistmentRoot;

@@ -2,7 +2,6 @@
 using GVFS.Common.FileSystem;
 using GVFS.Common.Tracing;
 using GVFS.Platform.POSIX;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,7 +24,6 @@ namespace GVFS.Platform.Mac
         }
 
         public override IDiskLayoutUpgradeData DiskLayoutUpgrade { get; } = new MacDiskLayoutUpgradeData();
-        public override IKernelDriver KernelDriver { get; } = new ProjFSKext();
         public override string Name { get => "macOS"; }
         public override GVFSPlatformConstants Constants { get; } = new MacPlatformConstants();
         public override IPlatformFileSystem FileSystem { get; } = new MacFileSystem();
@@ -108,7 +106,7 @@ namespace GVFS.Platform.Mac
                 // Parse the XML looking for FilesystemType
                 XDocument xmlDoc = XDocument.Parse(processResult.Output);
                 XElement filesystemTypeValue = xmlDoc.XPathSelectElement("plist/dict/key[text()=\"FilesystemType\"]")?.NextNode as XElement;
-                result.Add("FileSystemType", filesystemTypeValue != null ? filesystemTypeValue.Value: "Not Found");
+                result.Add("FileSystemType", filesystemTypeValue != null ? filesystemTypeValue.Value : "Not Found");
             }
             catch (XmlException ex)
             {

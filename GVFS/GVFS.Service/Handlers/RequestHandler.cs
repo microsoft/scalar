@@ -14,7 +14,6 @@ namespace GVFS.Service.Handlers
     /// </summary>
     public class RequestHandler
     {
-        protected const string EnableProjFSRequestDescription = "attach volume";
         protected string requestDescription;
 
         private const string MountRequestDescription = "mount";
@@ -88,15 +87,6 @@ namespace GVFS.Service.Handlers
                     GetActiveRepoListHandler excludeHandler = new GetActiveRepoListHandler(tracer, this.repoRegistry, connection, repoListRequest);
                     excludeHandler.Run();
 
-                    break;
-
-                case NamedPipeMessages.EnableAndAttachProjFSRequest.Header:
-
-                    // This request is ignored on non Windows platforms.
-                    NamedPipeMessages.EnableAndAttachProjFSRequest.Response response = new NamedPipeMessages.EnableAndAttachProjFSRequest.Response();
-                    response.State = NamedPipeMessages.CompletionState.Success;
-
-                    this.TrySendResponse(tracer, response.ToMessage().ToString(), connection);
                     break;
 
                 default:

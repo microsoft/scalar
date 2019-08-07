@@ -312,31 +312,6 @@ namespace GVFS.Common.NamedPipes
             }
         }
 
-        public class EnableAndAttachProjFSRequest
-        {
-            public const string Header = nameof(EnableAndAttachProjFSRequest);
-
-            public string EnlistmentRoot { get; set; }
-
-            public static EnableAndAttachProjFSRequest FromMessage(Message message)
-            {
-                return JsonConvert.DeserializeObject<EnableAndAttachProjFSRequest>(message.Body);
-            }
-
-            public Message ToMessage()
-            {
-                return new Message(Header, JsonConvert.SerializeObject(this));
-            }
-
-            public class Response : BaseResponse<EnableAndAttachProjFSRequest>
-            {
-                public static Response FromMessage(Message message)
-                {
-                    return JsonConvert.DeserializeObject<Response>(message.Body);
-                }
-            }
-        }
-
         public class GetActiveRepoListRequest
         {
             public const string Header = nameof(GetActiveRepoListRequest);

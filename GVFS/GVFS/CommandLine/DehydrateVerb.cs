@@ -7,7 +7,6 @@ using GVFS.Common.Maintenance;
 using GVFS.Common.NamedPipes;
 using GVFS.Common.Tracing;
 using GVFS.DiskLayoutUpgrades;
-using GVFS.Virtualization.Projection;
 using System;
 using System.IO;
 using System.Linq;
@@ -150,8 +149,6 @@ of your enlistment's src folder.
                     if (this.TryDownloadGitObjects(tracer, enlistment, retryConfig) &&
                         this.TryRecreateIndex(tracer, enlistment))
                     {
-                        // Converting the src folder to partial must be the final step before mount
-                        this.PrepareSrcFolder(tracer, enlistment);
                         this.Mount(tracer);
 
                         this.Output.WriteLine();
@@ -258,24 +255,6 @@ of your enlistment's src folder.
             }
         }
 
-        private void PrepareSrcFolder(ITracer tracer, GVFSEnlistment enlistment)
-        {
-            Exception exception;
-            string error;
-            if (!GVFSPlatform.Instance.KernelDriver.TryPrepareFolderForCallbacks(enlistment.WorkingDirectoryBackingRoot, out error, out exception))
-            {
-                EventMetadata metadata = new EventMetadata();
-                metadata.Add(nameof(error), error);
-                if (exception != null)
-                {
-                    metadata.Add("Exception", exception.ToString());
-                }
-
-                tracer.RelatedError(metadata, $"{nameof(this.PrepareSrcFolder)}: TryPrepareFolderForCallbacks failed");
-                this.ReportErrorAndExit(tracer, "Failed to recreate the virtualization root: " + error);
-            }
-        }
-
         private bool TryBackupFiles(ITracer tracer, GVFSEnlistment enlistment, string backupRoot)
         {
             string backupSrc = Path.Combine(backupRoot, "src");
@@ -326,13 +305,6 @@ of your enlistment's src folder.
                                 Path.Combine(enlistment.DotGitRoot, GVFSConstants.DotGit.IndexName),
                                 Path.Combine(backupGit, GVFSConstants.DotGit.IndexName)),
                             "Backup the git index",
-                            out errorMessage) ||
-                        !this.TryIO(
-                            tracer,
-                            () => File.Move(
-                                Path.Combine(enlistment.DotGVFSRoot, GitIndexProjection.ProjectionIndexBackupName),
-                                Path.Combine(backupGvfs, GitIndexProjection.ProjectionIndexBackupName)),
-                            "Backup GVFS_projection",
                             out errorMessage))
                     {
                         return false;
