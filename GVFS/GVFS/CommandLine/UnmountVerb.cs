@@ -1,7 +1,6 @@
 ﻿using CommandLine;
 using GVFS.Common;
 using GVFS.Common.NamedPipes;
-using System.Diagnostics;
 
 namespace GVFS.CommandLine
 {
@@ -43,11 +42,6 @@ namespace GVFS.CommandLine
                 this.ReportErrorAndExit(
                    "Error: '{0}' is not a valid GVFS enlistment",
                    this.EnlistmentRootPathParameter);
-            }
-
-            if (!this.SkipLock)
-            {
-                this.AcquireLock(root);
             }
 
             if (!this.ShowStatusWhileRunning(
@@ -193,43 +187,6 @@ namespace GVFS.CommandLine
                 {
                     errorMessage = "Unable to communicate with GVFS.Service: " + e.ToString();
                     return false;
-                }
-            }
-        }
-
-        private void AcquireLock(string enlistmentRoot)
-        {
-            string pipeName = GVFSPlatform.Instance.GetNamedPipeName(enlistmentRoot);
-            using (NamedPipeClient pipeClient = new NamedPipeClient(pipeName))
-            {
-                try
-                {
-                    if (!pipeClient.Connect())
-                    {
-                        this.ReportErrorAndExit("Unable to connect to GVFS while acquiring lock to unmount.  Try 'gvfs status' to verify if the repo is mounted.");
-                        return;
-                    }
-
-                    Process currentProcess = Process.GetCurrentProcess();
-                    string result = null;
-                    if (!GVFSLock.TryAcquireGVFSLockForProcess(
-                            this.Unattended,
-                            pipeClient,
-                            "gvfs unmount",
-                            currentProcess.Id,
-                            GVFSPlatform.Instance.IsElevated(),
-                            isConsoleOutputRedirectedToFile: GVFSPlatform.Instance.IsConsoleOutputRedirectedToFile(),
-                            checkAvailabilityOnly: false,
-                            gvfsEnlistmentRoot: enlistmentRoot,
-                            gitCommandSessionId: string.Empty,
-                            result: out result))
-                    {
-                        this.ReportErrorAndExit("Unable to acquire the lock prior to unmount. " + result);
-                    }
-                }
-                catch (BrokenPipeException)
-                {
-                    this.ReportErrorAndExit("Unable to acquire the lock prior to unmount.  Try 'gvfs status' to verify if the repo is mounted.");
                 }
             }
         }
