@@ -6,13 +6,6 @@ steps:
       packageType: sdk
       version: '2.1.301'
 
-  - task: InstallAppleCertificate@2
-    displayName: Install kext certificate
-    inputs:
-      certSecureFile: PrjFSKextAug272018.p12
-      certPwd: $(PrjFSKextCertPassword)
-      keychain: temp
-
   - script: Scripts/Mac/BuildGVFSForMac.sh $(configuration)
     displayName: Build VFSForGit $(configuration)
 

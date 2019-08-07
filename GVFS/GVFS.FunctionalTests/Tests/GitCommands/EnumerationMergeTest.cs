@@ -21,9 +21,6 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
         {
             this.ControlGitRepo.Fetch(GitRepoTests.ConflictSourceBranch);
             this.ValidateGitCommand("checkout " + GitRepoTests.ConflictSourceBranch);
-
-            // Failure for ProjFS Bug 12258777 occurs during teardown, the calls above are to set up
-            // the conditions to reproduce the bug
         }
 
         protected override void CreateEnlistment()

@@ -31,7 +31,7 @@ The functional tests are built on NUnit 3, which is available as a set of NuGet 
     
     **Option 2:** Run `Scripts\BuildGVFSForWindows.bat` from the command line
 
-2. Run the VFS4G installer that was built in step 2.  This will ensure that ProjFS is properly installed/enabled on your machine, and that VFS4G will be able to find the correct version of the pre/post-command hooks. The installer will be placed in `BuildOutput\GVFS.Installer.Windows\bin\x64\<Debug or Release>`
+2. Run the VFS4G installer that was built in step 2.  This will ensure that VFS4G will be able to find the correct version of the pre/post-command hooks. The installer will be placed in `BuildOutput\GVFS.Installer.Windows\bin\x64\<Debug or Release>`
 3. Run the tests **with elevation**.  Elevation is required because the functional tests create and delete a test service.
 
    **Option 1:** Run the `GVFS.FunctionalTests.Windows` project from inside Visual Studio launched as Administrator.
@@ -56,13 +56,12 @@ By default, the functional tests run a subset of tests as a quick smoke test for
 If you need the VS for Mac debugger attached for a functional test run:
 
 1. Make sure you've built your latest changes
-2. Run `./ProjFS.Mac/Scripts/LoadPrjFSKext.sh`
-3. Open GVFS.sln in VS for Mac
-4. Run->Run With->Custom Configuration...
-5. Select "Start external program" and specify the published functional test binary (e.g. `/Users/<USERNAME>/Repos/VFSForGit/Publish/GVFS.FunctionalTests`)
-6. Specify any desired arguments (e.g. [a specific test](#Running-Specific-Tests) )
-7. Run Action -> "Debug - .Net Core Debugger"
-8. Click "Debug"
+2. Open GVFS.sln in VS for Mac
+3. Run->Run With->Custom Configuration...
+4. Select "Start external program" and specify the published functional test binary (e.g. `/Users/<USERNAME>/Repos/VFSForGit/Publish/GVFS.FunctionalTests`)
+5. Specify any desired arguments (e.g. [a specific test](#Running-Specific-Tests) )
+6. Run Action -> "Debug - .Net Core Debugger"
+7. Click "Debug"
 
 ### Customizing the Functional Test Settings
 

@@ -58,10 +58,6 @@ namespace GVFS.Service
                     this.tracer,
                     null))
                 {
-                    // Start product upgrade timer only after attempting to enable prjflt.
-                    // On Windows server (where PrjFlt is not inboxed) this helps avoid
-                    // a race between TryEnablePrjFlt() and installer pre-check which is
-                    // performed by UpgradeTimer in parallel.
                     this.productUpgradeTimer.Start();
 
                     this.serviceStopped.WaitOne();

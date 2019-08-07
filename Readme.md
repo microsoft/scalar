@@ -107,19 +107,6 @@ Note that VFS for Git on Mac is under active development.
 
   shows `/Applications/Xcode.app/Contents/Developer`. If it does not, install `Xcode` and then launch it (you can close it afterwards.)
 
-* In order to build VFS for Git on Mac (and PrjFSKext) you will have to disable the SIP (System Integrity Protection) in order to load the kext).
-
-  **This is dangerous and very bad for the security of your machine. Do not do this on any production machine! If you no longer need to develop VFS for Git on Mac we recommend re-enabling SIP ASAP.**
-
-  To disable SIP boot into recovery mode (`[Win/⌘] + R` while booting your Mac).
-  Once booted into recovery mode open `Utilities` -> `Terminal` to launch a terminal. Enter:
-
-  ```
-  csrutil disable
-  # use "csrutil enable" to re-enable when you no longer need to build VFS for Git on Mac
-  ```
-  Then click the Apple logo in the top left and restart.
-
 * Add your built VFS for Git executable (`gvfs`) program to your path. A simple way to do that is by adding
 
   ```
@@ -161,5 +148,3 @@ Azure DevOps (https://azure.microsoft.com/services/devops/), and push some conte
 # Licenses
 
 The VFS for Git source code in this repo is available under the MIT license. See [License.md](License.md).
-
-VFS for Git relies on the PrjFlt filter driver, formerly known as the GvFlt filter driver, available as a prerelease NuGet package.

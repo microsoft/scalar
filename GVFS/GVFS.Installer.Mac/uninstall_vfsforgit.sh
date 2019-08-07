@@ -1,17 +1,13 @@
 #!/bin/bash
 
-KEXTFILENAME="PrjFSKext.kext"
 VFSFORDIRECTORY="/usr/local/vfsforgit"
-PRJFSKEXTDIRECTORY="/Library/Extensions"
 LAUNCHDAEMONDIRECTORY="/Library/LaunchDaemons"
 LAUNCHAGENTDIRECTORY="/Library/LaunchAgents"
 LIBRARYAPPSUPPORTDIRECTORY="/Library/Application Support/VFS For Git"
-LOGDAEMONLAUNCHDFILENAME="org.vfsforgit.prjfs.PrjFSKextLogDaemon.plist"
 SERVICEAGENTLAUNCHDFILENAME="org.vfsforgit.service.plist"
 GVFSCOMMANDPATH="/usr/local/bin/gvfs"
 UNINSTALLERCOMMANDPATH="/usr/local/bin/uninstall_vfsforgit.sh"
 INSTALLERPACKAGEID="com.vfsforgit.pkg"
-KEXTID="org.vfsforgit.PrjFSKext"
 
 function UnloadKext()
 {
@@ -24,22 +20,7 @@ function UnloadKext()
 }
 
 function UnInstallVFSForGit()
-{
-    if [ -d "${PRJFSKEXTDIRECTORY}/$KEXTFILENAME" ]; then
-        rmCmd="sudo /bin/rm -Rf ${PRJFSKEXTDIRECTORY}/$KEXTFILENAME"
-        echo "$rmCmd..."
-        eval $rmCmd || { echo "Error: Could not delete ${PRJFSKEXTDIRECTORY}/$KEXTFILENAME. Delete it manually."; exit 1; }
-    fi
-    
-    # Check if the daemon is loaded. Unload only if necessary.
-	isLoadedCmd="sudo launchctl kill SIGCONT system/org.vfsforgit.prjfs.PrjFSKextLogDaemon"
-	echo "$isLoadedCmd"
-	if $isLoadedCmd; then
-		unloadCmd="sudo launchctl unload ${LAUNCHDAEMONDIRECTORY}/$LOGDAEMONLAUNCHDFILENAME"
-		echo "$unloadCmd..."
-		eval $unloadCmd || { echo "Error: Could not unload ${LAUNCHDAEMONDIRECTORY}/$LOGDAEMONLAUNCHDFILENAME. Unload it manually (\"$unloadCmd\")."; exit 1; }
-	fi
-        
+{           
     if [ -f "${LAUNCHDAEMONDIRECTORY}/$LOGDAEMONLAUNCHDFILENAME" ]; then
         rmCmd="sudo /bin/rm -Rf ${LAUNCHDAEMONDIRECTORY}/$LOGDAEMONLAUNCHDFILENAME"
         echo "$rmCmd..."
