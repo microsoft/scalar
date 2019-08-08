@@ -6,6 +6,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class DeleteEmptyFolderTests : GitRepoTests
     {
         public DeleteEmptyFolderTests(Settings.ValidateWorkingTreeMode validateWorkingTree)

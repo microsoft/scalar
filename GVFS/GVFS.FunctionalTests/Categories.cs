@@ -9,6 +9,8 @@
         public const string WindowsOnly = "WindowsOnly";
         public const string MacOnly = "MacOnly";
 
+        public const string NeedsUpdatesForNonVirtualizedMode = "NeedsUpdatesForNonVirtualizedMode";
+
         public static class MacTODO
         {
             // Tests that require #360 (detecting/handling new empty folders)

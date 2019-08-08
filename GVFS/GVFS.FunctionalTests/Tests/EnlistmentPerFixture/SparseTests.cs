@@ -10,6 +10,7 @@ using System.Text;
 namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class SparseTests : TestsWithEnlistmentPerFixture
     {
         private FileSystemRunner fileSystem = new SystemIORunner();

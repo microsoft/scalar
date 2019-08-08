@@ -10,6 +10,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
     [TestFixture]
     [NonParallelizable]
     [Category(Categories.ExtraCoverage)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class DiagnoseTests : TestsWithEnlistmentPerFixture
     {
         private FileSystemRunner fileSystem;

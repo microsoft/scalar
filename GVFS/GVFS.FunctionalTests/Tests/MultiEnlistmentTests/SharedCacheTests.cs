@@ -15,6 +15,7 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class SharedCacheTests : TestsWithMultiEnlistment
     {
         private const string WellKnownFile = "Readme.md";

@@ -11,6 +11,7 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
     [Category(Categories.MacTODO.NeedsGVFSConfig)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class ConfigVerbTests : TestsWithMultiEnlistment
     {
         private const string IntegerSettingKey = "functionalTest_Integer";

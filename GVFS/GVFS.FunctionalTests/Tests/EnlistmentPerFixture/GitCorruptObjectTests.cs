@@ -11,6 +11,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [Category(Categories.GitCommands)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class GitCorruptObjectTests : TestsWithEnlistmentPerFixture
     {
         private FileSystemRunner fileSystem;
