@@ -122,14 +122,7 @@ namespace GVFS.Mount
                 this.ReportErrorAndExit(tracer, "Failed to determine GVFS timeout and max retries: " + error);
             }
 
-            GitStatusCacheConfig gitStatusCacheConfig;
-            if (!GitStatusCacheConfig.TryLoadFromGitConfig(tracer, enlistment, out gitStatusCacheConfig, out error))
-            {
-                tracer.RelatedWarning("Failed to determine GVFS status cache backoff time: " + error);
-                gitStatusCacheConfig = GitStatusCacheConfig.DefaultConfig;
-            }
-
-            InProcessMount mountHelper = new InProcessMount(tracer, enlistment, cacheServer, retryConfig, gitStatusCacheConfig, this.ShowDebugWindow);
+            InProcessMount mountHelper = new InProcessMount(tracer, enlistment, cacheServer, retryConfig, this.ShowDebugWindow);
 
             try
             {

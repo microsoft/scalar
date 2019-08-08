@@ -316,11 +316,6 @@ namespace GVFS.Platform.Windows
             return WindowsPlatform.IsConsoleOutputRedirectedToFileImplementation();
         }
 
-        public override bool IsGitStatusCacheSupported()
-        {
-            return File.Exists(Path.Combine(GVFSPlatform.Instance.GetDataRootForGVFSComponent(GVFSConstants.Service.ServiceName), GVFSConstants.GitStatusCache.EnableGitStatusCacheTokenFile));
-        }
-
         public override FileBasedLock CreateFileBasedLock(
             PhysicalFileSystem fileSystem,
             ITracer tracer,

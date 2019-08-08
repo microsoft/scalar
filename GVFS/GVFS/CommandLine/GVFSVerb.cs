@@ -101,17 +101,6 @@ namespace GVFS.CommandLine
             string expectedHooksPath = Path.Combine(enlistment.WorkingDirectoryBackingRoot, GVFSConstants.DotGit.Hooks.Root);
             expectedHooksPath = Paths.ConvertPathToGitFormat(expectedHooksPath);
 
-            string gitStatusCachePath = null;
-            if (!GVFSEnlistment.IsUnattended(tracer: null) && GVFSPlatform.Instance.IsGitStatusCacheSupported())
-            {
-                gitStatusCachePath = Path.Combine(
-                    enlistment.EnlistmentRoot,
-                    GVFSPlatform.Instance.Constants.DotGVFSRoot,
-                    GVFSConstants.DotGVFS.GitStatusCache.CachePath);
-
-                gitStatusCachePath = Paths.ConvertPathToGitFormat(gitStatusCachePath);
-            }
-
             // These settings are required for normal GVFS functionality.
             // They will override any existing local configuration values.
             //

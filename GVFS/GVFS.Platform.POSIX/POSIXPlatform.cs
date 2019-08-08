@@ -217,12 +217,6 @@ namespace GVFS.Platform.POSIX
             }
         }
 
-        public override bool IsGitStatusCacheSupported()
-        {
-            // Git status cache is only supported on Windows
-            return false;
-        }
-
         public override bool TryKillProcessTree(int processId, out int exitCode, out string error)
         {
             ProcessResult result = ProcessHelper.Run("pkill", $"-P {processId}");

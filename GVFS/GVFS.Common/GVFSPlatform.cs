@@ -105,8 +105,6 @@ namespace GVFS.Common
         public abstract bool TryGetGVFSEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage);
         public abstract bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError);
 
-        public abstract bool IsGitStatusCacheSupported();
-
         public abstract FileBasedLock CreateFileBasedLock(
             PhysicalFileSystem fileSystem,
             ITracer tracer,

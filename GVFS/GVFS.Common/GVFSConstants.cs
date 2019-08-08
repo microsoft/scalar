@@ -46,11 +46,6 @@ namespace GVFS.Common
             public const string OrgInfoServerUrl = "upgrade.orgInfoServerUrl";
         }
 
-        public static class GitStatusCache
-        {
-            public const string EnableGitStatusCacheTokenFile = "EnableGitStatusCacheToken.dat";
-        }
-
         public static class Service
         {
             public const string ServiceName = "GVFS.Service";
