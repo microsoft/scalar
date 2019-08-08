@@ -330,11 +330,6 @@ namespace GVFS.Common.Git
             return this.InvokeGitAgainstDotGitFolder("rev-parse " + gitRef);
         }
 
-        public Result GetCurrentBranchName()
-        {
-            return this.InvokeGitAgainstDotGitFolder("name-rev --name-only HEAD");
-        }
-
         public void DeleteFromLocalConfig(string settingName)
         {
             this.InvokeGitAgainstDotGitFolder("config --local --unset-all " + settingName);
@@ -344,24 +339,6 @@ namespace GVFS.Common.Git
         {
             return this.InvokeGitAgainstDotGitFolder(string.Format(
                 "config --local {0} \"{1}\" \"{2}\"",
-                 replaceAll ? "--replace-all " : string.Empty,
-                 settingName,
-                 value));
-        }
-
-        public Result AddInLocalConfig(string settingName, string value)
-        {
-            return this.InvokeGitAgainstDotGitFolder(string.Format(
-                "config --local --add {0} {1}",
-                 settingName,
-                 value));
-        }
-
-        public Result SetInFileConfig(string configFile, string settingName, string value, bool replaceAll = false)
-        {
-            return this.InvokeGitOutsideEnlistment(string.Format(
-                "config --file {0} {1} \"{2}\" \"{3}\"",
-                 configFile,
                  replaceAll ? "--replace-all " : string.Empty,
                  settingName,
                  value));
@@ -580,11 +557,6 @@ namespace GVFS.Common.Git
             return this.InvokeGitAgainstDotGitFolder("remote add " + remoteName + " " + url);
         }
 
-        public Result CatFileGetType(string objectId)
-        {
-            return this.InvokeGitAgainstDotGitFolder("cat-file -t " + objectId);
-        }
-
         public Result LsTree(string treeish, Action<string> parseStdOutLine, bool recursive, bool showAllTrees = false, bool showDirectories = false)
         {
             return this.InvokeGitAgainstDotGitFolder(
@@ -599,11 +571,6 @@ namespace GVFS.Common.Git
                 "ls-files -v",
                 useReadObjectHook: false,
                 parseStdOutLine: parseStdOutLine);
-        }
-
-        public Result SetUpstream(string branchName, string upstream)
-        {
-            return this.InvokeGitAgainstDotGitFolder("branch --set-upstream-to=" + upstream + " " + branchName);
         }
 
         public Result UpdateBranchSymbolicRef(string refToUpdate, string targetRef)
@@ -622,11 +589,6 @@ namespace GVFS.Common.Git
             }
 
             return this.InvokeGitAgainstDotGitFolder("update-ref --no-deref " + refToUpdate + " " + targetSha + " " + oldSha);
-        }
-
-        public Result ReadTree(string treeIsh)
-        {
-            return this.InvokeGitAgainstDotGitFolder("read-tree " + treeIsh);
         }
 
         public Result PrunePacked(string gitObjectDirectory)
