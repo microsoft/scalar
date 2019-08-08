@@ -1,6 +1,10 @@
 name: $(date:yy)$(DayOfYear)$(rev:.r)
 
-trigger: none
+trigger:
+- master
+- milestones/*
+- releases/*
+- servicing/*
 
 variables:
   majorAndMinorVersion: '0.4'
