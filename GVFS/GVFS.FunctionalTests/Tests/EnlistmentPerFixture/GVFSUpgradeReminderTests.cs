@@ -14,6 +14,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
     [NonParallelizable]
     [Category(Categories.ExtraCoverage)]
     [Category(Categories.WindowsOnly)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class UpgradeReminderTests : TestsWithEnlistmentPerFixture
     {
         private const string HighestAvailableVersionFileName = "HighestAvailableVersion";

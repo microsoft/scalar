@@ -8,6 +8,7 @@ using System.IO;
 namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
 {
     [TestFixture]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class CaseOnlyFolderRenameTests : TestsWithEnlistmentPerTestCase
     {
         private FileSystemRunner fileSystem;

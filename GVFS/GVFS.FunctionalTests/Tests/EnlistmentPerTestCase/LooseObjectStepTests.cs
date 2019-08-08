@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
 {
     [TestFixture]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class LooseObjectStepTests : TestsWithEnlistmentPerTestCase
     {
         private const string TempPackFolder = "tempPacks";

@@ -11,6 +11,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class RepairTests : TestsWithEnlistmentPerTestCase
     {
         [TestCase]

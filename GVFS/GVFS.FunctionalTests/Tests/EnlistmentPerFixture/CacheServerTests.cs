@@ -6,6 +6,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class CacheServerTests : TestsWithEnlistmentPerFixture
     {
         private const string CustomUrl = "https://myCache";

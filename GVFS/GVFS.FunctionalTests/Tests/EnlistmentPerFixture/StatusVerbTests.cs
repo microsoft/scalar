@@ -7,6 +7,7 @@ using System.IO;
 namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class StatusVerbTests : TestsWithEnlistmentPerFixture
     {
         [TestCase]

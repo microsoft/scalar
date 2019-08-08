@@ -9,6 +9,7 @@ using System.Linq;
 namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class PackfileMaintenanceStepTests : TestsWithEnlistmentPerFixture
     {
         private FileSystemRunner fileSystem;

@@ -5,6 +5,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class RebaseConflictTests : GitRepoTests
     {
         public RebaseConflictTests(Settings.ValidateWorkingTreeMode validateWorkingTree)

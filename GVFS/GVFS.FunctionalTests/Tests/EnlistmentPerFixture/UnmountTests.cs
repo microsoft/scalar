@@ -10,6 +10,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class UnmountTests : TestsWithEnlistmentPerFixture
     {
         private FileSystemRunner fileSystem;

@@ -8,6 +8,7 @@ namespace GVFS.FunctionalTests.Tests
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class DiskLayoutVersionTests : TestsWithEnlistmentPerTestCase
     {
         private const int WindowsCurrentDiskLayoutMajorVersion = 0;

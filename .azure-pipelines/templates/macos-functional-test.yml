@@ -51,12 +51,6 @@ steps:
     displayName: Cleanup
     condition: always()
 
-  - task: PublishBuildArtifacts@1
-    displayName: Publish kext logs
-    inputs:
-      pathtoPublish: $(Build.ArtifactStagingDirectory)/kext.log
-      artifactName: kext.log
-
   - bash: sudo rm -rf $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)
     displayName: Cleanup phase 2
     condition: always()
