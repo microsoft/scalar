@@ -154,17 +154,9 @@ namespace GVFS.Common
             public static class Hooks
             {
                 public const string LoaderExecutable = "GitHooksLoader.exe";
-                public const string PreCommandHookName = "pre-command";
-                public const string PostCommandHookName = "post-command";
                 public const string ReadObjectName = "read-object";
-                public const string VirtualFileSystemName = "virtual-filesystem";
-                public const string PostIndexChangedName = "post-index-change";
                 public static readonly string Root = Path.Combine(DotGit.Root, "hooks");
-                public static readonly string PreCommandPath = Path.Combine(Hooks.Root, PreCommandHookName);
-                public static readonly string PostCommandPath = Path.Combine(Hooks.Root, PostCommandHookName);
                 public static readonly string ReadObjectPath = Path.Combine(Hooks.Root, ReadObjectName);
-                public static readonly string VirtualFileSystemPath = Path.Combine(Hooks.Root, VirtualFileSystemName);
-                public static readonly string PostIndexChangedPath = Path.Combine(Hooks.Root, PostIndexChangedName);
             }
 
             public static class Info

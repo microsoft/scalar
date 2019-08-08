@@ -25,6 +25,7 @@ namespace GVFS.Service
         private string serviceDataLocation;
         private RepoRegistry repoRegistry;
         private ProductUpgradeTimer productUpgradeTimer;
+        private RequestHandler requestHandler;
 
         public GVFSService(JsonTracer tracer)
         {
@@ -49,6 +50,7 @@ namespace GVFS.Service
                     new GVFSMountProcess(this.tracer),
                     new NotificationHandler(this.tracer));
                 this.repoRegistry.Upgrade();
+                this.requestHandler = new RequestHandler(this.tracer, EtwArea, this.repoRegistry);
 
                 string pipeName = GVFSPlatform.Instance.GetGVFSServiceNamedPipeName(this.serviceName);
                 this.tracer.RelatedInfo("Starting pipe server with name: " + pipeName);
@@ -56,12 +58,8 @@ namespace GVFS.Service
                 using (NamedPipeServer pipeServer = NamedPipeServer.StartNewServer(
                     pipeName,
                     this.tracer,
-                    null))
+                    this.requestHandler.HandleRequest))
                 {
-                    // Start product upgrade timer only after attempting to enable prjflt.
-                    // On Windows server (where PrjFlt is not inboxed) this helps avoid
-                    // a race between TryEnablePrjFlt() and installer pre-check which is
-                    // performed by UpgradeTimer in parallel.
                     this.productUpgradeTimer.Start();
 
                     this.serviceStopped.WaitOne();

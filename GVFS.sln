@@ -16,7 +16,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GVFS", "GVFS", "{2EF2EC94-3A68-4ED7-9A58-B7057ADBA01C}"
 	ProjectSection(SolutionItems) = preProject
 		GVFS\LibGit2Sharp.NativeBinaries.props = GVFS\LibGit2Sharp.NativeBinaries.props
-		GVFS\ProjectedFSLib.NativeBinaries.props = GVFS\ProjectedFSLib.NativeBinaries.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GVFS.Common", "GVFS\GVFS.Common\GVFS.Common.csproj", "{374BF1E5-0B2D-4D4A-BD5E-4212299DEF09}"
