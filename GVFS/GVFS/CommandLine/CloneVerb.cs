@@ -322,85 +322,62 @@ namespace GVFS.CommandLine
             ServerGVFSConfig serverGVFSConfig,
             string resolvedLocalCacheRoot)
         {
-            Result pipeResult;
-            using (NamedPipeServer pipeServer = this.StartNamedPipe(tracer, enlistment, out pipeResult))
+            using (GitObjectsHttpRequestor objectRequestor = new GitObjectsHttpRequestor(tracer, enlistment, cacheServer, retryConfig))
             {
-                if (!pipeResult.Success)
+                GitRefs refs = objectRequestor.QueryInfoRefs(this.SingleBranch ? this.Branch : null);
+
+                if (refs == null)
                 {
-                    return pipeResult;
+                    return new Result("Could not query info/refs from: " + Uri.EscapeUriString(enlistment.RepoUrl));
                 }
 
-                using (GitObjectsHttpRequestor objectRequestor = new GitObjectsHttpRequestor(tracer, enlistment, cacheServer, retryConfig))
+                if (this.Branch == null)
                 {
-                    GitRefs refs = objectRequestor.QueryInfoRefs(this.SingleBranch ? this.Branch : null);
+                    this.Branch = refs.GetDefaultBranch();
 
-                    if (refs == null)
+                    EventMetadata metadata = new EventMetadata();
+                    metadata.Add("Branch", this.Branch);
+                    tracer.RelatedEvent(EventLevel.Informational, "CloneDefaultRemoteBranch", metadata);
+                }
+                else
+                {
+                    if (!refs.HasBranch(this.Branch))
                     {
-                        return new Result("Could not query info/refs from: " + Uri.EscapeUriString(enlistment.RepoUrl));
-                    }
-
-                    if (this.Branch == null)
-                    {
-                        this.Branch = refs.GetDefaultBranch();
-
                         EventMetadata metadata = new EventMetadata();
                         metadata.Add("Branch", this.Branch);
-                        tracer.RelatedEvent(EventLevel.Informational, "CloneDefaultRemoteBranch", metadata);
+                        tracer.RelatedEvent(EventLevel.Warning, "CloneBranchDoesNotExist", metadata);
+
+                        string errorMessage = string.Format("Remote branch {0} not found in upstream origin", this.Branch);
+                        return new Result(errorMessage);
                     }
-                    else
-                    {
-                        if (!refs.HasBranch(this.Branch))
-                        {
-                            EventMetadata metadata = new EventMetadata();
-                            metadata.Add("Branch", this.Branch);
-                            tracer.RelatedEvent(EventLevel.Warning, "CloneBranchDoesNotExist", metadata);
-
-                            string errorMessage = string.Format("Remote branch {0} not found in upstream origin", this.Branch);
-                            return new Result(errorMessage);
-                        }
-                    }
-
-                    if (!enlistment.TryCreateEnlistmentFolders())
-                    {
-                        string error = "Could not create enlistment directory";
-                        tracer.RelatedError(error);
-                        return new Result(error);
-                    }
-
-                    if (!GVFSPlatform.Instance.FileSystem.IsFileSystemSupported(enlistment.EnlistmentRoot, out string fsError))
-                    {
-                        string error = $"FileSystem unsupported: {fsError}";
-                        tracer.RelatedError(error);
-                        return new Result(error);
-                    }
-
-                    string localCacheError;
-                    if (!this.TryDetermineLocalCacheAndInitializePaths(tracer, enlistment, serverGVFSConfig, cacheServer, resolvedLocalCacheRoot, out localCacheError))
-                    {
-                        tracer.RelatedError(localCacheError);
-                        return new Result(localCacheError);
-                    }
-
-                    Directory.CreateDirectory(enlistment.GitObjectsRoot);
-                    Directory.CreateDirectory(enlistment.GitPackRoot);
-                    Directory.CreateDirectory(enlistment.BlobSizesRoot);
-
-                    return this.CreateClone(tracer, enlistment, objectRequestor, refs, this.Branch);
                 }
-            }
-        }
 
-        private NamedPipeServer StartNamedPipe(ITracer tracer, GVFSEnlistment enlistment, out Result errorResult)
-        {
-            try
-            {
-                errorResult = new Result(true);
-                return AllowAllLocksNamedPipeServer.Create(tracer, enlistment);
-            }
-            catch (PipeNameLengthException)
-            {
-                errorResult = new Result("Failed to clone. Path exceeds the maximum number of allowed characters");
-                return null;
+                if (!enlistment.TryCreateEnlistmentFolders())
+                {
+                    string error = "Could not create enlistment directory";
+                    tracer.RelatedError(error);
+                    return new Result(error);
+                }
+
+                if (!GVFSPlatform.Instance.FileSystem.IsFileSystemSupported(enlistment.EnlistmentRoot, out string fsError))
+                {
+                    string error = $"FileSystem unsupported: {fsError}";
+                    tracer.RelatedError(error);
+                    return new Result(error);
+                }
+
+                string localCacheError;
+                if (!this.TryDetermineLocalCacheAndInitializePaths(tracer, enlistment, serverGVFSConfig, cacheServer, resolvedLocalCacheRoot, out localCacheError))
+                {
+                    tracer.RelatedError(localCacheError);
+                    return new Result(localCacheError);
+                }
+
+                Directory.CreateDirectory(enlistment.GitObjectsRoot);
+                Directory.CreateDirectory(enlistment.GitPackRoot);
+                Directory.CreateDirectory(enlistment.BlobSizesRoot);
+
+                return this.CreateClone(tracer, enlistment, objectRequestor, refs, this.Branch);
             }
         }
 
