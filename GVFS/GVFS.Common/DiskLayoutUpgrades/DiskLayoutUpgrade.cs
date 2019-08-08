@@ -310,23 +310,19 @@ namespace GVFS.DiskLayoutUpgrades
             out int minorVersion,
             out string error)
         {
-            majorVersion = 0;
             minorVersion = 0;
 
             string dotGVFSPath = Path.Combine(enlistmentRoot, GVFSPlatform.Instance.Constants.DotGVFSRoot);
 
-            if (!GVFSPlatform.Instance.DiskLayoutUpgrade.TryParseLegacyDiskLayoutVersion(dotGVFSPath, out majorVersion))
+            if (!RepoMetadata.TryInitialize(tracer, dotGVFSPath, out error))
             {
-                if (!RepoMetadata.TryInitialize(tracer, dotGVFSPath, out error))
-                {
-                    majorVersion = 0;
-                    return false;
-                }
+                majorVersion = 0;
+                return false;
+            }
 
-                if (!RepoMetadata.Instance.TryGetOnDiskLayoutVersion(out majorVersion, out minorVersion, out error))
-                {
-                    return false;
-                }
+            if (!RepoMetadata.Instance.TryGetOnDiskLayoutVersion(out majorVersion, out minorVersion, out error))
+            {
+                return false;
             }
 
             error = null;

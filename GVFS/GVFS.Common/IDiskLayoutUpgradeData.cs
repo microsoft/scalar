@@ -7,6 +7,5 @@ namespace GVFS.Common
     {
         DiskLayoutUpgrade[] Upgrades { get; }
         DiskLayoutVersion Version { get; }
-        bool TryParseLegacyDiskLayoutVersion(string dotGVFSPath, out int majorVersion);
     }
 }
