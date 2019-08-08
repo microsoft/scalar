@@ -23,26 +23,6 @@ namespace GVFS.Common.FileSystem
             ExecutingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
 
-        public static string MergeHooksData(string[] defaultHooksLines, string filename, string hookName)
-        {
-            IEnumerable<string> valuableHooksLines = defaultHooksLines.Where(line => !string.IsNullOrEmpty(line.Trim()));
-
-            if (valuableHooksLines.Contains(GVFSPlatform.Instance.Constants.GVFSHooksExecutableName, StringComparer.OrdinalIgnoreCase))
-            {
-                throw new HooksConfigurationException(
-                    $"{GVFSPlatform.Instance.Constants.GVFSHooksExecutableName} should not be specified in the configuration for "
-                    + GVFSConstants.DotGit.Hooks.ReadObjectName + " hooks (" + filename + ").");
-            }
-            else if (!valuableHooksLines.Any())
-            {
-                return GVFSPlatform.Instance.Constants.GVFSHooksExecutableName;
-            }
-            else
-            {
-                return string.Join("\n", valuableHooksLines.Concat(new string[] { GVFSPlatform.Instance.Constants.GVFSHooksExecutableName }));
-            }
-        }
-
         public static bool InstallHooks(GVFSContext context, out string error)
         {
             error = string.Empty;
@@ -200,14 +180,6 @@ namespace GVFS.Common.FileSystem
 
             errorMessage = null;
             return true;
-        }
-
-        public class HooksConfigurationException : Exception
-        {
-            public HooksConfigurationException(string message)
-                : base(message)
-            {
-            }
         }
 
         private class HookData

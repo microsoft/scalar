@@ -69,32 +69,21 @@ namespace GVFS.Service.Handlers
         private bool IsValidRepo(string repoRoot)
         {
             string gitBinPath = GVFSPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
-
-            string hooksVersion = null;
-            string error = null;
-            if (GVFSPlatform.Instance.TryGetGVFSHooksVersion(out hooksVersion, out error))
+            try
             {
-                try
-                {
-                    GVFSEnlistment enlistment = GVFSEnlistment.CreateFromDirectory(
-                        repoRoot,
-                        gitBinPath,
-                        authentication: null);
-                }
-                catch (InvalidRepoException e)
-                {
-                    EventMetadata metadata = new EventMetadata();
-                    metadata.Add(nameof(repoRoot), repoRoot);
-                    metadata.Add(nameof(gitBinPath), gitBinPath);
-                    metadata.Add("Exception", e.ToString());
-                    this.tracer.RelatedInfo(metadata, $"{nameof(this.IsValidRepo)}: Found invalid repo");
-
-                    return false;
-                }
+                GVFSEnlistment enlistment = GVFSEnlistment.CreateFromDirectory(
+                    repoRoot,
+                    gitBinPath,
+                    authentication: null);
             }
-            else
+            catch (InvalidRepoException e)
             {
-                this.tracer.RelatedError($"{nameof(this.IsValidRepo)}: {nameof(GVFSPlatform.Instance.TryGetGVFSHooksVersion)} failed. {error}");
+                EventMetadata metadata = new EventMetadata();
+                metadata.Add(nameof(repoRoot), repoRoot);
+                metadata.Add(nameof(gitBinPath), gitBinPath);
+                metadata.Add("Exception", e.ToString());
+                this.tracer.RelatedInfo(metadata, $"{nameof(this.IsValidRepo)}: Found invalid repo");
+
                 return false;
             }
 

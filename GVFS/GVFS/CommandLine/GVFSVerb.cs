@@ -369,9 +369,6 @@ namespace GVFS.CommandLine
             this.CheckGitVersion(tracer, enlistment, out string gitVersion);
             enlistment.SetGitVersion(gitVersion);
 
-            this.CheckGVFSHooksVersion(tracer, out string hooksVersion);
-            enlistment.SetGVFSHooksVersion(hooksVersion);
-
             string errorMessage = null;
             bool errorIsFatal = false;
             if (!this.TryValidateGVFSVersion(enlistment, tracer, gvfsConfig, out errorMessage, out errorIsFatal))
@@ -411,21 +408,6 @@ namespace GVFS.CommandLine
 
             errorMessage = null;
             return true;
-        }
-
-        protected void CheckGVFSHooksVersion(ITracer tracer, out string hooksVersion)
-        {
-            string error;
-            if (!GVFSPlatform.Instance.TryGetGVFSHooksVersion(out hooksVersion, out error))
-            {
-                this.ReportErrorAndExit(tracer, error);
-            }
-
-            string gvfsVersion = ProcessHelper.GetCurrentProcessVersion();
-            if (hooksVersion != gvfsVersion)
-            {
-                this.ReportErrorAndExit(tracer, "GVFS.Hooks version ({0}) does not match GVFS version ({1}).", hooksVersion, gvfsVersion);
-            }
         }
 
         protected void BlockEmptyCacheServerUrl(string userInput)

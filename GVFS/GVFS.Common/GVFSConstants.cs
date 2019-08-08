@@ -32,7 +32,6 @@ namespace GVFS.Common
             public const string EnlistmentId = GVFSPrefix + "enlistment-id";
             public const string CacheServer = GVFSPrefix + "cache-server";
             public const string DeprecatedCacheEndpointSuffix = ".cache-server-url";
-            public const string HooksPrefix = GitConfig.GVFSPrefix + "clone.default-";
             public const string GVFSTelemetryId = GitConfig.GVFSPrefix + "telemetry-id";
             public const string GVFSTelemetryPipe = GitConfig.GVFSPrefix + "telemetry-pipe";
             public const string IKey = GitConfig.GVFSPrefix + "ikey";
@@ -153,7 +152,6 @@ namespace GVFS.Common
 
             public static class Hooks
             {
-                public const string LoaderExecutable = "GitHooksLoader.exe";
                 public const string ReadObjectName = "read-object";
                 public static readonly string Root = Path.Combine(DotGit.Root, "hooks");
                 public static readonly string ReadObjectPath = Path.Combine(Hooks.Root, ReadObjectName);

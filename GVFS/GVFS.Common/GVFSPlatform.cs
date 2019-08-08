@@ -94,9 +94,6 @@ namespace GVFS.Common
 
         public abstract void ConfigureVisualStudio(string gitBinPath, ITracer tracer);
 
-        public abstract bool TryGetGVFSHooksVersion(out string hooksVersion, out string error);
-        public abstract bool TryInstallGitCommandHooks(GVFSContext context, string executingDirectory, string hookName, string commandHookPath, out string errorMessage);
-
         public abstract bool TryVerifyAuthenticodeSignature(string path, out string subject, out string issuer, out string error);
 
         public abstract Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly);
@@ -168,11 +165,6 @@ namespace GVFS.Common
             /// is running.
             /// </summary>
             public abstract HashSet<string> UpgradeBlockingProcesses { get; }
-
-            public string GVFSHooksExecutableName
-            {
-                get { return "GVFS.Hooks" + this.ExecutableExtension; }
-            }
 
             public string GVFSReadObjectHookExecutableName
             {

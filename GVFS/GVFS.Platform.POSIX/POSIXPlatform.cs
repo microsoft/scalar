@@ -38,28 +38,6 @@ namespace GVFS.Platform.POSIX
         {
         }
 
-        public override bool TryGetGVFSHooksVersion(out string hooksVersion, out string error)
-        {
-            // TODO(#1044): Get the hooks version rather than the GVFS version (and share that code with the Windows platform)
-            hooksVersion = ProcessHelper.GetCurrentProcessVersion();
-            error = null;
-            return true;
-        }
-
-        public override bool TryInstallGitCommandHooks(GVFSContext context, string executingDirectory, string hookName, string commandHookPath, out string errorMessage)
-        {
-            errorMessage = null;
-
-            string gvfsHooksPath = Path.Combine(executingDirectory, GVFSPlatform.Instance.Constants.GVFSHooksExecutableName);
-
-            File.WriteAllText(
-                commandHookPath,
-                $"#!/bin/sh\n{gvfsHooksPath} {hookName} \"$@\"");
-            GVFSPlatform.Instance.FileSystem.ChangeMode(commandHookPath, Convert.ToUInt16("755", 8));
-
-            return true;
-        }
-
         public override bool TryVerifyAuthenticodeSignature(string path, out string subject, out string issuer, out string error)
         {
             throw new NotImplementedException();

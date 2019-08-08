@@ -255,48 +255,6 @@ namespace GVFS.Platform.Windows
             }
         }
 
-        public override bool TryGetGVFSHooksVersion(out string hooksVersion, out string error)
-        {
-            error = null;
-            hooksVersion = null;
-            string hooksPath = ProcessHelper.GetProgramLocation(GVFSPlatform.Instance.Constants.ProgramLocaterCommand, GVFSPlatform.Instance.Constants.GVFSHooksExecutableName);
-            if (hooksPath == null)
-            {
-                error = "Could not find " + GVFSPlatform.Instance.Constants.GVFSHooksExecutableName;
-                return false;
-            }
-
-            FileVersionInfo hooksFileVersionInfo = FileVersionInfo.GetVersionInfo(Path.Combine(hooksPath, GVFSPlatform.Instance.Constants.GVFSHooksExecutableName));
-            hooksVersion = hooksFileVersionInfo.ProductVersion;
-            return true;
-        }
-
-        public override bool TryInstallGitCommandHooks(GVFSContext context, string executingDirectory, string hookName, string commandHookPath, out string errorMessage)
-        {
-            // The GitHooksLoader requires the following setup to invoke a hook:
-            //      Copy GithooksLoader.exe to hook-name.exe
-            //      Create a text file named hook-name.hooks that lists the applications to execute for the hook, one application per line
-
-            string gitHooksloaderPath = Path.Combine(executingDirectory, GVFSConstants.DotGit.Hooks.LoaderExecutable);
-            if (!HooksInstaller.TryHooksInstallationAction(
-                () => HooksInstaller.CopyHook(context, gitHooksloaderPath, commandHookPath + GVFSPlatform.Instance.Constants.ExecutableExtension),
-                out errorMessage))
-            {
-                errorMessage = "Failed to copy " + GVFSConstants.DotGit.Hooks.LoaderExecutable + " to " + commandHookPath + GVFSPlatform.Instance.Constants.ExecutableExtension + "\n" + errorMessage;
-                return false;
-            }
-
-            if (!HooksInstaller.TryHooksInstallationAction(
-                () => WindowsGitHooksInstaller.CreateHookCommandConfig(context, hookName, commandHookPath),
-                out errorMessage))
-            {
-                errorMessage = "Failed to create " + commandHookPath + GVFSConstants.GitConfig.HooksExtension + "\n" + errorMessage;
-                return false;
-            }
-
-            return true;
-        }
-
         public override bool TryVerifyAuthenticodeSignature(string path, out string subject, out string issuer, out string error)
         {
             using (PowerShell powershell = PowerShell.Create())
