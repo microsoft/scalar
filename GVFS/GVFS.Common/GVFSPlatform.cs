@@ -179,16 +179,6 @@ namespace GVFS.Common
                 get { return "GVFS.ReadObjectHook" + this.ExecutableExtension; }
             }
 
-            public string GVFSVirtualFileSystemHookExecutableName
-            {
-                get { return "GVFS.VirtualFileSystemHook" + this.ExecutableExtension; }
-            }
-
-            public string GVFSPostIndexChangedHookExecutableName
-            {
-                get { return "GVFS.PostIndexChangedHook" + this.ExecutableExtension; }
-            }
-
             public string MountExecutableName
             {
                 get { return "GVFS.Mount" + this.ExecutableExtension; }

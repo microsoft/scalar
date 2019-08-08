@@ -2,6 +2,12 @@ name: $(date:yy)$(DayOfYear)$(rev:.r)
 
 trigger: none
 
+pr:
+- master
+- milestones/*
+- releases/*
+- servicing/*
+
 variables:
   majorAndMinorVersion: '0.4'
   revision: '$(Build.BuildNumber)'
@@ -15,8 +21,8 @@ jobs:
     steps:
     - template: templates/windows-build-and-unit-test.yml
 
-  - job: macOS
-    pool:
-      vmImage: macOS 10.13
-    steps:
-    - template: templates/macos-build-and-unit-test.yml
+  #- job: macOS
+  #  pool:
+  #    vmImage: macOS 10.13
+  #  steps:
+  #  - template: templates/macos-build-and-unit-test.yml
