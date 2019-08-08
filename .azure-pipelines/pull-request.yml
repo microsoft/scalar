@@ -1,6 +1,8 @@
 name: $(date:yy)$(DayOfYear)$(rev:.r)
 
-trigger:
+trigger: none
+
+pr:
 - master
 - milestones/*
 - releases/*
