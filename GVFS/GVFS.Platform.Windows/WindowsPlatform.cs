@@ -27,7 +27,7 @@ namespace GVFS.Platform.Windows
 
         public WindowsPlatform() : base(underConstruction: new UnderConstructionFlags())
         {
-        }   
+        }
 
         public override IGitInstallation GitInstallation { get; } = new WindowsGitInstallation();
         public override IDiskLayoutUpgradeData DiskLayoutUpgrade { get; } = new WindowsDiskLayoutUpgradeData();
