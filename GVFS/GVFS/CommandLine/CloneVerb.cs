@@ -298,8 +298,6 @@ namespace GVFS.CommandLine
                 return new Result(GVFSConstants.GitIsNotInstalledError);
             }
 
-            this.CheckGVFSHooksVersion(tracer: null, hooksVersion: out _);
-
             try
             {
                 enlistment = new GVFSEnlistment(

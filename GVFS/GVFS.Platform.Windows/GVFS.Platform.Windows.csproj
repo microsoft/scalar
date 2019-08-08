@@ -51,7 +51,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WindowsFileBasedLock.cs" />
     <Compile Include="WindowsFileSystem.Shared.cs" />
-    <Compile Include="WindowsGitHooksInstaller.cs" />
     <Compile Include="WindowsGitInstallation.cs" />
     <Compile Include="WindowsPhysicalDiskInfo.cs" />
     <Compile Include="WindowsPlatform.cs" />

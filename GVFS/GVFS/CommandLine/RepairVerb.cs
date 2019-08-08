@@ -38,8 +38,6 @@ namespace GVFS.CommandLine
         {
             this.ValidatePathParameter(this.EnlistmentRootPathParameter);
 
-            this.CheckGVFSHooksVersion(tracer: null, hooksVersion: out _);
-
             if (!Directory.Exists(this.EnlistmentRootPathParameter))
             {
                 this.ReportErrorAndExit($"Path '{this.EnlistmentRootPathParameter}' does not exist");

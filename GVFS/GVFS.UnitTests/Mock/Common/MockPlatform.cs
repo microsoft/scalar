@@ -38,16 +38,6 @@ namespace GVFS.UnitTests.Mock.Common
             throw new NotSupportedException();
         }
 
-        public override bool TryGetGVFSHooksVersion(out string hooksVersion, out string error)
-        {
-            throw new NotSupportedException();
-        }
-
-        public override bool TryInstallGitCommandHooks(GVFSContext context, string executingDirectory, string hookName, string commandHookPath, out string errorMessage)
-        {
-            throw new NotSupportedException();
-        }
-
         public override bool TryVerifyAuthenticodeSignature(string path, out string subject, out string issuer, out string error)
         {
             throw new NotImplementedException();

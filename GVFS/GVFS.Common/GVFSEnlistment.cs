@@ -17,7 +17,6 @@ namespace GVFS.Common
 
         private string gitVersion;
         private string gvfsVersion;
-        private string gvfsHooksVersion;
 
         // New enlistment
         public GVFSEnlistment(string enlistmentRoot, string repoUrl, string gitBinPath, GitAuthentication authentication)
@@ -73,11 +72,6 @@ namespace GVFS.Common
         public string GVFSVersion
         {
             get { return this.gvfsVersion; }
-        }
-
-        public string GVFSHooksVersion
-        {
-            get { return this.gvfsHooksVersion; }
         }
 
         public static GVFSEnlistment CreateFromDirectory(
@@ -189,11 +183,6 @@ namespace GVFS.Common
         public void SetGVFSVersion(string gvfsVersion)
         {
             this.SetOnce(gvfsVersion, ref this.gvfsVersion);
-        }
-
-        public void SetGVFSHooksVersion(string gvfsHooksVersion)
-        {
-            this.SetOnce(gvfsHooksVersion, ref this.gvfsHooksVersion);
         }
 
         public void InitializeCachePathsFromKey(string localCacheRoot, string localCacheKey)
