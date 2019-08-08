@@ -23,6 +23,6 @@ jobs:
 
   - job: macOS
     pool:
-      vmImage: macOS 10.13
+      name: 'Hosted macOS'
     steps:
     - template: templates/macos-build-and-unit-test.yml

@@ -7,13 +7,13 @@ steps:
       version: '2.1.301'
 
   - task: InstallAppleCertificate@2
-    displayName: 'Install kext certificate'
+    displayName: 'Install Apple certificate'
     inputs:
       certSecureFile: 'PrjFSKextCertExpiresJun6_2020_v2.p12'
       certPwd: '$(kext.certificate.password)'
 
   - script: Scripts/Mac/BuildGVFSForMac.sh $(configuration)
-    displayName: Build GSD and run unit tests ($(configuration))
+    displayName: Build VFSForGit ($(configuration))
 
   - task: PublishTestResults@2
     displayName: Publish test results
