@@ -401,14 +401,11 @@ of your enlistment's src folder.
                 () =>
                 {
                     // Create a new index based on the new minimal modified paths
-                    using (NamedPipeServer pipeServer = AllowAllLocksNamedPipeServer.Create(tracer, enlistment))
-                    {
-                        GitProcess git = new GitProcess(enlistment);
-                        GitProcess.Result checkoutResult = git.ForceCheckout("HEAD");
+                    GitProcess git = new GitProcess(enlistment);
+                    GitProcess.Result checkoutResult = git.ForceCheckout("HEAD");
 
-                        errorMessage = checkoutResult.Errors;
-                        return checkoutResult.ExitCodeIsSuccess;
-                    }
+                    errorMessage = checkoutResult.Errors;
+                    return checkoutResult.ExitCodeIsSuccess;
                 },
                 "Recreating git index",
                 suppressGvfsLogMessage: true))
