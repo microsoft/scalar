@@ -9,4 +9,4 @@ fi
 
 mkdir ~/GVFS.FT
 
-$VFS_PUBLISHDIR/GVFS.FunctionalTests --full-suite $2
+$VFS_PUBLISHDIR/GVFS.FunctionalTests --full-suite --test=GVFS.FunctionalTests.Tests.EnlistmentPerFixture.CloneTests.CloneToPathWithSpaces
