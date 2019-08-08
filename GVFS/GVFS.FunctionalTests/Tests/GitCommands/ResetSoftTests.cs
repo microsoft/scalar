@@ -5,6 +5,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class ResetSoftTests : GitRepoTests
     {
         public ResetSoftTests(Settings.ValidateWorkingTreeMode validateWorkingTree)

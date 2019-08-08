@@ -9,8 +9,8 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 {
     // MacOnly until issue #297 (add SymLink support for Windows) is complete
     [Category(Categories.MacOnly)]
-    [TestFixture]
     [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
+    [TestFixture]
     public class SymbolicLinkTests : TestsWithEnlistmentPerFixture
     {
         private const string TestFolderName = "Test_EPF_SymbolicLinks";
