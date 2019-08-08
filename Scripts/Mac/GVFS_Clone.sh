@@ -8,4 +8,4 @@ if [ -z $CONFIGURATION ]; then
   CONFIGURATION=Debug
 fi
 
-$VFS_PUBLISHDIR/gvfs clone $REPOURL ~/GVFSTest --local-cache-path ~/GVFSTest/.gvfsCache --no-mount --no-prefetch
+$VFS_PUBLISHDIR/gvfs clone $REPOURL ~/GVFSTest --local-cache-path ~/GVFSTest/.gvfsCache
