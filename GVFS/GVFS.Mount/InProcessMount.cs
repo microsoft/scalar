@@ -24,7 +24,6 @@ namespace GVFS.Mount
 
         private CacheServerInfo cacheServer;
         private RetryConfig retryConfig;
-        private GitStatusCacheConfig gitStatusCacheConfig;
 
         private GVFSContext context;
         private GVFSGitObjects gitObjects;
@@ -32,11 +31,10 @@ namespace GVFS.Mount
         private MountState currentState;
         private ManualResetEvent unmountEvent;
 
-        public InProcessMount(ITracer tracer, GVFSEnlistment enlistment, CacheServerInfo cacheServer, RetryConfig retryConfig, GitStatusCacheConfig gitStatusCacheConfig, bool showDebugWindow)
+        public InProcessMount(ITracer tracer, GVFSEnlistment enlistment, CacheServerInfo cacheServer, RetryConfig retryConfig, bool showDebugWindow)
         {
             this.tracer = tracer;
             this.retryConfig = retryConfig;
-            this.gitStatusCacheConfig = gitStatusCacheConfig;
             this.cacheServer = cacheServer;
             this.enlistment = enlistment;
             this.showDebugWindow = showDebugWindow;
@@ -307,7 +305,6 @@ namespace GVFS.Mount
             response.LocalCacheRoot = !string.IsNullOrWhiteSpace(this.enlistment.LocalCacheRoot) ? this.enlistment.LocalCacheRoot : this.enlistment.GitObjectsRoot;
             response.RepoUrl = this.enlistment.RepoUrl;
             response.CacheServer = this.cacheServer.ToString();
-            response.LockStatus = this.context?.Repository.GVFSLock != null ? this.context.Repository.GVFSLock.GetStatus() : "Unavailable";
             response.DiskLayoutVersion = $"{GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion}.{GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMinorVersion}";
 
             switch (this.currentState)
@@ -380,16 +377,6 @@ namespace GVFS.Mount
 
             GitObjectsHttpRequestor objectRequestor = new GitObjectsHttpRequestor(this.context.Tracer, this.context.Enlistment, cache, this.retryConfig);
             this.gitObjects = new GVFSGitObjects(this.context, objectRequestor);
-
-            GitStatusCache gitStatusCache = (!this.context.Unattended && GVFSPlatform.Instance.IsGitStatusCacheSupported()) ? new GitStatusCache(this.context, this.gitStatusCacheConfig) : null;
-            if (gitStatusCache != null)
-            {
-                this.tracer.RelatedInfo("Git status cache enabled. Backoff time: {0}ms", this.gitStatusCacheConfig.BackoffTime.TotalMilliseconds);
-            }
-            else
-            {
-                this.tracer.RelatedInfo("Git status cache is not enabled");
-            }
 
             this.maintenanceScheduler = this.CreateOrReportAndExit(() => new GitMaintenanceScheduler(this.context, this.gitObjects), "Failed to start maintenance scheduler");
 

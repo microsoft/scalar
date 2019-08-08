@@ -13,10 +13,12 @@ namespace GVFS.Common.NamedPipes
     /// </remarks>
     public static partial class NamedPipeMessages
     {
+        public const string UnknownRequest = "UnknownRequest";
         public const string UnknownGVFSState = "UnknownGVFSState";
         public const string MountNotReadyResult = "MountNotReady";
 
         private const string ResponseSuffix = "Response";
+        private const char MessageSeparator = '|';
 
         public enum CompletionState
         {
@@ -41,7 +43,6 @@ namespace GVFS.Common.NamedPipes
                 public string RepoUrl { get; set; }
                 public string CacheServer { get; set; }
                 public int BackgroundOperationCount { get; set; }
-                public string LockStatus { get; set; }
                 public string DiskLayoutVersion { get; set; }
 
                 public static Response FromJson(string json)
@@ -258,6 +259,52 @@ namespace GVFS.Common.NamedPipes
                 {
                     return new Message(Header, JsonConvert.SerializeObject(this));
                 }
+            }
+        }
+
+        public class Message
+        {
+            public Message(string header, string body)
+            {
+                this.Header = header;
+                this.Body = body;
+            }
+
+            public string Header { get; }
+
+            public string Body { get; }
+
+            public static Message FromString(string message)
+            {
+                string header = null;
+                string body = null;
+                if (!string.IsNullOrEmpty(message))
+                {
+                    string[] parts = message.Split(new[] { NamedPipeMessages.MessageSeparator }, count: 2);
+                    header = parts[0];
+                    if (parts.Length > 1)
+                    {
+                        body = parts[1];
+                    }
+                }
+
+                return new Message(header, body);
+            }
+
+            public override string ToString()
+            {
+                string result = string.Empty;
+                if (!string.IsNullOrEmpty(this.Header))
+                {
+                    result = this.Header;
+                }
+
+                if (this.Body != null)
+                {
+                    result = result + NamedPipeMessages.MessageSeparator + this.Body;
+                }
+
+                return result;
             }
         }
 
