@@ -114,6 +114,10 @@ namespace GVFS.FunctionalTests
             includeCategories.Clear();
             excludeCategories.Clear();
             excludeCategories.Add(Categories.NeedsUpdatesForNonVirtualizedMode);
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                excludeCategories.Add(Categories.MacOnly);
+            }
 
             GVFSTestConfig.DotGVFSRoot = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? ".vfsforgit" : ".gvfs";
 
