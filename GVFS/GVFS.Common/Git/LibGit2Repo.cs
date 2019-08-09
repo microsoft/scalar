@@ -114,46 +114,6 @@ namespace GVFS.Common.Git
             return true;
         }
 
-        public virtual bool TryCopyBlob(string sha, Action<Stream, long> writeAction)
-        {
-            IntPtr objHandle;
-            if (Native.RevParseSingle(out objHandle, this.RepoHandle, sha) != Native.SuccessCode)
-            {
-                return false;
-            }
-
-            try
-            {
-                unsafe
-                {
-                    switch (Native.Object.GetType(objHandle))
-                    {
-                        case Native.ObjectTypes.Blob:
-                            byte* originalData = Native.Blob.GetRawContent(objHandle);
-                            long originalSize = Native.Blob.GetRawSize(objHandle);
-
-                            // TODO: This will fail in the non-virtualized world, as
-                            // we actually need to write the data to disk instead of
-                            // going through a filter driver!
-                            using (Stream mem = new UnmanagedMemoryStream(originalData, originalSize))
-                            {
-                                writeAction(mem, originalSize);
-                            }
-
-                            break;
-                        default:
-                            throw new NotSupportedException("Copying object types other than blobs is not supported.");
-                    }
-                }
-            }
-            finally
-            {
-                Native.Object.Free(objHandle);
-            }
-
-            return true;
-        }
-
         public void Dispose()
         {
             this.Dispose(true);

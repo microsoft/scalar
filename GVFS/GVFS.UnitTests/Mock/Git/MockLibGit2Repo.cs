@@ -21,10 +21,5 @@ namespace GVFS.UnitTests.Mock.Git
         {
             return false;
         }
-
-        public override bool TryCopyBlob(string sha, Action<Stream, long> writeAction)
-        {
-            throw new NotSupportedException();
-        }
     }
 }
