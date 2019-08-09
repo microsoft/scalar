@@ -32,7 +32,7 @@ jobs:
   - job: macOS_FunctionalTests
     variables:
       platformFriendlyName: macOS
-    timeoutInMinutes: 240
+    timeoutInMinutes: 30
     pool:
       name: 'Hosted macOS'
     dependsOn: macOS_Build_and_UnitTests
