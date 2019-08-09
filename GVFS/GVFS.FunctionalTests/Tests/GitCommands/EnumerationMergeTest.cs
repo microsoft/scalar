@@ -5,6 +5,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class EnumerationMergeTest : GitRepoTests
     {
         // Commit that found GvFlt Bug 12258777: Entries are sometimes skipped during

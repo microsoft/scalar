@@ -8,6 +8,7 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
     [NonParallelizable]
     [Category(Categories.ExtraCoverage)]
     [Category(Categories.MacTODO.NeedsServiceVerb)]
+    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class ServiceVerbTests : TestsWithMultiEnlistment
     {
         private static readonly string[] EmptyRepoList = new string[] { };

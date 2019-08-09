@@ -173,7 +173,7 @@ namespace GVFS.CommandLine
                     this.ReportErrorAndExit(tracer, errorMessage);
                 }
 
-                if (!this.Unattended)
+                if (!this.Unattended && GVFSPlatform.Instance.UnderConstruction.SupportsGVFSService)
                 {
                     tracer.RelatedInfo($"{nameof(this.Execute)}: Registering for automount");
 

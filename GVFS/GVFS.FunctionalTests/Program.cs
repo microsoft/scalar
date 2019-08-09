@@ -109,6 +109,12 @@ namespace GVFS.FunctionalTests
                 excludeCategories.Add(Categories.MacOnly);
             }
 
+            // For now, run all of the tests not flagged as needing to be updated to work
+            // with the non-virtualized solution
+            includeCategories.Clear();
+            excludeCategories.Clear();
+            excludeCategories.Add(Categories.NeedsUpdatesForNonVirtualizedMode);
+
             GVFSTestConfig.DotGVFSRoot = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? ".vfsforgit" : ".gvfs";
 
             GVFSTestConfig.RepoToClone =

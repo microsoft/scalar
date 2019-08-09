@@ -185,16 +185,19 @@ namespace GVFS.Common
             public UnderConstructionFlags(
                 bool supportsGVFSUpgrade = true,
                 bool supportsGVFSConfig = true,
-                bool supportsNuGetEncryption = true)
+                bool supportsNuGetEncryption = true,
+                bool supportsGVFSService = false)
             {
                 this.SupportsGVFSUpgrade = supportsGVFSUpgrade;
                 this.SupportsGVFSConfig = supportsGVFSConfig;
                 this.SupportsNuGetEncryption = supportsNuGetEncryption;
+                this.SupportsGVFSService = supportsGVFSService;
             }
 
             public bool SupportsGVFSUpgrade { get; }
             public bool SupportsGVFSConfig { get; }
             public bool SupportsNuGetEncryption { get; }
+            public bool SupportsGVFSService { get; }
         }
     }
 }

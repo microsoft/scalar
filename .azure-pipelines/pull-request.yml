@@ -21,8 +21,22 @@ jobs:
     steps:
     - template: templates/windows-build-and-unit-test.yml
 
-  - job: macOS
+  - job: macOS_Build_and_UnitTests
+    variables:
+      platformFriendlyName: macOS
     pool:
       name: 'Hosted macOS'
     steps:
     - template: templates/macos-build-and-unit-test.yml
+
+  - job: macOS_FunctionalTests
+    variables:
+      platformFriendlyName: macOS
+    timeoutInMinutes: 30
+    pool:
+      name: 'Hosted macOS'
+    dependsOn: macOS_Build_and_UnitTests
+    condition: succeeded()
+    steps:
+      - checkout: none # Use the drop from Build_macOS job
+      - template: templates/macos-functional-test.yml
