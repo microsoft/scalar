@@ -45,9 +45,6 @@
   <ItemGroup>
     <Compile Include="CurrentUser.cs" />
     <Compile Include="DiskLayoutUpgrades\WindowsDiskLayoutUpgradeData.cs" />
-    <Compile Include="PatternMatcher.cs">
-      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WindowsFileBasedLock.cs" />
     <Compile Include="WindowsFileSystem.Shared.cs" />
