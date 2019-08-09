@@ -18,7 +18,6 @@ namespace GVFS.UnitTests.Mock.Git
             this.context = context;
         }
 
-        public bool CancelTryCopyBlobContentStream { get; set; }
         public uint FileLength { get; set; }
 
         public override bool TryDownloadCommit(string objectSha)
@@ -36,24 +35,6 @@ namespace GVFS.UnitTests.Mock.Git
                 preferBatchedLooseObjects: false);
 
             return result.Succeeded && result.Result.Success;
-        }
-
-        public override bool TryCopyBlobContentStream(
-            string sha,
-            CancellationToken cancellationToken,
-            RequestSource requestSource,
-            Action<Stream, long> writeAction)
-        {
-            if (this.CancelTryCopyBlobContentStream)
-            {
-                throw new OperationCanceledException();
-            }
-
-            writeAction(
-                new MemoryStream(new byte[this.FileLength]),
-                this.FileLength);
-
-            return true;
         }
 
         public override string[] ReadPackFileNames(string packFolderPath, string prefixFilter = "")
