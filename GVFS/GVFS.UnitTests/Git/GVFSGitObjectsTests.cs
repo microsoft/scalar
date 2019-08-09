@@ -26,37 +26,6 @@ namespace GVFS.UnitTests.Git
         private const string TestObjectRoot = "mock:\\.gvfs\\gitObjectCache";
 
         [TestCase]
-        [Category(CategoryConstants.ExceptionExpected)]
-        public void CatchesFileNotFoundAfterFileDeleted()
-        {
-            MockFileSystemWithCallbacks fileSystem = new MockFileSystemWithCallbacks();
-            fileSystem.OnFileExists = () => true;
-            fileSystem.OnOpenFileStream = (path, fileMode, fileAccess) =>
-            {
-                if (fileAccess == FileAccess.Write)
-                {
-                    return new MemoryStream();
-                }
-
-                throw new FileNotFoundException();
-            };
-
-            MockHttpGitObjects httpObjects = new MockHttpGitObjects();
-            using (httpObjects.InputStream = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(ValidTestObjectFileContents)))
-            {
-                httpObjects.MediaType = GVFSConstants.MediaTypes.LooseObjectMediaType;
-                GVFSGitObjects dut = this.CreateTestableGVFSGitObjects(httpObjects, fileSystem);
-
-                dut.TryCopyBlobContentStream(
-                    ValidTestObjectFileContents,
-                    new CancellationToken(),
-                    GVFSGitObjects.RequestSource.FileStreamCallback,
-                    (stream, length) => Assert.Fail("Should not be able to call copy stream callback"))
-                    .ShouldEqual(false);
-            }
-        }
-
-        [TestCase]
         public void SucceedsForNormalLookingLooseObjectDownloads()
         {
             MockFileSystemWithCallbacks fileSystem = new Mock.FileSystem.MockFileSystemWithCallbacks();
