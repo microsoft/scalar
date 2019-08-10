@@ -179,8 +179,8 @@
           Outputs="$(RestoreTimestampPath)"
           DependsOnTargets="ScalarPreBuild"
           Condition="'$(OS)' == 'Windows_NT'">
-    <Exec Command="call $(MSBuildThisFileDirectory)..\..\Scripts\RestorePackages.bat $(Configuration)"
-          WorkingDirectory="$(MSBuildThisFileDirectory)../../" />
+    <Exec Command="call $(MSBuildThisFileDirectory)..\Scripts\RestorePackages.bat $(Configuration)"
+          WorkingDirectory="$(MSBuildThisFileDirectory)../" />
     <Touch Files="$(RestoreTimestampPath)" AlwaysCreate="true" />
   </Target>
 

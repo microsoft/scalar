@@ -5,7 +5,7 @@ if [ -z $1 ]; then
 fi
 
 # Update the version number in Scalar.props for other consumers of ScalarVersion
-sed -i "" -E "s@<ScalarVersion>[0-9]+(\.[0-9]+)*</ScalarVersion>@<ScalarVersion>$1</ScalarVersion>@g" $Scalar_SRCDIR/Scalar/Scalar.Build/Scalar.props
+sed -i "" -E "s@<ScalarVersion>[0-9]+(\.[0-9]+)*</ScalarVersion>@<ScalarVersion>$1</ScalarVersion>@g" $Scalar_SRCDIR/Scalar.Build/Scalar.props
 
 # Then generate CommonAssemblyVersion.cs
 cat >$Scalar_OUTPUTDIR/CommonAssemblyVersion.cs <<TEMPLATE

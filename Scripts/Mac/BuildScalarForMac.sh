@@ -54,10 +54,10 @@ echo 'Restoring packages...'
 dotnet restore $Scalar_SRCDIR/Scalar.sln /p:Configuration=$CONFIGURATION.Mac --packages $Scalar_PACKAGESDIR /warnasmessage:MSB4011 || exit 1
 dotnet build $Scalar_SRCDIR/Scalar.sln --runtime osx-x64 --framework netcoreapp2.1 --configuration $CONFIGURATION.Mac /maxcpucount:1 /warnasmessage:MSB4011 || exit 1
 
-NATIVEDIR=$Scalar_SRCDIR/Scalar/Scalar.Native.Mac
+NATIVEDIR=$Scalar_SRCDIR/Scalar.Native.Mac
 xcodebuild -configuration $CONFIGURATION -workspace $NATIVEDIR/Scalar.Native.Mac.xcworkspace build -scheme Scalar.Native.Mac -derivedDataPath $Scalar_OUTPUTDIR/Scalar.Native.Mac || exit 1
 
-USERNOTIFICATIONDIR=$Scalar_SRCDIR/Scalar/Scalar.Notifications/Scalar.Mac
+USERNOTIFICATIONDIR=$Scalar_SRCDIR/Scalar.Notifications/Scalar.Mac
 USERNOTIFICATIONPROJECT="$USERNOTIFICATIONDIR/Scalar.xcodeproj"
 USERNOTIFICATIONSCHEME="Scalar"
 if [ "$runVersionUpdater" == "yes" ]; then
