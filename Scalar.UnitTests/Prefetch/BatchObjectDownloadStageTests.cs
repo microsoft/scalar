@@ -1,9 +1,9 @@
-﻿using Scalar.Common.Prefetch.Pipeline;
+﻿using NUnit.Framework;
+using Scalar.Common.Prefetch.Pipeline;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Category;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.Git;
-using NUnit.Framework;
 using System;
 using System.Collections.Concurrent;
 

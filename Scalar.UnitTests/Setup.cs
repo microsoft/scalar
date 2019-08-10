@@ -1,6 +1,6 @@
-﻿using Scalar.Common;
+﻿using NUnit.Framework;
+using Scalar.Common;
 using Scalar.UnitTests.Mock.Common;
-using NUnit.Framework;
 
 namespace Scalar.UnitTests
 {

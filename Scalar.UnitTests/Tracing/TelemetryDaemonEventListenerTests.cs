@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using NUnit.Framework;
 using Scalar.Common.Tracing;
 using Scalar.Tests.Should;
-using Newtonsoft.Json;
-using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Scalar.UnitTests.Tracing
 {

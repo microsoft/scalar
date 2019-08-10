@@ -1,7 +1,7 @@
-﻿using Scalar.Common.Tracing;
+﻿using NUnit.Framework;
+using Scalar.Common.Tracing;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common.Tracing;
-using NUnit.Framework;
 
 namespace Scalar.UnitTests.Common
 {

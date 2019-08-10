@@ -1,15 +1,14 @@
-﻿using Scalar.Service;
+﻿using Moq;
+using NUnit.Framework;
+using Scalar.Service;
 using Scalar.Service.Handlers;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.FileSystem;
-using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Scalar.UnitTests.Service
 {
@@ -19,14 +18,14 @@ namespace Scalar.UnitTests.Service
         private Mock<IRepoMounter> mockRepoMounter;
         private Mock<INotificationHandler> mockNotificationHandler;
 
-         [SetUp]
+        [SetUp]
         public void Setup()
         {
             this.mockRepoMounter = new Mock<IRepoMounter>(MockBehavior.Strict);
             this.mockNotificationHandler = new Mock<INotificationHandler>(MockBehavior.Strict);
         }
 
-         [TearDown]
+        [TearDown]
         public void TearDown()
         {
             this.mockRepoMounter.VerifyAll();

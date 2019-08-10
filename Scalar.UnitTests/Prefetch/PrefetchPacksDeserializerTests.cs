@@ -1,6 +1,6 @@
-﻿using Scalar.Common.NetworkStreams;
+﻿using NUnit.Framework;
+using Scalar.Common.NetworkStreams;
 using Scalar.Tests.Should;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -1,11 +1,11 @@
-﻿using Scalar.Common;
+﻿using Moq;
+using NUnit.Framework;
+using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.NuGetUpgrade;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common;
-using Moq;
-using NUnit.Framework;
 
 namespace Scalar.UnitTests.Common
 {

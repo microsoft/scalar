@@ -1,7 +1,7 @@
-﻿using System;
-using System.IO.Pipes;
+﻿using Newtonsoft.Json;
 using Scalar.Common.Git;
-using Newtonsoft.Json;
+using System;
+using System.IO.Pipes;
 
 namespace Scalar.Common.Tracing
 {

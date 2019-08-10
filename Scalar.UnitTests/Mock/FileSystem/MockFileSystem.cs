@@ -2,7 +2,6 @@
 using Scalar.Common.FileSystem;
 using Scalar.Common.Tracing;
 using Scalar.Tests.Should;
-using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

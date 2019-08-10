@@ -1,9 +1,9 @@
-﻿using Scalar.Common;
+﻿using NUnit.Framework;
+using Scalar.Common;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Category;
 using Scalar.UnitTests.Mock;
 using Scalar.UnitTests.Mock.FileSystem;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

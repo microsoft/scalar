@@ -1,10 +1,10 @@
-using Scalar.Common.Tracing;
 using NuGet.Commands;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Packaging.Core;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -111,7 +111,7 @@ namespace Scalar.Common.NuGetUpgrade
                        packageId,
                        packageDownloadContext,
                        globalPackagesFolder: string.Empty,
-                       logger : this.nuGetLogger,
+                       logger: this.nuGetLogger,
                        token: CancellationToken.None))
             {
                 if (downloadResourceResult.Status != DownloadResourceResultStatus.Available)
@@ -199,21 +199,21 @@ namespace Scalar.Common.NuGetUpgrade
                 string message = $"NuGet Logger: ({level}): {data}";
                 switch (level)
                 {
-                case LogLevel.Debug:
-                case LogLevel.Verbose:
-                case LogLevel.Minimal:
-                case LogLevel.Information:
-                    this.tracer.RelatedInfo(message);
-                    break;
-                 case LogLevel.Warning:
-                     this.tracer.RelatedWarning(message);
-                    break;
-                case LogLevel.Error:
-                    this.tracer.RelatedWarning(message);
-                    break;
-                default:
-                    this.tracer.RelatedWarning(message);
-                    break;
+                    case LogLevel.Debug:
+                    case LogLevel.Verbose:
+                    case LogLevel.Minimal:
+                    case LogLevel.Information:
+                        this.tracer.RelatedInfo(message);
+                        break;
+                    case LogLevel.Warning:
+                        this.tracer.RelatedWarning(message);
+                        break;
+                    case LogLevel.Error:
+                        this.tracer.RelatedWarning(message);
+                        break;
+                    default:
+                        this.tracer.RelatedWarning(message);
+                        break;
                 }
             }
 

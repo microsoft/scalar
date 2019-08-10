@@ -1,9 +1,9 @@
-﻿using Scalar.Common;
+﻿using NUnit.Framework;
+using Scalar.Common;
 using Scalar.Common.Git;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.Git;
-using NUnit.Framework;
 using System;
 
 namespace Scalar.UnitTests.Common

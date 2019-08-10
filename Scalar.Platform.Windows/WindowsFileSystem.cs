@@ -1,7 +1,7 @@
-﻿using Scalar.Common;
+﻿using Microsoft.Win32.SafeHandles;
+using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Tracing;
-using Microsoft.Win32.SafeHandles;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;

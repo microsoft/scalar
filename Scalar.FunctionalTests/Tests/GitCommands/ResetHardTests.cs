@@ -1,6 +1,6 @@
-﻿using Scalar.FunctionalTests.Properties;
+﻿using NUnit.Framework;
+using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Should;
-using NUnit.Framework;
 
 namespace Scalar.FunctionalTests.Tests.GitCommands
 {

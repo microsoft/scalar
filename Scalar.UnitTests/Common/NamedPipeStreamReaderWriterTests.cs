@@ -1,7 +1,7 @@
-﻿using Scalar.Common.NamedPipes;
+﻿using NUnit.Framework;
+using Scalar.Common.NamedPipes;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Category;
-using NUnit.Framework;
 using System.IO;
 
 namespace Scalar.UnitTests.Common

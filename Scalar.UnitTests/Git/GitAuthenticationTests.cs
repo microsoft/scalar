@@ -1,10 +1,10 @@
-using System.Linq;
+using NUnit.Framework;
 using Scalar.Common.Git;
 using Scalar.Tests;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.Git;
-using NUnit.Framework;
+using System.Linq;
 
 namespace Scalar.UnitTests.Git
 {
@@ -67,8 +67,8 @@ namespace Scalar.UnitTests.Git
                 dut.TryGetCredentials(tracer, out authString, out error).ShouldEqual(true, "Failed to retry getting credential on iteration " + i + ": " + error);
                 dut.ApproveCredentials(tracer, authString);
                 dut.IsBackingOff.ShouldEqual(false, "Should reset backoff after successfully refreshing credentials");
-                gitProcess.CredentialRejections["mock://repoUrl"].Count.ShouldEqual(i+1, $"Should have {i+1} credentials rejection");
-                gitProcess.CredentialApprovals["mock://repoUrl"].Count.ShouldEqual(i+1, $"Should have {i+1} credential approvals");
+                gitProcess.CredentialRejections["mock://repoUrl"].Count.ShouldEqual(i + 1, $"Should have {i + 1} credentials rejection");
+                gitProcess.CredentialApprovals["mock://repoUrl"].Count.ShouldEqual(i + 1, $"Should have {i + 1} credential approvals");
             }
         }
 

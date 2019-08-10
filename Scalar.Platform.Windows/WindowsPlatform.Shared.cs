@@ -1,5 +1,5 @@
-﻿using Scalar.Common;
-using Microsoft.Win32.SafeHandles;
+﻿using Microsoft.Win32.SafeHandles;
+using Scalar.Common;
 using System;
 using System.Diagnostics;
 using System.IO;

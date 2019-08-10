@@ -1,13 +1,9 @@
-﻿using Scalar.Common;
-using Scalar.Common.FileSystem;
-using Scalar.Common.NamedPipes;
-using Scalar.Platform.Mac;
+﻿using Moq;
+using NUnit.Framework;
+using Scalar.Common;
 using Scalar.Service;
-using Scalar.Service.Handlers;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.FileSystem;
-using Moq;
-using NUnit.Framework;
 using System.IO;
 
 namespace Scalar.UnitTests.Service.Mac

@@ -1,11 +1,9 @@
+using Moq;
+using NUnit.Framework;
 using Scalar.Common;
 using Scalar.Platform.Mac;
 using Scalar.Tests.Should;
-using Moq;
-using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 
 namespace Scalar.UnitTests.Platform.Mac

@@ -1,8 +1,8 @@
-using Scalar.Common;
-using Scalar.Tests.Should;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
+using Scalar.Common;
+using Scalar.Tests.Should;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -31,7 +31,7 @@ namespace Scalar.UnitTests.Common
 
         private interface IHttpMessageHandlerProtectedMembers
         {
-            Task<HttpResponseMessage>  SendAsync(HttpRequestMessage message, CancellationToken token);
+            Task<HttpResponseMessage> SendAsync(HttpRequestMessage message, CancellationToken token);
         }
 
         [TestCaseSource("TestOrgInfo")]

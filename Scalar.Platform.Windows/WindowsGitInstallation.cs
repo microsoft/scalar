@@ -1,6 +1,5 @@
 ﻿using Scalar.Common;
 using Scalar.Common.Git;
-using Microsoft.Win32;
 using System.IO;
 
 namespace Scalar.Platform.Windows

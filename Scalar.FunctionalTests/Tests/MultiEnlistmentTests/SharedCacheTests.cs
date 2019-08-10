@@ -1,13 +1,12 @@
-﻿using Scalar.FunctionalTests.FileSystemRunners;
+﻿using NUnit.Framework;
+using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Should;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 

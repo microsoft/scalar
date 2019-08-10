@@ -1,11 +1,11 @@
-﻿using Scalar.Common;
-using Scalar.Platform.Windows;
-using Scalar.Tests.Should;
-using Scalar.UnitTests.Common.NuGetUpgrade;
-using Moq;
+﻿using Moq;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
 using NUnit.Framework;
+using Scalar.Common;
+using Scalar.Platform.Windows;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Common.NuGetUpgrade;
 using System;
 using System.Collections.Generic;
 using System.IO;

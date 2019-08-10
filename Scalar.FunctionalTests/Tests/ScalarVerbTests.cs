@@ -1,7 +1,6 @@
-﻿using Scalar.Tests.Should;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using Scalar.Tests.Should;
 using System.Diagnostics;
-using System.IO;
 
 namespace Scalar.FunctionalTests.Tests
 {

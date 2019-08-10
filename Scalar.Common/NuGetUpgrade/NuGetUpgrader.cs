@@ -1,12 +1,10 @@
-using Scalar.Common;
+using NuGet.Packaging.Core;
+using NuGet.Protocol.Core.Types;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Tracing;
-using NuGet.Packaging.Core;
-using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;

@@ -1,7 +1,7 @@
-﻿using System;
-using Scalar.Common.Tracing;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
+using Scalar.Common.Tracing;
+using System;
 
 namespace Scalar.UnitTests.Tracing
 {

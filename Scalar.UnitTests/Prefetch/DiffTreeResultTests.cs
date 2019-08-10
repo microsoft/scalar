@@ -1,7 +1,7 @@
-﻿using Scalar.Common.Git;
+﻿using NUnit.Framework;
+using Scalar.Common.Git;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Category;
-using NUnit.Framework;
 using System;
 using System.IO;
 

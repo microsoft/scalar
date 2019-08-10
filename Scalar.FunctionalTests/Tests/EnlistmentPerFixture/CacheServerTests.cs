@@ -1,6 +1,6 @@
-﻿using Scalar.FunctionalTests.Tools;
+﻿using NUnit.Framework;
+using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
-using NUnit.Framework;
 
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {

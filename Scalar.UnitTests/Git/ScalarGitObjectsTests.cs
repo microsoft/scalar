@@ -1,4 +1,5 @@
-﻿using Scalar.Common;
+﻿using NUnit.Framework;
+using Scalar.Common;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
 using Scalar.Tests.Should;
@@ -7,7 +8,6 @@ using Scalar.UnitTests.Mock;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.FileSystem;
 using Scalar.UnitTests.Mock.Git;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;

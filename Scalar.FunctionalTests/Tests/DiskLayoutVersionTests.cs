@@ -1,7 +1,7 @@
-﻿using Scalar.FunctionalTests.Tests.EnlistmentPerTestCase;
+﻿using NUnit.Framework;
+using Scalar.FunctionalTests.Tests.EnlistmentPerTestCase;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
-using NUnit.Framework;
 using System.Runtime.InteropServices;
 
 namespace Scalar.FunctionalTests.Tests

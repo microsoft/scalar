@@ -1,9 +1,9 @@
-﻿using System.IO;
+﻿using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Should;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
-using NUnit.Framework;
+using System.IO;
 
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {

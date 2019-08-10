@@ -1,10 +1,10 @@
-﻿using Scalar.CommandLine;
+﻿using NUnit.Framework;
+using Scalar.CommandLine;
 using Scalar.Common;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Category;
 using Scalar.UnitTests.Mock.Upgrader;
 using Scalar.UnitTests.Upgrader;
-using NUnit.Framework;
 using System.Collections.Generic;
 
 namespace Scalar.UnitTests.Windows.Upgrader
@@ -88,7 +88,7 @@ namespace Scalar.UnitTests.Windows.Upgrader
                     "New Scalar version " + NewerThanLocalVersion + " available in ring Slow",
                     "Launching upgrade tool..."
                 },
-                expectedErrors:null);
+                expectedErrors: null);
 
             this.processLauncher.IsLaunched.ShouldBeTrue();
         }

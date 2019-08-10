@@ -1,8 +1,8 @@
+using Newtonsoft.Json;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.NamedPipes;
 using Scalar.Common.Tracing;
-using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Threading;

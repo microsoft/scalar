@@ -1,9 +1,9 @@
-﻿using Scalar.Common;
+﻿using Microsoft.Win32;
+using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Tracing;
 using Scalar.Platform.Windows.DiskLayoutUpgrades;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

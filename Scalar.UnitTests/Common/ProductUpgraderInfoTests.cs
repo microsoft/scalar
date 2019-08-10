@@ -1,15 +1,10 @@
-using Scalar.Common;
-using Scalar.Common.FileSystem;
-using Scalar.Common.Git;
-using Scalar.Common.Tracing;
-using Scalar.Tests.Should;
-using Scalar.UnitTests.Mock.Common;
 using Moq;
 using NUnit.Framework;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.UnitTests.Mock.Common;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Scalar.UnitTests.Common
 {

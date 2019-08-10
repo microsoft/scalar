@@ -1,7 +1,7 @@
-﻿using Scalar.FunctionalTests.FileSystemRunners;
+﻿using NUnit.Framework;
+using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
-using NUnit.Framework;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;

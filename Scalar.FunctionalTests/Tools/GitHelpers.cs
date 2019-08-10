@@ -1,6 +1,6 @@
-﻿using Scalar.FunctionalTests.Properties;
+﻿using NUnit.Framework;
+using Scalar.FunctionalTests.Properties;
 using Scalar.Tests.Should;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

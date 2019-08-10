@@ -1,13 +1,12 @@
-﻿using Scalar.Common;
-using Scalar.Common.Git;
+﻿using Moq;
+using NUnit.Framework;
+using Scalar.Common;
 using Scalar.Common.Tracing;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.FileSystem;
 using Scalar.UnitTests.Mock.Upgrader;
 using Scalar.Upgrader;
-using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 

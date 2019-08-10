@@ -1,9 +1,9 @@
-﻿using Scalar.FunctionalTests.FileSystemRunners;
+﻿using NUnit.Framework;
+using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Should;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
-using NUnit.Framework;
 using System;
 using System.IO;
 using System.Threading;
@@ -59,9 +59,9 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             this.ValidGitStatusWithRetry(srcPath);
         }
 
-         [TestCase]
-         public void AppendFileUsingBash()
-         {
+        [TestCase]
+        public void AppendFileUsingBash()
+        {
             // Bash will perform the append using '>>' which will cause KAUTH_VNODE_APPEND_DATA to be sent without hydration
             // Other Runners may cause hydration before append
             BashRunner bash = new BashRunner();

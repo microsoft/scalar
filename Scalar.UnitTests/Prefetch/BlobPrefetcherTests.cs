@@ -1,7 +1,7 @@
-﻿using Scalar.Common.Prefetch;
+﻿using NUnit.Framework;
+using Scalar.Common.Prefetch;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.FileSystem;
-using NUnit.Framework;
 using System.IO;
 
 namespace Scalar.UnitTests.Prefetch

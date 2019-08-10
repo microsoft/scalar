@@ -1,6 +1,6 @@
-﻿using Scalar.Common.Git;
+﻿using Newtonsoft.Json;
+using Scalar.Common.Git;
 using Scalar.Common.Tracing;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;

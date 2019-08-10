@@ -1,7 +1,7 @@
-﻿using Scalar.Common.NuGetUpgrade;
-using Scalar.Tests.Should;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using NUnit.Framework;
+using Scalar.Common.NuGetUpgrade;
+using Scalar.Tests.Should;
 using System.Collections.Generic;
 using System.IO;
 

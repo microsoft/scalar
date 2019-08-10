@@ -1,11 +1,11 @@
-﻿using Scalar.Common;
+﻿using NUnit.Framework;
+using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Maintenance;
 using Scalar.Common.Tracing;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common;
-using NUnit.Framework;
 using System.Collections.Generic;
 using System.Threading;
 

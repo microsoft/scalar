@@ -1,5 +1,5 @@
-using Scalar.Common.Tracing;
 using Newtonsoft.Json;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.Threading;

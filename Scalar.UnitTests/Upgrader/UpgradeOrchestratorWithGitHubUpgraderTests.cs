@@ -1,8 +1,8 @@
-﻿using Scalar.Common;
+﻿using NUnit.Framework;
+using Scalar.Common;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Upgrader;
 using Scalar.Upgrader;
-using NUnit.Framework;
 using System.Collections.Generic;
 
 namespace Scalar.UnitTests.Upgrader

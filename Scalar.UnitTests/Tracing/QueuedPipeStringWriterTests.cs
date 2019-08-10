@@ -1,10 +1,10 @@
+using Moq;
+using NUnit.Framework;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
 using System;
 using System.IO.Pipes;
 using System.Threading;
-using Scalar.Common.Tracing;
-using Scalar.Tests.Should;
-using Moq;
-using NUnit.Framework;
 
 namespace Scalar.UnitTests.Tracing
 {
@@ -123,7 +123,7 @@ namespace Scalar.UnitTests.Tracing
             private readonly ManualResetEvent shutdownEvent = new ManualResetEvent(initialState: false);
 
             private int bufferLength = 0;
-            private byte[] buffer = new byte[16*1024];
+            private byte[] buffer = new byte[16 * 1024];
             private object bufferLock = new object();
             private Thread thread;
             private bool isRunning;

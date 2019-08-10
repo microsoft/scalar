@@ -1,6 +1,6 @@
-﻿using Scalar.FunctionalTests.Properties;
+﻿using NUnit.Framework;
+using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Tools;
-using NUnit.Framework;
 using System.IO;
 using System.Threading;
 

@@ -1,10 +1,10 @@
-﻿using Scalar.Common.Prefetch.Pipeline;
+﻿using NUnit.Framework;
+using Scalar.Common.Prefetch.Pipeline;
 using Scalar.Common.Prefetch.Pipeline.Data;
 using Scalar.Common.Tracing;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.Git;
-using NUnit.Framework;
 using System.Collections.Concurrent;
 
 namespace Scalar.UnitTests.Prefetch

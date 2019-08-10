@@ -1,6 +1,6 @@
-﻿using Scalar.Common.FileSystem;
+﻿using Newtonsoft.Json;
+using Scalar.Common.FileSystem;
 using Scalar.Common.Tracing;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

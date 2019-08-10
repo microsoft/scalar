@@ -1,10 +1,8 @@
-﻿using Scalar.FunctionalTests.Tools;
+﻿using NUnit.Framework;
+using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 
 namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {

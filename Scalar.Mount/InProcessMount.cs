@@ -1,11 +1,11 @@
-﻿using Scalar.Common;
+﻿using Newtonsoft.Json;
+using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
 using Scalar.Common.Maintenance;
 using Scalar.Common.NamedPipes;
 using Scalar.Common.Tracing;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

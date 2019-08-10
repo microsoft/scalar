@@ -1,6 +1,6 @@
-﻿using Scalar.FunctionalTests.Tests;
+﻿using NUnit.Framework;
+using Scalar.FunctionalTests.Tests;
 using Scalar.FunctionalTests.Tools;
-using NUnit.Framework;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;

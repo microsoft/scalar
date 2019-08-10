@@ -1,11 +1,11 @@
-﻿using Scalar.Common;
+﻿using Newtonsoft.Json;
+using NUnit.Framework;
+using Scalar.Common;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.Git;
-using Newtonsoft.Json;
-using NUnit.Framework;
 
 namespace Scalar.UnitTests.Common
 {

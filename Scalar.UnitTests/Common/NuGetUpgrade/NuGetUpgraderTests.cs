@@ -1,3 +1,7 @@
+using Moq;
+using NuGet.Packaging.Core;
+using NuGet.Protocol.Core.Types;
+using NUnit.Framework;
 using Scalar.Common;
 using Scalar.Common.Git;
 using Scalar.Common.NuGetUpgrade;
@@ -6,10 +10,6 @@ using Scalar.Tests.Should;
 using Scalar.UnitTests.Category;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.FileSystem;
-using Moq;
-using NuGet.Packaging.Core;
-using NuGet.Protocol.Core.Types;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -293,16 +293,16 @@ namespace Scalar.UnitTests.Common.NuGetUpgrade
             nuGetUpgraderConfig =
                 new NuGetUpgrader.NuGetUpgraderConfig(this.tracer, null, string.Empty, NuGetFeedName);
 
-             nuGetUpgrader = new NuGetUpgrader(
-                CurrentVersion,
-                this.tracer,
-                false,
-                false,
-                this.mockFileSystem,
-                nuGetUpgraderConfig,
-                this.mockNuGetFeed.Object,
-                this.mockCredentialManager.Object,
-                this.productUpgraderPlatformStrategy);
+            nuGetUpgrader = new NuGetUpgrader(
+               CurrentVersion,
+               this.tracer,
+               false,
+               false,
+               this.mockFileSystem,
+               nuGetUpgraderConfig,
+               this.mockNuGetFeed.Object,
+               this.mockCredentialManager.Object,
+               this.productUpgraderPlatformStrategy);
 
             nuGetUpgrader.UpgradeAllowed(out string _).ShouldBeFalse("Upgrade without FeedURL configured should not be allowed.");
 

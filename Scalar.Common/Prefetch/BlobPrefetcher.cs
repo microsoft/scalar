@@ -1,10 +1,10 @@
-﻿using Scalar.Common.FileSystem;
+﻿using Newtonsoft.Json;
+using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
 using Scalar.Common.Prefetch.Git;
 using Scalar.Common.Prefetch.Pipeline;
 using Scalar.Common.Tracing;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

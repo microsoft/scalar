@@ -1,6 +1,6 @@
-﻿using Scalar.Common;
+﻿using NUnit.Framework;
+using Scalar.Common;
 using Scalar.Tests.Should;
-using NUnit.Framework;
 using System;
 
 namespace Scalar.UnitTests.Upgrader
@@ -77,7 +77,7 @@ namespace Scalar.UnitTests.Upgrader
                 remoteVersion: UpgradeTests.NewerThanLocalVersion,
                 localRing: GitHubUpgrader.GitHubUpgraderConfig.RingType.Fast,
                 expectedReturn: true,
-                expectedUpgradeVersion:UpgradeTests.NewerThanLocalVersion);
+                expectedUpgradeVersion: UpgradeTests.NewerThanLocalVersion);
         }
 
         public override void NoneLocalRing()

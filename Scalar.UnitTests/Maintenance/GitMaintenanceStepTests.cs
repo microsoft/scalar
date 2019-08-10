@@ -1,4 +1,5 @@
-﻿using Scalar.Common;
+﻿using NUnit.Framework;
+using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Maintenance;
 using Scalar.Common.Tracing;
@@ -6,7 +7,6 @@ using Scalar.Tests.Should;
 using Scalar.UnitTests.Category;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.FileSystem;
-using NUnit.Framework;
 
 namespace Scalar.UnitTests.Maintenance
 {

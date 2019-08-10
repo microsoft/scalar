@@ -1,6 +1,6 @@
-﻿using Scalar.Common.Git;
+﻿using NUnit.Framework;
+using Scalar.Common.Git;
 using Scalar.Tests.Should;
-using NUnit.Framework;
 
 namespace Scalar.UnitTests.Common
 {
