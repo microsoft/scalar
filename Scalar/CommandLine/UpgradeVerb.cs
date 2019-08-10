@@ -1,17 +1,17 @@
 using CommandLine;
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
-using GVFS.Upgrader;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
+using Scalar.Upgrader;
 using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
-    [Verb(UpgradeVerbName, HelpText = "Checks for new GVFS release, downloads and installs it when available.")]
-    public class UpgradeVerb : GVFSVerb.ForNoEnlistment
+    [Verb(UpgradeVerbName, HelpText = "Checks for new Scalar release, downloads and installs it when available.")]
+    public class UpgradeVerb : ScalarVerb.ForNoEnlistment
     {
         private const string UpgradeVerbName = "upgrade";
         private const string DryRunOption = "--dry-run";
@@ -40,7 +40,7 @@ namespace GVFS.CommandLine
             this.prerunChecker = prerunChecker;
             this.processLauncher = processWrapper;
             this.Output = output;
-            this.productUpgraderPlatformStrategy = GVFSPlatform.Instance.CreateProductUpgraderPlatformInteractions(fileSystem, tracer);
+            this.productUpgraderPlatformStrategy = ScalarPlatform.Instance.CreateProductUpgraderPlatformInteractions(fileSystem, tracer);
         }
 
         public UpgradeVerb()
@@ -61,7 +61,7 @@ namespace GVFS.CommandLine
             "dry-run",
             Default = false,
             Required = false,
-            HelpText = "Display progress and errors, but don't install GVFS")]
+            HelpText = "Display progress and errors, but don't install Scalar")]
         public bool DryRun { get; set; }
 
         [Option(
@@ -93,27 +93,27 @@ namespace GVFS.CommandLine
                 return false;
             }
 
-            if (GVFSPlatform.Instance.UnderConstruction.SupportsGVFSUpgrade)
+            if (ScalarPlatform.Instance.UnderConstruction.SupportsScalarUpgrade)
             {
                 error = null;
                 if (this.upgrader == null)
                 {
-                    this.productUpgraderPlatformStrategy = GVFSPlatform.Instance.CreateProductUpgraderPlatformInteractions(this.fileSystem, tracer: null);
+                    this.productUpgraderPlatformStrategy = ScalarPlatform.Instance.CreateProductUpgraderPlatformInteractions(this.fileSystem, tracer: null);
                     if (!this.productUpgraderPlatformStrategy.TryPrepareLogDirectory(out error))
                     {
                         return false;
                     }
 
-                    JsonTracer jsonTracer = new JsonTracer(GVFSConstants.GVFSEtwProviderName, "UpgradeVerb");
-                    string logFilePath = GVFSEnlistment.GetNewGVFSLogFileName(
+                    JsonTracer jsonTracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "UpgradeVerb");
+                    string logFilePath = ScalarEnlistment.GetNewScalarLogFileName(
                         ProductUpgraderInfo.GetLogDirectoryPath(),
-                        GVFSConstants.LogFileTypes.UpgradeVerb);
+                        ScalarConstants.LogFileTypes.UpgradeVerb);
                     jsonTracer.AddLogFileEventListener(logFilePath, EventLevel.Informational, Keywords.Any);
 
                     this.tracer = jsonTracer;
-                    this.prerunChecker = new InstallerPreRunChecker(this.tracer, this.Confirmed ? GVFSConstants.UpgradeVerbMessages.GVFSUpgradeConfirm : GVFSConstants.UpgradeVerbMessages.GVFSUpgrade);
+                    this.prerunChecker = new InstallerPreRunChecker(this.tracer, this.Confirmed ? ScalarConstants.UpgradeVerbMessages.ScalarUpgradeConfirm : ScalarConstants.UpgradeVerbMessages.ScalarUpgrade);
 
-                    string gitBinPath = GVFSPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+                    string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
                     if (string.IsNullOrEmpty(gitBinPath))
                     {
                         error = $"nameof(this.TryInitializeUpgrader): Unable to locate git installation. Ensure git is installed and try again.";
@@ -123,7 +123,7 @@ namespace GVFS.CommandLine
                     ICredentialStore credentialStore = new GitProcess(gitBinPath, workingDirectoryRoot: null);
 
                     ProductUpgrader upgrader;
-                    if (ProductUpgrader.TryCreateUpgrader(this.tracer, this.fileSystem, new LocalGVFSConfig(), credentialStore, this.DryRun, this.NoVerify, out upgrader, out error))
+                    if (ProductUpgrader.TryCreateUpgrader(this.tracer, this.fileSystem, new LocalScalarConfig(), credentialStore, this.DryRun, this.NoVerify, out upgrader, out error))
                     {
                         this.upgrader = upgrader;
                     }
@@ -137,7 +137,7 @@ namespace GVFS.CommandLine
             }
             else
             {
-                error = $"ERROR: {GVFSConstants.UpgradeVerbMessages.GVFSUpgrade} is not supported on this operating system.";
+                error = $"ERROR: {ScalarConstants.UpgradeVerbMessages.ScalarUpgrade} is not supported on this operating system.";
                 return false;
             }
         }
@@ -152,7 +152,7 @@ namespace GVFS.CommandLine
             bool isInstallable = this.TryCheckUpgradeInstallable(out cannotInstallReason);
             if (this.ShouldRunUpgraderTool() && !isInstallable)
             {
-                this.ReportInfoToConsole($"Cannot upgrade GVFS on this machine.");
+                this.ReportInfoToConsole($"Cannot upgrade Scalar on this machine.");
                 this.Output.WriteLine(errorOutputFormat, cannotInstallReason);
                 return false;
             }
@@ -209,8 +209,8 @@ namespace GVFS.CommandLine
             {
                 string advisoryMessage = string.Join(
                         Environment.NewLine,
-                        GVFSConstants.UpgradeVerbMessages.UnmountRepoWarning,
-                        GVFSConstants.UpgradeVerbMessages.UpgradeInstallAdvice);
+                        ScalarConstants.UpgradeVerbMessages.UnmountRepoWarning,
+                        ScalarConstants.UpgradeVerbMessages.UpgradeInstallAdvice);
                 this.ReportInfoToConsole(message + Environment.NewLine + Environment.NewLine + advisoryMessage + Environment.NewLine);
             }
 
@@ -231,7 +231,7 @@ namespace GVFS.CommandLine
                     upgradeCheckSuccess = this.TryCheckUpgradeAvailable(out version, out errorMessage);
                     return upgradeCheckSuccess;
                 },
-                 "Checking for GVFS upgrades",
+                 "Checking for Scalar upgrades",
                 suppressGvfsLogMessage: true);
 
             latestVersion = version;
@@ -244,7 +244,7 @@ namespace GVFS.CommandLine
         {
             string upgraderPath = null;
             string errorMessage = null;
-            bool supportsInlineUpgrade = GVFSPlatform.Instance.Constants.SupportsUpgradeWhileRunning;
+            bool supportsInlineUpgrade = ScalarPlatform.Instance.Constants.SupportsUpgradeWhileRunning;
 
             this.ReportInfoToConsole("Launching upgrade tool...");
 
@@ -268,7 +268,7 @@ namespace GVFS.CommandLine
             }
             else
             {
-                this.ReportInfoToConsole($"{Environment.NewLine}Installer launched in a new window. Do not run any git or gvfs commands until the installer has completed.");
+                this.ReportInfoToConsole($"{Environment.NewLine}Installer launched in a new window. Do not run any git or scalar commands until the installer has completed.");
             }
 
             consoleError = null;
@@ -345,8 +345,8 @@ namespace GVFS.CommandLine
                 latestVersion = version;
 
                 string message = latestVersion == null ?
-                    $"Successfully checked for VFSForGit upgrades. Local version ({currentVersion}) is up-to-date." :
-                    $"Successfully checked for VFSForGit upgrades. A new version is available: {latestVersion}, local version is: {currentVersion}.";
+                    $"Successfully checked for Scalar upgrades. Local version ({currentVersion}) is up-to-date." :
+                    $"Successfully checked for Scalar upgrades. A new version is available: {latestVersion}, local version is: {currentVersion}.";
 
                 activity.RelatedInfo(message);
             }

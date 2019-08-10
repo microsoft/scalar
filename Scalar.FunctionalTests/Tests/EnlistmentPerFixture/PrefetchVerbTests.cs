@@ -1,14 +1,14 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Should;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Should;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
+namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [NonParallelizable]
@@ -34,8 +34,8 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(2)]
         public void PrefetchSpecificFiles()
         {
-            this.ExpectBlobCount(this.Enlistment.Prefetch($"--files {Path.Combine("GVFS", "GVFS", "Program.cs")}"), 1);
-            this.ExpectBlobCount(this.Enlistment.Prefetch($"--files {Path.Combine("GVFS", "GVFS", "Program.cs")};{Path.Combine("GVFS", "GVFS.FunctionalTests", "GVFS.FunctionalTests.csproj")}"), 2);
+            this.ExpectBlobCount(this.Enlistment.Prefetch($"--files {Path.Combine("Scalar", "Scalar", "Program.cs")}"), 1);
+            this.ExpectBlobCount(this.Enlistment.Prefetch($"--files {Path.Combine("Scalar", "Scalar", "Program.cs")};{Path.Combine("Scalar", "Scalar.FunctionalTests", "Scalar.FunctionalTests.csproj")}"), 2);
         }
 
         [TestCase, Order(3)]
@@ -59,7 +59,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         {
             int expectedCount = 2;
             string output = this.Enlistment.Prefetch(
-                $"--files {Path.Combine("GVFS", "GVFS", "Program.cs")};{Path.Combine("GVFS", "GVFS.FunctionalTests", "GVFS.FunctionalTests.csproj")} --hydrate");
+                $"--files {Path.Combine("Scalar", "Scalar", "Program.cs")};{Path.Combine("Scalar", "Scalar.FunctionalTests", "Scalar.FunctionalTests.csproj")} --hydrate");
             this.ExpectBlobCount(output, expectedCount);
             output.ShouldContain("Hydrated files:   " + expectedCount);
             output.ShouldContain("Downloaded:       0");
@@ -68,8 +68,8 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(6)]
         public void PrefetchFolders()
         {
-            this.ExpectBlobCount(this.Enlistment.Prefetch($"--folders {Path.Combine("GVFS", "GVFS")}"), 17);
-            this.ExpectBlobCount(this.Enlistment.Prefetch($"--folders {Path.Combine("GVFS", "GVFS")};{Path.Combine("GVFS", "GVFS.FunctionalTests")}"), 65);
+            this.ExpectBlobCount(this.Enlistment.Prefetch($"--folders {Path.Combine("Scalar", "Scalar")}"), 17);
+            this.ExpectBlobCount(this.Enlistment.Prefetch($"--folders {Path.Combine("Scalar", "Scalar")};{Path.Combine("Scalar", "Scalar.FunctionalTests")}"), 65);
         }
 
         [TestCase, Order(7)]
@@ -89,9 +89,9 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
                 {
                     "# A comment",
                     " ",
-                    "gvfs/",
-                    "gvfs/gvfs",
-                    "gvfs/"
+                    "scalar/",
+                    "scalar/scalar",
+                    "scalar/"
                 });
 
             this.ExpectBlobCount(this.Enlistment.Prefetch("--folders-list \"" + tempFilePath + "\""), 279);
@@ -147,8 +147,8 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
                     tempFilePath,
                     new[]
                     {
-                        Path.Combine("GVFS", "GVFS", "Program.cs"),
-                        Path.Combine("GVFS", "GVFS.FunctionalTests", "GVFS.FunctionalTests.csproj")
+                        Path.Combine("Scalar", "Scalar", "Program.cs"),
+                        Path.Combine("Scalar", "Scalar.FunctionalTests", "Scalar.FunctionalTests.csproj")
                     });
 
                 this.ExpectBlobCount(this.Enlistment.Prefetch($"--files-list \"{tempFilePath}\""), 2);
@@ -166,8 +166,8 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
                 Environment.NewLine,
                 new[]
                 {
-                    Path.Combine("GVFS", "GVFS", "packages.config"),
-                    Path.Combine("GVFS", "GVFS.FunctionalTests", "App.config")
+                    Path.Combine("Scalar", "Scalar", "packages.config"),
+                    Path.Combine("Scalar", "Scalar.FunctionalTests", "App.config")
                 });
 
             this.ExpectBlobCount(this.Enlistment.Prefetch("--stdin-files-list", standardInput: input), 2);
@@ -182,9 +182,9 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
                 {
                     "# A comment",
                     " ",
-                    "gvfs/",
-                    "gvfs/gvfs",
-                    "gvfs/"
+                    "scalar/",
+                    "scalar/scalar",
+                    "scalar/"
                 });
 
             this.ExpectBlobCount(this.Enlistment.Prefetch("--stdin-folders-list", standardInput: input), 279);

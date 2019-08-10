@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup Label="Parameters">
-    <GVFSVersion>0.2.173.2</GVFSVersion>
+    <ScalarVersion>0.2.173.2</ScalarVersion>
     <GitPackageVersion>2.20190806.1</GitPackageVersion>
   </PropertyGroup>
 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public class InvalidRepoException : Exception
     {

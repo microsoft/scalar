@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace GVFS.UnitTests.Mock.Upgrader
+namespace Scalar.UnitTests.Mock.Upgrader
 {
     public class MockTextWriter : TextWriter
     {

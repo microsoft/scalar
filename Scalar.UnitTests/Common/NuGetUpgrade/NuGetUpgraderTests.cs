@@ -1,11 +1,11 @@
-using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Common.NuGetUpgrade;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
+using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Common.NuGetUpgrade;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
 using Moq;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.UnitTests.Common.NuGetUpgrade
+namespace Scalar.UnitTests.Common.NuGetUpgrade
 {
     [TestFixture]
     public class NuGetUpgraderTests
@@ -71,7 +71,7 @@ namespace GVFS.UnitTests.Common.NuGetUpgrade
                 NuGetFeedName,
                 this.downloadDirectoryPath,
                 null,
-                GVFSPlatform.Instance.UnderConstruction.SupportsNuGetEncryption,
+                ScalarPlatform.Instance.UnderConstruction.SupportsNuGetEncryption,
                 this.tracer);
             this.mockNuGetFeed.Setup(feed => feed.SetCredentials(It.IsAny<string>()));
 

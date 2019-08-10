@@ -1,31 +1,31 @@
 #import <Foundation/Foundation.h>
-#import "VFSMockProductInfoFetcher.h"
+#import "ScalarMockProductInfoFetcher.h"
 
-@interface VFSMockProductInfoFetcher()
+@interface ScalarMockProductInfoFetcher()
 
 @property (copy) NSString *gitVersion;
-@property (copy) NSString *vfsforgitVersion;
+@property (copy) NSString *scalarVersion;
 
 @end
 
-@implementation VFSMockProductInfoFetcher
+@implementation ScalarMockProductInfoFetcher
 
 - (instancetype) initWithGitVersion:(NSString *) gitVersion
-                   vfsforgitVersion:(NSString *) vfsforgitVersion
+                   scalarVersion:(NSString *) scalarVersion
 {
     if (self = [super init])
     {
         _gitVersion = [gitVersion copy];
-        _vfsforgitVersion = [vfsforgitVersion copy];
+        _scalarVersion = [scalarVersion copy];
     }
     
     return self;
 }
 
-- (BOOL) tryGetVFSForGitVersion:(NSString *__autoreleasing *) version
+- (BOOL) tryGetScalarVersion:(NSString *__autoreleasing *) version
                           error:(NSError *__autoreleasing *) error
 {
-    *version = self.vfsforgitVersion;
+    *version = self.scalarVersion;
     return YES;
 }
 

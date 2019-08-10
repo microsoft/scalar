@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace GVFS.Common.NamedPipes
+namespace Scalar.Common.NamedPipes
 {
     /// <summary>
     /// Implements the NamedPipe protocol as described in NamedPipeServer.

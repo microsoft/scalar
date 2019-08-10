@@ -1,5 +1,5 @@
-﻿using GVFS.FunctionalTests.Properties;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.Properties;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -10,16 +10,16 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GVFS.FunctionalTests.Tools
+namespace Scalar.FunctionalTests.Tools
 {
     public static class GitHelpers
     {
         /// <summary>
         /// This string must match the command name provided in the
-        /// GVFS.FunctionalTests.LockHolder program.
+        /// Scalar.FunctionalTests.LockHolder program.
         /// </summary>
-        private const string LockHolderCommandName = @"GVFS.FunctionalTests.LockHolder";
-        private const string LockHolderCommand = @"GVFS.FunctionalTests.LockHolder.dll";
+        private const string LockHolderCommandName = @"Scalar.FunctionalTests.LockHolder";
+        private const string LockHolderCommand = @"Scalar.FunctionalTests.LockHolder.dll";
 
         private const string WindowsPathSeparator = "\\";
         private const string GitPathSeparator = "/";
@@ -39,9 +39,9 @@ namespace GVFS.FunctionalTests.Tools
                 }
                 else
                 {
-                    // On Windows, FT is run from the Output directory of GVFS.FunctionalTest project.
+                    // On Windows, FT is run from the Output directory of Scalar.FunctionalTest project.
                     // LockHolder is a .netcore assembly and can be found inside netcoreapp2.1
-                    // subdirectory of GVFS.FunctionalTest Output directory.
+                    // subdirectory of Scalar.FunctionalTest Output directory.
                     return Path.Combine(
                         Settings.Default.CurrentDirectory,
                         "netcoreapp2.1",
@@ -65,9 +65,9 @@ namespace GVFS.FunctionalTests.Tools
             }
         }
 
-        public static void CheckGitCommandAgainstGVFSRepo(string virtualRepoRoot, string command, params string[] expectedLinesInResult)
+        public static void CheckGitCommandAgainstScalarRepo(string virtualRepoRoot, string command, params string[] expectedLinesInResult)
         {
-            ProcessResult result = InvokeGitAgainstGVFSRepo(virtualRepoRoot, command);
+            ProcessResult result = InvokeGitAgainstScalarRepo(virtualRepoRoot, command);
             result.Errors.ShouldBeEmpty();
             foreach (string line in expectedLinesInResult)
             {
@@ -75,14 +75,14 @@ namespace GVFS.FunctionalTests.Tools
             }
         }
 
-        public static ProcessResult InvokeGitAgainstGVFSRepo(
-            string gvfsRepoRoot,
+        public static ProcessResult InvokeGitAgainstScalarRepo(
+            string scalarRepoRoot,
             string command,
             Dictionary<string, string> environmentVariables = null,
             bool removeWaitingMessages = true,
             bool removeUpgradeMessages = true)
         {
-            ProcessResult result = GitProcess.InvokeProcess(gvfsRepoRoot, command, environmentVariables);
+            ProcessResult result = GitProcess.InvokeProcess(scalarRepoRoot, command, environmentVariables);
             string errors = result.Errors;
 
             if (!string.IsNullOrEmpty(errors) && (removeWaitingMessages || removeUpgradeMessages))
@@ -91,7 +91,7 @@ namespace GVFS.FunctionalTests.Tools
                 IEnumerable<string> filteredErrorLines = errorLines.Where(line =>
                 {
                     if (string.IsNullOrWhiteSpace(line) ||
-                        (removeUpgradeMessages && line.StartsWith("A new version of GVFS is available.")) ||
+                        (removeUpgradeMessages && line.StartsWith("A new version of Scalar is available.")) ||
                         (removeWaitingMessages && line.StartsWith("Waiting for ")))
                     {
                         return false;
@@ -112,17 +112,17 @@ namespace GVFS.FunctionalTests.Tools
         }
 
         public static void ValidateGitCommand(
-            GVFSFunctionalTestEnlistment enlistment,
+            ScalarFunctionalTestEnlistment enlistment,
             ControlGitRepo controlGitRepo,
             string command,
             params object[] args)
         {
             command = string.Format(command, args);
             string controlRepoRoot = controlGitRepo.RootPath;
-            string gvfsRepoRoot = enlistment.RepoRoot;
+            string scalarRepoRoot = enlistment.RepoRoot;
 
             ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command);
-            ProcessResult actualResult = GitHelpers.InvokeGitAgainstGVFSRepo(gvfsRepoRoot, command);
+            ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command);
 
             ErrorsShouldMatch(command, expectedResult, actualResult);
             actualResult.Output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
@@ -135,12 +135,12 @@ namespace GVFS.FunctionalTests.Tools
         }
 
         /// <summary>
-        /// Acquire the GVFSLock. This method will return once the GVFSLock has been acquired.
+        /// Acquire the ScalarLock. This method will return once the ScalarLock has been acquired.
         /// </summary>
         /// <param name="processId">The ID of the process that acquired the lock.</param>
         /// <returns><see cref="ManualResetEvent"/> that can be signaled to exit the lock acquisition program.</returns>
-        public static ManualResetEventSlim AcquireGVFSLock(
-            GVFSFunctionalTestEnlistment enlistment,
+        public static ManualResetEventSlim AcquireScalarLock(
+            ScalarFunctionalTestEnlistment enlistment,
             out int processId,
             int resetTimeout = Timeout.Infinite,
             bool skipReleaseLock = false)
@@ -162,12 +162,12 @@ namespace GVFS.FunctionalTests.Tools
         }
 
         /// <summary>
-        /// Run the specified Git command. This method will return once the GVFSLock has been acquired.
+        /// Run the specified Git command. This method will return once the ScalarLock has been acquired.
         /// </summary>
         /// <param name="processId">The ID of the process that acquired the lock.</param>
         /// <returns><see cref="ManualResetEvent"/> that can be signaled to exit the lock acquisition program.</returns>
         public static ManualResetEventSlim RunGitCommandWithWaitAndStdIn(
-            GVFSFunctionalTestEnlistment enlistment,
+            ScalarFunctionalTestEnlistment enlistment,
             int resetTimeout,
             string command,
             string stdinToQuit,
@@ -191,12 +191,12 @@ namespace GVFS.FunctionalTests.Tools
         }
 
         /// <summary>
-        /// Run the specified command as an external program. This method will return once the GVFSLock has been acquired.
+        /// Run the specified command as an external program. This method will return once the ScalarLock has been acquired.
         /// </summary>
         /// <param name="processId">The ID of the process that acquired the lock.</param>
         /// <returns><see cref="ManualResetEvent"/> that can be signaled to exit the lock acquisition program.</returns>
         private static ManualResetEventSlim RunCommandWithWaitAndStdIn(
-            GVFSFunctionalTestEnlistment enlistment,
+            ScalarFunctionalTestEnlistment enlistment,
             int resetTimeout,
             string pathToCommand,
             string args,

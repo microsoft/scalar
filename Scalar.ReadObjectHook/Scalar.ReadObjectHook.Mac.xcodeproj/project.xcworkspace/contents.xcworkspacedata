@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:GVFS.ReadObjectHook.Mac.xcodeproj">
+      location = "self:Scalar.ReadObjectHook.Mac.xcodeproj">
    </FileRef>
 </Workspace>

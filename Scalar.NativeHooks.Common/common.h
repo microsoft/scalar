@@ -23,7 +23,7 @@ enum ReturnCode
 	Success = 0,
 	InvalidArgCount = 1,
 	GetCurrentDirectoryFailure = 2,
-	NotInGVFSEnlistment = 3,
+	NotInScalarEnlistment = 3,
 	PipeConnectError = 4,
 	PipeConnectTimeout = 5,
 	InvalidSHA = 6,
@@ -46,8 +46,8 @@ inline void die(int err, const char *fmt, ...)
 }
 
 PATH_STRING GetFinalPathName(const PATH_STRING& path);
-PATH_STRING GetGVFSPipeName(const char *appName);
-PIPE_HANDLE CreatePipeToGVFS(const PATH_STRING& pipeName);
+PATH_STRING GetScalarPipeName(const char *appName);
+PIPE_HANDLE CreatePipeToScalar(const PATH_STRING& pipeName);
 void DisableCRLFTranslationOnStdPipes();
 
 bool WriteToPipe(

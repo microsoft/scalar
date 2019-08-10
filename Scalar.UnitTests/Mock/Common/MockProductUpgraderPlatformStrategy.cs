@@ -1,8 +1,8 @@
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 
-namespace GVFS.UnitTests.Mock.Common
+namespace Scalar.UnitTests.Mock.Common
 {
     public class MockProductUpgraderPlatformStrategy : ProductUpgraderPlatformStrategy
     {

@@ -7,4 +7,4 @@ if [ -z $CONFIGURATION ]; then
   CONFIGURATION=Debug
 fi
 
-$VFS_PUBLISHDIR/gvfs unmount ~/GVFSTest
+$Scalar_PUBLISHDIR/scalar unmount ~/ScalarTest

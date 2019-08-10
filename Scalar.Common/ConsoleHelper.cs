@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public static class ConsoleHelper
     {
@@ -19,7 +19,7 @@ namespace GVFS.Common
             string message,
             TextWriter output,
             bool showSpinner,
-            string gvfsLogEnlistmentRoot,
+            string scalarLogEnlistmentRoot,
             int initialDelayMs = 0)
         {
             Func<ActionResult> actionResultAction =
@@ -33,7 +33,7 @@ namespace GVFS.Common
                 message,
                 output,
                 showSpinner,
-                gvfsLogEnlistmentRoot,
+                scalarLogEnlistmentRoot,
                 initialDelayMs: initialDelayMs);
 
             return result == ActionResult.Success;
@@ -44,7 +44,7 @@ namespace GVFS.Common
             string message,
             TextWriter output,
             bool showSpinner,
-            string gvfsLogEnlistmentRoot,
+            string scalarLogEnlistmentRoot,
             int initialDelayMs)
         {
             ActionResult result = ActionResult.Failure;
@@ -132,7 +132,7 @@ namespace GVFS.Common
                             output.Write("\r{0}...", message);
                         }
 
-                        output.WriteLine("Failed" + (gvfsLogEnlistmentRoot == null ? string.Empty : ". " + GetGVFSLogMessage(gvfsLogEnlistmentRoot)));
+                        output.WriteLine("Failed" + (scalarLogEnlistmentRoot == null ? string.Empty : ". " + GetScalarLogMessage(scalarLogEnlistmentRoot)));
                         break;
                 }
             }
@@ -140,9 +140,9 @@ namespace GVFS.Common
             return result;
         }
 
-        public static string GetGVFSLogMessage(string enlistmentRoot)
+        public static string GetScalarLogMessage(string enlistmentRoot)
         {
-            return "Run 'gvfs log " + enlistmentRoot + "' for more info.";
+            return "Run 'scalar log " + enlistmentRoot + "' for more info.";
         }
     }
 }

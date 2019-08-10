@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace GVFS.Common.Http
+namespace Scalar.Common.Http
 {
     public class CacheServerInfo
     {
-        private const string ObjectsEndpointSuffix = "/gvfs/objects";
-        private const string PrefetchEndpointSuffix = "/gvfs/prefetch";
-        private const string SizesEndpointSuffix = "/gvfs/sizes";
+        private const string ObjectsEndpointSuffix = "/scalar/objects";
+        private const string PrefetchEndpointSuffix = "/scalar/prefetch";
+        private const string SizesEndpointSuffix = "/scalar/sizes";
 
         [JsonConstructor]
         public CacheServerInfo(string url, string name, bool globalDefault = false)

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public class HashingStream : Stream
     {

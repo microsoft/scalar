@@ -1,4 +1,4 @@
-﻿namespace GVFS.Common.Git
+﻿namespace Scalar.Common.Git
 {
     public class RefLogEntry
     {
@@ -21,13 +21,13 @@
                 return false;
             }
 
-            if (line.Length < GVFSConstants.ShaStringLength + 1 + GVFSConstants.ShaStringLength)
+            if (line.Length < ScalarConstants.ShaStringLength + 1 + ScalarConstants.ShaStringLength)
             {
                 return false;
             }
 
-            string sourceSha = line.Substring(0, GVFSConstants.ShaStringLength);
-            string targetSha = line.Substring(GVFSConstants.ShaStringLength + 1, GVFSConstants.ShaStringLength);
+            string sourceSha = line.Substring(0, ScalarConstants.ShaStringLength);
+            string targetSha = line.Substring(ScalarConstants.ShaStringLength + 1, ScalarConstants.ShaStringLength);
 
             int reasonStart = line.LastIndexOf("\t");
             if (reasonStart < 0)

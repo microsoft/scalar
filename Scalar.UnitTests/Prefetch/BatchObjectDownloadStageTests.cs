@@ -1,13 +1,13 @@
-﻿using GVFS.Common.Prefetch.Pipeline;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.Git;
+﻿using Scalar.Common.Prefetch.Pipeline;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.Git;
 using NUnit.Framework;
 using System;
 using System.Collections.Concurrent;
 
-namespace GVFS.UnitTests.Prefetch
+namespace Scalar.UnitTests.Prefetch
 {
     [TestFixture]
     public class BatchObjectDownloadStageTests
@@ -50,7 +50,7 @@ namespace GVFS.UnitTests.Prefetch
 
             BlockingCollection<string> output = new BlockingCollection<string>();
             MockTracer tracer = new MockTracer();
-            MockGVFSEnlistment enlistment = new MockGVFSEnlistment();
+            MockScalarEnlistment enlistment = new MockScalarEnlistment();
             MockBatchHttpGitObjects httpObjects = new MockBatchHttpGitObjects(tracer, enlistment, objectResolver);
 
             BatchObjectDownloadStage dut = new BatchObjectDownloadStage(

@@ -2,13 +2,13 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="$(SolutionDir)\GVFS\GVFS.Build\GVFS.cs.props" />
+  <Import Project="$(SolutionDir)\Scalar\Scalar.Build\Scalar.cs.props" />
   <PropertyGroup>
     <ProjectGuid>{3AB4FB1F-9E23-4CD8-BFAC-8A2221C8F893}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GVFS.Installer.Windows</RootNamespace>
-    <AssemblyName>GVFS.Installer.Windows</AssemblyName>
+    <RootNamespace>Scalar.Installer.Windows</RootNamespace>
+    <AssemblyName>Scalar.Installer.Windows</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -31,7 +31,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup> 
-    <FilesToSign Include="$(OutputPath)SetupGVFS.$(GVFSVersion).exe">
+    <FilesToSign Include="$(OutputPath)SetupScalar.$(ScalarVersion).exe">
       <Authenticode>Microsoft400</Authenticode>
       <InProject>false</InProject>
     </FilesToSign>
@@ -46,8 +46,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="CreateInstaller" BeforeTargets="Build;SignFiles">
-    <Exec Command="$(PackagesDir)\Tools.InnoSetup.5.5.9\tools\ISCC.exe /DPlatformAndConfiguration=$(Platform)\$(Configuration) /DBuildOutputDir=$(BuildOutputDir) /DPackagesDir=$(PackagesDir) /DGVFSVersion=$(GVFSVersion) Setup.iss /O$(OutputPath)" />
-    <Copy SourceFiles="$(OutputPath)SetupGVFS.$(GVFSVersion).exe" DestinationFiles="$(BuildOutputDir)\GVFS.Build\SetupGVFS.$(GVFSVersion).exe" />
+    <Exec Command="$(PackagesDir)\Tools.InnoSetup.5.5.9\tools\ISCC.exe /DPlatformAndConfiguration=$(Platform)\$(Configuration) /DBuildOutputDir=$(BuildOutputDir) /DPackagesDir=$(PackagesDir) /DScalarVersion=$(ScalarVersion) Setup.iss /O$(OutputPath)" />
+    <Copy SourceFiles="$(OutputPath)SetupScalar.$(ScalarVersion).exe" DestinationFiles="$(BuildOutputDir)\Scalar.Build\SetupScalar.$(ScalarVersion).exe" />
   </Target>
   <Target Name="Clean">
     <RemoveDir Directories="$(BuildOutputDir)\$(MSBuildProjectName)" />

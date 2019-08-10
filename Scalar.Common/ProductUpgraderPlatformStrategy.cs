@@ -1,9 +1,9 @@
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.IO;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public abstract class ProductUpgraderPlatformStrategy
     {

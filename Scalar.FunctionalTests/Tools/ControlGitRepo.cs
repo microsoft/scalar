@@ -1,9 +1,9 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace GVFS.FunctionalTests.Tools
+namespace Scalar.FunctionalTests.Tools
 {
     public class ControlGitRepo
     {
@@ -11,7 +11,7 @@ namespace GVFS.FunctionalTests.Tools
         {
             if (!Directory.Exists(CachePath))
             {
-                GitProcess.Invoke(Environment.SystemDirectory, "clone " + GVFSTestConfig.RepoToClone + " " + CachePath + " --bare");
+                GitProcess.Invoke(Environment.SystemDirectory, "clone " + ScalarTestConfig.RepoToClone + " " + CachePath + " --bare");
             }
             else
             {
@@ -39,13 +39,13 @@ namespace GVFS.FunctionalTests.Tools
         {
             string clonePath = Path.Combine(Properties.Settings.Default.ControlGitRepoRoot, Guid.NewGuid().ToString("N"));
             return new ControlGitRepo(
-                GVFSTestConfig.RepoToClone,
+                ScalarTestConfig.RepoToClone,
                 clonePath,
                 commitish == null ? Properties.Settings.Default.Commitish : commitish);
         }
 
         //
-        // IMPORTANT! These must parallel the settings in GVFSVerb:TrySetRequiredGitConfigSettings
+        // IMPORTANT! These must parallel the settings in ScalarVerb:TrySetRequiredGitConfigSettings
         //
         public void Initialize()
         {

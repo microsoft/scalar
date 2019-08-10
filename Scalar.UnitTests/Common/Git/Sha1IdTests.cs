@@ -1,9 +1,9 @@
-﻿using GVFS.Common.Git;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
+﻿using Scalar.Common.Git;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Common.Git
+namespace Scalar.UnitTests.Common.Git
 {
     [TestFixture]
     public class Sha1IdTests

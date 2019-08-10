@@ -1,10 +1,10 @@
-﻿using GVFS.FunctionalTests.Properties;
-using GVFS.FunctionalTests.Tools;
+﻿using Scalar.FunctionalTests.Properties;
+using Scalar.FunctionalTests.Tools;
 using NUnit.Framework;
 using System.IO;
 using System.Threading;
 
-namespace GVFS.FunctionalTests.Tests.GitCommands
+namespace Scalar.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]
@@ -47,13 +47,13 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
         [TestCase, Order(4)]
         public void AddAllowsPlaceholderCreation()
         {
-            this.CommandAllowsPlaceholderCreation("add", "GVFS", "GVFS", "Program.cs");
+            this.CommandAllowsPlaceholderCreation("add", "Scalar", "Scalar", "Program.cs");
         }
 
         [TestCase, Order(5)]
         public void StageAllowsPlaceholderCreation()
         {
-            this.CommandAllowsPlaceholderCreation("stage", "GVFS", "GVFS", "App.config");
+            this.CommandAllowsPlaceholderCreation("stage", "Scalar", "Scalar", "App.config");
         }
 
         private void CommandAllowsPlaceholderCreation(string command, params string[] fileToReadPathParts)

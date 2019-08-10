@@ -1,10 +1,10 @@
-﻿using GVFS.FunctionalTests.Tests.EnlistmentPerTestCase;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.Tests.EnlistmentPerTestCase;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System.Runtime.InteropServices;
 
-namespace GVFS.FunctionalTests.Tests
+namespace Scalar.FunctionalTests.Tests
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
@@ -40,32 +40,32 @@ namespace GVFS.FunctionalTests.Tests
         public void MountSucceedsIfMinorVersionHasAdvancedButNotMajorVersion()
         {
             // Advance the minor version, mount should still work
-            this.Enlistment.UnmountGVFS();
-            GVFSHelpers.SaveDiskLayoutVersion(
-                this.Enlistment.DotGVFSRoot,
+            this.Enlistment.UnmountScalar();
+            ScalarHelpers.SaveDiskLayoutVersion(
+                this.Enlistment.DotScalarRoot,
                 this.currentDiskMajorVersion.ToString(),
                 (CurrentDiskLayoutMinorVersion + 1).ToString());
-            this.Enlistment.TryMountGVFS().ShouldBeTrue("Mount should succeed because only the minor version advanced");
+            this.Enlistment.TryMountScalar().ShouldBeTrue("Mount should succeed because only the minor version advanced");
 
             // Advance the major version, mount should fail
-            this.Enlistment.UnmountGVFS();
-            GVFSHelpers.SaveDiskLayoutVersion(
-                this.Enlistment.DotGVFSRoot,
+            this.Enlistment.UnmountScalar();
+            ScalarHelpers.SaveDiskLayoutVersion(
+                this.Enlistment.DotScalarRoot,
                 (this.currentDiskMajorVersion + 1).ToString(),
                 CurrentDiskLayoutMinorVersion.ToString());
-            this.Enlistment.TryMountGVFS().ShouldBeFalse("Mount should fail because the major version has advanced");
+            this.Enlistment.TryMountScalar().ShouldBeFalse("Mount should fail because the major version has advanced");
         }
 
         [TestCase]
         public void MountFailsIfBeforeMinimumVersion()
         {
             // Mount should fail if on disk version is below minimum supported version
-            this.Enlistment.UnmountGVFS();
-            GVFSHelpers.SaveDiskLayoutVersion(
-                this.Enlistment.DotGVFSRoot,
+            this.Enlistment.UnmountScalar();
+            ScalarHelpers.SaveDiskLayoutVersion(
+                this.Enlistment.DotScalarRoot,
                 (this.currentDiskMinimumMajorVersion - 1).ToString(),
                 CurrentDiskLayoutMinorVersion.ToString());
-            this.Enlistment.TryMountGVFS().ShouldBeFalse("Mount should fail because we are before minimum version");
+            this.Enlistment.TryMountScalar().ShouldBeFalse("Mount should fail because we are before minimum version");
         }
     }
 }

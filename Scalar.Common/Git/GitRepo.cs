@@ -1,11 +1,11 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public class GitRepo : IDisposable
     {
@@ -22,7 +22,7 @@ namespace GVFS.Common.Git
             this.enlistment = enlistment;
             this.fileSystem = fileSystem;
 
-            this.GVFSLock = new GVFSLock(tracer);
+            this.ScalarLock = new ScalarLock(tracer);
 
             this.libgit2RepoInvoker = new LibGit2RepoInvoker(
                 tracer,
@@ -32,7 +32,7 @@ namespace GVFS.Common.Git
         // For Unit Testing
         protected GitRepo(ITracer tracer)
         {
-            this.GVFSLock = new GVFSLock(tracer);
+            this.ScalarLock = new ScalarLock(tracer);
         }
 
         private enum LooseBlobState
@@ -44,7 +44,7 @@ namespace GVFS.Common.Git
             Unknown,
         }
 
-        public GVFSLock GVFSLock
+        public ScalarLock ScalarLock
         {
             get;
             private set;
@@ -182,7 +182,7 @@ namespace GVFS.Common.Git
             {
                 if (corruptLooseObject)
                 {
-                    string corruptBlobsFolderPath = Path.Combine(this.enlistment.EnlistmentRoot, GVFSPlatform.Instance.Constants.DotGVFSRoot, GVFSConstants.DotGVFS.CorruptObjectsName);
+                    string corruptBlobsFolderPath = Path.Combine(this.enlistment.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot, ScalarConstants.DotScalar.CorruptObjectsName);
                     string corruptBlobPath = Path.Combine(corruptBlobsFolderPath, Path.GetRandomFileName());
 
                     EventMetadata metadata = new EventMetadata();

@@ -1,8 +1,8 @@
-﻿using GVFS.Common.FileSystem;
+﻿using Scalar.Common.FileSystem;
 using System;
 using System.IO;
 
-namespace GVFS.UnitTests.Mock.FileSystem
+namespace Scalar.UnitTests.Mock.FileSystem
 {
     public class MockFileSystemWithCallbacks : PhysicalFileSystem
     {

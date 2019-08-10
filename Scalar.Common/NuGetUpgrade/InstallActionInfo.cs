@@ -1,4 +1,4 @@
-namespace GVFS.Common.NuGetUpgrade
+namespace Scalar.Common.NuGetUpgrade
 {
     public class InstallActionInfo
     {

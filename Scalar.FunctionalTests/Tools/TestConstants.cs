@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace GVFS.FunctionalTests.Tools
+namespace Scalar.FunctionalTests.Tools
 {
     public static class TestConstants
     {
@@ -36,7 +36,7 @@ namespace GVFS.FunctionalTests.Tools
             public const string Root = "databases";
             public static readonly string BackgroundOpsFile = Path.Combine(Root, "BackgroundGitOperations.dat");
             public static readonly string ModifiedPaths = Path.Combine(Root, "ModifiedPaths.dat");
-            public static readonly string VFSForGit = Path.Combine(Root, "VFSForGit.sqlite");
+            public static readonly string Scalar = Path.Combine(Root, "Scalar.sqlite");
         }
     }
 }

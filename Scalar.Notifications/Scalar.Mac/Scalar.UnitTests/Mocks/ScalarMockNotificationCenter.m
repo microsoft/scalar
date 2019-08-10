@@ -1,13 +1,13 @@
 #import <Foundation/Foundation.h>
-#import "VFSMockNotificationCenter.h"
+#import "ScalarMockNotificationCenter.h"
 
-@interface VFSMockNotificationCenter ()
+@interface ScalarMockNotificationCenter ()
 
 @property (strong) NSUserNotification *expectedNotification;
 
 @end
 
-@implementation VFSMockNotificationCenter
+@implementation ScalarMockNotificationCenter
 
 - (instancetype) initWithExpectedNotification:(NSUserNotification *) notification
 {

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public class GitRefs
     {

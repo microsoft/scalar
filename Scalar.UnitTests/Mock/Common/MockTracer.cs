@@ -1,10 +1,10 @@
-using GVFS.Common.Tracing;
+using Scalar.Common.Tracing;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace GVFS.UnitTests.Mock.Common
+namespace Scalar.UnitTests.Mock.Common
 {
     public class MockTracer : ITracer
     {

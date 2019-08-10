@@ -1,8 +1,8 @@
 using System.IO;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
-    public static partial class GVFSConstants
+    public static partial class ScalarConstants
     {
         public const int ShaStringLength = 40;
         public const int MaxPath = 260;
@@ -14,31 +14,31 @@ namespace GVFS.Common
 
         public const string PrefetchPackPrefix = "prefetch";
 
-        public const string GVFSEtwProviderName = "Microsoft.Git.GVFS";
+        public const string ScalarEtwProviderName = "Microsoft.Git.Scalar";
         public const string WorkingDirectoryRootName = "src";
-        public const string UnattendedEnvironmentVariable = "GVFS_UNATTENDED";
+        public const string UnattendedEnvironmentVariable = "Scalar_UNATTENDED";
 
-        public const string DefaultGVFSCacheFolderName = ".gvfsCache";
+        public const string DefaultScalarCacheFolderName = ".scalarCache";
 
         public const string GitIsNotInstalledError = "Could not find git.exe.  Ensure that Git is installed.";
 
         public static class GitConfig
         {
-            public const string GVFSPrefix = "gvfs.";
-            public const string MaxRetriesConfig = GVFSPrefix + "max-retries";
-            public const string TimeoutSecondsConfig = GVFSPrefix + "timeout-seconds";
-            public const string GitStatusCacheBackoffConfig = GVFSPrefix + "status-cache-backoff-seconds";
-            public const string MountId = GVFSPrefix + "mount-id";
-            public const string EnlistmentId = GVFSPrefix + "enlistment-id";
-            public const string CacheServer = GVFSPrefix + "cache-server";
+            public const string ScalarPrefix = "scalar.";
+            public const string MaxRetriesConfig = ScalarPrefix + "max-retries";
+            public const string TimeoutSecondsConfig = ScalarPrefix + "timeout-seconds";
+            public const string GitStatusCacheBackoffConfig = ScalarPrefix + "status-cache-backoff-seconds";
+            public const string MountId = ScalarPrefix + "mount-id";
+            public const string EnlistmentId = ScalarPrefix + "enlistment-id";
+            public const string CacheServer = ScalarPrefix + "cache-server";
             public const string DeprecatedCacheEndpointSuffix = ".cache-server-url";
-            public const string GVFSTelemetryId = GitConfig.GVFSPrefix + "telemetry-id";
-            public const string GVFSTelemetryPipe = GitConfig.GVFSPrefix + "telemetry-pipe";
-            public const string IKey = GitConfig.GVFSPrefix + "ikey";
+            public const string ScalarTelemetryId = GitConfig.ScalarPrefix + "telemetry-id";
+            public const string ScalarTelemetryPipe = GitConfig.ScalarPrefix + "telemetry-pipe";
+            public const string IKey = GitConfig.ScalarPrefix + "ikey";
             public const string HooksExtension = ".hooks";
         }
 
-        public static class LocalGVFSConfig
+        public static class LocalScalarConfig
         {
             public const string UpgradeRing = "upgrade.ring";
             public const string UpgradeFeedPackageName = "upgrade.feedpackagename";
@@ -48,25 +48,25 @@ namespace GVFS.Common
 
         public static class Service
         {
-            public const string ServiceName = "GVFS.Service";
+            public const string ServiceName = "Scalar.Service";
             public const string LogDirectory = "Logs";
-            public const string UIName = "GVFS.Service.UI";
+            public const string UIName = "Scalar.Service.UI";
         }
 
         public static class MediaTypes
         {
-            public const string PrefetchPackFilesAndIndexesMediaType = "application/x-gvfs-timestamped-packfiles-indexes";
+            public const string PrefetchPackFilesAndIndexesMediaType = "application/x-scalar-timestamped-packfiles-indexes";
             public const string LooseObjectMediaType = "application/x-git-loose-object";
-            public const string CustomLooseObjectsMediaType = "application/x-gvfs-loose-objects";
+            public const string CustomLooseObjectsMediaType = "application/x-scalar-loose-objects";
             public const string PackFileMediaType = "application/x-git-packfile";
         }
 
         public static class Endpoints
         {
-            public const string GVFSConfig = "/gvfs/config";
-            public const string GVFSObjects = "/gvfs/objects";
-            public const string GVFSPrefetch = "/gvfs/prefetch";
-            public const string GVFSSizes = "/gvfs/sizes";
+            public const string ScalarConfig = "/scalar/config";
+            public const string ScalarObjects = "/scalar/objects";
+            public const string ScalarPrefetch = "/scalar/prefetch";
+            public const string ScalarSizes = "/scalar/sizes";
             public const string InfoRefs = "/info/refs?service=git-upload-pack";
         }
 
@@ -94,7 +94,7 @@ namespace GVFS.Common
             public const string UpgradeProcess = UpgradePrefix + "_process";
         }
 
-        public static class DotGVFS
+        public static class DotScalar
         {
             public const string CorruptObjectsName = "CorruptObjects";
             public const string LogName = "logs";
@@ -107,7 +107,7 @@ namespace GVFS.Common
                 public static readonly string PlaceholderList = Path.Combine(Name, "PlaceholderList.dat");
                 public static readonly string ModifiedPaths = Path.Combine(Name, "ModifiedPaths.dat");
                 public static readonly string RepoMetadata = Path.Combine(Name, "RepoMetadata.dat");
-                public static readonly string VFSForGit = Path.Combine(Name, "VFSForGit.sqlite");
+                public static readonly string Scalar = Path.Combine(Name, "Scalar.sqlite");
             }
 
             public static class GitStatusCache
@@ -223,17 +223,17 @@ namespace GVFS.Common
 
         public static class UpgradeVerbMessages
         {
-            public const string GVFSUpgrade = "`gvfs upgrade`";
-            public const string GVFSUpgradeConfirm = "`gvfs upgrade --confirm`";
-            public const string GVFSUpgradeDryRun = "`gvfs upgrade --dry-run`";
+            public const string ScalarUpgrade = "`scalar upgrade`";
+            public const string ScalarUpgradeConfirm = "`scalar upgrade --confirm`";
+            public const string ScalarUpgradeDryRun = "`scalar upgrade --dry-run`";
             public const string NoUpgradeCheckPerformed = "No upgrade check was performed.";
             public const string NoneRingConsoleAlert = "Upgrade ring set to \"None\". " + NoUpgradeCheckPerformed;
             public const string NoRingConfigConsoleAlert = "Upgrade ring is not set. " + NoUpgradeCheckPerformed;
             public const string InvalidRingConsoleAlert = "Upgrade ring set to unknown value. " + NoUpgradeCheckPerformed;
-            public const string SetUpgradeRingCommand = "To set or change upgrade ring, run `gvfs config " + LocalGVFSConfig.UpgradeRing + " [\"Fast\"|\"Slow\"|\"None\"]` from a command prompt.";
-            public const string ReminderNotification = "A new version of GVFS is available. Run " + UpgradeVerbMessages.GVFSUpgradeConfirm + " from an elevated command prompt to upgrade.";
-            public const string UnmountRepoWarning = "Upgrade will unmount and remount gvfs repos, ensure you are at a stopping point.";
-            public const string UpgradeInstallAdvice = "When ready, run " + UpgradeVerbMessages.GVFSUpgradeConfirm + " from an elevated command prompt.";
+            public const string SetUpgradeRingCommand = "To set or change upgrade ring, run `scalar config " + LocalScalarConfig.UpgradeRing + " [\"Fast\"|\"Slow\"|\"None\"]` from a command prompt.";
+            public const string ReminderNotification = "A new version of Scalar is available. Run " + UpgradeVerbMessages.ScalarUpgradeConfirm + " from an elevated command prompt to upgrade.";
+            public const string UnmountRepoWarning = "Upgrade will unmount and remount scalar repos, ensure you are at a stopping point.";
+            public const string UpgradeInstallAdvice = "When ready, run " + UpgradeVerbMessages.ScalarUpgradeConfirm + " from an elevated command prompt.";
         }
     }
 }

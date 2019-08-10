@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace GVFS.Common.NamedPipes
+namespace Scalar.Common.NamedPipes
 {
     public class BrokenPipeException : Exception
     {

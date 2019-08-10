@@ -1,13 +1,13 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Should;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Should;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
+namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [Category(Categories.GitCommands)]
@@ -53,7 +53,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 
             this.RunGitDiffWithCorruptObject(truncateObject);
 
-            // TODO 1114508: Update git cat-file to request object from GVFS when it finds a truncated object on disk.
+            // TODO 1114508: Update git cat-file to request object from Scalar when it finds a truncated object on disk.
             ////this.RunGitCatFileWithCorruptObject(truncateObject);
 
             this.RunGitResetHardWithCorruptObject(truncateObject);
@@ -88,7 +88,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 
             ProcessResult revParseResult = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, $"diff {fileName}");
             revParseResult.ExitCode.ShouldEqual(0);
-            revParseResult.Output.ShouldContain("The GVFS network protocol consists of three operations");
+            revParseResult.Output.ShouldContain("The Scalar network protocol consists of three operations");
             revParseResult.Output.ShouldContain(newFileContents);
         }
 

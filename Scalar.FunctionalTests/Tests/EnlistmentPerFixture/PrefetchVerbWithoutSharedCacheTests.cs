@@ -1,13 +1,13 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Should;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Should;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.IO;
 using System.Threading;
 
-namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
+namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     // TODO(#1219): Before these tests can be enabled PostFetchJobShouldComplete needs
     // to work on Mac (where post-fetch.lock is not removed from disk)
@@ -113,7 +113,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(4)]
         public void PrefetchCleansUpOldPrefetchPack()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
             long oldestPackTimestamp = this.GetOldestPackTimestamp(prefetchPacks);
@@ -144,7 +144,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(5)]
         public void PrefetchFailsWhenItCannotRemoveABadPrefetchPack()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
             long mostRecentPackTimestamp = this.GetMostRecentPackTimestamp(prefetchPacks);
@@ -177,7 +177,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(6)]
         public void PrefetchFailsWhenItCannotRemoveAPrefetchPackNewerThanBadPrefetchPack()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
             long oldestPackTimestamp = this.GetOldestPackTimestamp(prefetchPacks);
@@ -211,7 +211,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(7)]
         public void PrefetchFailsWhenItCannotRemoveAPrefetchIdxNewerThanBadPrefetchPack()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
             long oldestPackTimestamp = this.GetOldestPackTimestamp(prefetchPacks);
@@ -249,7 +249,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(8)]
         public void PrefetchCleansUpStaleTempPrefetchPacks()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             // Create stale packs and idxs  in the temp folder
             string stalePackContents = "StalePack";
@@ -299,14 +299,14 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem.CreateEmptyFile(graphLockPath);
 
             // Unmount so we can delete the files.
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             // Force deleting the prefetch packs to make the prefetch non-trivial.
             this.fileSystem.DeleteDirectory(this.PackRoot);
             this.fileSystem.CreateDirectory(this.PackRoot);
 
             // Re-mount so the post-fetch job runs
-            this.Enlistment.MountGVFS();
+            this.Enlistment.MountScalar();
 
             this.Enlistment.Prefetch("--commits");
             this.PostFetchJobShouldComplete();

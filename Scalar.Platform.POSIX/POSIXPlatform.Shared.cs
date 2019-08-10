@@ -1,10 +1,10 @@
-﻿using GVFS.Common;
+﻿using Scalar.Common;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace GVFS.Platform.POSIX
+namespace Scalar.Platform.POSIX
 {
     public abstract partial class POSIXPlatform
     {
@@ -28,10 +28,10 @@ namespace GVFS.Platform.POSIX
             return true;
         }
 
-        public static string GetNamedPipeNameImplementation(string enlistmentRoot, string dotGVFSRoot)
+        public static string GetNamedPipeNameImplementation(string enlistmentRoot, string dotScalarRoot)
         {
             // Pipes are stored as files on POSIX, use a rooted pipe name to keep full control of the location of the file
-            return Path.Combine(enlistmentRoot, dotGVFSRoot, "GVFS_NetCorePipe");
+            return Path.Combine(enlistmentRoot, dotScalarRoot, "Scalar_NetCorePipe");
         }
 
         public static bool IsConsoleOutputRedirectedToFileImplementation()
@@ -40,7 +40,7 @@ namespace GVFS.Platform.POSIX
             return false;
         }
 
-        public static bool TryGetGVFSEnlistmentRootImplementation(string directory, string dotGVFSRoot, out string enlistmentRoot, out string errorMessage)
+        public static bool TryGetScalarEnlistmentRootImplementation(string directory, string dotScalarRoot, out string enlistmentRoot, out string errorMessage)
         {
             enlistmentRoot = null;
 
@@ -50,10 +50,10 @@ namespace GVFS.Platform.POSIX
                 return false;
             }
 
-            enlistmentRoot = Paths.GetRoot(finalDirectory, dotGVFSRoot);
+            enlistmentRoot = Paths.GetRoot(finalDirectory, dotScalarRoot);
             if (enlistmentRoot == null)
             {
-                errorMessage = $"Failed to find the root directory for {dotGVFSRoot} in {finalDirectory}";
+                errorMessage = $"Failed to find the root directory for {dotScalarRoot} in {finalDirectory}";
                 return false;
             }
 

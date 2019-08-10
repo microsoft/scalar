@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace GVFS.Common.FileSystem
+namespace Scalar.Common.FileSystem
 {
     public class FlushToDiskFileStream : FileStream
     {

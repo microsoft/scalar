@@ -1,15 +1,15 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.UnitTests.Mock.Upgrader
+namespace Scalar.UnitTests.Mock.Upgrader
 {
     public class MockGitHubUpgrader : GitHubUpgrader
     {
-        private string expectedGVFSAssetName;
+        private string expectedScalarAssetName;
         private string expectedGitAssetName;
         private ActionType failActionTypes;
 
@@ -30,13 +30,13 @@ namespace GVFS.UnitTests.Mock.Upgrader
             FetchReleaseInfo = 0x1,
             CopyTools = 0x2,
             GitDownload = 0x4,
-            GVFSDownload = 0x8,
+            ScalarDownload = 0x8,
             GitInstall = 0x10,
-            GVFSInstall = 0x20,
-            GVFSCleanup = 0x40,
+            ScalarInstall = 0x20,
+            ScalarCleanup = 0x40,
             GitCleanup = 0x80,
             GitAuthenticodeCheck = 0x100,
-            GVFSAuthenticodeCheck = 0x200,
+            ScalarAuthenticodeCheck = 0x200,
             CreateDownloadDirectory = 0x400,
         }
 
@@ -67,30 +67,30 @@ namespace GVFS.UnitTests.Mock.Upgrader
 
         public void PretendNewReleaseAvailableAtRemote(string upgradeVersion, GitHubUpgraderConfig.RingType remoteRing)
         {
-            string assetDownloadURLPrefix = "https://github.com/Microsoft/VFSForGit/releases/download/v" + upgradeVersion;
+            string assetDownloadURLPrefix = "https://github.com/Microsoft/Scalar/releases/download/v" + upgradeVersion;
             Release release = new Release();
 
-            release.Name = "GVFS " + upgradeVersion;
+            release.Name = "Scalar " + upgradeVersion;
             release.Tag = "v" + upgradeVersion;
             release.PreRelease = remoteRing == GitHubUpgraderConfig.RingType.Fast;
             release.Assets = new List<Asset>();
 
             Random random = new Random();
-            Asset gvfsAsset = new Asset();
-            gvfsAsset.Name = "VFSForGit." + upgradeVersion + GVFSPlatform.Instance.Constants.InstallerExtension;
+            Asset scalarAsset = new Asset();
+            scalarAsset.Name = "Scalar." + upgradeVersion + ScalarPlatform.Instance.Constants.InstallerExtension;
 
             // This is not cross-checked anywhere, random value is good.
-            gvfsAsset.Size = random.Next(int.MaxValue / 10, int.MaxValue / 2);
-            gvfsAsset.DownloadURL = new Uri(assetDownloadURLPrefix + "/VFSForGit." + upgradeVersion + GVFSPlatform.Instance.Constants.InstallerExtension);
-            release.Assets.Add(gvfsAsset);
+            scalarAsset.Size = random.Next(int.MaxValue / 10, int.MaxValue / 2);
+            scalarAsset.DownloadURL = new Uri(assetDownloadURLPrefix + "/Scalar." + upgradeVersion + ScalarPlatform.Instance.Constants.InstallerExtension);
+            release.Assets.Add(scalarAsset);
 
             Asset gitAsset = new Asset();
-            gitAsset.Name = "Git-2.17.1.gvfs.2.1.4.g4385455-64-bit" + GVFSPlatform.Instance.Constants.InstallerExtension;
+            gitAsset.Name = "Git-2.17.1.scalar.2.1.4.g4385455-64-bit" + ScalarPlatform.Instance.Constants.InstallerExtension;
             gitAsset.Size = random.Next(int.MaxValue / 10, int.MaxValue / 2);
-            gitAsset.DownloadURL = new Uri(assetDownloadURLPrefix + "/Git-2.17.1.gvfs.2.1.4.g4385455-64-bit" + GVFSPlatform.Instance.Constants.InstallerExtension);
+            gitAsset.DownloadURL = new Uri(assetDownloadURLPrefix + "/Git-2.17.1.scalar.2.1.4.g4385455-64-bit" + ScalarPlatform.Instance.Constants.InstallerExtension);
             release.Assets.Add(gitAsset);
 
-            this.expectedGVFSAssetName = gvfsAsset.Name;
+            this.expectedScalarAssetName = scalarAsset.Name;
             this.expectedGitAssetName = gitAsset.Name;
             this.FakeUpgradeRelease = release;
         }
@@ -104,7 +104,7 @@ namespace GVFS.UnitTests.Mock.Upgrader
                 return false;
             }
 
-            upgradeApplicationPath = @"mock:\ProgramData\GVFS\GVFS.Upgrade\Tools\GVFS.Upgrader.exe";
+            upgradeApplicationPath = @"mock:\ProgramData\Scalar\Scalar.Upgrade\Tools\Scalar.Upgrader.exe";
             error = null;
             return true;
         }
@@ -124,11 +124,11 @@ namespace GVFS.UnitTests.Mock.Upgrader
         protected override bool TryDownloadAsset(Asset asset, out string errorMessage)
         {
             bool validAsset = true;
-            if (this.expectedGVFSAssetName.Equals(asset.Name, StringComparison.OrdinalIgnoreCase))
+            if (this.expectedScalarAssetName.Equals(asset.Name, StringComparison.OrdinalIgnoreCase))
             {
-                if (this.failActionTypes.HasFlag(ActionType.GVFSDownload))
+                if (this.failActionTypes.HasFlag(ActionType.ScalarDownload))
                 {
-                    errorMessage = "Error downloading GVFS from GitHub";
+                    errorMessage = "Error downloading Scalar from GitHub";
                     return false;
                 }
             }
@@ -147,7 +147,7 @@ namespace GVFS.UnitTests.Mock.Upgrader
 
             if (validAsset)
             {
-                string fakeDownloadDirectory = @"mock:\ProgramData\GVFS\GVFS.Upgrade\Downloads";
+                string fakeDownloadDirectory = @"mock:\ProgramData\Scalar\Scalar.Upgrade\Downloads";
                 asset.LocalPath = Path.Combine(fakeDownloadDirectory, asset.Name);
                 this.DownloadedFiles.Add(asset.LocalPath);
 
@@ -161,11 +161,11 @@ namespace GVFS.UnitTests.Mock.Upgrader
 
         protected override bool TryDeleteDownloadedAsset(Asset asset, out Exception exception)
         {
-            if (this.expectedGVFSAssetName.Equals(asset.Name, StringComparison.OrdinalIgnoreCase))
+            if (this.expectedScalarAssetName.Equals(asset.Name, StringComparison.OrdinalIgnoreCase))
             {
-                if (this.failActionTypes.HasFlag(ActionType.GVFSCleanup))
+                if (this.failActionTypes.HasFlag(ActionType.ScalarCleanup))
                 {
-                    exception = new Exception("Error deleting downloaded GVFS installer.");
+                    exception = new Exception("Error deleting downloaded Scalar installer.");
                     return false;
                 }
 
@@ -228,26 +228,26 @@ namespace GVFS.UnitTests.Mock.Upgrader
                 if (this.failActionTypes.HasFlag(ActionType.GitAuthenticodeCheck))
                 {
                     exitCode = -1;
-                    error = "The contents of file C:\\ProgramData\\GVFS\\GVFS.Upgrade\\Tools\\Git-2.17.1.gvfs.2.1.4.g4385455-64-bit might have been changed by an unauthorized user or process, because the hash of the file does not match the hash stored in the digital signature. The script cannot run on the specified system. For more information, run Get-Help about_Signing.";
+                    error = "The contents of file C:\\ProgramData\\Scalar\\Scalar.Upgrade\\Tools\\Git-2.17.1.scalar.2.1.4.g4385455-64-bit might have been changed by an unauthorized user or process, because the hash of the file does not match the hash stored in the digital signature. The script cannot run on the specified system. For more information, run Get-Help about_Signing.";
                 }
 
                 return;
             }
 
-            if (fileName.Equals(this.expectedGVFSAssetName, StringComparison.OrdinalIgnoreCase))
+            if (fileName.Equals(this.expectedScalarAssetName, StringComparison.OrdinalIgnoreCase))
             {
-                this.InstallerArgs.Add("GVFS", installationInfo);
+                this.InstallerArgs.Add("Scalar", installationInfo);
                 this.InstallerExeLaunched = true;
-                if (this.failActionTypes.HasFlag(ActionType.GVFSInstall))
+                if (this.failActionTypes.HasFlag(ActionType.ScalarInstall))
                 {
                     exitCode = -1;
-                    error = "GVFS installation failed";
+                    error = "Scalar installation failed";
                 }
 
-                if (this.failActionTypes.HasFlag(ActionType.GVFSAuthenticodeCheck))
+                if (this.failActionTypes.HasFlag(ActionType.ScalarAuthenticodeCheck))
                 {
                     exitCode = -1;
-                    error = "The contents of file C:\\ProgramData\\GVFS\\GVFS.Upgrade\\Tools\\SetupGVFS.1.0.18297.1.exe might have been changed by an unauthorized user or process, because the hash of the file does not match the hash stored in the digital signature. The script cannot run on the specified system. For more information, run Get-Help about_Signing.";
+                    error = "The contents of file C:\\ProgramData\\Scalar\\Scalar.Upgrade\\Tools\\SetupScalar.1.0.18297.1.exe might have been changed by an unauthorized user or process, because the hash of the file does not match the hash stored in the digital signature. The script cannot run on the specified system. For more information, run Get-Help about_Signing.";
                 }
 
                 return;

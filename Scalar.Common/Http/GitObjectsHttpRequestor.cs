@@ -1,5 +1,5 @@
-﻿using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,12 +9,12 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 
-namespace GVFS.Common.Http
+namespace Scalar.Common.Http
 {
     public class GitObjectsHttpRequestor : HttpRequestor
     {
         private static readonly MediaTypeWithQualityHeaderValue CustomLooseObjectsHeader
-            = new MediaTypeWithQualityHeaderValue(GVFSConstants.MediaTypes.CustomLooseObjectsMediaType);
+            = new MediaTypeWithQualityHeaderValue(ScalarConstants.MediaTypes.CustomLooseObjectsMediaType);
 
         private Enlistment enlistment;
 
@@ -35,7 +35,7 @@ namespace GVFS.Common.Http
 
             string objectIdsJson = ToJsonList(objectIds);
             Uri cacheServerEndpoint = new Uri(this.CacheServer.SizesEndpointUrl);
-            Uri originEndpoint = new Uri(this.enlistment.RepoUrl + GVFSConstants.Endpoints.GVFSSizes);
+            Uri originEndpoint = new Uri(this.enlistment.RepoUrl + ScalarConstants.Endpoints.ScalarSizes);
 
             EventMetadata metadata = new EventMetadata();
             metadata.Add("RequestId", requestId);
@@ -57,17 +57,17 @@ namespace GVFS.Common.Http
             RetryWrapper<List<GitObjectSize>>.InvocationResult requestTask = retrier.Invoke(
                 tryCount =>
                 {
-                    Uri gvfsEndpoint;
+                    Uri scalarEndpoint;
                     if (this.nextCacheServerAttemptTime < DateTime.Now)
                     {
-                        gvfsEndpoint = cacheServerEndpoint;
+                        scalarEndpoint = cacheServerEndpoint;
                     }
                     else
                     {
-                        gvfsEndpoint = originEndpoint;
+                        scalarEndpoint = originEndpoint;
                     }
 
-                    using (GitEndPointResponseData response = this.SendRequest(requestId, gvfsEndpoint, HttpMethod.Post, objectIdsJson, cancellationToken))
+                    using (GitEndPointResponseData response = this.SendRequest(requestId, scalarEndpoint, HttpMethod.Post, objectIdsJson, cancellationToken))
                     {
                         if (response.StatusCode == HttpStatusCode.NotFound)
                         {
@@ -96,7 +96,7 @@ namespace GVFS.Common.Http
             Uri infoRefsEndpoint;
             try
             {
-                infoRefsEndpoint = new Uri(this.enlistment.RepoUrl + GVFSConstants.Endpoints.InfoRefs);
+                infoRefsEndpoint = new Uri(this.enlistment.RepoUrl + ScalarConstants.Endpoints.InfoRefs);
             }
             catch (UriFormatException)
             {

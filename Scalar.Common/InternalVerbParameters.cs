@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public class InternalVerbParameters
     {

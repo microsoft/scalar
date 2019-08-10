@@ -1,8 +1,8 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 
-namespace GVFS.UnitTests.Mock.FileSystem
+namespace Scalar.UnitTests.Mock.FileSystem
 {
     public class MockPlatformFileSystem : IPlatformFileSystem
     {

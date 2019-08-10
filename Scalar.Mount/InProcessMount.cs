@@ -1,10 +1,10 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.Maintenance;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.Maintenance;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,26 +12,26 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
-namespace GVFS.Mount
+namespace Scalar.Mount
 {
     public class InProcessMount
     {
         private readonly bool showDebugWindow;
 
-        private GVFSEnlistment enlistment;
+        private ScalarEnlistment enlistment;
         private ITracer tracer;
         private GitMaintenanceScheduler maintenanceScheduler;
 
         private CacheServerInfo cacheServer;
         private RetryConfig retryConfig;
 
-        private GVFSContext context;
-        private GVFSGitObjects gitObjects;
+        private ScalarContext context;
+        private ScalarGitObjects gitObjects;
 
         private MountState currentState;
         private ManualResetEvent unmountEvent;
 
-        public InProcessMount(ITracer tracer, GVFSEnlistment enlistment, CacheServerInfo cacheServer, RetryConfig retryConfig, bool showDebugWindow)
+        public InProcessMount(ITracer tracer, ScalarEnlistment enlistment, CacheServerInfo cacheServer, RetryConfig retryConfig, bool showDebugWindow)
         {
             this.tracer = tracer;
             this.retryConfig = retryConfig;
@@ -58,7 +58,7 @@ namespace GVFS.Mount
             // We must initialize repo metadata before starting the pipe server so it
             // can immediately handle status requests
             string error;
-            if (!RepoMetadata.TryInitialize(this.tracer, this.enlistment.DotGVFSRoot, out error))
+            if (!RepoMetadata.TryInitialize(this.tracer, this.enlistment.DotScalarRoot, out error))
             {
                 this.FailMountAndExit("Failed to load repo metadata: " + error);
             }
@@ -104,7 +104,7 @@ namespace GVFS.Mount
 
                 if (this.context.Unattended)
                 {
-                    this.tracer.RelatedEvent(EventLevel.Critical, GVFSConstants.UnattendedEnvironmentVariable, null);
+                    this.tracer.RelatedEvent(EventLevel.Critical, ScalarConstants.UnattendedEnvironmentVariable, null);
                 }
 
                 this.ValidateMountPoints();
@@ -115,11 +115,11 @@ namespace GVFS.Mount
                     this.FailMountAndExit(errorMessage);
                 }
 
-                GVFSPlatform.Instance.ConfigureVisualStudio(this.enlistment.GitBinPath, this.tracer);
+                ScalarPlatform.Instance.ConfigureVisualStudio(this.enlistment.GitBinPath, this.tracer);
 
                 this.MountAndStartWorkingDirectoryCallbacks(this.cacheServer);
 
-                Console.Title = "GVFS " + ProcessHelper.GetCurrentProcessVersion() + " - " + this.enlistment.EnlistmentRoot;
+                Console.Title = "Scalar " + ProcessHelper.GetCurrentProcessVersion() + " - " + this.enlistment.EnlistmentRoot;
 
                 this.tracer.RelatedEvent(
                     EventLevel.Informational,
@@ -138,7 +138,7 @@ namespace GVFS.Mount
             }
         }
 
-        private GVFSContext CreateContext()
+        private ScalarContext CreateContext()
         {
             PhysicalFileSystem fileSystem = new PhysicalFileSystem();
             GitRepo gitRepo = this.CreateOrReportAndExit(
@@ -147,7 +147,7 @@ namespace GVFS.Mount
                     this.enlistment,
                     fileSystem),
                 "Failed to read git repo");
-            return new GVFSContext(this.tracer, fileSystem, gitRepo, this.enlistment);
+            return new ScalarContext(this.tracer, fileSystem, gitRepo, this.enlistment);
         }
 
         private void ValidateMountPoints()
@@ -158,7 +158,7 @@ namespace GVFS.Mount
                 this.FailMountAndExit("Failed to initialize file system callbacks. Directory \"{0}\" must exist.", this.enlistment.WorkingDirectoryBackingRoot);
             }
 
-            string dotGitPath = Path.Combine(this.enlistment.WorkingDirectoryBackingRoot, GVFSConstants.DotGit.Root);
+            string dotGitPath = Path.Combine(this.enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Root);
             DirectoryInfo dotGitPathInfo = new DirectoryInfo(dotGitPath);
             if (!dotGitPathInfo.Exists)
             {
@@ -258,7 +258,7 @@ namespace GVFS.Mount
                 else
                 {
                     Stopwatch downloadTime = Stopwatch.StartNew();
-                    if (this.gitObjects.TryDownloadAndSaveObject(objectSha, GVFSGitObjects.RequestSource.NamedPipeMessage) == GitObjects.DownloadAndSaveObjectResult.Success)
+                    if (this.gitObjects.TryDownloadAndSaveObject(objectSha, ScalarGitObjects.RequestSource.NamedPipeMessage) == GitObjects.DownloadAndSaveObjectResult.Success)
                     {
                         response = new NamedPipeMessages.DownloadObject.Response(NamedPipeMessages.DownloadObject.SuccessResult);
                     }
@@ -269,7 +269,7 @@ namespace GVFS.Mount
 
                     bool isBlob;
                     this.context.Repository.TryGetIsBlob(objectSha, out isBlob);
-                    this.context.Repository.GVFSLock.Stats.RecordObjectDownload(isBlob, downloadTime.ElapsedMilliseconds);
+                    this.context.Repository.ScalarLock.Stats.RecordObjectDownload(isBlob, downloadTime.ElapsedMilliseconds);
                 }
             }
 
@@ -305,7 +305,7 @@ namespace GVFS.Mount
             response.LocalCacheRoot = !string.IsNullOrWhiteSpace(this.enlistment.LocalCacheRoot) ? this.enlistment.LocalCacheRoot : this.enlistment.GitObjectsRoot;
             response.RepoUrl = this.enlistment.RepoUrl;
             response.CacheServer = this.cacheServer.ToString();
-            response.DiskLayoutVersion = $"{GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion}.{GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMinorVersion}";
+            response.DiskLayoutVersion = $"{ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion}.{ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMinorVersion}";
 
             switch (this.currentState)
             {
@@ -326,7 +326,7 @@ namespace GVFS.Mount
                     break;
 
                 default:
-                    response.MountStatus = NamedPipeMessages.UnknownGVFSState;
+                    response.MountStatus = NamedPipeMessages.UnknownScalarState;
                     break;
             }
 
@@ -362,7 +362,7 @@ namespace GVFS.Mount
                     break;
 
                 default:
-                    connection.TrySendResponse(NamedPipeMessages.UnknownGVFSState);
+                    connection.TrySendResponse(NamedPipeMessages.UnknownScalarState);
                     break;
             }
         }
@@ -376,7 +376,7 @@ namespace GVFS.Mount
             }
 
             GitObjectsHttpRequestor objectRequestor = new GitObjectsHttpRequestor(this.context.Tracer, this.context.Enlistment, cache, this.retryConfig);
-            this.gitObjects = new GVFSGitObjects(this.context, objectRequestor);
+            this.gitObjects = new ScalarGitObjects(this.context, objectRequestor);
 
             this.maintenanceScheduler = this.CreateOrReportAndExit(() => new GitMaintenanceScheduler(this.context, this.gitObjects), "Failed to start maintenance scheduler");
 
@@ -387,12 +387,12 @@ namespace GVFS.Mount
                 this.FailMountAndExit("Error: {0}", error);
             }
 
-            if (majorVersion != GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion)
+            if (majorVersion != ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion)
             {
                 this.FailMountAndExit(
                     "Error: On disk version ({0}) does not match current version ({1})",
                     majorVersion,
-                    GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion);
+                    ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion);
             }
         }
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public class GitVersion
     {
@@ -24,7 +24,7 @@ namespace GVFS.Common.Git
         public static bool TryParseGitVersionCommandResult(string input, out GitVersion version)
         {
             // git version output is of the form
-            // git version 2.17.0.gvfs.1.preview.3
+            // git version 2.17.0.scalar.1.preview.3
 
             const string GitVersionExpectedPrefix = "git version ";
 
@@ -39,7 +39,7 @@ namespace GVFS.Common.Git
         public static bool TryParseInstallerName(string input, string installerExtension, out GitVersion version)
         {
             // Installer name is of the form
-            // Git-2.14.1.gvfs.1.1.gb16030b-64-bit.exe
+            // Git-2.14.1.scalar.1.1.gb16030b-64-bit.exe
 
             version = null;
 

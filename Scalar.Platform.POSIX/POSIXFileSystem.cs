@@ -1,11 +1,11 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace GVFS.Platform.POSIX
+namespace Scalar.Platform.POSIX
 {
     public abstract partial class POSIXFileSystem : IPlatformFileSystem
     {

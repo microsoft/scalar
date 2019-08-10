@@ -1,12 +1,12 @@
 using System;
 using System.IO.Pipes;
 using System.Threading;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
 using Moq;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Tracing
+namespace Scalar.UnitTests.Tracing
 {
     [TestFixture]
     public class QueuedPipeStringWriterTests

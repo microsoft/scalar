@@ -1,4 +1,4 @@
-namespace GVFS.Common
+namespace Scalar.Common
 {
     /// <summary>
     /// Default product implementation of IProcessRunner

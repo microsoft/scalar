@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace GVFS.Common.NetworkStreams
+namespace Scalar.Common.NetworkStreams
 {
     /// <summary>
     /// Deserializer for packs and indexes for prefetch packs.

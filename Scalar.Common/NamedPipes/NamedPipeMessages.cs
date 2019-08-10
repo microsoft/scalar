@@ -2,19 +2,19 @@
 using System;
 using System.Collections.Generic;
 
-namespace GVFS.Common.NamedPipes
+namespace Scalar.Common.NamedPipes
 {
     /// <summary>
-    /// Define messages used to communicate via the named-pipe in GVFS.
+    /// Define messages used to communicate via the named-pipe in Scalar.
     /// </summary>
     /// <remarks>
-    /// This class is defined as partial so that GVFS.Hooks
+    /// This class is defined as partial so that Scalar.Hooks
     /// can compile the portions of it that it cares about (see LockedNamedPipeMessages).
     /// </remarks>
     public static partial class NamedPipeMessages
     {
         public const string UnknownRequest = "UnknownRequest";
-        public const string UnknownGVFSState = "UnknownGVFSState";
+        public const string UnknownScalarState = "UnknownScalarState";
         public const string MountNotReadyResult = "MountNotReady";
 
         private const string ResponseSuffix = "Response";

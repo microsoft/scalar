@@ -1,7 +1,7 @@
-﻿using GVFS.Common;
-using GVFS.DiskLayoutUpgrades;
+﻿using Scalar.Common;
+using Scalar.DiskLayoutUpgrades;
 
-namespace GVFS.Platform.Mac
+namespace Scalar.Platform.Mac
 {
     public class MacDiskLayoutUpgradeData : IDiskLayoutUpgradeData
     {
@@ -20,7 +20,7 @@ namespace GVFS.Platform.Mac
             currentMinorVersion: 0,
             minimumSupportedMajorVersion: 0);
 
-        public bool TryParseLegacyDiskLayoutVersion(string dotGVFSPath, out int majorVersion)
+        public bool TryParseLegacyDiskLayoutVersion(string dotScalarPath, out int majorVersion)
         {
             majorVersion = 0;
             return false;

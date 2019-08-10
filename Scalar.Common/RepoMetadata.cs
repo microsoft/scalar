@@ -1,10 +1,10 @@
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public class RepoMetadata
     {
@@ -38,14 +38,14 @@ namespace GVFS.Common
             get { return this.repoMetadata.DataFilePath; }
         }
 
-        public static bool TryInitialize(ITracer tracer, string dotGVFSPath, out string error)
+        public static bool TryInitialize(ITracer tracer, string dotScalarPath, out string error)
         {
-            return TryInitialize(tracer, new PhysicalFileSystem(), dotGVFSPath, out error);
+            return TryInitialize(tracer, new PhysicalFileSystem(), dotScalarPath, out error);
         }
 
-        public static bool TryInitialize(ITracer tracer, PhysicalFileSystem fileSystem, string dotGVFSPath, out string error)
+        public static bool TryInitialize(ITracer tracer, PhysicalFileSystem fileSystem, string dotScalarPath, out string error)
         {
-            string dictionaryPath = Path.Combine(dotGVFSPath, GVFSConstants.DotGVFS.Databases.RepoMetadata);
+            string dictionaryPath = Path.Combine(dotScalarPath, ScalarConstants.DotScalar.Databases.RepoMetadata);
             if (Instance != null)
             {
                 if (!Instance.repoMetadata.DataFilePath.Equals(dictionaryPath, StringComparison.OrdinalIgnoreCase))
@@ -99,7 +99,7 @@ namespace GVFS.Common
                 string value;
                 if (!this.repoMetadata.TryGetValue(Keys.DiskLayoutMajorVersion, out value))
                 {
-                    error = "Enlistment disk layout version not found, check if a breaking change has been made to GVFS since cloning this enlistment.";
+                    error = "Enlistment disk layout version not found, check if a breaking change has been made to Scalar since cloning this enlistment.";
                     return false;
                 }
 
@@ -128,13 +128,13 @@ namespace GVFS.Common
             return true;
         }
 
-        public void SaveCloneMetadata(ITracer tracer, GVFSEnlistment enlistment)
+        public void SaveCloneMetadata(ITracer tracer, ScalarEnlistment enlistment)
         {
             this.repoMetadata.SetValuesAndFlush(
                 new[]
                 {
-                    new KeyValuePair<string, string>(Keys.DiskLayoutMajorVersion, GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion.ToString()),
-                    new KeyValuePair<string, string>(Keys.DiskLayoutMinorVersion, GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMinorVersion.ToString()),
+                    new KeyValuePair<string, string>(Keys.DiskLayoutMajorVersion, ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion.ToString()),
+                    new KeyValuePair<string, string>(Keys.DiskLayoutMinorVersion, ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMinorVersion.ToString()),
                     new KeyValuePair<string, string>(Keys.GitObjectsRoot, enlistment.GitObjectsRoot),
                     new KeyValuePair<string, string>(Keys.LocalCacheRoot, enlistment.LocalCacheRoot),
                     new KeyValuePair<string, string>(Keys.BlobSizesRoot, enlistment.BlobSizesRoot),

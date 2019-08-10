@@ -1,22 +1,22 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Maintenance;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
-using GVFS.UnitTests.Mock.Git;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Maintenance;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
+using Scalar.UnitTests.Mock.Git;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace GVFS.UnitTests.Maintenance
+namespace Scalar.UnitTests.Maintenance
 {
     [TestFixture]
     public class PostFetchStepTests
     {
         private MockTracer tracer;
         private MockGitProcess gitProcess;
-        private GVFSContext context;
+        private ScalarContext context;
 
         private string CommitGraphWriteCommand => $"commit-graph write --stdin-packs --split --size-multiple=4 --object-dir \"{this.context.Enlistment.GitObjectsRoot}\"";
         private string CommitGraphVerifyCommand => $"commit-graph verify --shallow --object-dir \"{this.context.Enlistment.GitObjectsRoot}\"";
@@ -89,13 +89,13 @@ namespace GVFS.UnitTests.Maintenance
             this.gitProcess = new MockGitProcess();
 
             // Create enlistment using git process
-            GVFSEnlistment enlistment = new MockGVFSEnlistment(this.gitProcess);
+            ScalarEnlistment enlistment = new MockScalarEnlistment(this.gitProcess);
 
             PhysicalFileSystem fileSystem = new MockFileSystem(new MockDirectory(enlistment.EnlistmentRoot, null, null));
 
             // Create and return Context
             this.tracer = new MockTracer();
-            this.context = new GVFSContext(this.tracer, fileSystem, repository: null, enlistment: enlistment);
+            this.context = new ScalarContext(this.tracer, fileSystem, repository: null, enlistment: enlistment);
         }
     }
 }

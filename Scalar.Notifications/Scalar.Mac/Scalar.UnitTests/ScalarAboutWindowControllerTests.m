@@ -1,27 +1,27 @@
 #import <XCTest/XCTest.h>
-#import "VFSMockAboutWindowController.h"
-#import "VFSMockProductInfoFetcher.h"
+#import "ScalarMockAboutWindowController.h"
+#import "ScalarMockProductInfoFetcher.h"
 
 NSString * const ExpectedGitVersionString = @"2.20.1.vfs.1.1.104.g2ab7360";
-NSString * const ExpectedVFSForGitVersionString = @"1.0.19116.1";
+NSString * const ExpectedScalarVersionString = @"1.0.19116.1";
 
-@interface VFSAboutWindowControllerTests : XCTestCase
+@interface ScalarAboutWindowControllerTests : XCTestCase
 
-@property (strong) VFSAboutWindowController *windowController;
+@property (strong) ScalarAboutWindowController *windowController;
 
 @end
 
-@implementation VFSAboutWindowControllerTests
+@implementation ScalarAboutWindowControllerTests
 
 - (void)setUp
 {
     [super setUp];
     
-    VFSMockProductInfoFetcher *mockProductInfoFetcher =
-    [[VFSMockProductInfoFetcher alloc] initWithGitVersion:(NSString *) ExpectedGitVersionString
-                                         vfsforgitVersion:(NSString *) ExpectedVFSForGitVersionString];
+    ScalarMockProductInfoFetcher *mockProductInfoFetcher =
+    [[ScalarMockProductInfoFetcher alloc] initWithGitVersion:(NSString *) ExpectedGitVersionString
+                                         scalarVersion:(NSString *) ExpectedScalarVersionString];
     
-    self.windowController = [[VFSAboutWindowController alloc]
+    self.windowController = [[ScalarAboutWindowController alloc]
         initWithProductInfoFetcher:mockProductInfoFetcher];
 }
 
@@ -30,11 +30,11 @@ NSString * const ExpectedVFSForGitVersionString = @"1.0.19116.1";
     [super tearDown];
 }
 
-- (void)testAboutWindowContainsGVFSVersion
+- (void)testAboutWindowContainsScalarVersion
 {
-    XCTAssertEqual(self.windowController.vfsforgitVersion,
-                   ExpectedVFSForGitVersionString,
-                   @"Incorrect VFSForGit version displayed in About box");
+    XCTAssertEqual(self.windowController.scalarVersion,
+                   ExpectedScalarVersionString,
+                   @"Incorrect Scalar version displayed in About box");
 }
 
 - (void)testAboutWindowContainsGitVersion

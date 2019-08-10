@@ -1,4 +1,4 @@
-﻿using GVFS.Common;
+﻿using Scalar.Common;
 using Microsoft.Win32.SafeHandles;
 using System;
 using System.Diagnostics;
@@ -6,11 +6,11 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 
-namespace GVFS.Platform.Windows
+namespace Scalar.Platform.Windows
 {
     public partial class WindowsPlatform
     {
-        public const string DotGVFSRoot = ".gvfs";
+        public const string DotScalarRoot = ".scalar";
 
         private const int StillActive = 259; /* from Win32 STILL_ACTIVE */
 
@@ -71,19 +71,19 @@ namespace GVFS.Platform.Windows
 
         public static string GetNamedPipeNameImplementation(string enlistmentRoot)
         {
-            return "GVFS_" + enlistmentRoot.ToUpper().Replace(':', '_');
+            return "Scalar_" + enlistmentRoot.ToUpper().Replace(':', '_');
         }
 
-        public static string GetDataRootForGVFSImplementation()
+        public static string GetDataRootForScalarImplementation()
         {
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.Create),
-                "GVFS");
+                "Scalar");
         }
 
-        public static string GetDataRootForGVFSComponentImplementation(string componentName)
+        public static string GetDataRootForScalarComponentImplementation(string componentName)
         {
-            return Path.Combine(GetDataRootForGVFSImplementation(), componentName);
+            return Path.Combine(GetDataRootForScalarImplementation(), componentName);
         }
 
         public static bool IsConsoleOutputRedirectedToFileImplementation()
@@ -91,7 +91,7 @@ namespace GVFS.Platform.Windows
             return FileType.Disk == GetFileType(GetStdHandle(StdHandle.Stdout));
         }
 
-        public static bool TryGetGVFSEnlistmentRootImplementation(string directory, out string enlistmentRoot, out string errorMessage)
+        public static bool TryGetScalarEnlistmentRootImplementation(string directory, out string enlistmentRoot, out string errorMessage)
         {
             enlistmentRoot = null;
 
@@ -101,10 +101,10 @@ namespace GVFS.Platform.Windows
                 return false;
             }
 
-            enlistmentRoot = Paths.GetRoot(finalDirectory, DotGVFSRoot);
+            enlistmentRoot = Paths.GetRoot(finalDirectory, DotScalarRoot);
             if (enlistmentRoot == null)
             {
-                errorMessage = $"Failed to find the root directory for {DotGVFSRoot} in {finalDirectory}";
+                errorMessage = $"Failed to find the root directory for {DotScalarRoot} in {finalDirectory}";
                 return false;
             }
 
@@ -113,7 +113,7 @@ namespace GVFS.Platform.Windows
 
         public static string GetUpgradeProtectedDataDirectoryImplementation()
         {
-            return Path.Combine(GetDataRootForGVFSImplementation(), ProductUpgraderInfo.UpgradeDirectoryName);
+            return Path.Combine(GetDataRootForScalarImplementation(), ProductUpgraderInfo.UpgradeDirectoryName);
         }
 
         public static string GetUpgradeHighestAvailableVersionDirectoryImplementation()

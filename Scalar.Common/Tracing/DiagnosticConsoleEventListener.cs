@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GVFS.Common.Tracing
+namespace Scalar.Common.Tracing
 {
     /// <summary>
     ///   An event listener that will print all telemetry messages to the console with timestamps.

@@ -1,11 +1,11 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 
-namespace GVFS.Common.Http
+namespace Scalar.Common.Http
 {
     public class ConfigHttpRequestor : HttpRequestor
     {
@@ -17,68 +17,68 @@ namespace GVFS.Common.Http
             this.repoUrl = enlistment.RepoUrl;
         }
 
-        public bool TryQueryGVFSConfig(bool logErrors, out ServerGVFSConfig serverGVFSConfig, out HttpStatusCode? httpStatus, out string errorMessage)
+        public bool TryQueryScalarConfig(bool logErrors, out ServerScalarConfig serverScalarConfig, out HttpStatusCode? httpStatus, out string errorMessage)
         {
-            serverGVFSConfig = null;
+            serverScalarConfig = null;
             httpStatus = null;
             errorMessage = null;
 
-            Uri gvfsConfigEndpoint;
-            string gvfsConfigEndpointString = this.repoUrl + GVFSConstants.Endpoints.GVFSConfig;
+            Uri scalarConfigEndpoint;
+            string scalarConfigEndpointString = this.repoUrl + ScalarConstants.Endpoints.ScalarConfig;
             try
             {
-                gvfsConfigEndpoint = new Uri(gvfsConfigEndpointString);
+                scalarConfigEndpoint = new Uri(scalarConfigEndpointString);
             }
             catch (UriFormatException e)
             {
                 EventMetadata metadata = new EventMetadata();
-                metadata.Add("Method", nameof(this.TryQueryGVFSConfig));
+                metadata.Add("Method", nameof(this.TryQueryScalarConfig));
                 metadata.Add("Exception", e.ToString());
-                metadata.Add("Url", gvfsConfigEndpointString);
+                metadata.Add("Url", scalarConfigEndpointString);
                 this.Tracer.RelatedError(metadata, "UriFormatException when constructing Uri", Keywords.Network);
 
                 return false;
             }
 
             long requestId = HttpRequestor.GetNewRequestId();
-            RetryWrapper<ServerGVFSConfig> retrier = new RetryWrapper<ServerGVFSConfig>(this.RetryConfig.MaxAttempts, CancellationToken.None);
+            RetryWrapper<ServerScalarConfig> retrier = new RetryWrapper<ServerScalarConfig>(this.RetryConfig.MaxAttempts, CancellationToken.None);
 
             if (logErrors)
             {
-                retrier.OnFailure += RetryWrapper<ServerGVFSConfig>.StandardErrorHandler(this.Tracer, requestId, "QueryGvfsConfig");
+                retrier.OnFailure += RetryWrapper<ServerScalarConfig>.StandardErrorHandler(this.Tracer, requestId, "QueryGvfsConfig");
             }
 
-            RetryWrapper<ServerGVFSConfig>.InvocationResult output = retrier.Invoke(
+            RetryWrapper<ServerScalarConfig>.InvocationResult output = retrier.Invoke(
                 tryCount =>
                 {
                     using (GitEndPointResponseData response = this.SendRequest(
                         requestId,
-                        gvfsConfigEndpoint,
+                        scalarConfigEndpoint,
                         HttpMethod.Get,
                         requestContent: null,
                         cancellationToken: CancellationToken.None))
                     {
                         if (response.HasErrors)
                         {
-                            return new RetryWrapper<ServerGVFSConfig>.CallbackResult(response.Error, response.ShouldRetry);
+                            return new RetryWrapper<ServerScalarConfig>.CallbackResult(response.Error, response.ShouldRetry);
                         }
 
                         try
                         {
                             string configString = response.RetryableReadToEnd();
-                            ServerGVFSConfig config = JsonConvert.DeserializeObject<ServerGVFSConfig>(configString);
-                            return new RetryWrapper<ServerGVFSConfig>.CallbackResult(config);
+                            ServerScalarConfig config = JsonConvert.DeserializeObject<ServerScalarConfig>(configString);
+                            return new RetryWrapper<ServerScalarConfig>.CallbackResult(config);
                         }
                         catch (JsonReaderException e)
                         {
-                            return new RetryWrapper<ServerGVFSConfig>.CallbackResult(e, shouldRetry: false);
+                            return new RetryWrapper<ServerScalarConfig>.CallbackResult(e, shouldRetry: false);
                         }
                     }
                 });
 
             if (output.Succeeded)
             {
-                serverGVFSConfig = output.Result;
+                serverScalarConfig = output.Result;
                 httpStatus = HttpStatusCode.OK;
                 return true;
             }
@@ -97,7 +97,7 @@ namespace GVFS.Common.Http
                     {
                         { "Exception", output.Error.ToString() }
                     },
-                    $"{nameof(this.TryQueryGVFSConfig)} failed");
+                    $"{nameof(this.TryQueryScalarConfig)} failed");
             }
 
             return false;

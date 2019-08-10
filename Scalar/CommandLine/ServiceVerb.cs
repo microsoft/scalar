@@ -1,15 +1,15 @@
 ﻿using CommandLine;
-using GVFS.Common;
-using GVFS.Common.NamedPipes;
+using Scalar.Common;
+using Scalar.Common.NamedPipes;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
-    [Verb(ServiceVerbName, HelpText = "Runs commands for the GVFS service.")]
-    public class ServiceVerb : GVFSVerb.ForNoEnlistment
+    [Verb(ServiceVerbName, HelpText = "Runs commands for the Scalar service.")]
+    public class ServiceVerb : ScalarVerb.ForNoEnlistment
     {
         private const string ServiceVerbName = "service";
 
@@ -44,11 +44,11 @@ namespace GVFS.CommandLine
             int optionCount = new[] { this.MountAll, this.UnmountAll, this.List }.Count(flag => flag);
             if (optionCount == 0)
             {
-                this.ReportErrorAndExit($"Error: You must specify an argument.  Run 'gvfs {ServiceVerbName} --help' for details.");
+                this.ReportErrorAndExit($"Error: You must specify an argument.  Run 'scalar {ServiceVerbName} --help' for details.");
             }
             else if (optionCount > 1)
             {
-                this.ReportErrorAndExit($"Error: You cannot specify multiple arguments.  Run 'gvfs {ServiceVerbName} --help' for details.");
+                this.ReportErrorAndExit($"Error: You cannot specify multiple arguments.  Run 'scalar {ServiceVerbName} --help' for details.");
             }
 
             string errorMessage;
@@ -137,7 +137,7 @@ namespace GVFS.CommandLine
             {
                 if (!client.Connect())
                 {
-                    errorMessage = "GVFS.Service is not responding.";
+                    errorMessage = "Scalar.Service is not responding.";
                     return false;
                 }
 
@@ -168,12 +168,12 @@ namespace GVFS.CommandLine
                     }
                     else
                     {
-                        errorMessage = string.Format("GVFS.Service responded with unexpected message: {0}", response);
+                        errorMessage = string.Format("Scalar.Service responded with unexpected message: {0}", response);
                     }
                 }
                 catch (BrokenPipeException e)
                 {
-                    errorMessage = "Unable to communicate with GVFS.Service: " + e.ToString();
+                    errorMessage = "Unable to communicate with Scalar.Service: " + e.ToString();
                 }
 
                 return false;

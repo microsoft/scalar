@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GVFS.Common.NuGetUpgrade
+namespace Scalar.Common.NuGetUpgrade
 {
     public class InstallManifestPlatform
     {

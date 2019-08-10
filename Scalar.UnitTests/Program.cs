@@ -1,10 +1,10 @@
-using GVFS.Tests;
-using GVFS.UnitTests.Category;
+using Scalar.Tests;
+using Scalar.UnitTests.Category;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace GVFS.UnitTests
+namespace Scalar.UnitTests
 {
     public class Program
     {

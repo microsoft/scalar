@@ -1,7 +1,7 @@
-﻿using GVFS.Common;
+﻿using Scalar.Common;
 using System.IO;
 
-namespace GVFS.Service
+namespace Scalar.Service
 {
     public class Configuration
     {
@@ -10,8 +10,8 @@ namespace GVFS.Service
 
         private Configuration()
         {
-            this.GVFSLocation = Path.Combine(AssemblyPath, GVFSPlatform.Instance.Constants.GVFSExecutableName);
-            this.GVFSServiceUILocation = Path.Combine(AssemblyPath, GVFSConstants.Service.UIName + GVFSPlatform.Instance.Constants.ExecutableExtension);
+            this.ScalarLocation = Path.Combine(AssemblyPath, ScalarPlatform.Instance.Constants.ScalarExecutableName);
+            this.ScalarServiceUILocation = Path.Combine(AssemblyPath, ScalarConstants.Service.UIName + ScalarPlatform.Instance.Constants.ExecutableExtension);
         }
 
         public static Configuration Instance
@@ -35,7 +35,7 @@ namespace GVFS.Service
             }
         }
 
-        public string GVFSLocation { get; private set; }
-        public string GVFSServiceUILocation { get; private set; }
+        public string ScalarLocation { get; private set; }
+        public string ScalarServiceUILocation { get; private set; }
     }
 }

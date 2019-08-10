@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public class StreamUtil
     {

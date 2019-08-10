@@ -1,15 +1,15 @@
 ﻿using CommandLine;
-using GVFS.Common;
-using GVFS.Common.Http;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.Http;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
     [Verb(CacheVerbName, HelpText = "Manages the cache server configuration for an existing repo.")]
-    public class CacheServerVerb : GVFSVerb.ForExistingEnlistment
+    public class CacheServerVerb : ScalarVerb.ForExistingEnlistment
     {
         private const string CacheVerbName = "cache-server";
 
@@ -34,13 +34,13 @@ namespace GVFS.CommandLine
             get { return CacheVerbName; }
         }
 
-        protected override void Execute(GVFSEnlistment enlistment)
+        protected override void Execute(ScalarEnlistment enlistment)
         {
             this.BlockEmptyCacheServerUrl(this.CacheToSet);
 
             RetryConfig retryConfig = new RetryConfig(RetryConfig.DefaultMaxRetries, TimeSpan.FromMinutes(RetryConfig.FetchAndCloneTimeoutMinutes));
 
-            using (ITracer tracer = new JsonTracer(GVFSConstants.GVFSEtwProviderName, "CacheVerb"))
+            using (ITracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "CacheVerb"))
             {
                 string authErrorMessage;
                 if (!this.TryAuthenticate(tracer, enlistment, out authErrorMessage))
@@ -48,7 +48,7 @@ namespace GVFS.CommandLine
                     this.ReportErrorAndExit(tracer, "Authentication failed: " + authErrorMessage);
                 }
 
-                ServerGVFSConfig serverGVFSConfig = this.QueryGVFSConfig(tracer, enlistment, retryConfig);
+                ServerScalarConfig serverScalarConfig = this.QueryScalarConfig(tracer, enlistment, retryConfig);
 
                 CacheServerResolver cacheServerResolver = new CacheServerResolver(tracer, enlistment);
                 string error = null;
@@ -56,18 +56,18 @@ namespace GVFS.CommandLine
                 if (this.CacheToSet != null)
                 {
                     CacheServerInfo cacheServer = cacheServerResolver.ParseUrlOrFriendlyName(this.CacheToSet);
-                    cacheServer = this.ResolveCacheServer(tracer, cacheServer, cacheServerResolver, serverGVFSConfig);
+                    cacheServer = this.ResolveCacheServer(tracer, cacheServer, cacheServerResolver, serverScalarConfig);
 
                     if (!cacheServerResolver.TrySaveUrlToLocalConfig(cacheServer, out error))
                     {
                         this.ReportErrorAndExit("Failed to save cache to config: " + error);
                     }
 
-                    this.Output.WriteLine("You must remount GVFS for this to take effect.");
+                    this.Output.WriteLine("You must remount Scalar for this to take effect.");
                 }
                 else if (this.ListCacheServers)
                 {
-                    List<CacheServerInfo> cacheServers = serverGVFSConfig.CacheServers.ToList();
+                    List<CacheServerInfo> cacheServers = serverScalarConfig.CacheServers.ToList();
 
                     if (cacheServers != null && cacheServers.Any())
                     {
@@ -86,7 +86,7 @@ namespace GVFS.CommandLine
                 else
                 {
                     string cacheServerUrl = CacheServerResolver.GetUrlFromConfig(enlistment);
-                    CacheServerInfo cacheServer = cacheServerResolver.ResolveNameFromRemote(cacheServerUrl, serverGVFSConfig);
+                    CacheServerInfo cacheServer = cacheServerResolver.ResolveNameFromRemote(cacheServerUrl, serverScalarConfig);
 
                     this.Output.WriteLine("Using cache server: " + cacheServer);
                 }

@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="$(SolutionDir)\GVFS\GVFS.Build\GVFS.cs.props" />
+  <Import Project="$(SolutionDir)\Scalar\Scalar.Build\Scalar.cs.props" />
   <PropertyGroup>
     <ProjectGuid>{17498502-AEFF-4E70-90CC-1D0B56A8ADF5}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GVFS.Mount</RootNamespace>
-    <AssemblyName>GVFS.Mount</AssemblyName>
+    <RootNamespace>Scalar.Mount</RootNamespace>
+    <AssemblyName>Scalar.Mount</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -69,7 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\GVFS.PlatformLoader\PlatformLoader.Windows.cs">
+    <Compile Include="..\Scalar.PlatformLoader\PlatformLoader.Windows.cs">
       <Link>PlatformLoader.Windows.cs</Link>
     </Compile>
     <Compile Include="InProcessMount.cs" />
@@ -85,13 +85,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GVFS.Common\GVFS.Common.csproj">
+    <ProjectReference Include="..\Scalar.Common\Scalar.Common.csproj">
       <Project>{374bf1e5-0b2d-4d4a-bd5e-4212299def09}</Project>
-      <Name>GVFS.Common</Name>
+      <Name>Scalar.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GVFS.Platform.Windows\GVFS.Platform.Windows.csproj">
+    <ProjectReference Include="..\Scalar.Platform.Windows\Scalar.Platform.Windows.csproj">
       <Project>{4ce404e7-d3fc-471c-993c-64615861ea63}</Project>
-      <Name>GVFS.Platform.Windows</Name>
+      <Name>Scalar.Platform.Windows</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -108,7 +108,7 @@
     <Error Condition="!Exists('..\..\..\packages\SQLitePCLRaw.lib.e_sqlite3.v110_xp.1.1.12\build\net35\SQLitePCLRaw.lib.e_sqlite3.v110_xp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\SQLitePCLRaw.lib.e_sqlite3.v110_xp.1.1.12\build\net35\SQLitePCLRaw.lib.e_sqlite3.v110_xp.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(BuildOutputDir)\GVFS.ReadObjectHook.Windows\bin\$(Platform)\$(Configuration)\GVFS.ReadObjectHook.* $(TargetDir)</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y $(BuildOutputDir)\Scalar.ReadObjectHook.Windows\bin\$(Platform)\$(Configuration)\Scalar.ReadObjectHook.* $(TargetDir)</PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\..\..\packages\SQLitePCLRaw.lib.e_sqlite3.linux.1.1.12\build\net35\SQLitePCLRaw.lib.e_sqlite3.linux.targets" Condition="Exists('..\..\..\packages\SQLitePCLRaw.lib.e_sqlite3.linux.1.1.12\build\net35\SQLitePCLRaw.lib.e_sqlite3.linux.targets')" />
   <Import Project="..\..\..\packages\SQLitePCLRaw.lib.e_sqlite3.osx.1.1.12\build\net35\SQLitePCLRaw.lib.e_sqlite3.osx.targets" Condition="Exists('..\..\..\packages\SQLitePCLRaw.lib.e_sqlite3.osx.1.1.12\build\net35\SQLitePCLRaw.lib.e_sqlite3.osx.targets')" />

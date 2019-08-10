@@ -1,8 +1,8 @@
-﻿using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 
-namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
+namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
@@ -14,7 +14,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase]
         public void SettingGitConfigChangesCacheServer()
         {
-            ProcessResult result = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "config gvfs.cache-server " + CustomUrl);
+            ProcessResult result = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "config scalar.cache-server " + CustomUrl);
             result.ExitCode.ShouldEqual(0, result.Errors);
 
             this.Enlistment.GetCacheServer().ShouldContain("Using cache server: User Defined (" + CustomUrl + ")");

@@ -1,13 +1,13 @@
-using GVFS.FunctionalTests.Properties;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests;
+using Scalar.FunctionalTests.Properties;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace GVFS.FunctionalTests
+namespace Scalar.FunctionalTests
 {
     public class Program
     {
@@ -16,19 +16,19 @@ namespace GVFS.FunctionalTests
             Properties.Settings.Default.Initialize();
             NUnitRunner runner = new NUnitRunner(args);
 
-            if (runner.HasCustomArg("--no-shared-gvfs-cache"))
+            if (runner.HasCustomArg("--no-shared-scalar-cache"))
             {
                 Console.WriteLine("Running without a shared git object cache");
-                GVFSTestConfig.NoSharedCache = true;
+                ScalarTestConfig.NoSharedCache = true;
             }
 
-            if (runner.HasCustomArg("--test-gvfs-on-path"))
+            if (runner.HasCustomArg("--test-scalar-on-path"))
             {
-                Console.WriteLine("Running tests against GVFS on path");
-                GVFSTestConfig.TestGVFSOnPath = true;
+                Console.WriteLine("Running tests against Scalar on path");
+                ScalarTestConfig.TestScalarOnPath = true;
             }
 
-            GVFSTestConfig.LocalCacheRoot = runner.GetCustomArgWithParam("--shared-gvfs-cache-root");
+            ScalarTestConfig.LocalCacheRoot = runner.GetCustomArgWithParam("--shared-scalar-cache-root");
 
             HashSet<string> includeCategories = new HashSet<string>();
             HashSet<string> excludeCategories = new HashSet<string>();
@@ -43,15 +43,15 @@ namespace GVFS.FunctionalTests
                     modes.Add(new object[] { mode });
                 }
 
-                GVFSTestConfig.GitRepoTestsValidateWorkTree = modes.ToArray();
+                ScalarTestConfig.GitRepoTestsValidateWorkTree = modes.ToArray();
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    GVFSTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.AllWindowsRunners;
+                    ScalarTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.AllWindowsRunners;
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    GVFSTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.AllMacRunners;
+                    ScalarTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.AllMacRunners;
                 }
             }
             else
@@ -66,7 +66,7 @@ namespace GVFS.FunctionalTests
                     includeCategories.Add(Categories.GitCommands);
                 }
 
-                GVFSTestConfig.GitRepoTestsValidateWorkTree =
+                ScalarTestConfig.GitRepoTestsValidateWorkTree =
                     new object[]
                     {
                         new object[] { validateMode },
@@ -82,7 +82,7 @@ namespace GVFS.FunctionalTests
                     excludeCategories.Add(Categories.ExtraCoverage);
                 }
 
-                GVFSTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.DefaultRunners;
+                ScalarTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.DefaultRunners;
             }
 
             if (runner.HasCustomArg("--windows-only"))
@@ -97,7 +97,7 @@ namespace GVFS.FunctionalTests
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 excludeCategories.Add(Categories.MacTODO.NeedsNewFolderCreateNotification);
-                excludeCategories.Add(Categories.MacTODO.NeedsGVFSConfig);
+                excludeCategories.Add(Categories.MacTODO.NeedsScalarConfig);
                 excludeCategories.Add(Categories.MacTODO.NeedsDehydrate);
                 excludeCategories.Add(Categories.MacTODO.NeedsServiceVerb);
                 excludeCategories.Add(Categories.MacTODO.NeedsStatusCache);
@@ -115,9 +115,9 @@ namespace GVFS.FunctionalTests
             excludeCategories.Clear();
             excludeCategories.Add(Categories.NeedsUpdatesForNonVirtualizedMode);
 
-            GVFSTestConfig.DotGVFSRoot = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? ".vfsforgit" : ".gvfs";
+            ScalarTestConfig.DotScalarRoot = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? ".scalar" : ".scalar";
 
-            GVFSTestConfig.RepoToClone =
+            ScalarTestConfig.RepoToClone =
                 runner.GetCustomArgWithParam("--repo-to-clone")
                 ?? Properties.Settings.Default.RepoToClone;
 
@@ -135,12 +135,12 @@ namespace GVFS.FunctionalTests
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                GVFSServiceProcess.InstallService();
+                ScalarServiceProcess.InstallService();
 
                 string statusCacheVersionTokenPath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.Create),
-                    "GVFS",
-                    "GVFS.Service",
+                    "Scalar",
+                    "Scalar.Service",
                     "EnableGitStatusCacheToken.dat");
 
                 if (!File.Exists(statusCacheVersionTokenPath))

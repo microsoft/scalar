@@ -1,21 +1,21 @@
 ﻿using CommandLine;
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.Maintenance;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
-using GVFS.DiskLayoutUpgrades;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.Maintenance;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
+using Scalar.DiskLayoutUpgrades;
 using System;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
-    [Verb(DehydrateVerb.DehydrateVerbName, HelpText = "EXPERIMENTAL FEATURE - Fully dehydrate a GVFS repo")]
-    public class DehydrateVerb : GVFSVerb.ForExistingEnlistment
+    [Verb(DehydrateVerb.DehydrateVerbName, HelpText = "EXPERIMENTAL FEATURE - Fully dehydrate a Scalar repo")]
+    public class DehydrateVerb : ScalarVerb.ForExistingEnlistment
     {
         private const string DehydrateVerbName = "dehydrate";
 
@@ -38,12 +38,12 @@ namespace GVFS.CommandLine
             get { return DehydrateVerb.DehydrateVerbName; }
         }
 
-        protected override void Execute(GVFSEnlistment enlistment)
+        protected override void Execute(ScalarEnlistment enlistment)
         {
-            using (JsonTracer tracer = new JsonTracer(GVFSConstants.GVFSEtwProviderName, "Dehydrate"))
+            using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "Dehydrate"))
             {
                 tracer.AddLogFileEventListener(
-                    GVFSEnlistment.GetNewGVFSLogFileName(enlistment.GVFSLogsRoot, GVFSConstants.LogFileTypes.Dehydrate),
+                    ScalarEnlistment.GetNewScalarLogFileName(enlistment.ScalarLogsRoot, ScalarConstants.LogFileTypes.Dehydrate),
                     EventLevel.Informational,
                     Keywords.Any);
                 tracer.WriteStartEvent(
@@ -61,10 +61,10 @@ namespace GVFS.CommandLine
                 // This is only intended to be run by functional tests
                 if (this.MaintenanceJob != null)
                 {
-                    this.InitializeLocalCacheAndObjectsPaths(tracer, enlistment, retryConfig: null, serverGVFSConfig: null, cacheServer: null);
+                    this.InitializeLocalCacheAndObjectsPaths(tracer, enlistment, retryConfig: null, serverScalarConfig: null, cacheServer: null);
                     PhysicalFileSystem fileSystem = new PhysicalFileSystem();
                     using (GitRepo gitRepo = new GitRepo(tracer, enlistment, fileSystem))
-                    using (GVFSContext context = new GVFSContext(tracer, fileSystem, gitRepo, enlistment))
+                    using (ScalarContext context = new ScalarContext(tracer, fileSystem, gitRepo, enlistment))
                     {
                         switch (this.MaintenanceJob)
                         {
@@ -106,7 +106,7 @@ you want to keep. If you choose not to, you can still find your uncommitted chan
 in the backup folder, but it will be harder to find them because 'git status' 
 will not work in the backup.
 
-To actually execute the dehydrate, run 'gvfs dehydrate --confirm' from the parent 
+To actually execute the dehydrate, run 'scalar dehydrate --confirm' from the parent 
 of your enlistment's src folder.
 ");
 
@@ -132,7 +132,7 @@ of your enlistment's src folder.
                 RetryConfig retryConfig;
                 if (!RetryConfig.TryLoadFromGitConfig(tracer, enlistment, out retryConfig, out error))
                 {
-                    this.ReportErrorAndExit(tracer, "Failed to determine GVFS timeout and max retries: " + error);
+                    this.ReportErrorAndExit(tracer, "Failed to determine Scalar timeout and max retries: " + error);
                 }
 
                 string errorMessage;
@@ -142,7 +142,7 @@ of your enlistment's src folder.
                 }
 
                 // Local cache and objects paths are required for TryDownloadGitObjects
-                this.InitializeLocalCacheAndObjectsPaths(tracer, enlistment, retryConfig, serverGVFSConfig: null, cacheServer: null);
+                this.InitializeLocalCacheAndObjectsPaths(tracer, enlistment, retryConfig, serverScalarConfig: null, cacheServer: null);
 
                 if (this.TryBackupFiles(tracer, enlistment, backupRoot))
                 {
@@ -166,7 +166,7 @@ of your enlistment's src folder.
             }
         }
 
-        private void CheckGitStatus(ITracer tracer, GVFSEnlistment enlistment)
+        private void CheckGitStatus(ITracer tracer, ScalarEnlistment enlistment)
         {
             if (!this.NoStatus)
             {
@@ -179,7 +179,7 @@ of your enlistment's src folder.
                 if (!this.ShowStatusWhileRunning(
                     () =>
                     {
-                        if (this.ExecuteGVFSVerb<StatusVerb>(tracer) != ReturnCode.Success)
+                        if (this.ExecuteScalarVerb<StatusVerb>(tracer) != ReturnCode.Success)
                         {
                             return false;
                         }
@@ -232,8 +232,8 @@ of your enlistment's src folder.
                 () =>
                 {
                     return
-                        this.ExecuteGVFSVerb<StatusVerb>(tracer) != ReturnCode.Success ||
-                        this.ExecuteGVFSVerb<UnmountVerb>(tracer) == ReturnCode.Success;
+                        this.ExecuteScalarVerb<StatusVerb>(tracer) != ReturnCode.Success ||
+                        this.ExecuteScalarVerb<UnmountVerb>(tracer) == ReturnCode.Success;
                 },
                 "Unmounting",
                 suppressGvfsLogMessage: true))
@@ -247,7 +247,7 @@ of your enlistment's src folder.
             if (!this.ShowStatusWhileRunning(
                 () =>
                 {
-                    return this.ExecuteGVFSVerb<MountVerb>(tracer) == ReturnCode.Success;
+                    return this.ExecuteScalarVerb<MountVerb>(tracer) == ReturnCode.Success;
                 },
                 "Mounting"))
             {
@@ -255,12 +255,12 @@ of your enlistment's src folder.
             }
         }
 
-        private bool TryBackupFiles(ITracer tracer, GVFSEnlistment enlistment, string backupRoot)
+        private bool TryBackupFiles(ITracer tracer, ScalarEnlistment enlistment, string backupRoot)
         {
             string backupSrc = Path.Combine(backupRoot, "src");
             string backupGit = Path.Combine(backupRoot, ".git");
-            string backupGvfs = Path.Combine(backupRoot, GVFSPlatform.Instance.Constants.DotGVFSRoot);
-            string backupDatabases = Path.Combine(backupGvfs, GVFSConstants.DotGVFS.Databases.Name);
+            string backupGvfs = Path.Combine(backupRoot, ScalarPlatform.Instance.Constants.DotScalarRoot);
+            string backupDatabases = Path.Combine(backupGvfs, ScalarConstants.DotScalar.Databases.Name);
 
             string errorMessage = string.Empty;
             if (!this.ShowStatusWhileRunning(
@@ -269,8 +269,8 @@ of your enlistment's src folder.
                     string ioError;
                     if (!this.TryIO(tracer, () => Directory.CreateDirectory(backupRoot), "Create backup directory", out ioError) ||
                         !this.TryIO(tracer, () => Directory.CreateDirectory(backupGit), "Create backup .git directory", out ioError) ||
-                        !this.TryIO(tracer, () => Directory.CreateDirectory(backupGvfs), "Create backup .gvfs directory", out ioError) ||
-                        !this.TryIO(tracer, () => Directory.CreateDirectory(backupDatabases), "Create backup .gvfs databases directory", out ioError))
+                        !this.TryIO(tracer, () => Directory.CreateDirectory(backupGvfs), "Create backup .scalar directory", out ioError) ||
+                        !this.TryIO(tracer, () => Directory.CreateDirectory(backupDatabases), "Create backup .scalar databases directory", out ioError))
                     {
                         errorMessage = "Failed to create backup folders at " + backupRoot + ": " + ioError;
                         return false;
@@ -291,8 +291,8 @@ of your enlistment's src folder.
                         return false;
                     }
 
-                    // ... backup the .gvfs hydration-related data structures...
-                    string databasesFolder = Path.Combine(enlistment.DotGVFSRoot, GVFSConstants.DotGVFS.Databases.Name);
+                    // ... backup the .scalar hydration-related data structures...
+                    string databasesFolder = Path.Combine(enlistment.DotScalarRoot, ScalarConstants.DotScalar.Databases.Name);
                     if (!this.TryBackupFilesInFolder(tracer, databasesFolder, backupDatabases, searchPattern: "*", filenamesToSkip: "RepoMetadata.dat"))
                     {
                         return false;
@@ -302,8 +302,8 @@ of your enlistment's src folder.
                     if (!this.TryIO(
                             tracer,
                             () => File.Move(
-                                Path.Combine(enlistment.DotGitRoot, GVFSConstants.DotGit.IndexName),
-                                Path.Combine(backupGit, GVFSConstants.DotGit.IndexName)),
+                                Path.Combine(enlistment.DotGitRoot, ScalarConstants.DotGit.IndexName),
+                                Path.Combine(backupGit, ScalarConstants.DotGit.IndexName)),
                             "Backup the git index",
                             out errorMessage))
                     {
@@ -351,7 +351,7 @@ of your enlistment's src folder.
             return true;
         }
 
-        private bool TryDownloadGitObjects(ITracer tracer, GVFSEnlistment enlistment, RetryConfig retryConfig)
+        private bool TryDownloadGitObjects(ITracer tracer, ScalarEnlistment enlistment, RetryConfig retryConfig)
         {
             string errorMessage = null;
 
@@ -363,7 +363,7 @@ of your enlistment's src folder.
                     {
                         PhysicalFileSystem fileSystem = new PhysicalFileSystem();
                         GitRepo gitRepo = new GitRepo(tracer, enlistment, fileSystem);
-                        GVFSGitObjects gitObjects = new GVFSGitObjects(new GVFSContext(tracer, fileSystem, gitRepo, enlistment), objectRequestor);
+                        ScalarGitObjects gitObjects = new ScalarGitObjects(new ScalarContext(tracer, fileSystem, gitRepo, enlistment), objectRequestor);
 
                         GitProcess.Result revParseResult = enlistment.CreateGitProcess().RevParse("HEAD");
                         if (revParseResult.ExitCodeIsFailure)
@@ -393,7 +393,7 @@ of your enlistment's src folder.
             return true;
         }
 
-        private bool TryRecreateIndex(ITracer tracer, GVFSEnlistment enlistment)
+        private bool TryRecreateIndex(ITracer tracer, ScalarEnlistment enlistment)
         {
             string errorMessage = null;
 
@@ -429,8 +429,8 @@ of your enlistment's src folder.
                 });
         }
 
-        private ReturnCode ExecuteGVFSVerb<TVerb>(ITracer tracer)
-            where TVerb : GVFSVerb, new()
+        private ReturnCode ExecuteScalarVerb<TVerb>(ITracer tracer)
+            where TVerb : ScalarVerb, new()
         {
             try
             {
@@ -460,7 +460,7 @@ of your enlistment's src folder.
                         { "Verb", typeof(TVerb).Name },
                         { "Exception", e.ToString() }
                     },
-                    "ExecuteGVFSVerb: Caught exception");
+                    "ExecuteScalarVerb: Caught exception");
 
                 return ReturnCode.GenericError;
             }

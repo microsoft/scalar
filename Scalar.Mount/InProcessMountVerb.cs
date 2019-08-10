@@ -1,14 +1,14 @@
 ﻿using CommandLine;
-using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.Tracing;
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace GVFS.Mount
+namespace Scalar.Mount
 {
     [Verb("mount", HelpText = "Starts the background mount process")]
     public class InProcessMountVerb
@@ -27,23 +27,23 @@ namespace GVFS.Mount
 
         [Option(
             'v',
-            GVFSConstants.VerbParameters.Mount.Verbosity,
-            Default = GVFSConstants.VerbParameters.Mount.DefaultVerbosity,
+            ScalarConstants.VerbParameters.Mount.Verbosity,
+            Default = ScalarConstants.VerbParameters.Mount.DefaultVerbosity,
             Required = false,
             HelpText = "Sets the verbosity of console logging. Accepts: Verbose, Informational, Warning, Error")]
         public string Verbosity { get; set; }
 
         [Option(
             'k',
-            GVFSConstants.VerbParameters.Mount.Keywords,
-            Default = GVFSConstants.VerbParameters.Mount.DefaultKeywords,
+            ScalarConstants.VerbParameters.Mount.Keywords,
+            Default = ScalarConstants.VerbParameters.Mount.DefaultKeywords,
             Required = false,
             HelpText = "A CSV list of logging filter keywords. Accepts: Any, Network")]
         public string KeywordsCsv { get; set; }
 
         [Option(
             'd',
-            GVFSConstants.VerbParameters.Mount.DebugWindow,
+            ScalarConstants.VerbParameters.Mount.DebugWindow,
             Default = false,
             Required = false,
             HelpText = "Show the debug window.  By default, all output is written to a log file and no debug window is shown.")]
@@ -51,7 +51,7 @@ namespace GVFS.Mount
 
         [Option(
             's',
-            GVFSConstants.VerbParameters.Mount.StartedByService,
+            ScalarConstants.VerbParameters.Mount.StartedByService,
             Default = "false",
             Required = false,
             HelpText = "Service initiated mount.")]
@@ -59,7 +59,7 @@ namespace GVFS.Mount
 
         [Option(
             'b',
-            GVFSConstants.VerbParameters.Mount.StartedByVerb,
+            ScalarConstants.VerbParameters.Mount.StartedByVerb,
             Default = false,
             Required = false,
             HelpText = "Verb initiated mount.")]
@@ -69,26 +69,26 @@ namespace GVFS.Mount
                 0,
                 Required = true,
                 MetaName = "Enlistment Root Path",
-                HelpText = "Full or relative path to the GVFS enlistment root")]
+                HelpText = "Full or relative path to the Scalar enlistment root")]
         public string EnlistmentRootPathParameter { get; set; }
 
         public void InitializeDefaultParameterValues()
         {
-            this.Verbosity = GVFSConstants.VerbParameters.Mount.DefaultVerbosity;
-            this.KeywordsCsv = GVFSConstants.VerbParameters.Mount.DefaultKeywords;
+            this.Verbosity = ScalarConstants.VerbParameters.Mount.DefaultVerbosity;
+            this.KeywordsCsv = ScalarConstants.VerbParameters.Mount.DefaultKeywords;
         }
 
         public void Execute()
         {
             if (this.StartedByVerb)
             {
-                // If this process was started by a verb it means that StartBackgroundVFS4GProcess was used
+                // If this process was started by a verb it means that StartBackgroundScalar4GProcess was used
                 // and we should be running in the background.  PrepareProcessToRunInBackground will perform
                 // any platform specific preparation required to run as a background process.
-                GVFSPlatform.Instance.PrepareProcessToRunInBackground();
+                ScalarPlatform.Instance.PrepareProcessToRunInBackground();
             }
 
-            GVFSEnlistment enlistment = this.CreateEnlistment(this.EnlistmentRootPathParameter);
+            ScalarEnlistment enlistment = this.CreateEnlistment(this.EnlistmentRootPathParameter);
 
             EventLevel verbosity;
             Keywords keywords;
@@ -104,7 +104,7 @@ namespace GVFS.Mount
                 cacheServer.Url,
                 new EventMetadata
                 {
-                    { "IsElevated", GVFSPlatform.Instance.IsElevated() },
+                    { "IsElevated", ScalarPlatform.Instance.IsElevated() },
                     { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
                     { nameof(this.StartedByService), this.StartedByService },
                     { nameof(this.StartedByVerb), this.StartedByVerb },
@@ -112,14 +112,14 @@ namespace GVFS.Mount
 
             AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
             {
-                this.UnhandledGVFSExceptionHandler(tracer, sender, e);
+                this.UnhandledScalarExceptionHandler(tracer, sender, e);
             };
 
             string error;
             RetryConfig retryConfig;
             if (!RetryConfig.TryLoadFromGitConfig(tracer, enlistment, out retryConfig, out error))
             {
-                this.ReportErrorAndExit(tracer, "Failed to determine GVFS timeout and max retries: " + error);
+                this.ReportErrorAndExit(tracer, "Failed to determine Scalar timeout and max retries: " + error);
             }
 
             InProcessMount mountHelper = new InProcessMount(tracer, enlistment, cacheServer, retryConfig, this.ShowDebugWindow);
@@ -134,21 +134,21 @@ namespace GVFS.Mount
             }
         }
 
-        private void UnhandledGVFSExceptionHandler(ITracer tracer, object sender, UnhandledExceptionEventArgs e)
+        private void UnhandledScalarExceptionHandler(ITracer tracer, object sender, UnhandledExceptionEventArgs e)
         {
             Exception exception = e.ExceptionObject as Exception;
 
             EventMetadata metadata = new EventMetadata();
             metadata.Add("Exception", exception.ToString());
             metadata.Add("IsTerminating", e.IsTerminating);
-            tracer.RelatedError(metadata, "UnhandledGVFSExceptionHandler caught unhandled exception");
+            tracer.RelatedError(metadata, "UnhandledScalarExceptionHandler caught unhandled exception");
         }
 
-        private JsonTracer CreateTracer(GVFSEnlistment enlistment, EventLevel verbosity, Keywords keywords)
+        private JsonTracer CreateTracer(ScalarEnlistment enlistment, EventLevel verbosity, Keywords keywords)
         {
-            JsonTracer tracer = new JsonTracer(GVFSConstants.GVFSEtwProviderName, "GVFSMount", enlistment.GetEnlistmentId(), enlistment.GetMountId());
+            JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "ScalarMount", enlistment.GetEnlistmentId(), enlistment.GetMountId());
             tracer.AddLogFileEventListener(
-                GVFSEnlistment.GetNewGVFSLogFileName(enlistment.GVFSLogsRoot, GVFSConstants.LogFileTypes.MountProcess),
+                ScalarEnlistment.GetNewScalarLogFileName(enlistment.ScalarLogsRoot, ScalarConstants.LogFileTypes.MountProcess),
                 verbosity,
                 keywords);
             if (this.ShowDebugWindow)
@@ -172,23 +172,23 @@ namespace GVFS.Mount
             }
         }
 
-        private GVFSEnlistment CreateEnlistment(string enlistmentRootPath)
+        private ScalarEnlistment CreateEnlistment(string enlistmentRootPath)
         {
-            string gitBinPath = GVFSPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+            string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
             if (string.IsNullOrWhiteSpace(gitBinPath))
             {
-                this.ReportErrorAndExit("Error: " + GVFSConstants.GitIsNotInstalledError);
+                this.ReportErrorAndExit("Error: " + ScalarConstants.GitIsNotInstalledError);
             }
 
-            GVFSEnlistment enlistment = null;
+            ScalarEnlistment enlistment = null;
             try
             {
-                enlistment = GVFSEnlistment.CreateFromDirectory(enlistmentRootPath, gitBinPath, authentication: null);
+                enlistment = ScalarEnlistment.CreateFromDirectory(enlistmentRootPath, gitBinPath, authentication: null);
             }
             catch (InvalidRepoException e)
             {
                 this.ReportErrorAndExit(
-                    "Error: '{0}' is not a valid GVFS enlistment. {1}",
+                    "Error: '{0}' is not a valid Scalar enlistment. {1}",
                     enlistmentRootPath,
                     e.Message);
             }

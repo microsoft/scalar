@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public class GitConfigSetting
     {

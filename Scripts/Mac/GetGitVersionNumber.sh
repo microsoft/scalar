@@ -1,5 +1,5 @@
 . "$(dirname ${BASH_SOURCE[0]})/InitializeEnvironment.sh"
 
-GVFSPROPS=$VFS_SRCDIR/GVFS/GVFS.Build/GVFS.props
-GITVERSION="$(cat $GVFSPROPS | grep GitPackageVersion | grep -Eo '[0-9.]+(-\w+)*')"
+ScalarPROPS=$Scalar_SRCDIR/Scalar/Scalar.Build/Scalar.props
+GITVERSION="$(cat $ScalarPROPS | grep GitPackageVersion | grep -Eo '[0-9.]+(-\w+)*')"
 echo $GITVERSION

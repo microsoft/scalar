@@ -1,14 +1,14 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Properties;
-using GVFS.FunctionalTests.Should;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Properties;
+using Scalar.FunctionalTests.Should;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.FunctionalTests.Tests.GitCommands
+namespace Scalar.FunctionalTests.Tests.GitCommands
 {
     [TestFixture]
     public abstract class GitRepoTests
@@ -55,8 +55,8 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
             "GVFlt_MoveFolderTest",
             "GVFlt_MultiThreadTest",
             "GVFlt_SetLinkTest",
-            Path.Combine("GVFS", "GVFS"),
-            Path.Combine("GVFS", "GVFS.Common"),
+            Path.Combine("Scalar", "Scalar"),
+            Path.Combine("Scalar", "Scalar.Common"),
             GitCommandsTests.TopLevelFolderToCreate,
             "ResetTwice_OnlyDeletes_Test",
             "ResetTwice_OnlyEdits_Test",
@@ -88,7 +88,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
         {
             get
             {
-                return GVFSTestConfig.GitRepoTestsValidateWorkTree;
+                return ScalarTestConfig.GitRepoTestsValidateWorkTree;
             }
         }
 
@@ -102,7 +102,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
             get; private set;
         }
 
-        protected GVFSFunctionalTestEnlistment Enlistment
+        protected ScalarFunctionalTestEnlistment Enlistment
         {
             get; private set;
         }
@@ -135,7 +135,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
 
             if (this.validateWorkingTree == Settings.ValidateWorkingTreeMode.SparseMode)
             {
-                new GVFSProcess(this.Enlistment).AddSparseFolders(SparseModeFolders);
+                new ScalarProcess(this.Enlistment).AddSparseFolders(SparseModeFolders);
                 this.pathPrefixes = PathPrefixesForSparseMode;
             }
 
@@ -200,7 +200,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
 
         protected void CreateEnlistment(string commitish = null)
         {
-            this.Enlistment = GVFSFunctionalTestEnlistment.CloneAndMount(GVFSTestConfig.PathToGVFS, commitish: commitish);
+            this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMount(ScalarTestConfig.PathToScalar, commitish: commitish);
             GitProcess.Invoke(this.Enlistment.RepoRoot, "config advice.statusUoption false");
             this.ControlGitRepo = ControlGitRepo.Create(commitish);
             this.ControlGitRepo.Initialize();
@@ -234,19 +234,19 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
          *    won't match what is in the control repo.  For those commands, we just ensure that
          *    the errors match what we expect, but we skip comparing the output
          * 2. Using the sparse-checkout feature git will error out before checking the untracked files
-         *    so the control repo will show the untracked files as being overwritten while the GVFS
+         *    so the control repo will show the untracked files as being overwritten while the Scalar
          *    repo which is using the sparse-checkout will not.
-         * 3. GVFS is returning not found for files that are outside the sparse-checkout and there
+         * 3. Scalar is returning not found for files that are outside the sparse-checkout and there
          *    are cases when git will delete these files during a merge outputting that it removed them
-         *    which the GVFS repo did not have to remove so the message is missing that output.
+         *    which the Scalar repo did not have to remove so the message is missing that output.
          */
         protected void RunGitCommand(string command, bool ignoreErrors = false, bool checkStatus = true)
         {
             string controlRepoRoot = this.ControlGitRepo.RootPath;
-            string gvfsRepoRoot = this.Enlistment.RepoRoot;
+            string scalarRepoRoot = this.Enlistment.RepoRoot;
 
             ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command);
-            ProcessResult actualResult = GitHelpers.InvokeGitAgainstGVFSRepo(gvfsRepoRoot, command);
+            ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command);
             if (!ignoreErrors)
             {
                 GitHelpers.ErrorsShouldMatch(command, expectedResult, actualResult);

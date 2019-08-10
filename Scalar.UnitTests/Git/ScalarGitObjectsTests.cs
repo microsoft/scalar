@@ -1,12 +1,12 @@
-﻿using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
-using GVFS.UnitTests.Mock;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
-using GVFS.UnitTests.Mock.Git;
+﻿using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
+using Scalar.UnitTests.Mock;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
+using Scalar.UnitTests.Mock.Git;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -15,15 +15,15 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 
-namespace GVFS.UnitTests.Git
+namespace Scalar.UnitTests.Git
 {
     [TestFixture]
-    public class GVFSGitObjectsTests
+    public class ScalarGitObjectsTests
     {
         private const string ValidTestObjectFileContents = "421dc4df5e1de427e363b8acd9ddb2d41385dbdf";
         private const string TestEnlistmentRoot = "mock:\\src";
-        private const string TestLocalCacheRoot = "mock:\\.gvfs";
-        private const string TestObjectRoot = "mock:\\.gvfs\\gitObjectCache";
+        private const string TestLocalCacheRoot = "mock:\\.scalar";
+        private const string TestObjectRoot = "mock:\\.scalar\\gitObjectCache";
 
         [TestCase]
         public void SucceedsForNormalLookingLooseObjectDownloads()
@@ -34,10 +34,10 @@ namespace GVFS.UnitTests.Git
             MockHttpGitObjects httpObjects = new MockHttpGitObjects();
             using (httpObjects.InputStream = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(ValidTestObjectFileContents)))
             {
-                httpObjects.MediaType = GVFSConstants.MediaTypes.LooseObjectMediaType;
-                GVFSGitObjects dut = this.CreateTestableGVFSGitObjects(httpObjects, fileSystem);
+                httpObjects.MediaType = ScalarConstants.MediaTypes.LooseObjectMediaType;
+                ScalarGitObjects dut = this.CreateTestableScalarGitObjects(httpObjects, fileSystem);
 
-                dut.TryDownloadAndSaveObject(ValidTestObjectFileContents, GVFSGitObjects.RequestSource.FileStreamCallback)
+                dut.TryDownloadAndSaveObject(ValidTestObjectFileContents, ScalarGitObjects.RequestSource.FileStreamCallback)
                     .ShouldEqual(GitObjects.DownloadAndSaveObjectResult.Success);
             }
         }
@@ -48,8 +48,8 @@ namespace GVFS.UnitTests.Git
         {
             this.AssertRetryableExceptionOnDownload(
                 new MemoryStream(),
-                GVFSConstants.MediaTypes.LooseObjectMediaType,
-                gitObjects => gitObjects.TryDownloadAndSaveObject("aabbcc", GVFSGitObjects.RequestSource.FileStreamCallback));
+                ScalarConstants.MediaTypes.LooseObjectMediaType,
+                gitObjects => gitObjects.TryDownloadAndSaveObject("aabbcc", ScalarGitObjects.RequestSource.FileStreamCallback));
         }
 
         [TestCase]
@@ -58,8 +58,8 @@ namespace GVFS.UnitTests.Git
         {
             this.AssertRetryableExceptionOnDownload(
                 new MemoryStream(new byte[256]),
-                GVFSConstants.MediaTypes.LooseObjectMediaType,
-                gitObjects => gitObjects.TryDownloadAndSaveObject("aabbcc", GVFSGitObjects.RequestSource.FileStreamCallback));
+                ScalarConstants.MediaTypes.LooseObjectMediaType,
+                gitObjects => gitObjects.TryDownloadAndSaveObject("aabbcc", ScalarGitObjects.RequestSource.FileStreamCallback));
         }
 
         [TestCase]
@@ -68,7 +68,7 @@ namespace GVFS.UnitTests.Git
         {
             this.AssertRetryableExceptionOnDownload(
                 new MemoryStream(),
-                GVFSConstants.MediaTypes.PackFileMediaType,
+                ScalarConstants.MediaTypes.PackFileMediaType,
                 gitObjects => gitObjects.TryDownloadCommit("object0"));
         }
 
@@ -78,14 +78,14 @@ namespace GVFS.UnitTests.Git
         {
             this.AssertRetryableExceptionOnDownload(
                 new MemoryStream(new byte[256]),
-                GVFSConstants.MediaTypes.PackFileMediaType,
+                ScalarConstants.MediaTypes.PackFileMediaType,
                 gitObjects => gitObjects.TryDownloadCommit("object0"));
         }
 
         private void AssertRetryableExceptionOnDownload(
             MemoryStream inputStream,
             string mediaType,
-            Action<GVFSGitObjects> download)
+            Action<ScalarGitObjects> download)
         {
             MockHttpGitObjects httpObjects = new MockHttpGitObjects();
             httpObjects.InputStream = inputStream;
@@ -97,22 +97,22 @@ namespace GVFS.UnitTests.Git
                 fileSystem.OnFileExists = () => false;
                 fileSystem.OnOpenFileStream = (path, mode, access) => downloadDestination;
 
-                GVFSGitObjects gitObjects = this.CreateTestableGVFSGitObjects(httpObjects, fileSystem);
+                ScalarGitObjects gitObjects = this.CreateTestableScalarGitObjects(httpObjects, fileSystem);
 
                 Assert.Throws<RetryableException>(() => download(gitObjects));
                 inputStream.Dispose();
             }
         }
 
-        private GVFSGitObjects CreateTestableGVFSGitObjects(MockHttpGitObjects httpObjects, MockFileSystemWithCallbacks fileSystem)
+        private ScalarGitObjects CreateTestableScalarGitObjects(MockHttpGitObjects httpObjects, MockFileSystemWithCallbacks fileSystem)
         {
             MockTracer tracer = new MockTracer();
-            GVFSEnlistment enlistment = new GVFSEnlistment(TestEnlistmentRoot, "https://fakeRepoUrl", "fakeGitBinPath", authentication: null);
+            ScalarEnlistment enlistment = new ScalarEnlistment(TestEnlistmentRoot, "https://fakeRepoUrl", "fakeGitBinPath", authentication: null);
             enlistment.InitializeCachePathsFromKey(TestLocalCacheRoot, TestObjectRoot);
             GitRepo repo = new GitRepo(tracer, enlistment, fileSystem, () => new MockLibGit2Repo(tracer));
 
-            GVFSContext context = new GVFSContext(tracer, fileSystem, repo, enlistment);
-            GVFSGitObjects dut = new GVFSGitObjects(context, httpObjects);
+            ScalarContext context = new ScalarContext(tracer, fileSystem, repo, enlistment);
+            ScalarGitObjects dut = new ScalarGitObjects(context, httpObjects);
             return dut;
         }
 
@@ -125,11 +125,11 @@ namespace GVFS.UnitTests.Git
         private class MockHttpGitObjects : GitObjectsHttpRequestor
         {
             public MockHttpGitObjects()
-                : this(new MockGVFSEnlistment())
+                : this(new MockScalarEnlistment())
             {
             }
 
-            private MockHttpGitObjects(MockGVFSEnlistment enlistment)
+            private MockHttpGitObjects(MockScalarEnlistment enlistment)
                 : base(new MockTracer(), enlistment, new MockCacheServerInfo(), new RetryConfig(maxRetries: 1))
             {
             }

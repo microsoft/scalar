@@ -1,6 +1,6 @@
-using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace GVFS.FunctionalTests.Should
+namespace Scalar.FunctionalTests.Should
 {
     public static class FileSystemShouldExtensions
     {
@@ -285,7 +285,7 @@ namespace GVFS.FunctionalTests.Should
                     if (prefixDir.StartsWith(localPath, StringComparison.OrdinalIgnoreCase) &&
                         Directory.Exists(info.FullName))
                     {
-                        // For example: localPath = "GVFS" and prefix is "GVFS\\GVFS".
+                        // For example: localPath = "Scalar" and prefix is "Scalar\\Scalar".
                         return true;
                     }
                 }
@@ -334,7 +334,7 @@ namespace GVFS.FunctionalTests.Should
                     {
                         if ((expectedEnumerator.Current.Attributes & FileAttributes.Directory) == FileAttributes.Directory)
                         {
-                            // ignoring directories that are empty in the control repo because GVFS does a better job at removing
+                            // ignoring directories that are empty in the control repo because Scalar does a better job at removing
                             // empty directories because it is tracking placeholder folders and removes them
                             // Only want to check for an empty directory if the names don't match. If the names match and
                             // both expected and actual directories are empty that is okay

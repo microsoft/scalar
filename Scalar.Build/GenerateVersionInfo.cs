@@ -2,7 +2,7 @@
 using Microsoft.Build.Utilities;
 using System.IO;
 
-namespace GVFS.PreBuild
+namespace Scalar.PreBuild
 {
     public class GenerateVersionInfo : Task
     {
@@ -39,10 +39,10 @@ namespace GVFS.PreBuild
                 this.VersionHeader,
                 string.Format(
 @"
-#define GVFS_FILE_VERSION {0}
-#define GVFS_FILE_VERSION_STRING ""{1}""
-#define GVFS_PRODUCT_VERSION {0}
-#define GVFS_PRODUCT_VERSION_STRING ""{1}""
+#define Scalar_FILE_VERSION {0}
+#define Scalar_FILE_VERSION_STRING ""{1}""
+#define Scalar_PRODUCT_VERSION {0}
+#define Scalar_PRODUCT_VERSION_STRING ""{1}""
 ",
                     commaDelimetedVersion,
                     this.Version));

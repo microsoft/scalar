@@ -1,6 +1,6 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 
-namespace GVFS.Common.FileSystem
+namespace Scalar.Common.FileSystem
 {
     public interface IPlatformFileSystem
     {

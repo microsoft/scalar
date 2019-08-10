@@ -1,28 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\GVFS.Build\GVFS.cs.props" />
+  <Import Project="..\Scalar.Build\Scalar.cs.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AssemblyName>gvfs.mount</AssemblyName>
+    <AssemblyName>scalar.mount</AssemblyName>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <Platforms>x64</Platforms>
     <RunTimeIdentifiers>osx-x64</RunTimeIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\GVFS.PlatformLoader\PlatformLoader.Mac.cs">
+    <Compile Include="..\Scalar.PlatformLoader\PlatformLoader.Mac.cs">
       <Link>PlatformLoader.Mac.cs</Link>
     </Compile>
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\GVFS.Platform.Mac\GVFS.Platform.Mac.csproj" />
+    <ProjectReference Include="..\Scalar.Platform.Mac\Scalar.Platform.Mac.csproj" />
   </ItemGroup>
 
   <ItemGroup>

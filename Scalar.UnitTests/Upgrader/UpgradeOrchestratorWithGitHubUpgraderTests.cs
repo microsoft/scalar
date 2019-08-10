@@ -1,11 +1,11 @@
-﻿using GVFS.Common;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Upgrader;
-using GVFS.Upgrader;
+﻿using Scalar.Common;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Upgrader;
+using Scalar.Upgrader;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace GVFS.UnitTests.Upgrader
+namespace Scalar.UnitTests.Upgrader
 {
     [TestFixture]
     public class UpgradeOrchestratorWithGitHubUpgraderTests : UpgradeTests
@@ -24,7 +24,7 @@ namespace GVFS.UnitTests.Upgrader
                 this.PrerunChecker,
                 input: null,
                 output: this.Output);
-            this.PrerunChecker.SetCommandToRerun("`gvfs upgrade --confirm`");
+            this.PrerunChecker.SetCommandToRerun("`scalar upgrade --confirm`");
         }
 
         [TestCase]
@@ -65,12 +65,12 @@ namespace GVFS.UnitTests.Upgrader
                 expectedOutput: new List<string>
                 {
                     "ERROR: Blocking processes are running.",
-                    $"Run `gvfs upgrade --confirm` again after quitting these processes - GVFS.Mount, git"
+                    $"Run `scalar upgrade --confirm` again after quitting these processes - Scalar.Mount, git"
                 },
                 expectedErrors: null,
                 expectedWarnings: new List<string>
                 {
-                    $"Run `gvfs upgrade --confirm` again after quitting these processes - GVFS.Mount, git"
+                    $"Run `scalar upgrade --confirm` again after quitting these processes - Scalar.Mount, git"
                 });
         }
 
@@ -94,21 +94,21 @@ namespace GVFS.UnitTests.Upgrader
         }
 
         [TestCase]
-        public void GVFSDownloadError()
+        public void ScalarDownloadError()
         {
             this.ConfigureRunAndVerify(
                 configure: () =>
                 {
-                    this.Upgrader.SetFailOnAction(MockGitHubUpgrader.ActionType.GVFSDownload);
+                    this.Upgrader.SetFailOnAction(MockGitHubUpgrader.ActionType.ScalarDownload);
                 },
                 expectedReturn: ReturnCode.GenericError,
                 expectedOutput: new List<string>
                 {
-                    "Error downloading GVFS from GitHub"
+                    "Error downloading Scalar from GitHub"
                 },
                 expectedErrors: new List<string>
                 {
-                    "Error downloading GVFS from GitHub"
+                    "Error downloading Scalar from GitHub"
                 });
         }
 
@@ -184,13 +184,13 @@ namespace GVFS.UnitTests.Upgrader
         }
 
         [TestCase]
-        public void GVFSInstallationArgs()
+        public void ScalarInstallationArgs()
         {
             this.RunUpgrade().ShouldEqual(ReturnCode.Success);
 
             Dictionary<string, string> gitInstallerInfo;
             this.Upgrader.InstallerArgs.ShouldBeNonEmpty();
-            this.Upgrader.InstallerArgs.TryGetValue("GVFS", out gitInstallerInfo).ShouldBeTrue();
+            this.Upgrader.InstallerArgs.TryGetValue("Scalar", out gitInstallerInfo).ShouldBeTrue();
 
             string args;
             gitInstallerInfo.TryGetValue("Args", out args).ShouldBeTrue();
@@ -198,31 +198,31 @@ namespace GVFS.UnitTests.Upgrader
         }
 
         [TestCase]
-        public void GVFSInstallError()
+        public void ScalarInstallError()
         {
             this.ConfigureRunAndVerify(
                 configure: () =>
                 {
-                    this.Upgrader.SetFailOnAction(MockGitHubUpgrader.ActionType.GVFSInstall);
+                    this.Upgrader.SetFailOnAction(MockGitHubUpgrader.ActionType.ScalarInstall);
                 },
                 expectedReturn: ReturnCode.GenericError,
                 expectedOutput: new List<string>
                 {
-                    "GVFS installation failed"
+                    "Scalar installation failed"
                 },
                 expectedErrors: new List<string>
                 {
-                    "GVFS installation failed"
+                    "Scalar installation failed"
                 });
         }
 
         [TestCase]
-        public void GVFSInstallerAuthenticodeError()
+        public void ScalarInstallerAuthenticodeError()
         {
             this.ConfigureRunAndVerify(
                 configure: () =>
                 {
-                    this.Upgrader.SetFailOnAction(MockGitHubUpgrader.ActionType.GVFSAuthenticodeCheck);
+                    this.Upgrader.SetFailOnAction(MockGitHubUpgrader.ActionType.ScalarAuthenticodeCheck);
                 },
                 expectedReturn: ReturnCode.GenericError,
                 expectedOutput: new List<string>
@@ -236,12 +236,12 @@ namespace GVFS.UnitTests.Upgrader
         }
 
         [TestCase]
-        public void GVFSCleanupError()
+        public void ScalarCleanupError()
         {
             this.ConfigureRunAndVerify(
                 configure: () =>
                 {
-                    this.Upgrader.SetFailOnAction(MockGitHubUpgrader.ActionType.GVFSCleanup);
+                    this.Upgrader.SetFailOnAction(MockGitHubUpgrader.ActionType.ScalarCleanup);
                 },
                 expectedReturn: ReturnCode.Success,
                 expectedOutput: new List<string>
@@ -249,7 +249,7 @@ namespace GVFS.UnitTests.Upgrader
                 },
                 expectedErrors: new List<string>
                 {
-                    "Error deleting downloaded GVFS installer."
+                    "Error deleting downloaded Scalar installer."
                 });
         }
 
@@ -307,7 +307,7 @@ namespace GVFS.UnitTests.Upgrader
                 expectedOutput: new List<string>
                 {
                     "Installing Git",
-                    "Installing GVFS",
+                    "Installing Scalar",
                     "Upgrade completed successfully."
                 },
                 expectedErrors: null);

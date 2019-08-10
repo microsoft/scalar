@@ -1,26 +1,26 @@
-﻿using GVFS.Common;
-using GVFS.Common.Tracing;
-using GVFS.PlatformLoader;
+﻿using Scalar.Common;
+using Scalar.Common.Tracing;
+using Scalar.PlatformLoader;
 using System;
 using System.Diagnostics;
 using System.ServiceProcess;
 
-namespace GVFS.Service
+namespace Scalar.Service
 {
     public static class Program
     {
         public static void Main(string[] args)
         {
-            GVFSPlatformLoader.Initialize();
+            ScalarPlatformLoader.Initialize();
 
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
-            using (JsonTracer tracer = new JsonTracer(GVFSConstants.Service.ServiceName, GVFSConstants.Service.ServiceName))
+            using (JsonTracer tracer = new JsonTracer(ScalarConstants.Service.ServiceName, ScalarConstants.Service.ServiceName))
             {
-                using (GVFSService service = new GVFSService(tracer))
+                using (ScalarService service = new ScalarService(tracer))
                 {
                     // This will fail with a popup from a command prompt. To install as a service, run:
-                    // %windir%\Microsoft.NET\Framework64\v4.0.30319\installutil GVFS.Service.exe
+                    // %windir%\Microsoft.NET\Framework64\v4.0.30319\installutil Scalar.Service.exe
                     ServiceBase.Run(service);
                 }
             }
@@ -32,7 +32,7 @@ namespace GVFS.Service
             {
                 eventLog.Source = "Application";
                 eventLog.WriteEntry(
-                    "Unhandled exception in GVFS.Service: " + e.ExceptionObject.ToString(),
+                    "Unhandled exception in Scalar.Service: " + e.ExceptionObject.ToString(),
                     EventLogEntryType.Error);
             }
         }

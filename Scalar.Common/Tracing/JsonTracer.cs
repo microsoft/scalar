@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
-namespace GVFS.Common.Tracing
+namespace Scalar.Common.Tracing
 {
     public class JsonTracer : ITracer, IEventListenerEventSink
     {
@@ -46,7 +46,7 @@ namespace GVFS.Common.Tracing
         {
             if (!disableTelemetry)
             {
-                string gitBinRoot = GVFSPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+                string gitBinRoot = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
 
                 // If we do not have a git binary, then we cannot check if we should set up telemetry
                 // We also cannot log this, as we are setting up tracer.

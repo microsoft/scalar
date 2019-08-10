@@ -1,18 +1,18 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace GVFS.Common.Maintenance
+namespace Scalar.Common.Maintenance
 {
     public class PostFetchStep : GitMaintenanceStep
     {
         private const string CommitGraphChainLock = "commit-graph-chain.lock";
         private List<string> packIndexes;
 
-        public PostFetchStep(GVFSContext context, List<string> packIndexes, bool requireObjectCacheLock = true)
+        public PostFetchStep(ScalarContext context, List<string> packIndexes, bool requireObjectCacheLock = true)
             : base(context, requireObjectCacheLock)
         {
             this.packIndexes = packIndexes;

@@ -1,4 +1,4 @@
-﻿namespace GVFS.Common.Tracing
+﻿namespace Scalar.Common.Tracing
 {
     // Copied from Microsoft.Diagnostics.Tracing.EventOpcode
     public enum EventOpcode

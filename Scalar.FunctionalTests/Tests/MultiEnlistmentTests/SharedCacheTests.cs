@@ -1,7 +1,7 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Should;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Should;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
+namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
@@ -38,20 +38,20 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
         public void SetCacheLocation()
         {
             this.localCacheParentPath = Path.Combine(Properties.Settings.Default.EnlistmentRoot, "..", Guid.NewGuid().ToString("N"));
-            this.localCachePath = Path.Combine(this.localCacheParentPath, ".customGVFSCache");
+            this.localCachePath = Path.Combine(this.localCacheParentPath, ".customScalarCache");
         }
 
         [TestCase]
         public void SecondCloneDoesNotDownloadAdditionalObjects()
         {
-            GVFSFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
             File.ReadAllText(Path.Combine(enlistment1.RepoRoot, WellKnownFile));
 
             this.AlternatesFileShouldHaveGitObjectsRoot(enlistment1);
 
             string[] allObjects = Directory.EnumerateFiles(enlistment1.LocalCacheRoot, "*", SearchOption.AllDirectories).ToArray();
 
-            GVFSFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
             File.ReadAllText(Path.Combine(enlistment2.RepoRoot, WellKnownFile));
 
             this.AlternatesFileShouldHaveGitObjectsRoot(enlistment2);
@@ -64,33 +64,33 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void RepairFixesCorruptBlobSizesDatabase()
         {
-            GVFSFunctionalTestEnlistment enlistment = this.CloneAndMountEnlistment();
-            enlistment.UnmountGVFS();
+            ScalarFunctionalTestEnlistment enlistment = this.CloneAndMountEnlistment();
+            enlistment.UnmountScalar();
 
             // Repair on a healthy enlistment should succeed
             enlistment.Repair(confirm: true);
 
-            string blobSizesRoot = GVFSHelpers.GetPersistedBlobSizesRoot(enlistment.DotGVFSRoot).ShouldNotBeNull();
+            string blobSizesRoot = ScalarHelpers.GetPersistedBlobSizesRoot(enlistment.DotScalarRoot).ShouldNotBeNull();
             string blobSizesDbPath = Path.Combine(blobSizesRoot, "BlobSizes.sql");
             blobSizesDbPath.ShouldBeAFile(this.fileSystem);
             this.fileSystem.WriteAllText(blobSizesDbPath, "0000");
 
-            enlistment.TryMountGVFS().ShouldEqual(false, "GVFS shouldn't mount when blob size db is corrupt");
+            enlistment.TryMountScalar().ShouldEqual(false, "Scalar shouldn't mount when blob size db is corrupt");
             enlistment.Repair(confirm: true);
-            enlistment.MountGVFS();
+            enlistment.MountScalar();
         }
 
         [TestCase]
         [Category(Categories.MacTODO.NeedsServiceVerb)]
         public void CloneCleansUpStaleMetadataLock()
         {
-            GVFSFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
             string metadataLockPath = Path.Combine(this.localCachePath, "mapping.dat.lock");
             metadataLockPath.ShouldNotExistOnDisk(this.fileSystem);
             this.fileSystem.WriteAllText(metadataLockPath, enlistment1.EnlistmentRoot);
             metadataLockPath.ShouldBeAFile(this.fileSystem);
 
-            GVFSFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
             metadataLockPath.ShouldNotExistOnDisk(this.fileSystem);
 
             enlistment1.Status().ShouldContain("Mount status: Ready");
@@ -100,9 +100,9 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void ParallelReadsInASharedCache()
         {
-            GVFSFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
-            GVFSFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
-            GVFSFunctionalTestEnlistment enlistment3 = null;
+            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment3 = null;
 
             Task task1 = Task.Run(() => this.HydrateEntireRepo(enlistment1));
             Task task2 = Task.Run(() => this.HydrateEntireRepo(enlistment2));
@@ -128,12 +128,12 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void DeleteObjectsCacheAndCacheMappingBeforeMount()
         {
-            GVFSFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
-            GVFSFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
 
-            enlistment1.UnmountGVFS();
+            enlistment1.UnmountScalar();
 
-            string objectsRoot = GVFSHelpers.GetPersistedGitObjectsRoot(enlistment1.DotGVFSRoot).ShouldNotBeNull();
+            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment1.DotScalarRoot).ShouldNotBeNull();
             objectsRoot.ShouldBeADirectory(this.fileSystem);
             RepositoryHelpers.DeleteTestDirectory(objectsRoot);
 
@@ -141,7 +141,7 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
             metadataPath.ShouldBeAFile(this.fileSystem);
             this.fileSystem.DeleteFile(metadataPath);
 
-            enlistment1.MountGVFS();
+            enlistment1.MountScalar();
 
             Task task1 = Task.Run(() => this.HydrateRootFolder(enlistment1));
             Task task2 = Task.Run(() => this.HydrateRootFolder(enlistment2));
@@ -160,9 +160,9 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void DeleteCacheDuringHydrations()
         {
-            GVFSFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
 
-            string objectsRoot = GVFSHelpers.GetPersistedGitObjectsRoot(enlistment1.DotGVFSRoot).ShouldNotBeNull();
+            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment1.DotScalarRoot).ShouldNotBeNull();
             objectsRoot.ShouldBeADirectory(this.fileSystem);
 
             Task task1 = Task.Run(() =>
@@ -174,7 +174,7 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
             {
                 try
                 {
-                    // Delete objectsRoot rather than this.localCachePath as the blob sizes database cannot be deleted while GVFS is mounted
+                    // Delete objectsRoot rather than this.localCachePath as the blob sizes database cannot be deleted while Scalar is mounted
                     RepositoryHelpers.DeleteTestDirectory(objectsRoot);
                     Thread.Sleep(100);
                 }
@@ -192,22 +192,22 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void DownloadingACommitWithoutTreesDoesntBreakNextClone()
         {
-            GVFSFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
             GitProcess.Invoke(enlistment1.RepoRoot, "cat-file -s " + WellKnownCommitSha).ShouldEqual("293\n");
 
-            GVFSFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment(WellKnownBranch);
+            ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment(WellKnownBranch);
             enlistment2.Status().ShouldContain("Mount status: Ready");
         }
 
         [TestCase]
         public void MountReusesLocalCacheKeyWhenGitObjectsRootDeleted()
         {
-            GVFSFunctionalTestEnlistment enlistment = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment = this.CloneAndMountEnlistment();
 
-            enlistment.UnmountGVFS();
+            enlistment.UnmountScalar();
 
             // Find the current git objects root and ensure it's on disk
-            string objectsRoot = GVFSHelpers.GetPersistedGitObjectsRoot(enlistment.DotGVFSRoot).ShouldNotBeNull();
+            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment.DotScalarRoot).ShouldNotBeNull();
             objectsRoot.ShouldBeADirectory(this.fileSystem);
 
             string mappingFilePath = Path.Combine(enlistment.LocalCacheRoot, "mapping.dat");
@@ -217,9 +217,9 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
             // Delete the git objects root folder, mount should re-create it and the mapping.dat file should not change
             RepositoryHelpers.DeleteTestDirectory(objectsRoot);
 
-            enlistment.MountGVFS();
+            enlistment.MountScalar();
 
-            GVFSHelpers.GetPersistedGitObjectsRoot(enlistment.DotGVFSRoot).ShouldEqual(objectsRoot);
+            ScalarHelpers.GetPersistedGitObjectsRoot(enlistment.DotScalarRoot).ShouldEqual(objectsRoot);
             objectsRoot.ShouldBeADirectory(this.fileSystem);
             mappingFilePath.ShouldBeAFile(this.fileSystem).WithContents(mappingFileContents);
 
@@ -229,12 +229,12 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void MountUsesNewLocalCacheKeyWhenLocalCacheDeleted()
         {
-            GVFSFunctionalTestEnlistment enlistment = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment = this.CloneAndMountEnlistment();
 
-            enlistment.UnmountGVFS();
+            enlistment.UnmountScalar();
 
             // Find the current git objects root and ensure it's on disk
-            string objectsRoot = GVFSHelpers.GetPersistedGitObjectsRoot(enlistment.DotGVFSRoot).ShouldNotBeNull();
+            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment.DotScalarRoot).ShouldNotBeNull();
             objectsRoot.ShouldBeADirectory(this.fileSystem);
 
             string mappingFilePath = Path.Combine(enlistment.LocalCacheRoot, "mapping.dat");
@@ -244,7 +244,7 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
             // Delete the local cache folder, mount should re-create it and generate a new mapping file and local cache key
             RepositoryHelpers.DeleteTestDirectory(enlistment.LocalCacheRoot);
 
-            enlistment.MountGVFS();
+            enlistment.MountScalar();
 
             // Mount should recreate the local cache root
             enlistment.LocalCacheRoot.ShouldBeADirectory(this.fileSystem);
@@ -252,13 +252,13 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
             // Determine the new local cache key
             string newMappingFileContents = mappingFilePath.ShouldBeAFile(this.fileSystem).WithContents();
             const int GuidStringLength = 32;
-            string mappingFileKey = "A {\"Key\":\"https://gvfs.visualstudio.com/ci/_git/fortests\",\"Value\":\"";
+            string mappingFileKey = "A {\"Key\":\"https://scalar.visualstudio.com/ci/_git/fortests\",\"Value\":\"";
             int localKeyIndex = newMappingFileContents.IndexOf(mappingFileKey);
             string newCacheKey = newMappingFileContents.Substring(localKeyIndex + mappingFileKey.Length, GuidStringLength);
 
             // Validate the new objects root is on disk and uses the new key
             objectsRoot.ShouldNotExistOnDisk(this.fileSystem);
-            string newObjectsRoot = GVFSHelpers.GetPersistedGitObjectsRoot(enlistment.DotGVFSRoot);
+            string newObjectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment.DotScalarRoot);
             newObjectsRoot.ShouldNotEqual(objectsRoot);
             newObjectsRoot.ShouldContain(newCacheKey);
             newObjectsRoot.ShouldBeADirectory(this.fileSystem);
@@ -270,41 +270,41 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
         public void SecondCloneSucceedsWithMissingTrees()
         {
             string newCachePath = Path.Combine(this.localCacheParentPath, ".customGvfsCache2");
-            GVFSFunctionalTestEnlistment enlistment1 = this.CreateNewEnlistment(localCacheRoot: newCachePath, skipPrefetch: true);
+            ScalarFunctionalTestEnlistment enlistment1 = this.CreateNewEnlistment(localCacheRoot: newCachePath, skipPrefetch: true);
             File.ReadAllText(Path.Combine(enlistment1.RepoRoot, WellKnownFile));
             this.AlternatesFileShouldHaveGitObjectsRoot(enlistment1);
 
             // This Git command loads the commit and root tree for WellKnownCommitSha,
             // but does not download any more reachable objects.
             string command = "cat-file -p origin/" + WellKnownBranch + "^{tree}";
-            ProcessResult result = GitHelpers.InvokeGitAgainstGVFSRepo(enlistment1.RepoRoot, command);
+            ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment1.RepoRoot, command);
             result.ExitCode.ShouldEqual(0, $"git {command} failed with error: " + result.Errors);
 
             // If we did not properly check the failed checkout at this step, then clone will fail during checkout.
-            GVFSFunctionalTestEnlistment enlistment2 = this.CreateNewEnlistment(localCacheRoot: newCachePath, branch: WellKnownBranch, skipPrefetch: true);
+            ScalarFunctionalTestEnlistment enlistment2 = this.CreateNewEnlistment(localCacheRoot: newCachePath, branch: WellKnownBranch, skipPrefetch: true);
             File.ReadAllText(Path.Combine(enlistment2.RepoRoot, WellKnownFile));
         }
 
         // Override OnTearDownEnlistmentsDeleted rathern than using [TearDown] as the enlistments need to be unmounted before
-        // localCacheParentPath can be deleted (as the SQLite blob sizes database cannot be deleted while GVFS is mounted)
+        // localCacheParentPath can be deleted (as the SQLite blob sizes database cannot be deleted while Scalar is mounted)
         protected override void OnTearDownEnlistmentsDeleted()
         {
             RepositoryHelpers.DeleteTestDirectory(this.localCacheParentPath);
         }
 
-        private GVFSFunctionalTestEnlistment CloneAndMountEnlistment(string branch = null)
+        private ScalarFunctionalTestEnlistment CloneAndMountEnlistment(string branch = null)
         {
             return this.CreateNewEnlistment(this.localCachePath, branch);
         }
 
-        private void AlternatesFileShouldHaveGitObjectsRoot(GVFSFunctionalTestEnlistment enlistment)
+        private void AlternatesFileShouldHaveGitObjectsRoot(ScalarFunctionalTestEnlistment enlistment)
         {
-            string objectsRoot = GVFSHelpers.GetPersistedGitObjectsRoot(enlistment.DotGVFSRoot);
+            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment.DotScalarRoot);
             string alternatesFileContents = Path.Combine(enlistment.RepoRoot, ".git", "objects", "info", "alternates").ShouldBeAFile(this.fileSystem).WithContents();
             alternatesFileContents.ShouldEqual(objectsRoot);
         }
 
-        private void HydrateRootFolder(GVFSFunctionalTestEnlistment enlistment)
+        private void HydrateRootFolder(ScalarFunctionalTestEnlistment enlistment)
         {
             List<string> allFiles = Directory.EnumerateFiles(enlistment.RepoRoot, "*", SearchOption.TopDirectoryOnly).ToList();
             for (int i = 0; i < allFiles.Count; ++i)
@@ -313,7 +313,7 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
             }
         }
 
-        private void HydrateEntireRepo(GVFSFunctionalTestEnlistment enlistment)
+        private void HydrateEntireRepo(ScalarFunctionalTestEnlistment enlistment)
         {
             List<string> allFiles = Directory.EnumerateFiles(enlistment.RepoRoot, "*", SearchOption.AllDirectories).ToList();
             for (int i = 0; i < allFiles.Count; ++i)

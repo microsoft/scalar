@@ -1,19 +1,19 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 
-namespace GVFS.Common.Maintenance
+namespace Scalar.Common.Maintenance
 {
     public class GitMaintenanceQueue
     {
         private readonly object queueLock = new object();
-        private GVFSContext context;
+        private ScalarContext context;
         private BlockingCollection<GitMaintenanceStep> queue = new BlockingCollection<GitMaintenanceStep>();
         private GitMaintenanceStep currentStep;
 
-        public GitMaintenanceQueue(GVFSContext context)
+        public GitMaintenanceQueue(ScalarContext context)
         {
             this.context = context;
             Thread worker = new Thread(() => this.RunQueue());

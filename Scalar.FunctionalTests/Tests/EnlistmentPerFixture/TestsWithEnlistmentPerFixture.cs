@@ -1,7 +1,7 @@
-﻿using GVFS.FunctionalTests.Tools;
+﻿using Scalar.FunctionalTests.Tools;
 using NUnit.Framework;
 
-namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
+namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     public abstract class TestsWithEnlistmentPerFixture
@@ -15,7 +15,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
             this.skipPrefetchDuringClone = skipPrefetchDuringClone;
         }
 
-        public GVFSFunctionalTestEnlistment Enlistment
+        public ScalarFunctionalTestEnlistment Enlistment
         {
             get; private set;
         }
@@ -25,11 +25,11 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         {
             if (this.forcePerRepoObjectCache)
             {
-                this.Enlistment = GVFSFunctionalTestEnlistment.CloneAndMountWithPerRepoCache(GVFSTestConfig.PathToGVFS, this.skipPrefetchDuringClone);
+                this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMountWithPerRepoCache(ScalarTestConfig.PathToScalar, this.skipPrefetchDuringClone);
             }
             else
             {
-                this.Enlistment = GVFSFunctionalTestEnlistment.CloneAndMount(GVFSTestConfig.PathToGVFS);
+                this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMount(ScalarTestConfig.PathToScalar);
             }
         }
 

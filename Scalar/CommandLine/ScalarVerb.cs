@@ -1,10 +1,10 @@
 using CommandLine;
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,22 +12,22 @@ using System.IO;
 using System.Linq;
 using System.Security;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
-    public abstract class GVFSVerb
+    public abstract class ScalarVerb
     {
-        protected const string StartServiceInstructions = "Run 'sc start GVFS.Service' from an elevated command prompt to ensure it is running.";
+        protected const string StartServiceInstructions = "Run 'sc start Scalar.Service' from an elevated command prompt to ensure it is running.";
 
         private readonly bool validateOriginURL;
 
-        public GVFSVerb(bool validateOrigin = true)
+        public ScalarVerb(bool validateOrigin = true)
         {
             this.Output = Console.Out;
             this.ReturnCode = ReturnCode.Success;
             this.validateOriginURL = validateOrigin;
-            this.ServiceName = GVFSConstants.Service.ServiceName;
+            this.ServiceName = ScalarConstants.Service.ServiceName;
             this.StartedByService = false;
-            this.Unattended = GVFSEnlistment.IsUnattended(tracer: null);
+            this.Unattended = ScalarEnlistment.IsUnattended(tracer: null);
 
             this.InitializeDefaultParameterValues();
         }
@@ -35,7 +35,7 @@ namespace GVFS.CommandLine
         public abstract string EnlistmentRootPathParameter { get; set; }
 
         [Option(
-            GVFSConstants.VerbParameters.InternalUseOnly,
+            ScalarConstants.VerbParameters.InternalUseOnly,
             Required = false,
             HelpText = "This parameter is reserved for internal use.")]
         public string InternalParameters
@@ -86,7 +86,7 @@ namespace GVFS.CommandLine
         {
             get
             {
-                return GVFSPlatform.Instance.GetGVFSServiceNamedPipeName(this.ServiceName);
+                return ScalarPlatform.Instance.GetScalarServiceNamedPipeName(this.ServiceName);
             }
         }
 
@@ -98,10 +98,10 @@ namespace GVFS.CommandLine
 
         public static bool TrySetRequiredGitConfigSettings(Enlistment enlistment)
         {
-            string expectedHooksPath = Path.Combine(enlistment.WorkingDirectoryBackingRoot, GVFSConstants.DotGit.Hooks.Root);
+            string expectedHooksPath = Path.Combine(enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Hooks.Root);
             expectedHooksPath = Paths.ConvertPathToGitFormat(expectedHooksPath);
 
-            // These settings are required for normal GVFS functionality.
+            // These settings are required for normal Scalar functionality.
             // They will override any existing local configuration values.
             //
             // IMPORTANT! These must parallel the settings in ControlGitRepo:Initialize
@@ -113,13 +113,13 @@ namespace GVFS.CommandLine
                 { "core.autocrlf", "false" },
                 { "core.commitGraph", "true" },
                 { "core.fscache", "true" },
-                { "core.gvfs", "true" },
+                { "core.scalar", "true" },
                 { "core.multiPackIndex", "true" },
                 { "core.preloadIndex", "true" },
                 { "core.safecrlf", "false" },
                 { "core.untrackedCache", "false" },
                 { "core.repositoryformatversion", "0" },
-                { "core.filemode", GVFSPlatform.Instance.FileSystem.SupportsFileMode ? "true" : "false" },
+                { "core.filemode", ScalarPlatform.Instance.FileSystem.SupportsFileMode ? "true" : "false" },
                 { GitConfigSetting.CoreVirtualizeObjectsName, "true" },
                 { "core.bare", "false" },
                 { "core.logallrefupdates", "true" },
@@ -149,7 +149,7 @@ namespace GVFS.CommandLine
 
         public static bool TrySetOptionalGitConfigSettings(Enlistment enlistment)
         {
-            // These settings are optional, because they impact performance but not functionality of GVFS.
+            // These settings are optional, because they impact performance but not functionality of Scalar.
             // These settings should only be set by the clone or repair verbs, so that they do not
             // overwrite the values set by the user in their local config.
             Dictionary<string, string> optionalSettings = new Dictionary<string, string>
@@ -174,7 +174,7 @@ namespace GVFS.CommandLine
         protected ReturnCode Execute<TVerb>(
             string enlistmentRootPath,
             Action<TVerb> configureVerb = null)
-            where TVerb : GVFSVerb, new()
+            where TVerb : ScalarVerb, new()
         {
             TVerb verb = new TVerb();
             verb.EnlistmentRootPathParameter = enlistmentRootPath;
@@ -198,9 +198,9 @@ namespace GVFS.CommandLine
         }
 
         protected ReturnCode Execute<TVerb>(
-            GVFSEnlistment enlistment,
+            ScalarEnlistment enlistment,
             Action<TVerb> configureVerb = null)
-            where TVerb : GVFSVerb.ForExistingEnlistment, new()
+            where TVerb : ScalarVerb.ForExistingEnlistment, new()
         {
             TVerb verb = new TVerb();
             verb.EnlistmentRootPathParameter = enlistment.EnlistmentRoot;
@@ -226,14 +226,14 @@ namespace GVFS.CommandLine
         protected bool ShowStatusWhileRunning(
             Func<bool> action,
             string message,
-            string gvfsLogEnlistmentRoot)
+            string scalarLogEnlistmentRoot)
         {
             return ConsoleHelper.ShowStatusWhileRunning(
                 action,
                 message,
                 this.Output,
-                showSpinner: !this.Unattended && this.Output == Console.Out && !GVFSPlatform.Instance.IsConsoleOutputRedirectedToFile(),
-                gvfsLogEnlistmentRoot: gvfsLogEnlistmentRoot,
+                showSpinner: !this.Unattended && this.Output == Console.Out && !ScalarPlatform.Instance.IsConsoleOutputRedirectedToFile(),
+                scalarLogEnlistmentRoot: scalarLogEnlistmentRoot,
                 initialDelayMs: 0);
         }
 
@@ -242,17 +242,17 @@ namespace GVFS.CommandLine
             string message,
             bool suppressGvfsLogMessage = false)
         {
-            string gvfsLogEnlistmentRoot = null;
+            string scalarLogEnlistmentRoot = null;
             if (!suppressGvfsLogMessage)
             {
                 string errorMessage;
-                GVFSPlatform.Instance.TryGetGVFSEnlistmentRoot(this.EnlistmentRootPathParameter, out gvfsLogEnlistmentRoot, out errorMessage);
+                ScalarPlatform.Instance.TryGetScalarEnlistmentRoot(this.EnlistmentRootPathParameter, out scalarLogEnlistmentRoot, out errorMessage);
             }
 
-            return this.ShowStatusWhileRunning(action, message, gvfsLogEnlistmentRoot);
+            return this.ShowStatusWhileRunning(action, message, scalarLogEnlistmentRoot);
         }
 
-        protected bool TryAuthenticate(ITracer tracer, GVFSEnlistment enlistment, out string authErrorMessage)
+        protected bool TryAuthenticate(ITracer tracer, ScalarEnlistment enlistment, out string authErrorMessage)
         {
             string authError = null;
 
@@ -301,13 +301,13 @@ namespace GVFS.CommandLine
             this.ReportErrorAndExit(tracer, ReturnCode.GenericError, error, args);
         }
 
-        protected RetryConfig GetRetryConfig(ITracer tracer, GVFSEnlistment enlistment, TimeSpan? timeoutOverride = null)
+        protected RetryConfig GetRetryConfig(ITracer tracer, ScalarEnlistment enlistment, TimeSpan? timeoutOverride = null)
         {
             RetryConfig retryConfig;
             string error;
             if (!RetryConfig.TryLoadFromGitConfig(tracer, enlistment, out retryConfig, out error))
             {
-                this.ReportErrorAndExit(tracer, "Failed to determine GVFS timeout and max retries: " + error);
+                this.ReportErrorAndExit(tracer, "Failed to determine Scalar timeout and max retries: " + error);
             }
 
             if (timeoutOverride.HasValue)
@@ -318,9 +318,9 @@ namespace GVFS.CommandLine
             return retryConfig;
         }
 
-        protected ServerGVFSConfig QueryGVFSConfig(ITracer tracer, GVFSEnlistment enlistment, RetryConfig retryConfig)
+        protected ServerScalarConfig QueryScalarConfig(ITracer tracer, ScalarEnlistment enlistment, RetryConfig retryConfig)
         {
-            ServerGVFSConfig serverGVFSConfig = null;
+            ServerScalarConfig serverScalarConfig = null;
             string errorMessage = null;
             if (!this.ShowStatusWhileRunning(
                 () =>
@@ -328,21 +328,21 @@ namespace GVFS.CommandLine
                     using (ConfigHttpRequestor configRequestor = new ConfigHttpRequestor(tracer, enlistment, retryConfig))
                     {
                         const bool LogErrors = true;
-                        return configRequestor.TryQueryGVFSConfig(LogErrors, out serverGVFSConfig, out _, out errorMessage);
+                        return configRequestor.TryQueryScalarConfig(LogErrors, out serverScalarConfig, out _, out errorMessage);
                     }
                 },
                 "Querying remote for config",
                 suppressGvfsLogMessage: true))
             {
-                this.ReportErrorAndExit(tracer, "Unable to query /gvfs/config" + Environment.NewLine + errorMessage);
+                this.ReportErrorAndExit(tracer, "Unable to query /scalar/config" + Environment.NewLine + errorMessage);
             }
 
-            return serverGVFSConfig;
+            return serverScalarConfig;
         }
 
         protected bool IsExistingPipeListening(string enlistmentRoot)
         {
-            using (NamedPipeClient pipeClient = new NamedPipeClient(GVFSPlatform.Instance.GetNamedPipeName(enlistmentRoot)))
+            using (NamedPipeClient pipeClient = new NamedPipeClient(ScalarPlatform.Instance.GetNamedPipeName(enlistmentRoot)))
             {
                 if (pipeClient.Connect(500))
                 {
@@ -353,14 +353,14 @@ namespace GVFS.CommandLine
             return false;
         }
 
-        protected void ValidateClientVersions(ITracer tracer, GVFSEnlistment enlistment, ServerGVFSConfig gvfsConfig, bool showWarnings)
+        protected void ValidateClientVersions(ITracer tracer, ScalarEnlistment enlistment, ServerScalarConfig scalarConfig, bool showWarnings)
         {
             this.CheckGitVersion(tracer, enlistment, out string gitVersion);
             enlistment.SetGitVersion(gitVersion);
 
             string errorMessage = null;
             bool errorIsFatal = false;
-            if (!this.TryValidateGVFSVersion(enlistment, tracer, gvfsConfig, out errorMessage, out errorIsFatal))
+            if (!this.TryValidateScalarVersion(enlistment, tracer, scalarConfig, out errorMessage, out errorIsFatal))
             {
                 if (errorIsFatal)
                 {
@@ -375,7 +375,7 @@ namespace GVFS.CommandLine
             }
         }
 
-        protected bool TryCreateAlternatesFile(PhysicalFileSystem fileSystem, GVFSEnlistment enlistment, out string errorMessage)
+        protected bool TryCreateAlternatesFile(PhysicalFileSystem fileSystem, ScalarEnlistment enlistment, out string errorMessage)
         {
             try
             {
@@ -418,7 +418,7 @@ You can specify a URL, a name of a configured cache server, or the special names
             ITracer tracer,
             CacheServerInfo cacheServer,
             CacheServerResolver cacheServerResolver,
-            ServerGVFSConfig serverGVFSConfig)
+            ServerScalarConfig serverScalarConfig)
         {
             CacheServerInfo resolvedCacheServer = cacheServer;
 
@@ -429,7 +429,7 @@ You can specify a URL, a name of a configured cache server, or the special names
 
                 if (!cacheServerResolver.TryResolveUrlFromRemote(
                         cacheServerName,
-                        serverGVFSConfig,
+                        serverScalarConfig,
                         out resolvedCacheServer,
                         out error))
                 {
@@ -438,7 +438,7 @@ You can specify a URL, a name of a configured cache server, or the special names
             }
             else if (cacheServer.Name.Equals(CacheServerInfo.ReservedNames.UserDefined))
             {
-                resolvedCacheServer = cacheServerResolver.ResolveNameFromRemote(cacheServer.Url, serverGVFSConfig);
+                resolvedCacheServer = cacheServerResolver.ResolveNameFromRemote(cacheServer.Url, serverScalarConfig);
             }
 
             this.Output.WriteLine("Using cache server: " + resolvedCacheServer);
@@ -462,9 +462,9 @@ You can specify a URL, a name of a configured cache server, or the special names
 
         protected bool TryDownloadCommit(
             string commitId,
-            GVFSEnlistment enlistment,
+            ScalarEnlistment enlistment,
             GitObjectsHttpRequestor objectRequestor,
-            GVFSGitObjects gitObjects,
+            ScalarGitObjects gitObjects,
             GitRepo repo,
             out string error,
             bool checkLocalObjectCache = true)
@@ -482,33 +482,33 @@ You can specify a URL, a name of a configured cache server, or the special names
             return true;
         }
 
-        protected bool TryDownloadRootGitAttributes(GVFSEnlistment enlistment, GVFSGitObjects gitObjects, GitRepo repo, out string error)
+        protected bool TryDownloadRootGitAttributes(ScalarEnlistment enlistment, ScalarGitObjects gitObjects, GitRepo repo, out string error)
         {
             List<DiffTreeResult> rootEntries = new List<DiffTreeResult>();
             GitProcess git = new GitProcess(enlistment);
             GitProcess.Result result = git.LsTree(
-                GVFSConstants.DotGit.HeadName,
+                ScalarConstants.DotGit.HeadName,
                 line => rootEntries.Add(DiffTreeResult.ParseFromLsTreeLine(line)),
                 recursive: false);
 
             if (result.ExitCodeIsFailure)
             {
-                error = "Error returned from ls-tree to find " + GVFSConstants.SpecialGitFiles.GitAttributes + " file: " + result.Errors;
+                error = "Error returned from ls-tree to find " + ScalarConstants.SpecialGitFiles.GitAttributes + " file: " + result.Errors;
                 return false;
             }
 
-            DiffTreeResult gitAttributes = rootEntries.FirstOrDefault(entry => entry.TargetPath.Equals(GVFSConstants.SpecialGitFiles.GitAttributes));
+            DiffTreeResult gitAttributes = rootEntries.FirstOrDefault(entry => entry.TargetPath.Equals(ScalarConstants.SpecialGitFiles.GitAttributes));
             if (gitAttributes == null)
             {
-                error = "This branch does not contain a " + GVFSConstants.SpecialGitFiles.GitAttributes + " file in the root folder.  This file is required by GVFS clone";
+                error = "This branch does not contain a " + ScalarConstants.SpecialGitFiles.GitAttributes + " file in the root folder.  This file is required by Scalar clone";
                 return false;
             }
 
             if (!repo.ObjectExists(gitAttributes.TargetSha))
             {
-                if (gitObjects.TryDownloadAndSaveObject(gitAttributes.TargetSha, GVFSGitObjects.RequestSource.GVFSVerb) != GitObjects.DownloadAndSaveObjectResult.Success)
+                if (gitObjects.TryDownloadAndSaveObject(gitAttributes.TargetSha, ScalarGitObjects.RequestSource.ScalarVerb) != GitObjects.DownloadAndSaveObjectResult.Success)
                 {
-                    error = "Could not download " + GVFSConstants.SpecialGitFiles.GitAttributes + " file";
+                    error = "Could not download " + ScalarConstants.SpecialGitFiles.GitAttributes + " file";
                     return false;
                 }
             }
@@ -517,24 +517,24 @@ You can specify a URL, a name of a configured cache server, or the special names
             return true;
         }
 
-        protected void LogEnlistmentInfoAndSetConfigValues(ITracer tracer, GitProcess git, GVFSEnlistment enlistment)
+        protected void LogEnlistmentInfoAndSetConfigValues(ITracer tracer, GitProcess git, ScalarEnlistment enlistment)
         {
             string mountId = CreateMountId();
             EventMetadata metadata = new EventMetadata();
             metadata.Add(nameof(RepoMetadata.Instance.EnlistmentId), RepoMetadata.Instance.EnlistmentId);
             metadata.Add(nameof(mountId), mountId);
             metadata.Add("Enlistment", enlistment);
-            metadata.Add("PhysicalDiskInfo", GVFSPlatform.Instance.GetPhysicalDiskInfo(enlistment.WorkingDirectoryRoot, sizeStatsOnly: false));
+            metadata.Add("PhysicalDiskInfo", ScalarPlatform.Instance.GetPhysicalDiskInfo(enlistment.WorkingDirectoryRoot, sizeStatsOnly: false));
             tracer.RelatedEvent(EventLevel.Informational, "EnlistmentInfo", metadata, Keywords.Telemetry);
 
-            GitProcess.Result configResult = git.SetInLocalConfig(GVFSConstants.GitConfig.EnlistmentId, RepoMetadata.Instance.EnlistmentId, replaceAll: true);
+            GitProcess.Result configResult = git.SetInLocalConfig(ScalarConstants.GitConfig.EnlistmentId, RepoMetadata.Instance.EnlistmentId, replaceAll: true);
             if (configResult.ExitCodeIsFailure)
             {
                 string error = "Could not update config with enlistment id, error: " + configResult.Errors;
                 tracer.RelatedWarning(error);
             }
 
-            configResult = git.SetInLocalConfig(GVFSConstants.GitConfig.MountId, mountId, replaceAll: true);
+            configResult = git.SetInLocalConfig(ScalarConstants.GitConfig.MountId, mountId, replaceAll: true);
             if (configResult.ExitCodeIsFailure)
             {
                 string error = "Could not update config with mount id, error: " + configResult.Errors;
@@ -587,12 +587,12 @@ You can specify a URL, a name of a configured cache server, or the special names
             return true;
         }
 
-        private string GetAlternatesPath(GVFSEnlistment enlistment)
+        private string GetAlternatesPath(ScalarEnlistment enlistment)
         {
-            return Path.Combine(enlistment.WorkingDirectoryBackingRoot, GVFSConstants.DotGit.Objects.Info.Alternates);
+            return Path.Combine(enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Objects.Info.Alternates);
         }
 
-        private void CheckGitVersion(ITracer tracer, GVFSEnlistment enlistment, out string version)
+        private void CheckGitVersion(ITracer tracer, ScalarEnlistment enlistment, out string version)
         {
             GitVersion gitVersion = null;
             if (string.IsNullOrEmpty(enlistment.GitBinPath) || !GitProcess.TryGetVersion(enlistment.GitBinPath, out gitVersion, out string _))
@@ -602,63 +602,63 @@ You can specify a URL, a name of a configured cache server, or the special names
 
             version = gitVersion.ToString();
 
-            if (gitVersion.Platform != GVFSConstants.SupportedGitVersion.Platform)
+            if (gitVersion.Platform != ScalarConstants.SupportedGitVersion.Platform)
             {
-                this.ReportErrorAndExit(tracer, "Error: Invalid version of git {0}.  Must use gvfs version.", version);
+                this.ReportErrorAndExit(tracer, "Error: Invalid version of git {0}.  Must use scalar version.", version);
             }
 
             if (ProcessHelper.IsDevelopmentVersion())
             {
-                if (gitVersion.IsLessThan(GVFSConstants.SupportedGitVersion))
+                if (gitVersion.IsLessThan(ScalarConstants.SupportedGitVersion))
                 {
                     this.ReportErrorAndExit(
                         tracer,
                         "Error: Installed git version {0} is less than the supported version of {1}.",
                         gitVersion,
-                        GVFSConstants.SupportedGitVersion);
+                        ScalarConstants.SupportedGitVersion);
                 }
-                else if (!gitVersion.IsEqualTo(GVFSConstants.SupportedGitVersion))
+                else if (!gitVersion.IsEqualTo(ScalarConstants.SupportedGitVersion))
                 {
-                    this.Output.WriteLine($"Warning: Installed git version {gitVersion} does not match supported version of {GVFSConstants.SupportedGitVersion}.");
+                    this.Output.WriteLine($"Warning: Installed git version {gitVersion} does not match supported version of {ScalarConstants.SupportedGitVersion}.");
                 }
             }
             else
             {
-                if (!gitVersion.IsEqualTo(GVFSConstants.SupportedGitVersion))
+                if (!gitVersion.IsEqualTo(ScalarConstants.SupportedGitVersion))
                 {
                     this.ReportErrorAndExit(
                         tracer,
                         "Error: Installed git version {0} does not match supported version of {1}.",
                         gitVersion,
-                        GVFSConstants.SupportedGitVersion);
+                        ScalarConstants.SupportedGitVersion);
                 }
             }
         }
 
-        private bool TryValidateGVFSVersion(GVFSEnlistment enlistment, ITracer tracer, ServerGVFSConfig config, out string errorMessage, out bool errorIsFatal)
+        private bool TryValidateScalarVersion(ScalarEnlistment enlistment, ITracer tracer, ServerScalarConfig config, out string errorMessage, out bool errorIsFatal)
         {
             errorMessage = null;
             errorIsFatal = false;
 
-            using (ITracer activity = tracer.StartActivity("ValidateGVFSVersion", EventLevel.Informational))
+            using (ITracer activity = tracer.StartActivity("ValidateScalarVersion", EventLevel.Informational))
             {
                 Version currentVersion = new Version(ProcessHelper.GetCurrentProcessVersion());
 
-                IEnumerable<ServerGVFSConfig.VersionRange> allowedGvfsClientVersions =
+                IEnumerable<ServerScalarConfig.VersionRange> allowedGvfsClientVersions =
                     config != null
-                    ? config.AllowedGVFSClientVersions
+                    ? config.AllowedScalarClientVersions
                     : null;
 
                 if (allowedGvfsClientVersions == null || !allowedGvfsClientVersions.Any())
                 {
-                    errorMessage = "WARNING: Unable to validate your GVFS version" + Environment.NewLine;
+                    errorMessage = "WARNING: Unable to validate your Scalar version" + Environment.NewLine;
                     if (config == null)
                     {
-                        errorMessage += "Could not query valid GVFS versions from: " + Uri.EscapeUriString(enlistment.RepoUrl);
+                        errorMessage += "Could not query valid Scalar versions from: " + Uri.EscapeUriString(enlistment.RepoUrl);
                     }
                     else
                     {
-                        errorMessage += "Server not configured to provide supported GVFS versions";
+                        errorMessage += "Server not configured to provide supported Scalar versions";
                     }
 
                     EventMetadata metadata = new EventMetadata();
@@ -667,33 +667,33 @@ You can specify a URL, a name of a configured cache server, or the special names
                     return false;
                 }
 
-                foreach (ServerGVFSConfig.VersionRange versionRange in config.AllowedGVFSClientVersions)
+                foreach (ServerScalarConfig.VersionRange versionRange in config.AllowedScalarClientVersions)
                 {
                     if (currentVersion >= versionRange.Min &&
                         (versionRange.Max == null || currentVersion <= versionRange.Max))
                     {
                         activity.RelatedEvent(
                             EventLevel.Informational,
-                            "GVFSVersionValidated",
+                            "ScalarVersionValidated",
                             new EventMetadata
                             {
                                 { "SupportedVersionRange", versionRange },
                             });
 
-                        enlistment.SetGVFSVersion(currentVersion.ToString());
+                        enlistment.SetScalarVersion(currentVersion.ToString());
                         return true;
                     }
                 }
 
-                activity.RelatedError("GVFS version {0} is not supported", currentVersion);
+                activity.RelatedError("Scalar version {0} is not supported", currentVersion);
             }
 
-            errorMessage = "ERROR: Your GVFS version is no longer supported.  Install the latest and try again.";
+            errorMessage = "ERROR: Your Scalar version is no longer supported.  Install the latest and try again.";
             errorIsFatal = true;
             return false;
         }
 
-        public abstract class ForExistingEnlistment : GVFSVerb
+        public abstract class ForExistingEnlistment : ScalarVerb
         {
             public ForExistingEnlistment(bool validateOrigin = true) : base(validateOrigin)
             {
@@ -704,7 +704,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                 Required = false,
                 Default = "",
                 MetaName = "Enlistment Root Path",
-                HelpText = "Full or relative path to the GVFS enlistment root")]
+                HelpText = "Full or relative path to the Scalar enlistment root")]
             public override string EnlistmentRootPathParameter { get; set; }
 
             public sealed override void Execute()
@@ -717,7 +717,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                 this.ValidatePathParameter(this.EnlistmentRootPathParameter);
 
                 this.PreCreateEnlistment();
-                GVFSEnlistment enlistment = this.CreateEnlistment(this.EnlistmentRootPathParameter, authentication);
+                ScalarEnlistment enlistment = this.CreateEnlistment(this.EnlistmentRootPathParameter, authentication);
 
                 this.Execute(enlistment);
             }
@@ -726,27 +726,27 @@ You can specify a URL, a name of a configured cache server, or the special names
             {
             }
 
-            protected abstract void Execute(GVFSEnlistment enlistment);
+            protected abstract void Execute(ScalarEnlistment enlistment);
 
             protected void InitializeLocalCacheAndObjectsPaths(
                 ITracer tracer,
-                GVFSEnlistment enlistment,
+                ScalarEnlistment enlistment,
                 RetryConfig retryConfig,
-                ServerGVFSConfig serverGVFSConfig,
+                ServerScalarConfig serverScalarConfig,
                 CacheServerInfo cacheServer)
             {
                 string error;
-                if (!RepoMetadata.TryInitialize(tracer, Path.Combine(enlistment.EnlistmentRoot, GVFSPlatform.Instance.Constants.DotGVFSRoot), out error))
+                if (!RepoMetadata.TryInitialize(tracer, Path.Combine(enlistment.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot), out error))
                 {
                     this.ReportErrorAndExit(tracer, "Failed to initialize repo metadata: " + error);
                 }
 
                 this.InitializeCachePathsFromRepoMetadata(tracer, enlistment);
 
-                // Note: Repos cloned with a version of GVFS that predates the local cache will not have a local cache configured
+                // Note: Repos cloned with a version of Scalar that predates the local cache will not have a local cache configured
                 if (!string.IsNullOrWhiteSpace(enlistment.LocalCacheRoot))
                 {
-                    this.EnsureLocalCacheIsHealthy(tracer, enlistment, retryConfig, serverGVFSConfig, cacheServer);
+                    this.EnsureLocalCacheIsHealthy(tracer, enlistment, retryConfig, serverScalarConfig, cacheServer);
                 }
 
                 RepoMetadata.Shutdown();
@@ -754,7 +754,7 @@ You can specify a URL, a name of a configured cache server, or the special names
 
             private void InitializeCachePathsFromRepoMetadata(
                 ITracer tracer,
-                GVFSEnlistment enlistment)
+                ScalarEnlistment enlistment)
             {
                 string error;
                 string gitObjectsRoot;
@@ -792,9 +792,9 @@ You can specify a URL, a name of a configured cache server, or the special names
 
             private void EnsureLocalCacheIsHealthy(
                 ITracer tracer,
-                GVFSEnlistment enlistment,
+                ScalarEnlistment enlistment,
                 RetryConfig retryConfig,
-                ServerGVFSConfig serverGVFSConfig,
+                ServerScalarConfig serverScalarConfig,
                 CacheServerInfo cacheServer)
             {
                 if (!Directory.Exists(enlistment.LocalCacheRoot))
@@ -815,7 +815,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                     }
                 }
 
-                // Validate that the GitObjectsRoot directory is on disk, and that the GVFS repo is configured to use it.
+                // Validate that the GitObjectsRoot directory is on disk, and that the Scalar repo is configured to use it.
                 // If the directory is missing (and cannot be found in the mapping file) a new key for the repo will be added
                 // to the mapping file and used for BOTH the GitObjectsRoot and BlobSizesRoot
                 PhysicalFileSystem fileSystem = new PhysicalFileSystem();
@@ -882,24 +882,24 @@ You can specify a URL, a name of a configured cache server, or the special names
                     }
 
                     string error;
-                    if (serverGVFSConfig == null)
+                    if (serverScalarConfig == null)
                     {
                         if (retryConfig == null)
                         {
                             if (!RetryConfig.TryLoadFromGitConfig(tracer, enlistment, out retryConfig, out error))
                             {
-                                this.ReportErrorAndExit(tracer, "Failed to determine GVFS timeout and max retries: " + error);
+                                this.ReportErrorAndExit(tracer, "Failed to determine Scalar timeout and max retries: " + error);
                             }
                         }
 
-                        serverGVFSConfig = this.QueryGVFSConfig(tracer, enlistment, retryConfig);
+                        serverScalarConfig = this.QueryScalarConfig(tracer, enlistment, retryConfig);
                     }
 
                     string localCacheKey;
                     LocalCacheResolver localCacheResolver = new LocalCacheResolver(enlistment);
                     if (!localCacheResolver.TryGetLocalCacheKeyFromLocalConfigOrRemoteCacheServers(
                         tracer,
-                        serverGVFSConfig,
+                        serverScalarConfig,
                         cacheServer,
                         enlistment.LocalCacheRoot,
                         localCacheKey: out localCacheKey,
@@ -912,7 +912,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                     metadata.Add("localCacheRoot", enlistment.LocalCacheRoot);
                     metadata.Add("localCacheKey", localCacheKey);
                     metadata.Add(TracingConstants.MessageKey.InfoMessage, "Initializing and persisting updated paths");
-                    tracer.RelatedEvent(EventLevel.Informational, "GVFSVerb_EnsureLocalCacheIsHealthy_InitializePathsFromKey", metadata);
+                    tracer.RelatedEvent(EventLevel.Informational, "ScalarVerb_EnsureLocalCacheIsHealthy_InitializePathsFromKey", metadata);
                     enlistment.InitializeCachePathsFromKey(enlistment.LocalCacheRoot, localCacheKey);
 
                     tracer.RelatedInfo($"{nameof(this.EnsureLocalCacheIsHealthy)}: Creating GitObjectsRoot ({enlistment.GitObjectsRoot}), GitPackRoot ({enlistment.GitPackRoot}), and BlobSizesRoot ({enlistment.BlobSizesRoot})");
@@ -948,7 +948,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                 }
 
                 // Validate that the BlobSizesRoot folder is on disk.
-                // Note that if a user performed an action that resulted in the entire .gvfscache being deleted, the code above
+                // Note that if a user performed an action that resulted in the entire .scalarcache being deleted, the code above
                 // for validating GitObjectsRoot will have already taken care of generating a new key and setting a new enlistment.BlobSizesRoot path
                 if (!Directory.Exists(enlistment.BlobSizesRoot))
                 {
@@ -969,18 +969,18 @@ You can specify a URL, a name of a configured cache server, or the special names
                 }
             }
 
-            private GVFSEnlistment CreateEnlistment(string enlistmentRootPath, GitAuthentication authentication)
+            private ScalarEnlistment CreateEnlistment(string enlistmentRootPath, GitAuthentication authentication)
             {
-                string gitBinPath = GVFSPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+                string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
                 if (string.IsNullOrWhiteSpace(gitBinPath))
                 {
-                    this.ReportErrorAndExit("Error: " + GVFSConstants.GitIsNotInstalledError);
+                    this.ReportErrorAndExit("Error: " + ScalarConstants.GitIsNotInstalledError);
                 }
 
-                GVFSEnlistment enlistment = null;
+                ScalarEnlistment enlistment = null;
                 try
                 {
-                    enlistment = GVFSEnlistment.CreateFromDirectory(
+                    enlistment = ScalarEnlistment.CreateFromDirectory(
                         enlistmentRootPath,
                         gitBinPath,
                         authentication,
@@ -989,7 +989,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                 catch (InvalidRepoException e)
                 {
                     this.ReportErrorAndExit(
-                        "Error: '{0}' is not a valid GVFS enlistment. {1}",
+                        "Error: '{0}' is not a valid Scalar enlistment. {1}",
                         enlistmentRootPath,
                         e.Message);
                 }
@@ -998,7 +998,7 @@ You can specify a URL, a name of a configured cache server, or the special names
             }
         }
 
-        public abstract class ForNoEnlistment : GVFSVerb
+        public abstract class ForNoEnlistment : ScalarVerb
         {
             public ForNoEnlistment(bool validateOrigin = true) : base(validateOrigin)
             {
@@ -1013,12 +1013,12 @@ You can specify a URL, a name of a configured cache server, or the special names
 
         public class VerbAbortedException : Exception
         {
-            public VerbAbortedException(GVFSVerb verb)
+            public VerbAbortedException(ScalarVerb verb)
             {
                 this.Verb = verb;
             }
 
-            public GVFSVerb Verb { get; }
+            public ScalarVerb Verb { get; }
         }
     }
 }

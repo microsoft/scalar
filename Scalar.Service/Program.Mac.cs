@@ -1,68 +1,68 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
-using GVFS.PlatformLoader;
-using GVFS.Service.Handlers;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
+using Scalar.PlatformLoader;
+using Scalar.Service.Handlers;
 using System;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.Service
+namespace Scalar.Service
 {
     public static class Program
     {
         public static void Main(string[] args)
         {
-            GVFSPlatformLoader.Initialize();
+            ScalarPlatformLoader.Initialize();
 
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
-            using (JsonTracer tracer = new JsonTracer(GVFSConstants.Service.ServiceName, GVFSConstants.Service.ServiceName))
+            using (JsonTracer tracer = new JsonTracer(ScalarConstants.Service.ServiceName, ScalarConstants.Service.ServiceName))
             {
                 CreateService(tracer, args).Run();
             }
         }
 
-        private static GVFSService CreateService(JsonTracer tracer, string[] args)
+        private static ScalarService CreateService(JsonTracer tracer, string[] args)
         {
-            string serviceName = args.FirstOrDefault(arg => arg.StartsWith(GVFSService.ServiceNameArgPrefix, StringComparison.OrdinalIgnoreCase));
+            string serviceName = args.FirstOrDefault(arg => arg.StartsWith(ScalarService.ServiceNameArgPrefix, StringComparison.OrdinalIgnoreCase));
             if (serviceName != null)
             {
-                serviceName = serviceName.Substring(GVFSService.ServiceNameArgPrefix.Length);
+                serviceName = serviceName.Substring(ScalarService.ServiceNameArgPrefix.Length);
             }
             else
             {
-                serviceName = GVFSConstants.Service.ServiceName;
+                serviceName = ScalarConstants.Service.ServiceName;
             }
 
-            GVFSPlatform gvfsPlatform = GVFSPlatform.Instance;
+            ScalarPlatform scalarPlatform = ScalarPlatform.Instance;
 
             string logFilePath = Path.Combine(
-                gvfsPlatform.GetDataRootForGVFSComponent(serviceName),
-                GVFSConstants.Service.LogDirectory);
+                scalarPlatform.GetDataRootForScalarComponent(serviceName),
+                ScalarConstants.Service.LogDirectory);
             Directory.CreateDirectory(logFilePath);
 
             tracer.AddLogFileEventListener(
-                GVFSEnlistment.GetNewGVFSLogFileName(logFilePath, GVFSConstants.LogFileTypes.Service),
+                ScalarEnlistment.GetNewScalarLogFileName(logFilePath, ScalarConstants.LogFileTypes.Service),
                 EventLevel.Informational,
                 Keywords.Any);
 
-            string serviceDataLocation = gvfsPlatform.GetDataRootForGVFSComponent(serviceName);
+            string serviceDataLocation = scalarPlatform.GetDataRootForScalarComponent(serviceName);
             RepoRegistry repoRegistry = new RepoRegistry(
                 tracer,
                 new PhysicalFileSystem(),
                 serviceDataLocation,
-                new GVFSMountProcess(tracer),
+                new ScalarMountProcess(tracer),
                 new NotificationHandler(tracer));
 
-            return new GVFSService(tracer, serviceName, repoRegistry);
+            return new ScalarService(tracer, serviceName, repoRegistry);
         }
 
         private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
-            using (JsonTracer tracer = new JsonTracer(GVFSConstants.Service.ServiceName, GVFSConstants.Service.ServiceName))
+            using (JsonTracer tracer = new JsonTracer(ScalarConstants.Service.ServiceName, ScalarConstants.Service.ServiceName))
             {
-                tracer.RelatedError($"Unhandled exception in GVFS.Service: {e.ExceptionObject.ToString()}");
+                tracer.RelatedError($"Unhandled exception in Scalar.Service: {e.ExceptionObject.ToString()}");
             }
         }
     }

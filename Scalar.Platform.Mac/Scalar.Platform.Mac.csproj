@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\GVFS.Build\GVFS.cs.props" />
+  <Import Project="..\Scalar.Build\Scalar.cs.props" />
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;netstandard2.0</TargetFrameworks>
     <Platforms>x64</Platforms>
@@ -8,19 +8,19 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Version)' == ''">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GVFS.Common\GVFS.Common.csproj" />
-    <ProjectReference Include="..\GVFS.Platform.POSIX\GVFS.Platform.POSIX.csproj" />
+    <ProjectReference Include="..\Scalar.Common\Scalar.Common.csproj" />
+    <ProjectReference Include="..\Scalar.Platform.POSIX\Scalar.Platform.POSIX.csproj" />
   </ItemGroup>
 
   <ItemGroup>

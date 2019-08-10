@@ -1,5 +1,5 @@
-﻿using GVFS.Common.Http;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.Http;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public class GitAuthentication
     {
@@ -253,9 +253,9 @@ namespace GVFS.Common.Git
 
                 using (ConfigHttpRequestor configRequestor = new ConfigHttpRequestor(anonymousTracer, enlistment, new RetryConfig()))
                 {
-                    ServerGVFSConfig gvfsConfig;
+                    ServerScalarConfig scalarConfig;
                     const bool LogErrors = false;
-                    if (configRequestor.TryQueryGVFSConfig(LogErrors, out gvfsConfig, out httpStatus, out _))
+                    if (configRequestor.TryQueryScalarConfig(LogErrors, out scalarConfig, out httpStatus, out _))
                     {
                         querySucceeded = true;
                         isAnonymous = true;

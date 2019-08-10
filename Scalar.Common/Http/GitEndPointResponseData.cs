@@ -1,11 +1,11 @@
-﻿using GVFS.Common.Git;
+﻿using Scalar.Common.Git;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 
-namespace GVFS.Common.Http
+namespace Scalar.Common.Http
 {
     public class GitEndPointResponseData : IDisposable
     {
@@ -149,11 +149,11 @@ namespace GVFS.Common.Http
         {
             switch (contentType)
             {
-                case GVFSConstants.MediaTypes.LooseObjectMediaType:
+                case ScalarConstants.MediaTypes.LooseObjectMediaType:
                     return GitObjectContentType.LooseObject;
-                case GVFSConstants.MediaTypes.CustomLooseObjectsMediaType:
+                case ScalarConstants.MediaTypes.CustomLooseObjectsMediaType:
                     return GitObjectContentType.BatchedLooseObjects;
-                case GVFSConstants.MediaTypes.PackFileMediaType:
+                case ScalarConstants.MediaTypes.PackFileMediaType:
                     return GitObjectContentType.PackFile;
                 default:
                     return GitObjectContentType.None;

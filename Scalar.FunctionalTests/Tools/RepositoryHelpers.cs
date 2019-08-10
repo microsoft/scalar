@@ -1,7 +1,7 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
 using System.Runtime.InteropServices;
 
-namespace GVFS.FunctionalTests.Tools
+namespace Scalar.FunctionalTests.Tools
 {
     public static class RepositoryHelpers
     {

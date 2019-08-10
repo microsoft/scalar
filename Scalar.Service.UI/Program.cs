@@ -1,8 +1,8 @@
-﻿using GVFS.Common;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
-using GVFS.PlatformLoader;
-using GVFS.Service.UI.Data;
+﻿using Scalar.Common;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
+using Scalar.PlatformLoader;
+using Scalar.Service.UI.Data;
 using System;
 using System.IO;
 using System.Linq;
@@ -12,32 +12,32 @@ using System.Xml.Serialization;
 using Windows.UI.Notifications;
 using XmlDocument = Windows.Data.Xml.Dom.XmlDocument;
 
-namespace GVFS.Service.UI
+namespace Scalar.Service.UI
 {
-    public class GVFSServiceUI
+    public class ScalarServiceUI
     {
-        private const string ServiceAppId = "GVFS";
+        private const string ServiceAppId = "Scalar";
 
         private readonly ITracer tracer;
 
-        public GVFSServiceUI(ITracer tracer)
+        public ScalarServiceUI(ITracer tracer)
         {
             this.tracer = tracer;
         }
 
         public static void Main(string[] args)
         {
-            GVFSPlatformLoader.Initialize();
+            ScalarPlatformLoader.Initialize();
 
-            using (JsonTracer tracer = new JsonTracer("Microsoft.Git.GVFS.Service.UI", "Service.UI"))
+            using (JsonTracer tracer = new JsonTracer("Microsoft.Git.Scalar.Service.UI", "Service.UI"))
             {
                 string logLocation = Path.Combine(
                     Environment.GetEnvironmentVariable("LocalAppData"),
-                    GVFSConstants.Service.UIName,
+                    ScalarConstants.Service.UIName,
                     "serviceUI.log");
 
                 tracer.AddLogFileEventListener(logLocation, EventLevel.Informational, Keywords.Any);
-                GVFSServiceUI process = new GVFSServiceUI(tracer);
+                ScalarServiceUI process = new ScalarServiceUI(tracer);
                 process.Start(args);
             }
         }
@@ -45,9 +45,9 @@ namespace GVFS.Service.UI
         private void Start(string[] args)
         {
             using (ITracer activity = this.tracer.StartActivity("Start", EventLevel.Informational))
-            using (NamedPipeServer server = NamedPipeServer.StartNewServer(GVFSConstants.Service.UIName, this.tracer, this.HandleRequest))
+            using (NamedPipeServer server = NamedPipeServer.StartNewServer(ScalarConstants.Service.UIName, this.tracer, this.HandleRequest))
             {
-                ServiceController controller = new ServiceController(GVFSConstants.Service.ServiceName);
+                ServiceController controller = new ServiceController(ScalarConstants.Service.ServiceName);
                 try
                 {
                     controller.WaitForStatus(ServiceControllerStatus.Stopped);
@@ -57,7 +57,7 @@ namespace GVFS.Service.UI
                     // Service might not exist anymore -- that's ok, just exit
                 }
 
-                this.tracer.RelatedInfo("{0} stop detected -- exiting UI.", GVFSConstants.Service.ServiceName);
+                this.tracer.RelatedInfo("{0} stop detected -- exiting UI.", ScalarConstants.Service.ServiceName);
             }
         }
 

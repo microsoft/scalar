@@ -1,11 +1,11 @@
-﻿using GVFS.Common;
+﻿using Scalar.Common;
 using System.Collections.Generic;
 
-namespace GVFS.UnitTests.Mock.Common
+namespace Scalar.UnitTests.Mock.Common
 {
-    public class MockLocalGVFSConfig : LocalGVFSConfig
+    public class MockLocalScalarConfig : LocalScalarConfig
     {
-        public MockLocalGVFSConfig()
+        public MockLocalScalarConfig()
         {
             this.Settings = new Dictionary<string, string>();
         }

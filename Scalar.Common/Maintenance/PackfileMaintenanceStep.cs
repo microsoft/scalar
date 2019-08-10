@@ -1,12 +1,12 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.Common.Maintenance
+namespace Scalar.Common.Maintenance
 {
     /// <summary>
     /// This step maintains the packfiles in the object cache.
@@ -33,7 +33,7 @@ namespace GVFS.Common.Maintenance
         private readonly string batchSize;
 
         public PackfileMaintenanceStep(
-            GVFSContext context,
+            ScalarContext context,
             bool requireObjectCacheLock = true,
             bool forceRun = false,
             string batchSize = DefaultBatchSize,
@@ -59,7 +59,7 @@ namespace GVFS.Common.Maintenance
             numDeletionBlocked = 0;
             List<string> deletedIdxFiles = new List<string>();
 
-            // If something (probably VFS for Git) has a handle open to a ".idx" file, then
+            // If something (probably Scalar) has a handle open to a ".idx" file, then
             // the 'git multi-pack-index expire' command cannot delete it. We should come in
             // later and try to clean these up. Count those that we are able to delete and
             // those we still can't.

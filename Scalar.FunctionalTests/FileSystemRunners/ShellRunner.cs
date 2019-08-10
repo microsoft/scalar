@@ -1,7 +1,7 @@
-﻿using GVFS.FunctionalTests.Tools;
+﻿using Scalar.FunctionalTests.Tools;
 using System.Diagnostics;
 
-namespace GVFS.FunctionalTests.FileSystemRunners
+namespace Scalar.FunctionalTests.FileSystemRunners
 {
     public abstract class ShellRunner : FileSystemRunner
     {

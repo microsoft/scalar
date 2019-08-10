@@ -1,13 +1,13 @@
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.NuGetUpgrade;
-using GVFS.Common.Tracing;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.NuGetUpgrade;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     /// <summary>
     /// Delegate to wrap install action steps in.
@@ -40,7 +40,7 @@ namespace GVFS.Common
                   dryRun,
                   noVerify,
                   fileSystem,
-                  GVFSPlatform.Instance.CreateProductUpgraderPlatformInteractions(fileSystem, tracer))
+                  ScalarPlatform.Instance.CreateProductUpgraderPlatformInteractions(fileSystem, tracer))
         {
         }
 
@@ -74,7 +74,7 @@ namespace GVFS.Common
         public static bool TryCreateUpgrader(
             ITracer tracer,
             PhysicalFileSystem fileSystem,
-            LocalGVFSConfig gvfsConfig,
+            LocalScalarConfig scalarConfig,
             ICredentialStore credentialStore,
             bool dryRun,
             bool noVerify,
@@ -82,15 +82,15 @@ namespace GVFS.Common
             out string error)
         {
             Dictionary<string, string> entries;
-            if (!gvfsConfig.TryGetAllConfig(out entries, out error))
+            if (!scalarConfig.TryGetAllConfig(out entries, out error))
             {
                 newUpgrader = null;
                 return false;
             }
 
-            bool containsUpgradeFeedUrl = entries.ContainsKey(GVFSConstants.LocalGVFSConfig.UpgradeFeedUrl);
-            bool containsUpgradePackageName = entries.ContainsKey(GVFSConstants.LocalGVFSConfig.UpgradeFeedPackageName);
-            bool containsOrgInfoServerUrl = entries.ContainsKey(GVFSConstants.LocalGVFSConfig.OrgInfoServerUrl);
+            bool containsUpgradeFeedUrl = entries.ContainsKey(ScalarConstants.LocalScalarConfig.UpgradeFeedUrl);
+            bool containsUpgradePackageName = entries.ContainsKey(ScalarConstants.LocalScalarConfig.UpgradeFeedPackageName);
+            bool containsOrgInfoServerUrl = entries.ContainsKey(ScalarConstants.LocalScalarConfig.OrgInfoServerUrl);
 
             if (containsUpgradeFeedUrl || containsUpgradePackageName)
             {
@@ -100,7 +100,7 @@ namespace GVFS.Common
                     if (OrgNuGetUpgrader.TryCreate(
                         tracer,
                         fileSystem,
-                        gvfsConfig,
+                        scalarConfig,
                         new HttpClient(),
                         credentialStore,
                         dryRun,
@@ -124,7 +124,7 @@ namespace GVFS.Common
                     if (NuGetUpgrader.TryCreate(
                         tracer,
                         fileSystem,
-                        gvfsConfig,
+                        scalarConfig,
                         credentialStore,
                         dryRun,
                         noVerify,
@@ -146,7 +146,7 @@ namespace GVFS.Common
             }
             else
             {
-                newUpgrader = GitHubUpgrader.Create(tracer, fileSystem, gvfsConfig, dryRun, noVerify, out error);
+                newUpgrader = GitHubUpgrader.Create(tracer, fileSystem, scalarConfig, dryRun, noVerify, out error);
                 if (newUpgrader == null)
                 {
                     tracer.RelatedError($"{nameof(TryCreateUpgrader)}: Could not create GitHub based upgrader. {error}");
@@ -186,7 +186,7 @@ namespace GVFS.Common
                 error = string.Join(
                     Environment.NewLine,
                     "File copy error - " + e.Message,
-                    $"Make sure you have write permissions to directory {upgradeApplicationDirectory} and run {GVFSConstants.UpgradeVerbMessages.GVFSUpgradeConfirm} again.");
+                    $"Make sure you have write permissions to directory {upgradeApplicationDirectory} and run {ScalarConstants.UpgradeVerbMessages.ScalarUpgradeConfirm} again.");
             }
             catch (IOException e)
             {
@@ -199,7 +199,7 @@ namespace GVFS.Common
                 // There was no error - set upgradeToolPath and return success.
                 upgradeApplicationPath = Path.Combine(
                     upgradeApplicationDirectory,
-                    GVFSPlatform.Instance.Constants.GVFSUpgraderExecutableName);
+                    ScalarPlatform.Instance.Constants.ScalarUpgraderExecutableName);
                 return true;
             }
             else

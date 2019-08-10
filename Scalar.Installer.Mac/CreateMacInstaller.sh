@@ -24,34 +24,34 @@ if [ -z $BUILDOUTPUTDIR ]; then
   exit 1
 fi
 
-if [ -z $VFS_OUTPUTDIR ]; then
-  echo "Error: Missing environment variable. VFS_OUTPUTDIR is not set"
+if [ -z $Scalar_OUTPUTDIR ]; then
+  echo "Error: Missing environment variable. Scalar_OUTPUTDIR is not set"
   exit 1
 fi
 
-if [ -z $VFS_PUBLISHDIR ]; then
-  echo "Error: Missing environment variable. VFS_PUBLISHDIR is not set"
+if [ -z $Scalar_PUBLISHDIR ]; then
+  echo "Error: Missing environment variable. Scalar_PUBLISHDIR is not set"
   exit 1
 fi
 
 STAGINGDIR="${BUILDOUTPUTDIR}/Staging"
 PACKAGESTAGINGDIR="${BUILDOUTPUTDIR}/Packages"
-VFSFORGITDESTINATION="usr/local/vfsforgit"
+ScalarFORGITDESTINATION="usr/local/scalar"
 DAEMONPLISTDESTINATION="Library/LaunchDaemons"
 AGENTPLISTDESTINATION="Library/LaunchAgents"
 LIBRARYEXTENSIONSDESTINATION="Library/Extensions"
-LIBRARYAPPSUPPORTDESTINATION="Library/Application Support/VFS For Git"
-INSTALLERPACKAGENAME="VFSForGit.$PACKAGEVERSION"
-INSTALLERPACKAGEID="com.vfsforgit.pkg"
-UNINSTALLERPATH="${SOURCEDIRECTORY}/uninstall_vfsforgit.sh"
+LIBRARYAPPSUPPORTDESTINATION="Library/Application Support/Scalar"
+INSTALLERPACKAGENAME="Scalar.$PACKAGEVERSION"
+INSTALLERPACKAGEID="com.scalar.pkg"
+UNINSTALLERPATH="${SOURCEDIRECTORY}/uninstall_scalar.sh"
 SCRIPTSPATH="${SOURCEDIRECTORY}/scripts"
-COMPONENTSPLISTPATH="${SOURCEDIRECTORY}/vfsforgit_components.plist"
+COMPONENTSPLISTPATH="${SOURCEDIRECTORY}/scalar_components.plist"
 DIST_FILE_NAME="Distribution.updated.xml"
 
 function CheckBuildIsAvailable()
 {
-    if [ ! -d "$VFS_OUTPUTDIR" ] || [ ! -d "$VFS_PUBLISHDIR" ]; then
-        echo "Error: Could not find VFSForGit Build to package."
+    if [ ! -d "$Scalar_OUTPUTDIR" ] || [ ! -d "$Scalar_PUBLISHDIR" ]; then
+        echo "Error: Could not find Scalar Build to package."
         exit 1
     fi
 }
@@ -64,7 +64,7 @@ function SetPermissions()
  
 function CreateInstallerRoot()
 {
-    mkdirVfsForGit="mkdir -p \"${STAGINGDIR}/$VFSFORGITDESTINATION\""
+    mkdirVfsForGit="mkdir -p \"${STAGINGDIR}/$ScalarFORGITDESTINATION\""
     eval $mkdirVfsForGit || exit 1
     
     mkdirPkgStaging="mkdir -p \"${PACKAGESTAGINGDIR}\""
@@ -88,35 +88,35 @@ function CreateInstallerRoot()
 
 function CopyBinariesToInstall()
 {
-    copyPublishDirectory="cp -Rf \"${VFS_PUBLISHDIR}\"/* \"${STAGINGDIR}/${VFSFORGITDESTINATION}/.\""
+    copyPublishDirectory="cp -Rf \"${Scalar_PUBLISHDIR}\"/* \"${STAGINGDIR}/${ScalarFORGITDESTINATION}/.\""
     eval $copyPublishDirectory || exit 1
     
-    removeTestAssemblies="find \"${STAGINGDIR}/${VFSFORGITDESTINATION}\" -name \"*GVFS.*Tests*\" -exec rm -f \"{}\" \";\""
+    removeTestAssemblies="find \"${STAGINGDIR}/${ScalarFORGITDESTINATION}\" -name \"*Scalar.*Tests*\" -exec rm -f \"{}\" \";\""
     eval $removeTestAssemblies || exit 1
     
-    removeDataDirectory="rm -Rf \"${STAGINGDIR}/${VFSFORGITDESTINATION}/Data\""
+    removeDataDirectory="rm -Rf \"${STAGINGDIR}/${ScalarFORGITDESTINATION}/Data\""
     eval $removeDataDirectory || exit 1
         
-    copyUnInstaller="cp -f \"${UNINSTALLERPATH}\" \"${STAGINGDIR}/${VFSFORGITDESTINATION}/.\""
+    copyUnInstaller="cp -f \"${UNINSTALLERPATH}\" \"${STAGINGDIR}/${ScalarFORGITDESTINATION}/.\""
     eval $copyUnInstaller || exit 1
     
-    copyNotificationApp="cp -Rf \"${VFS_OUTPUTDIR}/GVFS.Notifications/VFSForGit.Mac/Build/Products/$CONFIGURATION/VFS For Git.app\" \"${STAGINGDIR}/${LIBRARYAPPSUPPORTDESTINATION}/.\""
+    copyNotificationApp="cp -Rf \"${Scalar_OUTPUTDIR}/Scalar.Notifications/Scalar.Mac/Build/Products/$CONFIGURATION/Scalar.app\" \"${STAGINGDIR}/${LIBRARYAPPSUPPORTDESTINATION}/.\""
     eval $copyNotificationApp || exit 1
     
-    copyNotificationPlist="cp -Rf \"${SOURCEDIRECTORY}/../GVFS.Notifications/VFSForGit.Mac/org.vfsforgit.usernotification.plist\" \"${STAGINGDIR}/${AGENTPLISTDESTINATION}/.\""
+    copyNotificationPlist="cp -Rf \"${SOURCEDIRECTORY}/../Scalar.Notifications/Scalar.Mac/org.scalar.usernotification.plist\" \"${STAGINGDIR}/${AGENTPLISTDESTINATION}/.\""
     eval $copyNotificationPlist || exit 1
     
-    copyServicePlist="cp -Rf \"${SOURCEDIRECTORY}/../GVFS.Service/Mac/org.vfsforgit.service.plist\" \"${STAGINGDIR}/${AGENTPLISTDESTINATION}/.\""
+    copyServicePlist="cp -Rf \"${SOURCEDIRECTORY}/../Scalar.Service/Mac/org.scalar.service.plist\" \"${STAGINGDIR}/${AGENTPLISTDESTINATION}/.\""
     eval $copyServicePlist || exit 1
     
     currentDirectory=`pwd`
     cd "${STAGINGDIR}/usr/local/bin"
-    linkCommand="ln -sf ../vfsforgit/gvfs gvfs"
+    linkCommand="ln -sf ../scalar/scalar scalar"
     eval $linkCommand
     cd $currentDirectory
 }
 
-function CreateVFSForGitInstaller()
+function CreateScalarInstaller()
 {
     pkgBuildCommand="/usr/bin/pkgbuild --identifier $INSTALLERPACKAGEID --component-plist \"${COMPONENTSPLISTPATH}\" --scripts \"${SCRIPTSPATH}\" --root \"${STAGINGDIR}\" \"${PACKAGESTAGINGDIR}/$INSTALLERPACKAGENAME.pkg\""
     eval $pkgBuildCommand || exit 1
@@ -124,13 +124,13 @@ function CreateVFSForGitInstaller()
 
 function UpdateDistributionFile()
 {
-    VFSFORGIT_PKG_VERSION=$PACKAGEVERSION
-    VFSFORGIT_PKG_NAME="$INSTALLERPACKAGENAME.pkg"
+    ScalarFORGIT_PKG_VERSION=$PACKAGEVERSION
+    ScalarFORGIT_PKG_NAME="$INSTALLERPACKAGENAME.pkg"
     GIT_PKG_NAME=$1
     GIT_PKG_VERSION=$2
         
-    /usr/bin/sed -e "s|VFSFORGIT_VERSION_PLACHOLDER|$VFSFORGIT_PKG_VERSION|g" "$SCRIPTSPATH/Distribution.xml" > "${BUILDOUTPUTDIR}/$DIST_FILE_NAME"
-    /usr/bin/sed -i.bak "s|VFSFORGIT_PKG_NAME_PLACEHOLDER|$VFSFORGIT_PKG_NAME|g" "${BUILDOUTPUTDIR}/$DIST_FILE_NAME"
+    /usr/bin/sed -e "s|ScalarFORGIT_VERSION_PLACHOLDER|$ScalarFORGIT_PKG_VERSION|g" "$SCRIPTSPATH/Distribution.xml" > "${BUILDOUTPUTDIR}/$DIST_FILE_NAME"
+    /usr/bin/sed -i.bak "s|ScalarFORGIT_PKG_NAME_PLACEHOLDER|$ScalarFORGIT_PKG_NAME|g" "${BUILDOUTPUTDIR}/$DIST_FILE_NAME"
     
     if [ ! -z "$GIT_PKG_NAME" ] && [ ! -z "$GIT_PKG_VERSION" ]; then
         GIT_CHOICE_OUTLINE_ELEMENT_TEXT="<line choice=\"com.git.pkg\"/>"
@@ -149,22 +149,22 @@ function UpdateDistributionFile()
     /bin/rm -f "${BUILDOUTPUTDIR}/$DIST_FILE_NAME.bak"
 }
 
-function CreateVFSForGitDistribution()
+function CreateScalarDistribution()
 {
     # Update distribution file(removes Git info from template.)
     UpdateDistributionFile "" ""
     
-    buildVFSForGitDistCmd="/usr/bin/productbuild --distribution \"${BUILDOUTPUTDIR}/Distribution.updated.xml\" --package-path \"$PACKAGESTAGINGDIR\" \"${BUILDOUTPUTDIR}/$INSTALLERPACKAGENAME.pkg\""
-    echo $buildVFSForGitDistCmd
-    eval $buildVFSForGitDistCmd || exit 1
+    buildScalarDistCmd="/usr/bin/productbuild --distribution \"${BUILDOUTPUTDIR}/Distribution.updated.xml\" --package-path \"$PACKAGESTAGINGDIR\" \"${BUILDOUTPUTDIR}/$INSTALLERPACKAGENAME.pkg\""
+    echo $buildScalarDistCmd
+    eval $buildScalarDistCmd || exit 1
     
     /bin/rm -f "${BUILDOUTPUTDIR}/$DIST_FILE_NAME"
 }
 
 function CreateMetaDistribution()
 {
-    GITVERSION="$($VFS_SCRIPTDIR/GetGitVersionNumber.sh)"
-    GITINSTALLERPKGPATH="$(find $VFS_PACKAGESDIR/gitformac.gvfs.installer/$GITVERSION -type f -name *.pkg)" || exit 1
+    GITVERSION="$($Scalar_SCRIPTDIR/GetGitVersionNumber.sh)"
+    GITINSTALLERPKGPATH="$(find $Scalar_PACKAGESDIR/gitformac.scalar.installer/$GITVERSION -type f -name *.pkg)" || exit 1
 
     GITPKGNAME="${GITINSTALLERPKGPATH##*/}"
     GITINSTALLERPKGNAME="${GITPKGNAME%.pkg}"
@@ -200,8 +200,8 @@ function Run()
     CreateInstallerRoot
     CopyBinariesToInstall
     SetPermissions
-    CreateVFSForGitInstaller
-    CreateVFSForGitDistribution
+    CreateScalarInstaller
+    CreateScalarDistribution
     CreateMetaDistribution
 }
 

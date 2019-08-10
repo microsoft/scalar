@@ -1,18 +1,18 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.Common.Maintenance
+namespace Scalar.Common.Maintenance
 {
     public abstract class GitMaintenanceStep
     {
         public const string ObjectCacheLock = "git-maintenance-step.lock";
         private readonly object gitProcessLock = new object();
 
-        public GitMaintenanceStep(GVFSContext context, bool requireObjectCacheLock, GitProcessChecker gitProcessChecker = null)
+        public GitMaintenanceStep(ScalarContext context, bool requireObjectCacheLock, GitProcessChecker gitProcessChecker = null)
         {
             this.Context = context;
             this.RequireObjectCacheLock = requireObjectCacheLock;
@@ -22,7 +22,7 @@ namespace GVFS.Common.Maintenance
         public abstract string Area { get; }
         protected virtual TimeSpan TimeBetweenRuns { get; }
         protected virtual string LastRunTimeFilePath { get; set; }
-        protected GVFSContext Context { get; }
+        protected ScalarContext Context { get; }
         protected GitProcess MaintenanceGitProcess { get; private set; }
         protected bool Stopping { get; private set; }
         protected bool RequireObjectCacheLock { get; }
@@ -34,7 +34,7 @@ namespace GVFS.Common.Maintenance
             {
                 if (this.RequireObjectCacheLock)
                 {
-                    using (FileBasedLock cacheLock = GVFSPlatform.Instance.CreateFileBasedLock(
+                    using (FileBasedLock cacheLock = ScalarPlatform.Instance.CreateFileBasedLock(
                         this.Context.FileSystem,
                         this.Context.Tracer,
                         Path.Combine(this.Context.Enlistment.GitObjectsRoot, ObjectCacheLock)))

@@ -1,4 +1,4 @@
-﻿namespace GVFS.Service
+﻿namespace Scalar.Service
 {
     public interface IRepoMounter
     {

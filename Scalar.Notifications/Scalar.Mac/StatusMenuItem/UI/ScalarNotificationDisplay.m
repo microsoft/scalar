@@ -1,14 +1,14 @@
 #import <Cocoa/Cocoa.h>
-#import "VFSNotificationDisplay.h"
+#import "ScalarNotificationDisplay.h"
 
-@interface VFSNotificationDisplay ()
+@interface ScalarNotificationDisplay ()
 
 @property (strong) NSUserNotification *userNotification;
 @property (strong) NSUserNotificationCenter *userNotificationCenter;
 
 @end
 
-@implementation VFSNotificationDisplay
+@implementation ScalarNotificationDisplay
 
 - (instancetype)initWithTitle:(NSString *)title message:(NSString *)message
 {

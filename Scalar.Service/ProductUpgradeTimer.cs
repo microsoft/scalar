@@ -1,13 +1,13 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.NuGetUpgrade;
-using GVFS.Common.Tracing;
-using GVFS.Upgrader;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.NuGetUpgrade;
+using Scalar.Common.Tracing;
+using Scalar.Upgrader;
 using System;
 using System.IO;
 using System.Threading;
 
-namespace GVFS.Service
+namespace Scalar.Service
 {
     public class ProductUpgradeTimer : IDisposable
     {
@@ -24,7 +24,7 @@ namespace GVFS.Service
 
         public void Start()
         {
-            if (!GVFSEnlistment.IsUnattended(this.tracer))
+            if (!ScalarEnlistment.IsUnattended(this.tracer))
             {
                 TimeSpan startTime = TimeSpan.Zero;
 
@@ -37,7 +37,7 @@ namespace GVFS.Service
             }
             else
             {
-                this.tracer.RelatedInfo("No upgrade checks scheduled, GVFS is running in unattended mode.");
+                this.tracer.RelatedInfo("No upgrade checks scheduled, Scalar is running in unattended mode.");
             }
         }
 
@@ -82,7 +82,7 @@ namespace GVFS.Service
                     ProductUpgrader.TryCreateUpgrader(
                         this.tracer,
                         this.fileSystem,
-                        new LocalGVFSConfig(),
+                        new LocalScalarConfig(),
                         credentialStore: null,
                         dryRun: false,
                         noVerify: false,
@@ -117,7 +117,7 @@ namespace GVFS.Service
                             productUpgrader = GitHubUpgrader.Create(
                                 this.tracer,
                                 this.fileSystem,
-                                new LocalGVFSConfig(),
+                                new LocalScalarConfig(),
                                 dryRun: false,
                                 noVerify: false,
                                 error: out errorMessage);

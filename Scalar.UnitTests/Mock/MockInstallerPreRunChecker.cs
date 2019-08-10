@@ -1,9 +1,9 @@
-﻿using GVFS.Common.Tracing;
-using GVFS.Upgrader;
+﻿using Scalar.Common.Tracing;
+using Scalar.Upgrader;
 using System;
 using System.Collections.Generic;
 
-namespace GVFS.UnitTests.Mock.Upgrader
+namespace Scalar.UnitTests.Mock.Upgrader
 {
     public class MockInstallerPrerunChecker : InstallerPreRunChecker
     {
@@ -61,7 +61,7 @@ namespace GVFS.UnitTests.Mock.Upgrader
             return this.FakedResultOfCheck(FailOnCheckType.IsElevated);
         }
 
-        protected override bool IsGVFSUpgradeSupported()
+        protected override bool IsScalarUpgradeSupported()
         {
             return true;
         }
@@ -78,14 +78,14 @@ namespace GVFS.UnitTests.Mock.Upgrader
             bool isRunning = this.FakedResultOfCheck(FailOnCheckType.BlockingProcessesRunning);
             if (isRunning)
             {
-                processes.Add("GVFS.Mount");
+                processes.Add("Scalar.Mount");
                 processes.Add("git");
             }
 
             return isRunning;
         }
 
-        protected override bool TryRunGVFSWithArgs(string args, out string error)
+        protected override bool TryRunScalarWithArgs(string args, out string error)
         {
             if (string.CompareOrdinal(args, "service --unmount-all") == 0)
             {
@@ -101,7 +101,7 @@ namespace GVFS.UnitTests.Mock.Upgrader
                 return result;
             }
 
-            error = "Unknown GVFS command";
+            error = "Unknown Scalar command";
             return false;
         }
 

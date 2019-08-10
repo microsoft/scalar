@@ -3,7 +3,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public static class SHA1Util
     {

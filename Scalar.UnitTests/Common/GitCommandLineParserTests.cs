@@ -1,8 +1,8 @@
-﻿using GVFS.Common;
-using GVFS.Tests.Should;
+﻿using Scalar.Common;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class GitCommandLineParserTests

@@ -1,15 +1,15 @@
-using GVFS.Common.Tracing;
+using Scalar.Common.Tracing;
 using System.Diagnostics;
 using System.Threading;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
-    public class GVFSLock
+    public class ScalarLock
     {
         private readonly object acquisitionLock = new object();
         private readonly ITracer tracer;
 
-        public GVFSLock(ITracer tracer)
+        public ScalarLock(ITracer tracer)
         {
             this.tracer = tracer;
             this.Stats = new ActiveGitCommandStats();

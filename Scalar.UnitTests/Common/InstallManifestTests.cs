@@ -1,11 +1,11 @@
-﻿using GVFS.Common.NuGetUpgrade;
-using GVFS.Tests.Should;
+﻿using Scalar.Common.NuGetUpgrade;
+using Scalar.Tests.Should;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class JsonInstallManifestTests
@@ -25,7 +25,7 @@ namespace GVFS.UnitTests.Common
         {
  	    ""Name"" : ""Git"",
         ""Version"" : ""2.19.0.1.34"",
-        ""InstallerRelativePath"" : ""Installers\\Windows\\G4W\\Git-2.19.0.gvfs.1.34.gc7fb556-64-bit.exe"",
+        ""InstallerRelativePath"" : ""Installers\\Windows\\G4W\\Git-2.19.0.scalar.1.34.gc7fb556-64-bit.exe"",
         ""Args"" : ""/VERYSILENT /CLOSEAPPLICATIONS""
       },
       {
@@ -49,7 +49,7 @@ namespace GVFS.UnitTests.Common
                 "Git",
                 "2.19.0.1.34",
                 "/VERYSILENT /CLOSEAPPLICATIONS",
-                "Installers\\Windows\\G4W\\Git-2.19.0.gvfs.1.34.gc7fb556-64-bit.exe");
+                "Installers\\Windows\\G4W\\Git-2.19.0.scalar.1.34.gc7fb556-64-bit.exe");
 
             this.VerifyInstallActionInfo(
                 platformInstallManifest.InstallActions[1],

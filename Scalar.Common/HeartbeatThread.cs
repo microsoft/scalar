@@ -1,8 +1,8 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 using System;
 using System.Threading;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public class HeartbeatThread
     {

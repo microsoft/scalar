@@ -1,8 +1,8 @@
-﻿using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 
-namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
+namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {
     [TestFixture]
     [NonParallelizable]
@@ -24,18 +24,18 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void ServiceCommandsWithMultipleRepos()
         {
-            GVFSFunctionalTestEnlistment enlistment1 = this.CreateNewEnlistment();
-            GVFSFunctionalTestEnlistment enlistment2 = this.CreateNewEnlistment();
+            ScalarFunctionalTestEnlistment enlistment1 = this.CreateNewEnlistment();
+            ScalarFunctionalTestEnlistment enlistment2 = this.CreateNewEnlistment();
 
             string[] repoRootList = new string[] { enlistment1.EnlistmentRoot, enlistment2.EnlistmentRoot };
 
-            GVFSProcess gvfsProcess1 = new GVFSProcess(
-                GVFSTestConfig.PathToGVFS,
+            ScalarProcess scalarProcess1 = new ScalarProcess(
+                ScalarTestConfig.PathToScalar,
                 enlistment1.EnlistmentRoot,
                 enlistment1.LocalCacheRoot);
 
-            GVFSProcess gvfsProcess2 = new GVFSProcess(
-                GVFSTestConfig.PathToGVFS,
+            ScalarProcess scalarProcess2 = new ScalarProcess(
+                ScalarTestConfig.PathToScalar,
                 enlistment2.EnlistmentRoot,
                 enlistment2.LocalCacheRoot);
 
@@ -43,16 +43,16 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
             this.RunServiceCommandAndCheckOutput("--unmount-all", expectedRepoRoots: repoRootList);
 
             // Check both are unmounted
-            gvfsProcess1.IsEnlistmentMounted().ShouldEqual(false);
-            gvfsProcess2.IsEnlistmentMounted().ShouldEqual(false);
+            scalarProcess1.IsEnlistmentMounted().ShouldEqual(false);
+            scalarProcess2.IsEnlistmentMounted().ShouldEqual(false);
 
             this.RunServiceCommandAndCheckOutput("--list-mounted", EmptyRepoList);
             this.RunServiceCommandAndCheckOutput("--unmount-all", EmptyRepoList);
             this.RunServiceCommandAndCheckOutput("--mount-all", expectedRepoRoots: repoRootList);
 
             // Check both are mounted
-            gvfsProcess1.IsEnlistmentMounted().ShouldEqual(true);
-            gvfsProcess2.IsEnlistmentMounted().ShouldEqual(true);
+            scalarProcess1.IsEnlistmentMounted().ShouldEqual(true);
+            scalarProcess2.IsEnlistmentMounted().ShouldEqual(true);
 
             this.RunServiceCommandAndCheckOutput("--list-mounted", expectedRepoRoots: repoRootList);
         }
@@ -60,27 +60,27 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void ServiceCommandsWithMountAndUnmount()
         {
-            GVFSFunctionalTestEnlistment enlistment1 = this.CreateNewEnlistment();
+            ScalarFunctionalTestEnlistment enlistment1 = this.CreateNewEnlistment();
 
             string[] repoRootList = new string[] { enlistment1.EnlistmentRoot };
 
-            GVFSProcess gvfsProcess1 = new GVFSProcess(
-                GVFSTestConfig.PathToGVFS,
+            ScalarProcess scalarProcess1 = new ScalarProcess(
+                ScalarTestConfig.PathToScalar,
                 enlistment1.EnlistmentRoot,
                 enlistment1.LocalCacheRoot);
 
             this.RunServiceCommandAndCheckOutput("--list-mounted", expectedRepoRoots: repoRootList);
 
-            gvfsProcess1.Unmount();
+            scalarProcess1.Unmount();
 
             this.RunServiceCommandAndCheckOutput("--list-mounted", EmptyRepoList, unexpectedRepoRoots: repoRootList);
             this.RunServiceCommandAndCheckOutput("--unmount-all", EmptyRepoList, unexpectedRepoRoots: repoRootList);
             this.RunServiceCommandAndCheckOutput("--mount-all", EmptyRepoList, unexpectedRepoRoots: repoRootList);
 
             // Check that it is still unmounted
-            gvfsProcess1.IsEnlistmentMounted().ShouldEqual(false);
+            scalarProcess1.IsEnlistmentMounted().ShouldEqual(false);
 
-            gvfsProcess1.Mount();
+            scalarProcess1.Mount();
 
             this.RunServiceCommandAndCheckOutput("--unmount-all", expectedRepoRoots: repoRootList);
             this.RunServiceCommandAndCheckOutput("--mount-all", expectedRepoRoots: repoRootList);
@@ -88,12 +88,12 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
 
         private void RunServiceCommandAndCheckOutput(string argument, string[] expectedRepoRoots, string[] unexpectedRepoRoots = null)
         {
-            GVFSProcess gvfsProcess = new GVFSProcess(
-                GVFSTestConfig.PathToGVFS,
+            ScalarProcess scalarProcess = new ScalarProcess(
+                ScalarTestConfig.PathToScalar,
                 enlistmentRoot: null,
                 localCacheRoot: null);
 
-            string result = gvfsProcess.RunServiceVerb(argument);
+            string result = scalarProcess.RunServiceVerb(argument);
             result.ShouldContain(expectedRepoRoots);
 
             if (unexpectedRepoRoots != null)

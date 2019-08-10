@@ -1,9 +1,9 @@
-﻿using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.IO;
 
-namespace GVFS.UnitTests.Mock.Git
+namespace Scalar.UnitTests.Mock.Git
 {
     public class MockLibGit2Repo : LibGit2Repo
     {

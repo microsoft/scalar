@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public class DiffTreeResult
     {
@@ -49,19 +49,19 @@ namespace GVFS.Common.Git
              * The lines passed to this method should be the result of a call to git diff-tree -r -t (sourceTreeish) (targetTreeish)
              *
              * Example output lines from git diff-tree
-             * :000000 040000 0000000000000000000000000000000000000000 cee82f9d431bf610404f67bcdda3fee76f0c1dd5 A\tGVFS/FastFetch/Git
-             * :000000 100644 0000000000000000000000000000000000000000 cdc036f9d561f14d908e0a0c337105b53c778e5e A\tGVFS/FastFetch/Git/FastFetchGitObjects.cs
-             * :040000 000000 f68b90da732791438d67c0326997a2d26e4c2de4 0000000000000000000000000000000000000000 D\tGVFS/GVFS.CLI
-             * :100644 000000 1242fc97c612ff286a5f1221d569508600ca5e06 0000000000000000000000000000000000000000 D\tGVFS/GVFS.CLI/GVFS.CLI.csproj
-             * :040000 040000 3823348f91113a619eed8f48fe597cc9c7d088d8 fd56ff77b12a0b76567cb55ed4950272eac8b8f6 M\tGVFS/GVFS.Common
-             * :100644 100644 57d9c737c8a48632cfbb12cae00c97d512b9f155 524d7dbcebd33e4007c52711d3f21b17373de454 M\tGVFS/GVFS.Common/GVFS.Common.csproj
+             * :000000 040000 0000000000000000000000000000000000000000 cee82f9d431bf610404f67bcdda3fee76f0c1dd5 A\tScalar/FastFetch/Git
+             * :000000 100644 0000000000000000000000000000000000000000 cdc036f9d561f14d908e0a0c337105b53c778e5e A\tScalar/FastFetch/Git/FastFetchGitObjects.cs
+             * :040000 000000 f68b90da732791438d67c0326997a2d26e4c2de4 0000000000000000000000000000000000000000 D\tScalar/Scalar.CLI
+             * :100644 000000 1242fc97c612ff286a5f1221d569508600ca5e06 0000000000000000000000000000000000000000 D\tScalar/Scalar.CLI/Scalar.CLI.csproj
+             * :040000 040000 3823348f91113a619eed8f48fe597cc9c7d088d8 fd56ff77b12a0b76567cb55ed4950272eac8b8f6 M\tScalar/Scalar.Common
+             * :100644 100644 57d9c737c8a48632cfbb12cae00c97d512b9f155 524d7dbcebd33e4007c52711d3f21b17373de454 M\tScalar/Scalar.Common/Scalar.Common.csproj
              *  ^-[0]  ^-[1]  ^-[2]                                    ^-[3]                                    ^-[4]
              *                                                                                                   ^-tab
              *                                                                                                     ^-[5]
              *
              * This output will only happen if -C or -M is passed to the diff-tree command
              * Since we are not passing those options we shouldn't have to handle this format.
-             * :100644 100644 3ac7d60a25bb772af1d5843c76e8a070c062dc5d c31a95125b8a6efd401488839a7ed1288ce01634 R094\tGVFS/GVFS.CLI/CommandLine/CloneVerb.cs\tGVFS/GVFS/CommandLine/CloneVerb.cs
+             * :100644 100644 3ac7d60a25bb772af1d5843c76e8a070c062dc5d c31a95125b8a6efd401488839a7ed1288ce01634 R094\tScalar/Scalar.CLI/CommandLine/CloneVerb.cs\tScalar/Scalar/CommandLine/CloneVerb.cs
              */
 
             if (!line.StartsWith(":"))
@@ -105,9 +105,9 @@ namespace GVFS.Common.Git
             {
                 // Since diff-tree is not doing rename detection, file->directory or directory->file transformations are always multiple lines
                 // with a delete line and an add line
-                // :000000 040000 0000000000000000000000000000000000000000 cee82f9d431bf610404f67bcdda3fee76f0c1dd5 A\tGVFS/FastFetch/Git
-                // :040000 040000 3823348f91113a619eed8f48fe597cc9c7d088d8 fd56ff77b12a0b76567cb55ed4950272eac8b8f6 M\tGVFS/GVFS.Common
-                // :040000 000000 f68b90da732791438d67c0326997a2d26e4c2de4 0000000000000000000000000000000000000000 D\tGVFS/GVFS.CLI
+                // :000000 040000 0000000000000000000000000000000000000000 cee82f9d431bf610404f67bcdda3fee76f0c1dd5 A\tScalar/FastFetch/Git
+                // :040000 040000 3823348f91113a619eed8f48fe597cc9c7d088d8 fd56ff77b12a0b76567cb55ed4950272eac8b8f6 M\tScalar/Scalar.Common
+                // :040000 000000 f68b90da732791438d67c0326997a2d26e4c2de4 0000000000000000000000000000000000000000 D\tScalar/Scalar.CLI
                 result.TargetPath = AppendPathSeparatorIfNeeded(result.TargetPath);
             }
 
@@ -136,9 +136,9 @@ namespace GVFS.Common.Git
             /*
              * Example output lines from ls-tree
              *
-             * 040000 tree 73b881d52b607b0f3e9e620d36f556d3d233a11d\tGVFS
+             * 040000 tree 73b881d52b607b0f3e9e620d36f556d3d233a11d\tScalar
              * 100644 blob 44c5f5cba4b29d31c2ad06eed51ea02af76c27c0\tReadme.md
-             * 100755 blob 196142fbb753c0a3c7c6690323db7aa0a11f41ec\tScripts/BuildGVFSForMac.sh
+             * 100755 blob 196142fbb753c0a3c7c6690323db7aa0a11f41ec\tScripts/BuildScalarForMac.sh
              * ^-mode ^-marker                                     ^-tab
              *             ^-sha                                     ^-path
              */
@@ -160,7 +160,7 @@ namespace GVFS.Common.Git
                     DiffTreeResult blobAdd = new DiffTreeResult();
                     blobAdd.TargetMode = Convert.ToUInt16(line.Substring(0, 6), 8);
                     blobAdd.TargetIsSymLink = blobAdd.TargetMode == SymLinkFileIndexEntry;
-                    blobAdd.TargetSha = line.Substring(TypeMarkerStartIndex + BlobMarker.Length, GVFSConstants.ShaStringLength);
+                    blobAdd.TargetSha = line.Substring(TypeMarkerStartIndex + BlobMarker.Length, ScalarConstants.ShaStringLength);
                     blobAdd.TargetPath = ConvertPathToUtf8Path(line.Substring(line.LastIndexOf("\t") + 1));
                     blobAdd.Operation = DiffTreeResult.Operations.Add;
 
@@ -214,7 +214,7 @@ namespace GVFS.Common.Git
 
         private static string ConvertPathToUtf8Path(string relativePath)
         {
-            return GitPathConverter.ConvertPathOctetsToUtf8(relativePath.Trim('"')).Replace(GVFSConstants.GitPathSeparator, Path.DirectorySeparatorChar);
+            return GitPathConverter.ConvertPathOctetsToUtf8(relativePath.Trim('"')).Replace(ScalarConstants.GitPathSeparator, Path.DirectorySeparatorChar);
         }
     }
 }

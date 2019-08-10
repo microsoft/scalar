@@ -1,12 +1,12 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
 using System;
 using System.Collections.Generic;
 
-namespace GVFS.UnitTests.Mock.Git
+namespace Scalar.UnitTests.Mock.Git
 {
     public class MockGitRepo : GitRepo
     {

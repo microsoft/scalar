@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Rules for GVFS" Description="Code analysis rules for GVFS projects" ToolsVersion="15.0">
+<RuleSet Name="Rules for Scalar" Description="Code analysis rules for Scalar projects" ToolsVersion="15.0">
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
     <Rule Id="SA1003" Action="None" />
     <Rule Id="SA1024" Action="None" />

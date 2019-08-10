@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace GVFS.Common.Prefetch.Pipeline
+namespace Scalar.Common.Prefetch.Pipeline
 {
     public abstract class PrefetchPipelineStage
     {

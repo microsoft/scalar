@@ -1,10 +1,10 @@
-﻿using GVFS.Common;
-using GVFS.Tests.Should;
+﻿using Scalar.Common;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.Threading;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class RetryBackoffTests

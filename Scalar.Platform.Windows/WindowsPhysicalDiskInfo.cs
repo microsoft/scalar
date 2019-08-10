@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Management;
 
-namespace GVFS.Platform.Windows
+namespace Scalar.Platform.Windows
 {
     public class WindowsPhysicalDiskInfo
     {

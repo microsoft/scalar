@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
-#import "VFSAboutWindowController.h"
+#import "ScalarAboutWindowController.h"
 
-@interface VFSMockAboutWindowController : VFSAboutWindowController
+@interface ScalarMockAboutWindowController : ScalarAboutWindowController
 
 @property (readonly) BOOL aboutBoxDisplayed;
 

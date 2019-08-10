@@ -1,20 +1,20 @@
 using CommandLine;
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
-    [Verb(CloneVerb.CloneVerbName, HelpText = "Clone a git repo and mount it as a GVFS virtual repo")]
-    public class CloneVerb : GVFSVerb
+    [Verb(CloneVerb.CloneVerbName, HelpText = "Clone a git repo and mount it as a Scalar virtual repo")]
+    public class CloneVerb : ScalarVerb
     {
         private const string CloneVerbName = "clone";
 
@@ -30,7 +30,7 @@ namespace GVFS.CommandLine
             Required = false,
             Default = "",
             MetaName = "Enlistment Root Path",
-            HelpText = "Full or relative path to the GVFS enlistment root")]
+            HelpText = "Full or relative path to the Scalar enlistment root")]
         public override string EnlistmentRootPathParameter { get; set; }
 
         [Option(
@@ -71,7 +71,7 @@ namespace GVFS.CommandLine
         [Option(
             "local-cache-path",
             Required = false,
-            HelpText = "Use this option to override the path for the local GVFS cache.")]
+            HelpText = "Use this option to override the path for the local Scalar cache.")]
         public string LocalCacheRoot { get; set; }
 
         protected override string VerbName
@@ -95,13 +95,13 @@ namespace GVFS.CommandLine
 
                 string errorMessage;
                 string normalizedLocalCacheRootPath;
-                if (!GVFSPlatform.Instance.FileSystem.TryGetNormalizedPath(fullLocalCacheRootPath, out normalizedLocalCacheRootPath, out errorMessage))
+                if (!ScalarPlatform.Instance.FileSystem.TryGetNormalizedPath(fullLocalCacheRootPath, out normalizedLocalCacheRootPath, out errorMessage))
                 {
                     this.ReportErrorAndExit($"Failed to determine normalized path for '--local-cache-path' path {fullLocalCacheRootPath}: {errorMessage}");
                 }
 
                 if (normalizedLocalCacheRootPath.StartsWith(
-                    Path.Combine(normalizedEnlistmentRootPath, GVFSConstants.WorkingDirectoryRootName),
+                    Path.Combine(normalizedEnlistmentRootPath, ScalarConstants.WorkingDirectoryRootName),
                     StringComparison.OrdinalIgnoreCase))
                 {
                     this.ReportErrorAndExit("'--local-cache-path' cannot be inside the src folder");
@@ -113,19 +113,19 @@ namespace GVFS.CommandLine
 
             try
             {
-                GVFSEnlistment enlistment;
+                ScalarEnlistment enlistment;
                 Result cloneResult = new Result(false);
 
                 CacheServerInfo cacheServer = null;
-                ServerGVFSConfig serverGVFSConfig = null;
+                ServerScalarConfig serverScalarConfig = null;
 
-                using (JsonTracer tracer = new JsonTracer(GVFSConstants.GVFSEtwProviderName, "GVFSClone"))
+                using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "ScalarClone"))
                 {
                     cloneResult = this.TryCreateEnlistment(fullEnlistmentRootPathParameter, normalizedEnlistmentRootPath, out enlistment);
                     if (cloneResult.Success)
                     {
                         tracer.AddLogFileEventListener(
-                            GVFSEnlistment.GetNewGVFSLogFileName(enlistment.GVFSLogsRoot, GVFSConstants.LogFileTypes.Clone),
+                            ScalarEnlistment.GetNewScalarLogFileName(enlistment.ScalarLogsRoot, ScalarConstants.LogFileTypes.Clone),
                             EventLevel.Informational,
                             Keywords.Any);
                         tracer.WriteStartEvent(
@@ -140,7 +140,7 @@ namespace GVFS.CommandLine
                                 { "NoMount", this.NoMount },
                                 { "NoPrefetch", this.NoPrefetch },
                                 { "Unattended", this.Unattended },
-                                { "IsElevated", GVFSPlatform.Instance.IsElevated() },
+                                { "IsElevated", ScalarPlatform.Instance.IsElevated() },
                                 { "NamedPipeName", enlistment.NamedPipeName },
                                 { "ProcessID", Process.GetCurrentProcess().Id },
                                 { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
@@ -158,7 +158,7 @@ namespace GVFS.CommandLine
                             {
                                 this.ReportErrorAndExit(
                                     tracer,
-                                    $"Failed to determine the default location for the local GVFS cache: `{localCacheRootError}`");
+                                    $"Failed to determine the default location for the local Scalar cache: `{localCacheRootError}`");
                             }
                         }
                         else
@@ -180,16 +180,16 @@ namespace GVFS.CommandLine
                         }
 
                         RetryConfig retryConfig = this.GetRetryConfig(tracer, enlistment, TimeSpan.FromMinutes(RetryConfig.FetchAndCloneTimeoutMinutes));
-                        serverGVFSConfig = this.QueryGVFSConfig(tracer, enlistment, retryConfig);
+                        serverScalarConfig = this.QueryScalarConfig(tracer, enlistment, retryConfig);
 
-                        cacheServer = this.ResolveCacheServer(tracer, cacheServer, cacheServerResolver, serverGVFSConfig);
+                        cacheServer = this.ResolveCacheServer(tracer, cacheServer, cacheServerResolver, serverScalarConfig);
 
-                        this.ValidateClientVersions(tracer, enlistment, serverGVFSConfig, showWarnings: true);
+                        this.ValidateClientVersions(tracer, enlistment, serverScalarConfig, showWarnings: true);
 
                         this.ShowStatusWhileRunning(
                             () =>
                             {
-                                cloneResult = this.TryClone(tracer, enlistment, cacheServer, retryConfig, serverGVFSConfig, resolvedLocalCacheRoot);
+                                cloneResult = this.TryClone(tracer, enlistment, cacheServer, retryConfig, serverScalarConfig, resolvedLocalCacheRoot);
                                 return cloneResult.Success;
                             },
                             "Cloning",
@@ -213,7 +213,7 @@ namespace GVFS.CommandLine
                                 verb.Commits = true;
                                 verb.SkipVersionCheck = true;
                                 verb.ResolvedCacheServer = cacheServer;
-                                verb.ServerGVFSConfig = serverGVFSConfig;
+                                verb.ServerScalarConfig = serverScalarConfig;
                             });
 
                         if (result != ReturnCode.Success)
@@ -226,7 +226,7 @@ namespace GVFS.CommandLine
                     if (this.NoMount)
                     {
                         this.Output.WriteLine("\r\nIn order to mount, first cd to within your enlistment, then call: ");
-                        this.Output.WriteLine("gvfs mount");
+                        this.Output.WriteLine("scalar mount");
                     }
                     else
                     {
@@ -237,7 +237,7 @@ namespace GVFS.CommandLine
                                 verb.SkipMountedCheck = true;
                                 verb.SkipVersionCheck = true;
                                 verb.ResolvedCacheServer = cacheServer;
-                                verb.DownloadedGVFSConfig = serverGVFSConfig;
+                                verb.DownloadedScalarConfig = serverScalarConfig;
                             });
                     }
 
@@ -276,7 +276,7 @@ namespace GVFS.CommandLine
         private Result TryCreateEnlistment(
             string fullEnlistmentRootPathParameter,
             string normalizedEnlistementRootPath,
-            out GVFSEnlistment enlistment)
+            out ScalarEnlistment enlistment)
         {
             enlistment = null;
 
@@ -292,15 +292,15 @@ namespace GVFS.CommandLine
                 return new Result($"Clone directory '{fullEnlistmentRootPathParameter}' ['{normalizedEnlistementRootPath}'] exists and is not empty");
             }
 
-            string gitBinPath = GVFSPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+            string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
             if (string.IsNullOrWhiteSpace(gitBinPath))
             {
-                return new Result(GVFSConstants.GitIsNotInstalledError);
+                return new Result(ScalarConstants.GitIsNotInstalledError);
             }
 
             try
             {
-                enlistment = new GVFSEnlistment(
+                enlistment = new ScalarEnlistment(
                     normalizedEnlistementRootPath,
                     this.RepositoryURL,
                     gitBinPath,
@@ -308,7 +308,7 @@ namespace GVFS.CommandLine
             }
             catch (InvalidRepoException e)
             {
-                return new Result($"Error when creating a new GVFS enlistment at '{normalizedEnlistementRootPath}'. {e.Message}");
+                return new Result($"Error when creating a new Scalar enlistment at '{normalizedEnlistementRootPath}'. {e.Message}");
             }
 
             return new Result(true);
@@ -316,10 +316,10 @@ namespace GVFS.CommandLine
 
         private Result TryClone(
             JsonTracer tracer,
-            GVFSEnlistment enlistment,
+            ScalarEnlistment enlistment,
             CacheServerInfo cacheServer,
             RetryConfig retryConfig,
-            ServerGVFSConfig serverGVFSConfig,
+            ServerScalarConfig serverScalarConfig,
             string resolvedLocalCacheRoot)
         {
             using (GitObjectsHttpRequestor objectRequestor = new GitObjectsHttpRequestor(tracer, enlistment, cacheServer, retryConfig))
@@ -359,7 +359,7 @@ namespace GVFS.CommandLine
                     return new Result(error);
                 }
 
-                if (!GVFSPlatform.Instance.FileSystem.IsFileSystemSupported(enlistment.EnlistmentRoot, out string fsError))
+                if (!ScalarPlatform.Instance.FileSystem.IsFileSystemSupported(enlistment.EnlistmentRoot, out string fsError))
                 {
                     string error = $"FileSystem unsupported: {fsError}";
                     tracer.RelatedError(error);
@@ -367,7 +367,7 @@ namespace GVFS.CommandLine
                 }
 
                 string localCacheError;
-                if (!this.TryDetermineLocalCacheAndInitializePaths(tracer, enlistment, serverGVFSConfig, cacheServer, resolvedLocalCacheRoot, out localCacheError))
+                if (!this.TryDetermineLocalCacheAndInitializePaths(tracer, enlistment, serverScalarConfig, cacheServer, resolvedLocalCacheRoot, out localCacheError))
                 {
                     tracer.RelatedError(localCacheError);
                     return new Result(localCacheError);
@@ -397,7 +397,7 @@ namespace GVFS.CommandLine
 
                 string errorMessage;
                 string enlistmentRootPath;
-                if (!GVFSPlatform.Instance.FileSystem.TryGetNormalizedPath(fullEnlistmentRootPathParameter, out enlistmentRootPath, out errorMessage))
+                if (!ScalarPlatform.Instance.FileSystem.TryGetNormalizedPath(fullEnlistmentRootPathParameter, out enlistmentRootPath, out errorMessage))
                 {
                     this.ReportErrorAndExit("Unable to determine normalized path of clone root: " + errorMessage);
                     return null;
@@ -416,21 +416,21 @@ namespace GVFS.CommandLine
         {
             string errorMessage;
             string existingEnlistmentRoot;
-            if (GVFSPlatform.Instance.TryGetGVFSEnlistmentRoot(normalizedEnlistmentRootPath, out existingEnlistmentRoot, out errorMessage))
+            if (ScalarPlatform.Instance.TryGetScalarEnlistmentRoot(normalizedEnlistmentRootPath, out existingEnlistmentRoot, out errorMessage))
             {
-                this.ReportErrorAndExit("Error: You can't clone inside an existing GVFS repo ({0})", existingEnlistmentRoot);
+                this.ReportErrorAndExit("Error: You can't clone inside an existing Scalar repo ({0})", existingEnlistmentRoot);
             }
 
             if (this.IsExistingPipeListening(normalizedEnlistmentRootPath))
             {
-                this.ReportErrorAndExit($"Error: There is currently a GVFS.Mount process running for '{normalizedEnlistmentRootPath}'. This process must be stopped before cloning.");
+                this.ReportErrorAndExit($"Error: There is currently a Scalar.Mount process running for '{normalizedEnlistmentRootPath}'. This process must be stopped before cloning.");
             }
         }
 
         private bool TryDetermineLocalCacheAndInitializePaths(
             ITracer tracer,
-            GVFSEnlistment enlistment,
-            ServerGVFSConfig serverGVFSConfig,
+            ScalarEnlistment enlistment,
+            ServerScalarConfig serverScalarConfig,
             CacheServerInfo currentCacheServer,
             string localCacheRoot,
             out string errorMessage)
@@ -442,7 +442,7 @@ namespace GVFS.CommandLine
             string localCacheKey;
             if (!localCacheResolver.TryGetLocalCacheKeyFromLocalConfigOrRemoteCacheServers(
                 tracer,
-                serverGVFSConfig,
+                serverScalarConfig,
                 currentCacheServer,
                 localCacheRoot,
                 localCacheKey: out localCacheKey,
@@ -465,7 +465,7 @@ namespace GVFS.CommandLine
 
         private Result CreateClone(
             ITracer tracer,
-            GVFSEnlistment enlistment,
+            ScalarEnlistment enlistment,
             GitObjectsHttpRequestor objectRequestor,
             GitRefs refs,
             string branch)
@@ -484,8 +484,8 @@ namespace GVFS.CommandLine
             }
 
             GitRepo gitRepo = new GitRepo(tracer, enlistment, fileSystem);
-            GVFSContext context = new GVFSContext(tracer, fileSystem, gitRepo, enlistment);
-            GVFSGitObjects gitObjects = new GVFSGitObjects(context, objectRequestor);
+            ScalarContext context = new ScalarContext(tracer, fileSystem, gitRepo, enlistment);
+            ScalarGitObjects gitObjects = new ScalarGitObjects(context, objectRequestor);
 
             if (!this.TryDownloadCommit(
                 refs.GetTipCommitId(branch),
@@ -498,8 +498,8 @@ namespace GVFS.CommandLine
                 return new Result(errorMessage);
             }
 
-            if (!GVFSVerb.TrySetRequiredGitConfigSettings(enlistment) ||
-                !GVFSVerb.TrySetOptionalGitConfigSettings(enlistment))
+            if (!ScalarVerb.TrySetRequiredGitConfigSettings(enlistment) ||
+                !ScalarVerb.TrySetOptionalGitConfigSettings(enlistment))
             {
                 return new Result("Unable to configure git repo");
             }
@@ -519,7 +519,7 @@ namespace GVFS.CommandLine
             }
 
             File.WriteAllText(
-                Path.Combine(enlistment.WorkingDirectoryBackingRoot, GVFSConstants.DotGit.Head),
+                Path.Combine(enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Head),
                 "ref: refs/heads/" + branch);
 
             if (!this.TryDownloadRootGitAttributes(enlistment, gitObjects, gitRepo, out errorMessage))
@@ -561,7 +561,7 @@ namespace GVFS.CommandLine
                 forceCheckoutResult = git.ForceCheckout(branch);
             }
 
-            if (!RepoMetadata.TryInitialize(tracer, enlistment.DotGVFSRoot, out errorMessage))
+            if (!RepoMetadata.TryInitialize(tracer, enlistment.DotScalarRoot, out errorMessage))
             {
                 tracer.RelatedError(errorMessage);
                 return new Result(errorMessage);
@@ -586,7 +586,7 @@ namespace GVFS.CommandLine
         }
 
         // TODO(#1364): Don't call this method on POSIX platforms (or have it no-op on them)
-        private void CreateGitScript(GVFSEnlistment enlistment)
+        private void CreateGitScript(ScalarEnlistment enlistment)
         {
             FileInfo gitCmd = new FileInfo(Path.Combine(enlistment.EnlistmentRoot, "git.cmd"));
             using (FileStream fs = gitCmd.Create())
@@ -597,7 +597,7 @@ namespace GVFS.CommandLine
 @echo OFF
 echo .
 echo ^[105;30m
-echo      This repo was cloned using GVFS, and the git repo is in the 'src' directory
+echo      This repo was cloned using Scalar, and the git repo is in the 'src' directory
 echo      Switching you to the 'src' directory and rerunning your git command
 echo                                                                                      [0m
 
@@ -630,7 +630,7 @@ git %*
             }
 
             File.WriteAllText(
-                Path.Combine(repoPath, GVFSConstants.DotGit.PackedRefs),
+                Path.Combine(repoPath, ScalarConstants.DotGit.PackedRefs),
                 refs.ToPackedRefs());
 
             return new Result(true);

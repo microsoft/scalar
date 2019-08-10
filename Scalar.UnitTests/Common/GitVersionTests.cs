@@ -1,9 +1,9 @@
-﻿using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Tests.Should;
+﻿using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class GitVersionTests
@@ -11,9 +11,9 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void TryParseInstallerName()
         {
-            this.ParseAndValidateInstallerVersion("Git-1.2.3.gvfs.4.5.gb16030b-64-bit" + GVFSPlatform.Instance.Constants.InstallerExtension);
-            this.ParseAndValidateInstallerVersion("git-1.2.3.gvfs.4.5.gb16030b-64-bit" + GVFSPlatform.Instance.Constants.InstallerExtension);
-            this.ParseAndValidateInstallerVersion("Git-1.2.3.gvfs.4.5.gb16030b-64-bit" + GVFSPlatform.Instance.Constants.InstallerExtension);
+            this.ParseAndValidateInstallerVersion("Git-1.2.3.scalar.4.5.gb16030b-64-bit" + ScalarPlatform.Instance.Constants.InstallerExtension);
+            this.ParseAndValidateInstallerVersion("git-1.2.3.scalar.4.5.gb16030b-64-bit" + ScalarPlatform.Instance.Constants.InstallerExtension);
+            this.ParseAndValidateInstallerVersion("Git-1.2.3.scalar.4.5.gb16030b-64-bit" + ScalarPlatform.Instance.Constants.InstallerExtension);
         }
 
         [TestCase]
@@ -207,13 +207,13 @@ namespace GVFS.UnitTests.Common
         private void ParseAndValidateInstallerVersion(string installerName)
         {
             GitVersion version;
-            bool success = GitVersion.TryParseInstallerName(installerName, GVFSPlatform.Instance.Constants.InstallerExtension, out version);
+            bool success = GitVersion.TryParseInstallerName(installerName, ScalarPlatform.Instance.Constants.InstallerExtension, out version);
             success.ShouldBeTrue();
 
             version.Major.ShouldEqual(1);
             version.Minor.ShouldEqual(2);
             version.Build.ShouldEqual(3);
-            version.Platform.ShouldEqual("gvfs");
+            version.Platform.ShouldEqual("scalar");
             version.Revision.ShouldEqual(4);
             version.MinorRevision.ShouldEqual(5);
         }

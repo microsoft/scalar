@@ -1,8 +1,8 @@
 #import <Cocoa/Cocoa.h>
 
-@interface VFSStatusBarItem : NSObject
+@interface ScalarStatusBarItem : NSObject
 
-- (instancetype _Nullable)initWithAboutWindowController:(VFSAboutWindowController *_Nonnull)aboutWindowController;
+- (instancetype _Nullable)initWithAboutWindowController:(ScalarAboutWindowController *_Nonnull)aboutWindowController;
 - (void)load;
 - (NSMenu *_Nullable)getStatusMenu;
 - (IBAction)handleMenuClick:(id)sender;

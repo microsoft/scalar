@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     /// <summary>
     /// Helper methods for git config-style file reading and parsing.
@@ -19,7 +19,7 @@ namespace GVFS.Common.Git
         public static bool TrySanitizeConfigFileLine(string fileLine, out string sanitizedLine)
         {
             sanitizedLine = fileLine;
-            int commentIndex = sanitizedLine.IndexOf(GVFSConstants.GitCommentSign);
+            int commentIndex = sanitizedLine.IndexOf(ScalarConstants.GitCommentSign);
             if (commentIndex >= 0)
             {
                 sanitizedLine = sanitizedLine.Substring(0, commentIndex);

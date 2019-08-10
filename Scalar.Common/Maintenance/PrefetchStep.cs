@@ -1,14 +1,14 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace GVFS.Common.Maintenance
+namespace Scalar.Common.Maintenance
 {
     public class PrefetchStep : GitMaintenanceStep
     {
@@ -18,7 +18,7 @@ namespace GVFS.Common.Maintenance
         private const string PrefetchCommitsAndTreesLock = "prefetch-commits-trees.lock";
         private readonly TimeSpan timeBetweenPrefetches = TimeSpan.FromMinutes(70);
 
-        public PrefetchStep(GVFSContext context, GitObjects gitObjects, bool requireCacheLock = true)
+        public PrefetchStep(ScalarContext context, GitObjects gitObjects, bool requireCacheLock = true)
             : base(context, requireCacheLock)
         {
             this.GitObjects = gitObjects;
@@ -39,7 +39,7 @@ namespace GVFS.Common.Maintenance
 
             // We take our own lock here to keep background and foreground prefetches
             // from running at the same time.
-            using (FileBasedLock prefetchLock = GVFSPlatform.Instance.CreateFileBasedLock(
+            using (FileBasedLock prefetchLock = ScalarPlatform.Instance.CreateFileBasedLock(
                 this.Context.FileSystem,
                 this.Context.Tracer,
                 Path.Combine(this.Context.Enlistment.GitPackRoot, PrefetchCommitsAndTreesLock)))
@@ -109,7 +109,7 @@ namespace GVFS.Common.Maintenance
         private static long? GetTimestamp(string packName)
         {
             string filename = Path.GetFileName(packName);
-            if (!filename.StartsWith(GVFSConstants.PrefetchPackPrefix))
+            if (!filename.StartsWith(ScalarConstants.PrefetchPackPrefix))
             {
                 return null;
             }
@@ -143,7 +143,7 @@ namespace GVFS.Common.Maintenance
         {
             this.Context.FileSystem.CreateDirectory(this.Context.Enlistment.GitPackRoot);
 
-            string[] packs = this.GitObjects.ReadPackFileNames(this.Context.Enlistment.GitPackRoot, GVFSConstants.PrefetchPackPrefix);
+            string[] packs = this.GitObjects.ReadPackFileNames(this.Context.Enlistment.GitPackRoot, ScalarConstants.PrefetchPackPrefix);
             List<PrefetchPackInfo> orderedPacks = packs
                 .Where(pack => GetTimestamp(pack).HasValue)
                 .Select(pack => new PrefetchPackInfo(GetTimestamp(pack).Value, pack))
@@ -273,7 +273,7 @@ namespace GVFS.Common.Maintenance
                 {
                     this.Context.Tracer.RelatedWarning(
                         metadata: this.CreateEventMetadata(),
-                        message: "Failed to connect to GVFS.Mount process. Skipping post-fetch job request.",
+                        message: "Failed to connect to Scalar.Mount process. Skipping post-fetch job request.",
                         keywords: Keywords.Telemetry);
                     return;
                 }

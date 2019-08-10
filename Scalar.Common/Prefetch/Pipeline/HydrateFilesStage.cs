@@ -1,11 +1,11 @@
-﻿using GVFS.Common.Prefetch.Git;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.Prefetch.Git;
+using Scalar.Common.Tracing;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-namespace GVFS.Common.Prefetch.Pipeline
+namespace Scalar.Common.Prefetch.Pipeline
 {
     public class HydrateFilesStage : PrefetchPipelineStage
     {
@@ -44,7 +44,7 @@ namespace GVFS.Common.Prefetch.Pipeline
                 {
                     foreach (PathWithMode modeAndPath in this.blobIdToPaths[blobId])
                     {
-                        bool succeeded = GVFSPlatform.Instance.FileSystem.HydrateFile(Path.Combine(this.workingDirectoryRoot, modeAndPath.Path), buffer);
+                        bool succeeded = ScalarPlatform.Instance.FileSystem.HydrateFile(Path.Combine(this.workingDirectoryRoot, modeAndPath.Path), buffer);
                         if (succeeded)
                         {
                             Interlocked.Increment(ref this.readFileCount);

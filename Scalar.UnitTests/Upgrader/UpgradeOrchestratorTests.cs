@@ -1,22 +1,22 @@
-﻿using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
-using GVFS.UnitTests.Mock.Upgrader;
-using GVFS.Upgrader;
+﻿using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
+using Scalar.UnitTests.Mock.Upgrader;
+using Scalar.Upgrader;
 using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace GVFS.UnitTests.Upgrader
+namespace Scalar.UnitTests.Upgrader
 {
     [TestFixture]
     public class UpgradeOrchestratorTests
     {
-        private const string GVFSVersion = "1.1.18115.1";
+        private const string ScalarVersion = "1.1.18115.1";
 
         private delegate void TryGetNewerVersionCallback(out System.Version version, out string message);
         private delegate void UpgradeAllowedCallback(out string message);
@@ -29,7 +29,7 @@ namespace GVFS.UnitTests.Upgrader
         private MockFileSystem FileSystem { get; set; }
         private MockTextWriter Output { get; set; }
         private MockInstallerPrerunChecker PreRunChecker { get; set; }
-        private Mock<LocalGVFSConfig> MoqLocalConfig { get; set; }
+        private Mock<LocalScalarConfig> MoqLocalConfig { get; set; }
         private Mock<ProductUpgrader> MoqUpgrader { get; set; }
 
         private UpgradeOrchestrator orchestrator { get; set; }
@@ -38,7 +38,7 @@ namespace GVFS.UnitTests.Upgrader
         public void Setup()
         {
             this.Tracer = new MockTracer();
-            this.FileSystem = new MockFileSystem(new MockDirectory(@"mock:\GVFS.Upgrades\Download", null, null));
+            this.FileSystem = new MockFileSystem(new MockDirectory(@"mock:\Scalar.Upgrades\Download", null, null));
             this.Output = new MockTextWriter();
             this.PreRunChecker = new MockInstallerPrerunChecker(this.Tracer);
             this.PreRunChecker.Reset();
@@ -51,7 +51,7 @@ namespace GVFS.UnitTests.Upgrader
                 input: null,
                 output: this.Output);
 
-            this.SetUpgradeAvailable(new Version(GVFSVersion), error: null);
+            this.SetUpgradeAvailable(new Version(ScalarVersion), error: null);
         }
 
         [TestCase]

@@ -1,9 +1,9 @@
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
-using GVFS.Platform.Windows;
-using GVFS.Service.Handlers;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
+using Scalar.Platform.Windows;
+using Scalar.Service.Handlers;
 using System;
 using System.IO;
 using System.Linq;
@@ -11,12 +11,12 @@ using System.Security.AccessControl;
 using System.ServiceProcess;
 using System.Threading;
 
-namespace GVFS.Service
+namespace Scalar.Service
 {
-    public class GVFSService : ServiceBase
+    public class ScalarService : ServiceBase
     {
         private const string ServiceNameArgPrefix = "--servicename=";
-        private const string EtwArea = nameof(GVFSService);
+        private const string EtwArea = nameof(ScalarService);
 
         private JsonTracer tracer;
         private Thread serviceThread;
@@ -27,10 +27,10 @@ namespace GVFS.Service
         private ProductUpgradeTimer productUpgradeTimer;
         private RequestHandler requestHandler;
 
-        public GVFSService(JsonTracer tracer)
+        public ScalarService(JsonTracer tracer)
         {
             this.tracer = tracer;
-            this.serviceName = GVFSConstants.Service.ServiceName;
+            this.serviceName = ScalarConstants.Service.ServiceName;
             this.CanHandleSessionChangeEvent = true;
             this.productUpgradeTimer = new ProductUpgradeTimer(tracer);
         }
@@ -41,18 +41,18 @@ namespace GVFS.Service
             {
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add("Version", ProcessHelper.GetCurrentProcessVersion());
-                this.tracer.RelatedEvent(EventLevel.Informational, $"{nameof(GVFSService)}_{nameof(this.Run)}", metadata);
+                this.tracer.RelatedEvent(EventLevel.Informational, $"{nameof(ScalarService)}_{nameof(this.Run)}", metadata);
 
                 this.repoRegistry = new RepoRegistry(
                     this.tracer,
                     new PhysicalFileSystem(),
                     this.serviceDataLocation,
-                    new GVFSMountProcess(this.tracer),
+                    new ScalarMountProcess(this.tracer),
                     new NotificationHandler(this.tracer));
                 this.repoRegistry.Upgrade();
                 this.requestHandler = new RequestHandler(this.tracer, EtwArea, this.repoRegistry);
 
-                string pipeName = GVFSPlatform.Instance.GetGVFSServiceNamedPipeName(this.serviceName);
+                string pipeName = ScalarPlatform.Instance.GetScalarServiceNamedPipeName(this.serviceName);
                 this.tracer.RelatedInfo("Starting pipe server with name: " + pipeName);
 
                 using (NamedPipeServer pipeServer = NamedPipeServer.StartNewServer(
@@ -119,7 +119,7 @@ namespace GVFS.Service
             {
                 base.OnSessionChange(changeDescription);
 
-                if (!GVFSEnlistment.IsUnattended(tracer: null))
+                if (!ScalarEnlistment.IsUnattended(tracer: null))
                 {
                     if (changeDescription.Reason == SessionChangeReason.SessionLogon)
                     {
@@ -127,7 +127,7 @@ namespace GVFS.Service
                         using (ITracer activity = this.tracer.StartActivity("LogonAutomount", EventLevel.Informational))
                         {
                             this.repoRegistry.AutoMountRepos(
-                                GVFSPlatform.Instance.GetUserIdFromLoginSessionId(changeDescription.SessionId, this.tracer),
+                                ScalarPlatform.Instance.GetUserIdFromLoginSessionId(changeDescription.SessionId, this.tracer),
                                 changeDescription.SessionId);
                             this.repoRegistry.TraceStatus();
                         }
@@ -159,20 +159,20 @@ namespace GVFS.Service
             }
 
             string serviceLogsDirectoryPath = Path.Combine(
-                    GVFSPlatform.Instance.GetDataRootForGVFSComponent(this.serviceName),
-                    GVFSConstants.Service.LogDirectory);
+                    ScalarPlatform.Instance.GetDataRootForScalarComponent(this.serviceName),
+                    ScalarConstants.Service.LogDirectory);
 
             // Create the logs directory explicitly *before* creating a log file event listener to ensure that it
             // and its ancestor directories are created with the correct ACLs.
             this.CreateServiceLogsDirectory(serviceLogsDirectoryPath);
             this.tracer.AddLogFileEventListener(
-                GVFSEnlistment.GetNewGVFSLogFileName(serviceLogsDirectoryPath, GVFSConstants.LogFileTypes.Service),
+                ScalarEnlistment.GetNewScalarLogFileName(serviceLogsDirectoryPath, ScalarConstants.LogFileTypes.Service),
                 EventLevel.Verbose,
                 Keywords.Any);
 
             try
             {
-                this.serviceDataLocation = GVFSPlatform.Instance.GetDataRootForGVFSComponent(this.serviceName);
+                this.serviceDataLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(this.serviceName);
                 this.CreateAndConfigureProgramDataDirectories();
                 this.Start();
             }
@@ -244,12 +244,12 @@ namespace GVFS.Service
 
             DirectorySecurity serviceDataRootSecurity = this.GetServiceDirectorySecurity(serviceDataRootPath);
 
-            // Create GVFS.Service and GVFS.Upgrade related directories (if they don't already exist)
+            // Create Scalar.Service and Scalar.Upgrade related directories (if they don't already exist)
             Directory.CreateDirectory(serviceDataRootPath, serviceDataRootSecurity);
             Directory.CreateDirectory(this.serviceDataLocation, serviceDataRootSecurity);
             Directory.CreateDirectory(ProductUpgraderInfo.GetUpgradeProtectedDataDirectory(), serviceDataRootSecurity);
 
-            // Ensure the ACLs are set correctly on any files or directories that were already created (e.g. after upgrading VFS4G)
+            // Ensure the ACLs are set correctly on any files or directories that were already created (e.g. after upgrading Scalar4G)
             Directory.SetAccessControl(serviceDataRootPath, serviceDataRootSecurity);
 
             // Special rules for the upgrader logs, as non-elevated users need to be be able to write
@@ -261,7 +261,7 @@ namespace GVFS.Service
             string upgradeLogsPath = ProductUpgraderInfo.GetLogDirectoryPath();
 
             string error;
-            if (!GVFSPlatform.Instance.FileSystem.TryCreateDirectoryWithAdminAndUserModifyPermissions(upgradeLogsPath, out error))
+            if (!ScalarPlatform.Instance.FileSystem.TryCreateDirectoryWithAdminAndUserModifyPermissions(upgradeLogsPath, out error))
             {
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add("Area", EtwArea);

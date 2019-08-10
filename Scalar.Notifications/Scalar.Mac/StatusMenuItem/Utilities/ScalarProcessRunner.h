@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NSTask *_Nonnull (^ProcessFactory)(void);
 
-@interface VFSProcessRunner : NSObject
+@interface ScalarProcessRunner : NSObject
 
 - (instancetype _Nullable)initWithProcessFactory:(ProcessFactory)processFactory;
 - (BOOL)tryRunExecutable:(NSURL *)path

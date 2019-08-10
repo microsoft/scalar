@@ -1,13 +1,13 @@
 ﻿using CommandLine;
-using GVFS.PlatformLoader;
+using Scalar.PlatformLoader;
 
-namespace GVFS.Upgrader
+namespace Scalar.Upgrader
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            GVFSPlatformLoader.Initialize();
+            ScalarPlatformLoader.Initialize();
 
             Parser.Default.ParseArguments<UpgradeOptions>(args)
                 .WithParsed(options =>  UpgradeOrchestratorFactory.Create(options).Execute());

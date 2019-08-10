@@ -1,16 +1,16 @@
-﻿using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
+namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
-    [Category(Categories.MacTODO.NeedsGVFSConfig)]
+    [Category(Categories.MacTODO.NeedsScalarConfig)]
     [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class ConfigVerbTests : TestsWithMultiEnlistment
     {
@@ -165,7 +165,7 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
 
         private string RunConfigCommand(string argument, int expectedExitCode = 0)
         {
-            ProcessResult result = ProcessHelper.Run(GVFSTestConfig.PathToGVFS, $"config {argument}");
+            ProcessResult result = ProcessHelper.Run(ScalarTestConfig.PathToScalar, $"config {argument}");
             result.ExitCode.ShouldEqual(expectedExitCode, result.Errors);
 
             return result.Output;

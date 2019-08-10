@@ -1,5 +1,5 @@
-using GVFS.Common;
-using GVFS.Tests.Should;
+using Scalar.Common;
+using Scalar.Tests.Should;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -10,7 +10,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class OrgInfoServerTests

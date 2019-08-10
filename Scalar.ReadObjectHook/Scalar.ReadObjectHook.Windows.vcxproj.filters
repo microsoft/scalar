@@ -33,7 +33,7 @@
     <ClInclude Include="packet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GVFS.NativeHooks.Common\common.h">
+    <ClInclude Include="..\Scalar.NativeHooks.Common\common.h">
       <Filter>Shared Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,7 +47,7 @@
     <ClCompile Include="packet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GVFS.NativeHooks.Common\common.windows.cpp">
+    <ClCompile Include="..\Scalar.NativeHooks.Common\common.windows.cpp">
       <Filter>Shared Source Files</Filter>
     </ClCompile>
   </ItemGroup>

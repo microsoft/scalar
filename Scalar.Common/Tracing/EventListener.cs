@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace GVFS.Common.Tracing
+namespace Scalar.Common.Tracing
 {
     public abstract class EventListener : IDisposable
     {

@@ -1,15 +1,15 @@
-﻿using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
+﻿using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
 
-namespace GVFS.UnitTests.Mock.Git
+namespace Scalar.UnitTests.Mock.Git
 {
     public class MockHttpGitObjects : GitObjectsHttpRequestor
     {
@@ -80,7 +80,7 @@ namespace GVFS.UnitTests.Mock.Git
             {
                 using (GitEndPointResponseData response = new GitEndPointResponseData(
                     HttpStatusCode.OK,
-                    GVFSConstants.MediaTypes.LooseObjectMediaType,
+                    ScalarConstants.MediaTypes.LooseObjectMediaType,
                     new ReusableMemoryStream(this.shaContents[objectId]),
                     message: null,
                     onResponseDisposed: null))

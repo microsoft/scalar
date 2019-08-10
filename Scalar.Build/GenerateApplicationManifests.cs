@@ -2,7 +2,7 @@
 using Microsoft.Build.Utilities;
 using System.IO;
 
-namespace GVFS.PreBuild
+namespace Scalar.PreBuild
 {
     public class GenerateApplicationManifests : Task
     {

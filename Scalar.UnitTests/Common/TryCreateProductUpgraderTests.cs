@@ -1,13 +1,13 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.NuGetUpgrade;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.NuGetUpgrade;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
 using Moq;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     public class TryCreateProductUpgradeTests
     {
@@ -45,13 +45,13 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void CreatesNuGetUpgraderWhenConfigured()
         {
-            MockLocalGVFSConfig gvfsConfig = this.ConstructDefaultMockNuGetConfigBuilder()
+            MockLocalScalarConfig scalarConfig = this.ConstructDefaultMockNuGetConfigBuilder()
                 .Build();
 
             bool success = ProductUpgrader.TryCreateUpgrader(
                 this.tracer,
                 this.fileSystemMock.Object,
-                gvfsConfig,
+                scalarConfig,
                 this.credentialStoreMock.Object,
                 false,
                 false,
@@ -67,14 +67,14 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void CreatesNuGetUpgraderWhenConfiguredWithNoRing()
         {
-            MockLocalGVFSConfig gvfsConfig = this.ConstructDefaultMockNuGetConfigBuilder()
+            MockLocalScalarConfig scalarConfig = this.ConstructDefaultMockNuGetConfigBuilder()
                 .WithNoUpgradeRing()
                 .Build();
 
             bool success = ProductUpgrader.TryCreateUpgrader(
                 this.tracer,
                 this.fileSystemMock.Object,
-                gvfsConfig,
+                scalarConfig,
                 this.credentialStoreMock.Object,
                 false,
                 false,
@@ -90,13 +90,13 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void CreatesGitHubUpgraderWhenConfigured()
         {
-            MockLocalGVFSConfig gvfsConfig = this.ConstructDefaultGitHubConfigBuilder()
+            MockLocalScalarConfig scalarConfig = this.ConstructDefaultGitHubConfigBuilder()
                 .Build();
 
             bool success = ProductUpgrader.TryCreateUpgrader(
                 this.tracer,
                 this.fileSystemMock.Object,
-                gvfsConfig,
+                scalarConfig,
                 this.credentialStoreMock.Object,
                 false,
                 false,
@@ -112,13 +112,13 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void CreatesOrgNuGetUpgrader()
         {
-            MockLocalGVFSConfig gvfsConfig = this.ConstructDefaultMockOrgNuGetConfigBuilder()
+            MockLocalScalarConfig scalarConfig = this.ConstructDefaultMockOrgNuGetConfigBuilder()
                 .Build();
 
             bool success = ProductUpgrader.TryCreateUpgrader(
                 this.tracer,
                 this.fileSystemMock.Object,
-                gvfsConfig,
+                scalarConfig,
                 this.credentialStoreMock.Object,
                 false,
                 false,
@@ -134,14 +134,14 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void NoUpgraderWhenNuGetFeedMissing()
         {
-            MockLocalGVFSConfig gvfsConfig = this.ConstructDefaultMockNuGetConfigBuilder()
+            MockLocalScalarConfig scalarConfig = this.ConstructDefaultMockNuGetConfigBuilder()
                 .WithNoUpgradeFeedUrl()
                 .Build();
 
             bool success = ProductUpgrader.TryCreateUpgrader(
                 this.tracer,
                 this.fileSystemMock.Object,
-                gvfsConfig,
+                scalarConfig,
                 this.credentialStoreMock.Object,
                 false,
                 false,
@@ -156,14 +156,14 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void NoOrgUpgraderWhenNuGetPackNameMissing()
         {
-            MockLocalGVFSConfig gvfsConfig = this.ConstructDefaultMockOrgNuGetConfigBuilder()
+            MockLocalScalarConfig scalarConfig = this.ConstructDefaultMockOrgNuGetConfigBuilder()
                 .WithNoUpgradeFeedPackageName()
                 .Build();
 
             bool success = ProductUpgrader.TryCreateUpgrader(
                 this.tracer,
                 this.fileSystemMock.Object,
-                gvfsConfig,
+                scalarConfig,
                 this.credentialStoreMock.Object,
                 false,
                 false,
@@ -178,14 +178,14 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void NoOrgUpgraderWhenNuGetFeedMissing()
         {
-            MockLocalGVFSConfig gvfsConfig = this.ConstructDefaultMockOrgNuGetConfigBuilder()
+            MockLocalScalarConfig scalarConfig = this.ConstructDefaultMockOrgNuGetConfigBuilder()
                 .WithNoUpgradeFeedUrl()
                 .Build();
 
             bool success = ProductUpgrader.TryCreateUpgrader(
                 this.tracer,
                 this.fileSystemMock.Object,
-                gvfsConfig,
+                scalarConfig,
                 this.credentialStoreMock.Object,
                 false,
                 false,
@@ -200,14 +200,14 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void NoUpgraderWhenNuGetPackNameMissing()
         {
-            MockLocalGVFSConfig gvfsConfig = this.ConstructDefaultMockNuGetConfigBuilder()
+            MockLocalScalarConfig scalarConfig = this.ConstructDefaultMockNuGetConfigBuilder()
                 .WithNoUpgradeFeedPackageName()
                 .Build();
 
             bool success = ProductUpgrader.TryCreateUpgrader(
                 this.tracer,
                 this.fileSystemMock.Object,
-                gvfsConfig,
+                scalarConfig,
                 this.credentialStoreMock.Object,
                 false,
                 false,
@@ -219,9 +219,9 @@ namespace GVFS.UnitTests.Common
             error.ShouldNotBeNull();
         }
 
-        private MockLocalGVFSConfigBuilder ConstructDefaultMockNuGetConfigBuilder()
+        private MockLocalScalarConfigBuilder ConstructDefaultMockNuGetConfigBuilder()
         {
-            MockLocalGVFSConfigBuilder configBuilder = this.ConstructMockLocalGVFSConfigBuilder()
+            MockLocalScalarConfigBuilder configBuilder = this.ConstructMockLocalScalarConfigBuilder()
                 .WithUpgradeRing()
                 .WithUpgradeFeedPackageName()
                 .WithUpgradeFeedUrl();
@@ -229,9 +229,9 @@ namespace GVFS.UnitTests.Common
             return configBuilder;
         }
 
-        private MockLocalGVFSConfigBuilder ConstructDefaultMockOrgNuGetConfigBuilder()
+        private MockLocalScalarConfigBuilder ConstructDefaultMockOrgNuGetConfigBuilder()
         {
-            MockLocalGVFSConfigBuilder configBuilder = this.ConstructMockLocalGVFSConfigBuilder()
+            MockLocalScalarConfigBuilder configBuilder = this.ConstructMockLocalScalarConfigBuilder()
                 .WithUpgradeRing()
                 .WithUpgradeFeedPackageName()
                 .WithUpgradeFeedUrl()
@@ -240,17 +240,17 @@ namespace GVFS.UnitTests.Common
             return configBuilder;
         }
 
-        private MockLocalGVFSConfigBuilder ConstructDefaultGitHubConfigBuilder()
+        private MockLocalScalarConfigBuilder ConstructDefaultGitHubConfigBuilder()
         {
-            MockLocalGVFSConfigBuilder configBuilder = this.ConstructMockLocalGVFSConfigBuilder()
+            MockLocalScalarConfigBuilder configBuilder = this.ConstructMockLocalScalarConfigBuilder()
                             .WithUpgradeRing();
 
             return configBuilder;
         }
 
-        private MockLocalGVFSConfigBuilder ConstructMockLocalGVFSConfigBuilder()
+        private MockLocalScalarConfigBuilder ConstructMockLocalScalarConfigBuilder()
         {
-            return new MockLocalGVFSConfigBuilder(
+            return new MockLocalScalarConfigBuilder(
                 defaultRing,
                 defaultUpgradeFeedUrl,
                 defaultUpgradeFeedPackageName,

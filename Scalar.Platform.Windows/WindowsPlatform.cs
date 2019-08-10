@@ -1,8 +1,8 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
-using GVFS.Platform.Windows.DiskLayoutUpgrades;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
+using Scalar.Platform.Windows.DiskLayoutUpgrades;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -17,9 +17,9 @@ using System.Security.Principal;
 using System.ServiceProcess;
 using System.Text;
 
-namespace GVFS.Platform.Windows
+namespace Scalar.Platform.Windows
 {
-    public partial class WindowsPlatform : GVFSPlatform
+    public partial class WindowsPlatform : ScalarPlatform
     {
         private const string WindowsVersionRegistryKey = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
         private const string BuildLabRegistryValue = "BuildLab";
@@ -33,16 +33,16 @@ namespace GVFS.Platform.Windows
         public override IDiskLayoutUpgradeData DiskLayoutUpgrade { get; } = new WindowsDiskLayoutUpgradeData();
         public override IPlatformFileSystem FileSystem { get; } = new WindowsFileSystem();
         public override string Name { get => "Windows"; }
-        public override GVFSPlatformConstants Constants { get; } = new WindowsPlatformConstants();
+        public override ScalarPlatformConstants Constants { get; } = new WindowsPlatformConstants();
 
-        public override string GVFSConfigPath
+        public override string ScalarConfigPath
         {
             get
             {
-                string servicePath = GVFSPlatform.Instance.GetDataRootForGVFSComponent(GVFSConstants.Service.ServiceName);
-                string gvfsDirectory = Path.GetDirectoryName(servicePath);
+                string servicePath = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.Service.ServiceName);
+                string scalarDirectory = Path.GetDirectoryName(servicePath);
 
-                return Path.Combine(gvfsDirectory, LocalGVFSConfig.FileName);
+                return Path.Combine(scalarDirectory, LocalScalarConfig.FileName);
             }
         }
 
@@ -131,17 +131,17 @@ namespace GVFS.Platform.Windows
             return sb.ToString();
         }
 
-        public override string GetDataRootForGVFS()
+        public override string GetDataRootForScalar()
         {
-            return WindowsPlatform.GetDataRootForGVFSImplementation();
+            return WindowsPlatform.GetDataRootForScalarImplementation();
         }
 
-        public override string GetDataRootForGVFSComponent(string componentName)
+        public override string GetDataRootForScalarComponent(string componentName)
         {
-            return WindowsPlatform.GetDataRootForGVFSComponentImplementation(componentName);
+            return WindowsPlatform.GetDataRootForScalarComponentImplementation(componentName);
         }
 
-        public override void StartBackgroundVFS4GProcess(ITracer tracer, string programName, string[] args)
+        public override void StartBackgroundScalar4GProcess(ITracer tracer, string programName, string[] args)
         {
             string programArguments = string.Empty;
             try
@@ -214,7 +214,7 @@ namespace GVFS.Platform.Windows
             return WindowsPlatform.GetNamedPipeNameImplementation(enlistmentRoot);
         }
 
-        public override string GetGVFSServiceNamedPipeName(string serviceName)
+        public override string GetScalarServiceNamedPipeName(string serviceName)
         {
             return serviceName + ".pipe";
         }
@@ -331,9 +331,9 @@ namespace GVFS.Platform.Windows
             return new WindowsProductUpgraderPlatformStrategy(fileSystem, tracer);
         }
 
-        public override bool TryGetGVFSEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage)
+        public override bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage)
         {
-            return WindowsPlatform.TryGetGVFSEnlistmentRootImplementation(directory, out enlistmentRoot, out errorMessage);
+            return WindowsPlatform.TryGetScalarEnlistmentRootImplementation(directory, out enlistmentRoot, out errorMessage);
         }
 
         public override bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError)
@@ -360,7 +360,7 @@ namespace GVFS.Platform.Windows
 
             try
             {
-                localCacheRoot = Path.Combine(pathRoot, GVFSConstants.DefaultGVFSCacheFolderName);
+                localCacheRoot = Path.Combine(pathRoot, ScalarConstants.DefaultScalarCacheFolderName);
                 localCacheRootError = null;
                 return true;
             }
@@ -389,7 +389,7 @@ namespace GVFS.Platform.Windows
             return value;
         }
 
-        public class WindowsPlatformConstants : GVFSPlatformConstants
+        public class WindowsPlatformConstants : ScalarPlatformConstants
         {
             public override string ExecutableExtension
             {
@@ -405,32 +405,32 @@ namespace GVFS.Platform.Windows
 
             public override string WorkingDirectoryBackingRootPath
             {
-                get { return GVFSConstants.WorkingDirectoryRootName; }
+                get { return ScalarConstants.WorkingDirectoryRootName; }
             }
 
-            public override string DotGVFSRoot
+            public override string DotScalarRoot
             {
-                get { return WindowsPlatform.DotGVFSRoot; }
+                get { return WindowsPlatform.DotScalarRoot; }
             }
 
-            public override string GVFSBinDirectoryPath
+            public override string ScalarBinDirectoryPath
             {
                 get
                 {
                     return Path.Combine(
                         Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-                        this.GVFSBinDirectoryName);
+                        this.ScalarBinDirectoryName);
                 }
             }
 
-            public override string GVFSBinDirectoryName
+            public override string ScalarBinDirectoryName
             {
-                get { return "GVFS"; }
+                get { return "Scalar"; }
             }
 
-            public override string GVFSExecutableName
+            public override string ScalarExecutableName
             {
-                get { return "GVFS" + this.ExecutableExtension; }
+                get { return "Scalar" + this.ExecutableExtension; }
             }
 
             public override string ProgramLocaterCommand
@@ -440,7 +440,7 @@ namespace GVFS.Platform.Windows
 
             public override HashSet<string> UpgradeBlockingProcesses
             {
-                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "GVFS", "GVFS.Mount", "git", "ssh-agent", "wish", "bash" }; }
+                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Scalar", "Scalar.Mount", "git", "ssh-agent", "wish", "bash" }; }
             }
 
             // Tests show that 250 is the max supported pipe name length

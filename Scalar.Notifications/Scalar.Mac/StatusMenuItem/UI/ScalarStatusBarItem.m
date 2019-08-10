@@ -1,17 +1,17 @@
-#import "VFSAboutWindowController.h"
-#import "VFSStatusBarItem.h"
-#import "VFSProductInfoFetcher.h"
+#import "ScalarAboutWindowController.h"
+#import "ScalarStatusBarItem.h"
+#import "ScalarProductInfoFetcher.h"
 
-@interface VFSStatusBarItem ()
+@interface ScalarStatusBarItem ()
 
 @property (strong, nonnull) NSStatusItem *statusItem;
-@property (strong, nonnull) VFSAboutWindowController *aboutWindowController;
+@property (strong, nonnull) ScalarAboutWindowController *aboutWindowController;
 
 @end
 
-@implementation VFSStatusBarItem
+@implementation ScalarStatusBarItem
 
-- (instancetype)initWithAboutWindowController:(VFSAboutWindowController *)aboutWindowController
+- (instancetype)initWithAboutWindowController:(ScalarAboutWindowController *)aboutWindowController
 {
     if (aboutWindowController == nil)
     {
@@ -81,7 +81,7 @@
     NSUInteger index = 0;
     NSMenu *menu = [[NSMenu alloc] init];
     NSMenuItem *aboutItem = [[NSMenuItem alloc]
-                             initWithTitle:@"About VFS For Git"
+                             initWithTitle:@"About Scalar"
                              action:@selector(handleMenuClick:)
                              keyEquivalent:@""];
     

@@ -1,23 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\GVFS.Build\GVFS.cs.props" />
+  <Import Project="..\Scalar.Build\Scalar.cs.props" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AssemblyName>GVFS.Upgrader</AssemblyName>
+    <AssemblyName>Scalar.Upgrader</AssemblyName>
 
     <Platforms>x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
-    <RootNamespace>GVFS.Upgrader</RootNamespace>
+    <RootNamespace>Scalar.Upgrader</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
 
   <!-- ItemGroup Conditions are not supported on VS for Mac and Choose/When must be
@@ -29,8 +29,8 @@
 	<DefineConstants>$(DefineConstants);WINDOWS_BUILD</DefineConstants>
       </PropertyGroup>
       <ItemGroup>
-        <ProjectReference Include="..\GVFS.Platform.Windows\GVFS.Platform.Windows.csproj" />
-        <Compile Include="..\GVFS.PlatformLoader\PlatformLoader.Windows.cs">
+        <ProjectReference Include="..\Scalar.Platform.Windows\Scalar.Platform.Windows.csproj" />
+        <Compile Include="..\Scalar.PlatformLoader\PlatformLoader.Windows.cs">
           <Link>PlatformLoader.Windows.cs</Link>
         </Compile>
       </ItemGroup>
@@ -42,8 +42,8 @@
 	<DefineConstants>$(DefineConstants);MACOS_BUILD</DefineConstants>
       </PropertyGroup>
       <ItemGroup>
-        <ProjectReference Include="..\GVFS.Platform.Mac\GVFS.Platform.Mac.csproj" />
-        <Compile Include="..\GVFS.PlatformLoader\PlatformLoader.Mac.cs">
+        <ProjectReference Include="..\Scalar.Platform.Mac\Scalar.Platform.Mac.csproj" />
+        <Compile Include="..\Scalar.PlatformLoader\PlatformLoader.Mac.cs">
           <Link>PlatformLoader.Mac.cs</Link>
         </Compile>
       </ItemGroup>
@@ -56,7 +56,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GVFS.Common\GVFS.Common.csproj" />
+    <ProjectReference Include="..\Scalar.Common\Scalar.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,9 +1,9 @@
-﻿using GVFS.Common.Git;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
+﻿using Scalar.Common.Git;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Git
+namespace Scalar.UnitTests.Git
 {
     [TestFixture]
     public class GitProcessTests
@@ -11,7 +11,7 @@ namespace GVFS.UnitTests.Git
         [TestCase]
         public void TryKillRunningProcess_NeverRan()
         {
-            GitProcess process = new GitProcess(new MockGVFSEnlistment());
+            GitProcess process = new GitProcess(new MockScalarEnlistment());
             process.TryKillRunningProcess(out string processName, out int exitCode, out string error).ShouldBeTrue();
 
             processName.ShouldBeNull();

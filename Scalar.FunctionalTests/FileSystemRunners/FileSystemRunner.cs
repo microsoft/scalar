@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 
-namespace GVFS.FunctionalTests.FileSystemRunners
+namespace Scalar.FunctionalTests.FileSystemRunners
 {
     public abstract class FileSystemRunner
     {
@@ -31,7 +31,7 @@ namespace GVFS.FunctionalTests.FileSystemRunners
 
         public static object[] Runners
         {
-            get { return GVFSTestConfig.FileSystemRunners; }
+            get { return ScalarTestConfig.FileSystemRunners; }
         }
 
         /// <summary>

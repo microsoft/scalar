@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace GVFS.UnitTests.Windows.Upgrader
+namespace Scalar.UnitTests.Windows.Upgrader
 {
-    public class MockProcessLauncher : GVFS.CommandLine.UpgradeVerb.ProcessLauncher
+    public class MockProcessLauncher : Scalar.CommandLine.UpgradeVerb.ProcessLauncher
     {
         private int exitCode;
         private bool hasExited;

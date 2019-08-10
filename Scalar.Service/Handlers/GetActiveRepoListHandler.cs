@@ -1,10 +1,10 @@
-using GVFS.Common;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GVFS.Service.Handlers
+namespace Scalar.Service.Handlers
 {
     public class GetActiveRepoListHandler : MessageHandler
     {
@@ -68,10 +68,10 @@ namespace GVFS.Service.Handlers
 
         private bool IsValidRepo(string repoRoot)
         {
-            string gitBinPath = GVFSPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+            string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
             try
             {
-                GVFSEnlistment enlistment = GVFSEnlistment.CreateFromDirectory(
+                ScalarEnlistment enlistment = ScalarEnlistment.CreateFromDirectory(
                     repoRoot,
                     gitBinPath,
                     authentication: null);

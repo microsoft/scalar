@@ -1,6 +1,6 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public interface ICredentialStore
     {

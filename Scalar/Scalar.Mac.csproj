@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\GVFS.Build\GVFS.cs.props" />
+  <Import Project="..\Scalar.Build\Scalar.cs.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AssemblyName>gvfs</AssemblyName>
+    <AssemblyName>scalar</AssemblyName>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <Platforms>x64</Platforms>
     <RunTimeIdentifiers>osx-x64</RunTimeIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GVFS.Platform.Mac\GVFS.Platform.Mac.csproj" />
-    <ProjectReference Include="..\GVFS.Mount\GVFS.Mount.Mac.csproj" />
+    <ProjectReference Include="..\Scalar.Platform.Mac\Scalar.Platform.Mac.csproj" />
+    <ProjectReference Include="..\Scalar.Mount\Scalar.Mount.Mac.csproj" />
   </ItemGroup>
 </Project>

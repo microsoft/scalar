@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\LibGit2Sharp.NativeBinaries.props" />
-  <Import Project="..\GVFS.Build\GVFS.cs.props" />
+  <Import Project="..\Scalar.Build\Scalar.cs.props" />
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;netstandard2.0</TargetFrameworks>
@@ -10,14 +10,14 @@
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\..\BuildOutput\GVFS.Build\GVFSConstants.GitVersion.cs" Link="GVFSConstants.GitVersion.cs" />
+    <Compile Include="..\..\..\BuildOutput\Scalar.Build\ScalarConstants.GitVersion.cs" Link="ScalarConstants.GitVersion.cs" />
   </ItemGroup>
 
   <ItemGroup>

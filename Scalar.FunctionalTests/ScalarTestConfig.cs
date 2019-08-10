@@ -1,8 +1,8 @@
 ﻿using System.IO;
 
-namespace GVFS.FunctionalTests
+namespace Scalar.FunctionalTests
 {
-    public static class GVFSTestConfig
+    public static class ScalarTestConfig
     {
         public static string RepoToClone { get; set; }
 
@@ -14,19 +14,19 @@ namespace GVFS.FunctionalTests
 
         public static object[] GitRepoTestsValidateWorkTree { get; set; }
 
-        public static bool TestGVFSOnPath { get; set; }
+        public static bool TestScalarOnPath { get; set; }
 
-        public static string PathToGVFS
+        public static string PathToScalar
         {
             get
             {
                 return
-                    TestGVFSOnPath ?
-                    Properties.Settings.Default.PathToGVFS :
-                    Path.Combine(Properties.Settings.Default.CurrentDirectory, Properties.Settings.Default.PathToGVFS);
+                    TestScalarOnPath ?
+                    Properties.Settings.Default.PathToScalar :
+                    Path.Combine(Properties.Settings.Default.CurrentDirectory, Properties.Settings.Default.PathToScalar);
             }
         }
 
-        public static string DotGVFSRoot { get; set; }
+        public static string DotScalarRoot { get; set; }
     }
 }

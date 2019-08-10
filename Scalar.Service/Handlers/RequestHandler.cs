@@ -1,13 +1,13 @@
-﻿using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
 using System.Runtime.Serialization;
 
-namespace GVFS.Service.Handlers
+namespace Scalar.Service.Handlers
 {
     /// <summary>
-    /// RequestHandler - Routes client requests that reach GVFS.Service to
+    /// RequestHandler - Routes client requests that reach Scalar.Service to
     /// appropriate MessageHandler object.
-    /// Example requests - gvfs mount/unmount command sends requests to
+    /// Example requests - scalar mount/unmount command sends requests to
     /// register/un-register repositories for automount. RequestHandler
     /// routes them to RegisterRepoHandler and UnRegisterRepoHandler
     /// respectively.

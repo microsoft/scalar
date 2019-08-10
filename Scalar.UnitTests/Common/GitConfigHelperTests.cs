@@ -1,10 +1,10 @@
-﻿using GVFS.Common.Git;
-using GVFS.Tests.Should;
+﻿using Scalar.Common.Git;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class GitConfigHelperTests
@@ -80,7 +80,7 @@ namespace GVFS.UnitTests.Common
         public void ParseKeyValuesTest()
         {
             string input = @"
-core.gvfs=true
+core.scalar=true
 gc.auto=0
 section.key=value1
 section.key= value2
@@ -92,7 +92,7 @@ section.empty=
             Dictionary<string, GitConfigSetting> result = GitConfigHelper.ParseKeyValues(input);
 
             result.Count.ShouldEqual(4);
-            result["core.gvfs"].Values.Single().ShouldEqual("true");
+            result["core.scalar"].Values.Single().ShouldEqual("true");
             result["gc.auto"].Values.Single().ShouldEqual("0");
             result["section.key"].Values.Count.ShouldEqual(5);
             result["section.key"].Values.ShouldContain(v => v == "value1");
@@ -107,7 +107,7 @@ section.empty=
         public void ParseSpaceSeparatedKeyValuesTest()
         {
             string input = @"
-core.gvfs true
+core.scalar true
 gc.auto 0
 section.key value1
 section.key  value2
@@ -119,7 +119,7 @@ section.KEY value5" +
             Dictionary<string, GitConfigSetting> result = GitConfigHelper.ParseKeyValues(input, ' ');
 
             result.Count.ShouldEqual(4);
-            result["core.gvfs"].Values.Single().ShouldEqual("true");
+            result["core.scalar"].Values.Single().ShouldEqual("true");
             result["gc.auto"].Values.Single().ShouldEqual("0");
             result["section.key"].Values.Count.ShouldEqual(5);
             result["section.key"].Values.ShouldContain(v => v == "value1");
@@ -135,7 +135,7 @@ section.KEY value5" +
         {
             string fileContents = @"
 [core]
-    gvfs = true
+    scalar = true
 [gc]
     auto = 0
 [section]

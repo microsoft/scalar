@@ -1,8 +1,8 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 using System;
 using System.Threading;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public class LibGit2RepoInvoker : IDisposable
     {

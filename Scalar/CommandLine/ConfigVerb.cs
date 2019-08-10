@@ -1,15 +1,15 @@
 ﻿using CommandLine;
-using GVFS.Common;
+using Scalar.Common;
 using System;
 using System.Collections.Generic;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
-    [Verb(ConfigVerbName, HelpText = "Get and set GVFS options.")]
-    public class ConfigVerb : GVFSVerb.ForNoEnlistment
+    [Verb(ConfigVerbName, HelpText = "Get and set Scalar options.")]
+    public class ConfigVerb : ScalarVerb.ForNoEnlistment
     {
         private const string ConfigVerbName = "config";
-        private LocalGVFSConfig localConfig;
+        private LocalScalarConfig localConfig;
 
         [Option(
             'l',
@@ -46,12 +46,12 @@ namespace GVFS.CommandLine
 
         public override void Execute()
         {
-            if (!GVFSPlatform.Instance.UnderConstruction.SupportsGVFSConfig)
+            if (!ScalarPlatform.Instance.UnderConstruction.SupportsScalarConfig)
             {
-                this.ReportErrorAndExit("`gvfs config` is not yet implemented on this operating system.");
+                this.ReportErrorAndExit("`scalar config` is not yet implemented on this operating system.");
             }
 
-            this.localConfig = new LocalGVFSConfig();
+            this.localConfig = new LocalScalarConfig();
             string error = null;
 
             if (this.IsMutuallyExclusiveOptionsSet(out error))
@@ -75,9 +75,9 @@ namespace GVFS.CommandLine
             }
             else if (!string.IsNullOrEmpty(this.KeyToDelete))
             {
-                if (!GVFSPlatform.Instance.IsElevated())
+                if (!ScalarPlatform.Instance.IsElevated())
                 {
-                    this.ReportErrorAndExit("`gvfs config` must be run from an elevated command prompt when deleting settings.");
+                    this.ReportErrorAndExit("`scalar config` must be run from an elevated command prompt when deleting settings.");
                 }
 
                 if (!this.localConfig.TryRemoveConfig(this.KeyToDelete, out error))
@@ -90,9 +90,9 @@ namespace GVFS.CommandLine
                 bool valueSpecified = !string.IsNullOrEmpty(this.Value);
                 if (valueSpecified)
                 {
-                    if (!GVFSPlatform.Instance.IsElevated())
+                    if (!ScalarPlatform.Instance.IsElevated())
                     {
-                        this.ReportErrorAndExit("`gvfs config` must be run from an elevated command prompt when configuring settings.");
+                        this.ReportErrorAndExit("`scalar config` must be run from an elevated command prompt when configuring settings.");
                     }
 
                     if (!this.localConfig.TrySetConfig(this.Key, this.Value, out error))
@@ -116,7 +116,7 @@ namespace GVFS.CommandLine
             }
             else
             {
-                this.ReportErrorAndExit("You must specify an option. Run `gvfs config --help` for details.");
+                this.ReportErrorAndExit("You must specify an option. Run `scalar config --help` for details.");
             }
         }
 

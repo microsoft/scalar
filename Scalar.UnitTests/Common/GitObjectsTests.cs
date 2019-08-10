@@ -1,8 +1,8 @@
-﻿using GVFS.Common.Git;
-using GVFS.Tests.Should;
+﻿using Scalar.Common.Git;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class GitObjectsTests

@@ -1,31 +1,31 @@
 ﻿using System;
 using System.IO;
-using GVFS.Common;
-using GVFS.Platform.POSIX;
+using Scalar.Common;
+using Scalar.Platform.POSIX;
 
-namespace GVFS.Platform.Mac
+namespace Scalar.Platform.Mac
 {
     public partial class MacPlatform
     {
-        public const string DotGVFSRoot = ".gvfs";
+        public const string DotScalarRoot = ".scalar";
 
-        public static string GetDataRootForGVFSImplementation()
+        public static string GetDataRootForScalarImplementation()
         {
             return Path.Combine(
                 Environment.GetEnvironmentVariable("HOME"),
                 "Library",
                 "Application Support",
-                "GVFS");
+                "Scalar");
         }
 
-        public static string GetDataRootForGVFSComponentImplementation(string componentName)
+        public static string GetDataRootForScalarComponentImplementation(string componentName)
         {
-            return Path.Combine(GetDataRootForGVFSImplementation(), componentName);
+            return Path.Combine(GetDataRootForScalarImplementation(), componentName);
         }
 
-        public static bool TryGetGVFSEnlistmentRootImplementation(string directory, out string enlistmentRoot, out string errorMessage)
+        public static bool TryGetScalarEnlistmentRootImplementation(string directory, out string enlistmentRoot, out string errorMessage)
         {
-            return POSIXPlatform.TryGetGVFSEnlistmentRootImplementation(directory, DotGVFSRoot, out enlistmentRoot, out errorMessage);
+            return POSIXPlatform.TryGetScalarEnlistmentRootImplementation(directory, DotScalarRoot, out enlistmentRoot, out errorMessage);
         }
 
         public static string GetUpgradeHighestAvailableVersionDirectoryImplementation()
@@ -35,12 +35,12 @@ namespace GVFS.Platform.Mac
 
         public static string GetUpgradeNonProtectedDirectoryImplementation()
         {
-            return Path.Combine(GetDataRootForGVFSImplementation(), ProductUpgraderInfo.UpgradeDirectoryName);
+            return Path.Combine(GetDataRootForScalarImplementation(), ProductUpgraderInfo.UpgradeDirectoryName);
         }
 
         public static string GetNamedPipeNameImplementation(string enlistmentRoot)
         {
-            return POSIXPlatform.GetNamedPipeNameImplementation(enlistmentRoot, DotGVFSRoot);
+            return POSIXPlatform.GetNamedPipeNameImplementation(enlistmentRoot, DotScalarRoot);
         }
 
         private string GetUpgradeNonProtectedDataDirectory()

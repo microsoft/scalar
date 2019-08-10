@@ -2,17 +2,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSErrorDomain const VFSForGitNotificationErrorDomain;
-typedef NS_ERROR_ENUM(VFSForGitNotificationErrorDomain, VFSForGitNotificationErrorCode)
+extern NSErrorDomain const ScalarNotificationErrorDomain;
+typedef NS_ERROR_ENUM(ScalarNotificationErrorDomain, ScalarNotificationErrorCode)
 {
-    VFSForGitInitError = 200,
-    VFSForGitAllocError,
-    VFSForGitInvalidMessageIdFormatError,
-    VFSForGitUnsupportedMessageError,
-    VFSForGitMissingEntitlementInfoError,
-    VFSForGitMissingRepoCountError,
-    VFSForGitMessageParseError,
-    VFSForGitMessageReadError,
+    ScalarInitError = 200,
+    ScalarAllocError,
+    ScalarInvalidMessageIdFormatError,
+    ScalarUnsupportedMessageError,
+    ScalarMissingEntitlementInfoError,
+    ScalarMissingRepoCountError,
+    ScalarMessageParseError,
+    ScalarMessageReadError,
 };
 
 NS_ASSUME_NONNULL_END

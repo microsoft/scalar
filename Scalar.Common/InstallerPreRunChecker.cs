@@ -1,5 +1,5 @@
-using GVFS.Common;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace GVFS.Upgrader
+namespace Scalar.Upgrader
 {
     public class InstallerPreRunChecker
     {
@@ -27,40 +27,40 @@ namespace GVFS.Upgrader
             {
                 if (this.IsUnattended())
                 {
-                    consoleError = $"{GVFSConstants.UpgradeVerbMessages.GVFSUpgrade} is not supported in unattended mode";
+                    consoleError = $"{ScalarConstants.UpgradeVerbMessages.ScalarUpgrade} is not supported in unattended mode";
                     this.tracer.RelatedWarning($"{nameof(this.TryRunPreUpgradeChecks)}: {consoleError}");
                     return false;
                 }
 
-                if (!this.IsGVFSUpgradeAllowed(out consoleError))
+                if (!this.IsScalarUpgradeAllowed(out consoleError))
                 {
                     return false;
                 }
 
-                activity.RelatedInfo($"Successfully finished pre upgrade checks. Okay to run {GVFSConstants.UpgradeVerbMessages.GVFSUpgrade}.");
+                activity.RelatedInfo($"Successfully finished pre upgrade checks. Okay to run {ScalarConstants.UpgradeVerbMessages.ScalarUpgrade}.");
             }
 
             consoleError = null;
             return true;
         }
 
-        // TODO: Move repo mount calls to GVFS.Upgrader project.
-        // https://github.com/Microsoft/VFSForGit/issues/293
-        public virtual bool TryMountAllGVFSRepos(out string consoleError)
+        // TODO: Move repo mount calls to Scalar.Upgrader project.
+        // https://github.com/Microsoft/Scalar/issues/293
+        public virtual bool TryMountAllScalarRepos(out string consoleError)
         {
-            return this.TryRunGVFSWithArgs("service --mount-all", out consoleError);
+            return this.TryRunScalarWithArgs("service --mount-all", out consoleError);
         }
 
-        public virtual bool TryUnmountAllGVFSRepos(out string consoleError)
+        public virtual bool TryUnmountAllScalarRepos(out string consoleError)
         {
             consoleError = null;
-            this.tracer.RelatedInfo("Unmounting any mounted GVFS repositories.");
+            this.tracer.RelatedInfo("Unmounting any mounted Scalar repositories.");
 
-            using (ITracer activity = this.tracer.StartActivity(nameof(this.TryUnmountAllGVFSRepos), EventLevel.Informational))
+            using (ITracer activity = this.tracer.StartActivity(nameof(this.TryUnmountAllScalarRepos), EventLevel.Informational))
             {
-                if (!this.TryRunGVFSWithArgs("service --unmount-all", out consoleError))
+                if (!this.TryRunScalarWithArgs("service --unmount-all", out consoleError))
                 {
-                    this.tracer.RelatedError($"{nameof(this.TryUnmountAllGVFSRepos)}: {consoleError}");
+                    this.tracer.RelatedError($"{nameof(this.TryUnmountAllScalarRepos)}: {consoleError}");
                     return false;
                 }
 
@@ -74,12 +74,12 @@ namespace GVFS.Upgrader
         {
             consoleError = null;
 
-            // While checking for blocking processes like GVFS.Mount immediately after un-mounting,
-            // then sometimes GVFS.Mount shows up as running. But if the check is done after waiting
-            // for some time, then eventually GVFS.Mount goes away. The retry loop below is to help
-            // account for this delay between the time un-mount call returns and when GVFS.Mount
+            // While checking for blocking processes like Scalar.Mount immediately after un-mounting,
+            // then sometimes Scalar.Mount shows up as running. But if the check is done after waiting
+            // for some time, then eventually Scalar.Mount goes away. The retry loop below is to help
+            // account for this delay between the time un-mount call returns and when Scalar.Mount
             // actually quits.
-            this.tracer.RelatedInfo("Checking if GVFS or dependent processes are running.");
+            this.tracer.RelatedInfo("Checking if Scalar or dependent processes are running.");
             int retryCount = 10;
             HashSet<string> processList = null;
             while (retryCount > 0)
@@ -108,24 +108,24 @@ namespace GVFS.Upgrader
 
         protected virtual bool IsElevated()
         {
-            return GVFSPlatform.Instance.IsElevated();
+            return ScalarPlatform.Instance.IsElevated();
         }
 
-        protected virtual bool IsGVFSUpgradeSupported()
+        protected virtual bool IsScalarUpgradeSupported()
         {
             return true;
         }
 
         protected virtual bool IsServiceInstalledAndNotRunning()
         {
-            GVFSPlatform.Instance.IsServiceInstalledAndRunning(GVFSConstants.Service.ServiceName, out bool isInstalled, out bool isRunning);
+            ScalarPlatform.Instance.IsServiceInstalledAndRunning(ScalarConstants.Service.ServiceName, out bool isInstalled, out bool isRunning);
 
             return isInstalled && !isRunning;
         }
 
         protected virtual bool IsUnattended()
         {
-            return GVFSEnlistment.IsUnattended(this.tracer);
+            return ScalarEnlistment.IsUnattended(this.tracer);
         }
 
         protected virtual bool IsBlockingProcessRunning(out HashSet<string> processes)
@@ -136,7 +136,7 @@ namespace GVFS.Upgrader
 
             foreach (Process process in allProcesses)
             {
-                if (process.Id == currentProcessId || !GVFSPlatform.Instance.Constants.UpgradeBlockingProcesses.Contains(process.ProcessName))
+                if (process.Id == currentProcessId || !ScalarPlatform.Instance.Constants.UpgradeBlockingProcesses.Contains(process.ProcessName))
                 {
                     continue;
                 }
@@ -148,14 +148,14 @@ namespace GVFS.Upgrader
             return processes.Count > 0;
         }
 
-        protected virtual bool TryRunGVFSWithArgs(string args, out string consoleError)
+        protected virtual bool TryRunScalarWithArgs(string args, out string consoleError)
         {
-            string gvfsDirectory = ProcessHelper.GetProgramLocation(GVFSPlatform.Instance.Constants.ProgramLocaterCommand, GVFSPlatform.Instance.Constants.GVFSExecutableName);
-            if (!string.IsNullOrEmpty(gvfsDirectory))
+            string scalarDirectory = ProcessHelper.GetProgramLocation(ScalarPlatform.Instance.Constants.ProgramLocaterCommand, ScalarPlatform.Instance.Constants.ScalarExecutableName);
+            if (!string.IsNullOrEmpty(scalarDirectory))
             {
-                string gvfsPath = Path.Combine(gvfsDirectory, GVFSPlatform.Instance.Constants.GVFSExecutableName);
+                string scalarPath = Path.Combine(scalarDirectory, ScalarPlatform.Instance.Constants.ScalarExecutableName);
 
-                ProcessResult processResult = ProcessHelper.Run(gvfsPath, args);
+                ProcessResult processResult = ProcessHelper.Run(scalarPath, args);
                 if (processResult.ExitCode == 0)
                 {
                     consoleError = null;
@@ -163,50 +163,50 @@ namespace GVFS.Upgrader
                 }
                 else
                 {
-                    consoleError = string.IsNullOrEmpty(processResult.Errors) ? $"`gvfs {args}` failed." : processResult.Errors;
+                    consoleError = string.IsNullOrEmpty(processResult.Errors) ? $"`scalar {args}` failed." : processResult.Errors;
                     return false;
                 }
             }
             else
             {
-                consoleError = $"Could not locate {GVFSPlatform.Instance.Constants.GVFSExecutableName}";
+                consoleError = $"Could not locate {ScalarPlatform.Instance.Constants.ScalarExecutableName}";
                 return false;
             }
         }
 
-        private bool IsGVFSUpgradeAllowed(out string consoleError)
+        private bool IsScalarUpgradeAllowed(out string consoleError)
         {
-            bool isConfirmed = string.Equals(this.CommandToRerun, GVFSConstants.UpgradeVerbMessages.GVFSUpgradeConfirm, StringComparison.OrdinalIgnoreCase);
+            bool isConfirmed = string.Equals(this.CommandToRerun, ScalarConstants.UpgradeVerbMessages.ScalarUpgradeConfirm, StringComparison.OrdinalIgnoreCase);
             string adviceText = null;
             if (!this.IsElevated())
             {
-                adviceText = isConfirmed ? $"Run {this.CommandToRerun} again from an elevated command prompt." : $"To install, run {GVFSConstants.UpgradeVerbMessages.GVFSUpgradeConfirm} from an elevated command prompt.";
+                adviceText = isConfirmed ? $"Run {this.CommandToRerun} again from an elevated command prompt." : $"To install, run {ScalarConstants.UpgradeVerbMessages.ScalarUpgradeConfirm} from an elevated command prompt.";
                 consoleError = string.Join(
                     Environment.NewLine,
                     "The installer needs to be run from an elevated command prompt.",
                     adviceText);
-                this.tracer.RelatedWarning($"{nameof(this.IsGVFSUpgradeAllowed)}: Upgrade is not installable. {consoleError}");
+                this.tracer.RelatedWarning($"{nameof(this.IsScalarUpgradeAllowed)}: Upgrade is not installable. {consoleError}");
                 return false;
             }
 
-            if (!this.IsGVFSUpgradeSupported())
+            if (!this.IsScalarUpgradeSupported())
             {
                 consoleError = string.Join(
                     Environment.NewLine,
-                    $"{GVFSConstants.UpgradeVerbMessages.GVFSUpgrade} is only supported after the \"Windows Projected File System\" optional feature has been enabled by a manual installation of VFS for Git, and only on versions of Windows that support this feature.",
+                    $"{ScalarConstants.UpgradeVerbMessages.ScalarUpgrade} is only supported after the \"Windows Projected File System\" optional feature has been enabled by a manual installation of Scalar, and only on versions of Windows that support this feature.",
                     "Check your team's documentation for how to upgrade.");
-                this.tracer.RelatedWarning(metadata: null, message: $"{nameof(this.IsGVFSUpgradeAllowed)}: Upgrade is not installable. {consoleError}", keywords: Keywords.Telemetry);
+                this.tracer.RelatedWarning(metadata: null, message: $"{nameof(this.IsScalarUpgradeAllowed)}: Upgrade is not installable. {consoleError}", keywords: Keywords.Telemetry);
                 return false;
             }
 
             if (this.IsServiceInstalledAndNotRunning())
             {
-                adviceText = isConfirmed ? $"Run `sc start GVFS.Service` and run {this.CommandToRerun} again from an elevated command prompt." : $"To install, run `sc start GVFS.Service` and run {GVFSConstants.UpgradeVerbMessages.GVFSUpgradeConfirm} from an elevated command prompt.";
+                adviceText = isConfirmed ? $"Run `sc start Scalar.Service` and run {this.CommandToRerun} again from an elevated command prompt." : $"To install, run `sc start Scalar.Service` and run {ScalarConstants.UpgradeVerbMessages.ScalarUpgradeConfirm} from an elevated command prompt.";
                 consoleError = string.Join(
                     Environment.NewLine,
-                    "GVFS Service is not running.",
+                    "Scalar Service is not running.",
                     adviceText);
-                this.tracer.RelatedWarning($"{nameof(this.IsGVFSUpgradeAllowed)}: Upgrade is not installable. {consoleError}");
+                this.tracer.RelatedWarning($"{nameof(this.IsScalarUpgradeAllowed)}: Upgrade is not installable. {consoleError}");
                 return false;
             }
 

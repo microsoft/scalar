@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-@interface VFSMockNotificationCenter : NSUserNotificationCenter
+@interface ScalarMockNotificationCenter : NSUserNotificationCenter
 
 @property (assign) BOOL notificationDelivered;
 

@@ -1,6 +1,6 @@
-﻿using GVFS.Common.NamedPipes;
+﻿using Scalar.Common.NamedPipes;
 
-namespace GVFS.Service.Handlers
+namespace Scalar.Service.Handlers
 {
     public interface INotificationHandler
     {

@@ -8,4 +8,4 @@ if [ -z $CONFIGURATION ]; then
   CONFIGURATION=Debug
 fi
 
-$VFS_PUBLISHDIR/gvfs clone $REPOURL ~/GVFSTest --local-cache-path ~/GVFSTest/.gvfsCache
+$Scalar_PUBLISHDIR/scalar clone $REPOURL ~/ScalarTest --local-cache-path ~/ScalarTest/.scalarCache

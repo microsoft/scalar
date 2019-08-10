@@ -1,44 +1,44 @@
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
 using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Threading;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
-    public partial class GVFSEnlistment : Enlistment
+    public partial class ScalarEnlistment : Enlistment
     {
         public const string BlobSizesCacheName = "blobSizes";
 
         private const string GitObjectCacheName = "gitObjects";
 
         private string gitVersion;
-        private string gvfsVersion;
+        private string scalarVersion;
 
         // New enlistment
-        public GVFSEnlistment(string enlistmentRoot, string repoUrl, string gitBinPath, GitAuthentication authentication)
+        public ScalarEnlistment(string enlistmentRoot, string repoUrl, string gitBinPath, GitAuthentication authentication)
             : base(
                   enlistmentRoot,
-                  Path.Combine(enlistmentRoot, GVFSConstants.WorkingDirectoryRootName),
-                  Path.Combine(enlistmentRoot, GVFSPlatform.Instance.Constants.WorkingDirectoryBackingRootPath),
+                  Path.Combine(enlistmentRoot, ScalarConstants.WorkingDirectoryRootName),
+                  Path.Combine(enlistmentRoot, ScalarPlatform.Instance.Constants.WorkingDirectoryBackingRootPath),
                   repoUrl,
                   gitBinPath,
                   flushFileBuffersForPacks: true,
                   authentication: authentication)
         {
-            this.NamedPipeName = GVFSPlatform.Instance.GetNamedPipeName(this.EnlistmentRoot);
-            this.DotGVFSRoot = Path.Combine(this.EnlistmentRoot, GVFSPlatform.Instance.Constants.DotGVFSRoot);
-            this.GitStatusCacheFolder = Path.Combine(this.DotGVFSRoot, GVFSConstants.DotGVFS.GitStatusCache.Name);
-            this.GitStatusCachePath = Path.Combine(this.DotGVFSRoot, GVFSConstants.DotGVFS.GitStatusCache.CachePath);
-            this.GVFSLogsRoot = Path.Combine(this.EnlistmentRoot, GVFSPlatform.Instance.Constants.DotGVFSRoot, GVFSConstants.DotGVFS.LogName);
-            this.LocalObjectsRoot = Path.Combine(this.WorkingDirectoryBackingRoot, GVFSConstants.DotGit.Objects.Root);
+            this.NamedPipeName = ScalarPlatform.Instance.GetNamedPipeName(this.EnlistmentRoot);
+            this.DotScalarRoot = Path.Combine(this.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot);
+            this.GitStatusCacheFolder = Path.Combine(this.DotScalarRoot, ScalarConstants.DotScalar.GitStatusCache.Name);
+            this.GitStatusCachePath = Path.Combine(this.DotScalarRoot, ScalarConstants.DotScalar.GitStatusCache.CachePath);
+            this.ScalarLogsRoot = Path.Combine(this.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot, ScalarConstants.DotScalar.LogName);
+            this.LocalObjectsRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Objects.Root);
         }
 
         // Existing, configured enlistment
-        private GVFSEnlistment(string enlistmentRoot, string gitBinPath, GitAuthentication authentication)
+        private ScalarEnlistment(string enlistmentRoot, string gitBinPath, GitAuthentication authentication)
             : this(
                   enlistmentRoot,
                   null,
@@ -49,9 +49,9 @@ namespace GVFS.Common
 
         public string NamedPipeName { get; }
 
-        public string DotGVFSRoot { get; }
+        public string DotScalarRoot { get; }
 
-        public string GVFSLogsRoot { get; }
+        public string ScalarLogsRoot { get; }
 
         public string LocalCacheRoot { get; private set; }
 
@@ -69,12 +69,12 @@ namespace GVFS.Common
             get { return this.gitVersion; }
         }
 
-        public string GVFSVersion
+        public string ScalarVersion
         {
-            get { return this.gvfsVersion; }
+            get { return this.scalarVersion; }
         }
 
-        public static GVFSEnlistment CreateFromDirectory(
+        public static ScalarEnlistment CreateFromDirectory(
             string directory,
             string gitBinRoot,
             GitAuthentication authentication,
@@ -84,37 +84,37 @@ namespace GVFS.Common
             {
                 string errorMessage;
                 string enlistmentRoot;
-                if (!GVFSPlatform.Instance.TryGetGVFSEnlistmentRoot(directory, out enlistmentRoot, out errorMessage))
+                if (!ScalarPlatform.Instance.TryGetScalarEnlistmentRoot(directory, out enlistmentRoot, out errorMessage))
                 {
                     throw new InvalidRepoException($"Could not get enlistment root. Error: {errorMessage}");
                 }
 
                 if (createWithoutRepoURL)
                 {
-                    return new GVFSEnlistment(enlistmentRoot, string.Empty, gitBinRoot, authentication);
+                    return new ScalarEnlistment(enlistmentRoot, string.Empty, gitBinRoot, authentication);
                 }
 
-                return new GVFSEnlistment(enlistmentRoot, gitBinRoot, authentication);
+                return new ScalarEnlistment(enlistmentRoot, gitBinRoot, authentication);
             }
 
             throw new InvalidRepoException($"Directory '{directory}' does not exist");
         }
 
-        public static string GetNewGVFSLogFileName(
+        public static string GetNewScalarLogFileName(
             string logsRoot,
             string logFileType,
             PhysicalFileSystem fileSystem = null)
         {
             return Enlistment.GetNewLogFileName(
                 logsRoot,
-                "gvfs_" + logFileType,
+                "scalar_" + logFileType,
                 logId: null,
                 fileSystem: fileSystem);
         }
 
         public static bool WaitUntilMounted(ITracer tracer, string enlistmentRoot, bool unattended, out string errorMessage)
         {
-            string pipeName = GVFSPlatform.Instance.GetNamedPipeName(enlistmentRoot);
+            string pipeName = ScalarPlatform.Instance.GetNamedPipeName(enlistmentRoot);
             tracer.RelatedInfo($"{nameof(WaitUntilMounted)}: Creating NamedPipeClient for pipe '{pipeName}'");
 
             errorMessage = null;
@@ -126,7 +126,7 @@ namespace GVFS.Common
                 if (!pipeClient.Connect(timeout))
                 {
                     tracer.RelatedError($"{nameof(WaitUntilMounted)}: Failed to connect to '{pipeName}' after {timeout} ms");
-                    errorMessage = "Unable to mount because the GVFS.Mount process is not responding.";
+                    errorMessage = "Unable to mount because the Scalar.Mount process is not responding.";
                     return false;
                 }
 
@@ -161,13 +161,13 @@ namespace GVFS.Common
                     }
                     catch (BrokenPipeException e)
                     {
-                        errorMessage = string.Format("Could not connect to GVFS.Mount: {0}", e);
+                        errorMessage = string.Format("Could not connect to Scalar.Mount: {0}", e);
                         tracer.RelatedError($"{nameof(WaitUntilMounted)}: {errorMessage}");
                         return false;
                     }
                     catch (JsonReaderException e)
                     {
-                        errorMessage = string.Format("Failed to parse response from GVFS.Mount.\n {0}", e);
+                        errorMessage = string.Format("Failed to parse response from Scalar.Mount.\n {0}", e);
                         tracer.RelatedError($"{nameof(WaitUntilMounted)}: {errorMessage}");
                         return false;
                     }
@@ -180,9 +180,9 @@ namespace GVFS.Common
             this.SetOnce(gitVersion, ref this.gitVersion);
         }
 
-        public void SetGVFSVersion(string gvfsVersion)
+        public void SetScalarVersion(string scalarVersion)
         {
-            this.SetOnce(gvfsVersion, ref this.gvfsVersion);
+            this.SetOnce(scalarVersion, ref this.scalarVersion);
         }
 
         public void InitializeCachePathsFromKey(string localCacheRoot, string localCacheKey)
@@ -197,7 +197,7 @@ namespace GVFS.Common
         {
             this.LocalCacheRoot = localCacheRoot;
             this.GitObjectsRoot = gitObjectsRoot;
-            this.GitPackRoot = Path.Combine(this.GitObjectsRoot, GVFSConstants.DotGit.Objects.Pack.Name);
+            this.GitPackRoot = Path.Combine(this.GitObjectsRoot, ScalarConstants.DotGit.Objects.Pack.Name);
             this.BlobSizesRoot = blobSizesRoot;
         }
 
@@ -206,9 +206,9 @@ namespace GVFS.Common
             try
             {
                 Directory.CreateDirectory(this.EnlistmentRoot);
-                GVFSPlatform.Instance.InitializeEnlistmentACLs(this.EnlistmentRoot);
+                ScalarPlatform.Instance.InitializeEnlistmentACLs(this.EnlistmentRoot);
                 Directory.CreateDirectory(this.WorkingDirectoryRoot);
-                this.CreateHiddenDirectory(this.DotGVFSRoot);
+                this.CreateHiddenDirectory(this.DotScalarRoot);
             }
             catch (IOException)
             {
@@ -220,12 +220,12 @@ namespace GVFS.Common
 
         public string GetMountId()
         {
-            return this.GetId(GVFSConstants.GitConfig.MountId);
+            return this.GetId(ScalarConstants.GitConfig.MountId);
         }
 
         public string GetEnlistmentId()
         {
-            return this.GetId(GVFSConstants.GitConfig.EnlistmentId);
+            return this.GetId(ScalarConstants.GitConfig.EnlistmentId);
         }
 
         private void SetOnce<T>(T value, ref T valueToSet)

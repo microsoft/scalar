@@ -1,11 +1,11 @@
 ﻿using CommandLine;
-using GVFS.Common;
-using GVFS.Common.NamedPipes;
+using Scalar.Common;
+using Scalar.Common.NamedPipes;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
-    [Verb(StatusVerb.StatusVerbName, HelpText = "Get the status of the GVFS virtual repo")]
-    public class StatusVerb : GVFSVerb.ForExistingEnlistment
+    [Verb(StatusVerb.StatusVerbName, HelpText = "Get the status of the Scalar virtual repo")]
+    public class StatusVerb : ScalarVerb.ForExistingEnlistment
     {
         private const string StatusVerbName = "status";
 
@@ -14,13 +14,13 @@ namespace GVFS.CommandLine
             get { return StatusVerbName; }
         }
 
-        protected override void Execute(GVFSEnlistment enlistment)
+        protected override void Execute(ScalarEnlistment enlistment)
         {
             using (NamedPipeClient pipeClient = new NamedPipeClient(enlistment.NamedPipeName))
             {
                 if (!pipeClient.Connect())
                 {
-                    this.ReportErrorAndExit("Unable to connect to GVFS.  Try running 'gvfs mount'");
+                    this.ReportErrorAndExit("Unable to connect to Scalar.  Try running 'scalar mount'");
                 }
 
                 try
@@ -39,7 +39,7 @@ namespace GVFS.CommandLine
                 }
                 catch (BrokenPipeException e)
                 {
-                    this.ReportErrorAndExit("Unable to communicate with GVFS: " + e.ToString());
+                    this.ReportErrorAndExit("Unable to communicate with Scalar: " + e.ToString());
                 }
             }
         }

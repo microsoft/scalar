@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace GVFS.Common.NamedPipes
+namespace Scalar.Common.NamedPipes
 {
     public class NamedPipeStreamWriter
     {

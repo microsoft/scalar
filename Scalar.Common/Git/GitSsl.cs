@@ -5,11 +5,11 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
-using GVFS.Common.X509Certificates;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
+using Scalar.Common.X509Certificates;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public class GitSsl
     {

@@ -1,21 +1,21 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
-    public class LocalGVFSConfig
+    public class LocalScalarConfig
     {
-        public const string FileName = "gvfs.config";
+        public const string FileName = "scalar.config";
         private readonly string configFile;
         private readonly PhysicalFileSystem fileSystem;
         private FileBasedDictionary<string, string> allSettings;
 
-        public LocalGVFSConfig()
+        public LocalScalarConfig()
         {
-            this.configFile = GVFSPlatform.Instance.GVFSConfigPath;
+            this.configFile = ScalarPlatform.Instance.ScalarConfigPath;
             this.fileSystem = new PhysicalFileSystem();
         }
 

@@ -4,7 +4,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace GVFS.Service.UI
+namespace Scalar.Service.UI
 {
     public class XmlList<T> : List<T>, IXmlSerializable where T : class
     {

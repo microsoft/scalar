@@ -1,14 +1,14 @@
-﻿using GVFS.Tests.Should;
+﻿using Scalar.Tests.Should;
 using NUnit.Framework;
 using System.Diagnostics;
 using System.IO;
 
-namespace GVFS.FunctionalTests.Tests
+namespace Scalar.FunctionalTests.Tests
 {
     [TestFixture]
-    public class GVFSVerbTests
+    public class ScalarVerbTests
     {
-        public GVFSVerbTests()
+        public ScalarVerbTests()
         {
         }
 
@@ -21,20 +21,20 @@ namespace GVFS.FunctionalTests.Tests
         [TestCase]
         public void UnknownVerb()
         {
-            this.CallGVFS("help", ExpectedReturnCode.Success);
-            this.CallGVFS("unknownverb", ExpectedReturnCode.ParsingError);
+            this.CallScalar("help", ExpectedReturnCode.Success);
+            this.CallScalar("unknownverb", ExpectedReturnCode.ParsingError);
         }
 
         [TestCase]
         public void UnknownArgs()
         {
-            this.CallGVFS("log --help", ExpectedReturnCode.Success);
-            this.CallGVFS("log --unknown-arg", ExpectedReturnCode.ParsingError);
+            this.CallScalar("log --help", ExpectedReturnCode.Success);
+            this.CallScalar("log --unknown-arg", ExpectedReturnCode.ParsingError);
         }
 
-        private void CallGVFS(string args, ExpectedReturnCode expectedErrorCode)
+        private void CallScalar(string args, ExpectedReturnCode expectedErrorCode)
         {
-            ProcessStartInfo processInfo = new ProcessStartInfo(GVFSTestConfig.PathToGVFS);
+            ProcessStartInfo processInfo = new ProcessStartInfo(ScalarTestConfig.PathToScalar);
             processInfo.Arguments = args;
             processInfo.WindowStyle = ProcessWindowStyle.Hidden;
             processInfo.UseShellExecute = false;

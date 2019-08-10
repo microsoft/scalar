@@ -3,13 +3,13 @@
   <Import Project="..\..\..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\..\..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props')" />
   <Import Project="..\..\..\packages\NUnit.3.12.0\build\NUnit.props" Condition="Exists('..\..\..\packages\NUnit.3.12.0\build\NUnit.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="$(SolutionDir)\GVFS\GVFS.Build\GVFS.cs.props" />
+  <Import Project="$(SolutionDir)\Scalar\Scalar.Build\Scalar.cs.props" />
   <PropertyGroup>
     <ProjectGuid>{8E0D0989-21F6-4DD8-946C-39F992523CC6}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GVFS.UnitTests.Windows</RootNamespace>
-    <AssemblyName>GVFS.UnitTests.Windows</AssemblyName>
+    <RootNamespace>Scalar.UnitTests.Windows</RootNamespace>
+    <AssemblyName>Scalar.UnitTests.Windows</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -122,51 +122,51 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GVFS.Common\GVFS.Common.csproj">
+    <ProjectReference Include="..\Scalar.Common\Scalar.Common.csproj">
       <Project>{374bf1e5-0b2d-4d4a-bd5e-4212299def09}</Project>
-      <Name>GVFS.Common</Name>
+      <Name>Scalar.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GVFS.Platform.Mac\GVFS.Platform.Mac.csproj">
+    <ProjectReference Include="..\Scalar.Platform.Mac\Scalar.Platform.Mac.csproj">
       <Project>{1dac3da6-3d21-4917-b9a8-d60c8712252a}</Project>
-      <Name>GVFS.Platform.Mac</Name>
+      <Name>Scalar.Platform.Mac</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GVFS.Platform.POSIX\GVFS.Platform.POSIX.csproj">
+    <ProjectReference Include="..\Scalar.Platform.POSIX\Scalar.Platform.POSIX.csproj">
       <Project>{15fae44c-0d21-4312-9fd3-28f05a5ab7a6}</Project>
-      <Name>GVFS.Platform.POSIX</Name>
+      <Name>Scalar.Platform.POSIX</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GVFS.Platform.Windows\GVFS.Platform.Windows.csproj">
+    <ProjectReference Include="..\Scalar.Platform.Windows\Scalar.Platform.Windows.csproj">
       <Project>{4ce404e7-d3fc-471c-993c-64615861ea63}</Project>
-      <Name>GVFS.Platform.Windows</Name>
+      <Name>Scalar.Platform.Windows</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GVFS.Service\GVFS.Service.Mac.csproj">
+    <ProjectReference Include="..\Scalar.Service\Scalar.Service.Mac.csproj">
       <Project>{03769a07-f216-456b-886b-e07caf6c5e81}</Project>
-      <Name>GVFS.Service.Mac</Name>
+      <Name>Scalar.Service.Mac</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GVFS.Tests\GVFS.Tests.csproj">
+    <ProjectReference Include="..\Scalar.Tests\Scalar.Tests.csproj">
       <Project>{72701bc3-5da9-4c7a-bf10-9e98c9fc8eac}</Project>
-      <Name>GVFS.Tests</Name>
+      <Name>Scalar.Tests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GVFS.Upgrader\GVFS.Upgrader.csproj">
+    <ProjectReference Include="..\Scalar.Upgrader\Scalar.Upgrader.csproj">
       <Project>{aecec217-2499-403d-b0bb-2962b9be5970}</Project>
-      <Name>GVFS.Upgrader</Name>
+      <Name>Scalar.Upgrader</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GVFS\GVFS.Windows.csproj">
+    <ProjectReference Include="..\Scalar\Scalar.Windows.csproj">
       <Project>{32220664-594C-4425-B9A0-88E0BE2F3D2A}</Project>
-      <Name>GVFS.Windows</Name>
+      <Name>Scalar.Windows</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\GVFS.UnitTests\**\*.cs">
+    <Compile Include="..\Scalar.UnitTests\**\*.cs">
       <Link>NetCore\%(RecursiveDir)\%(Filename)%(Extension)</Link>
     </Compile>
-    <None Include="..\GVFS.UnitTests\Data\**\*.*">
+    <None Include="..\Scalar.UnitTests\Data\**\*.*">
       <Link>Data\%(RecursiveDir)\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\GVFS.UnitTests\Readme.md">
+    <None Include="..\Scalar.UnitTests\Readme.md">
       <Link>Readme.md</Link>
     </None>
   </ItemGroup>

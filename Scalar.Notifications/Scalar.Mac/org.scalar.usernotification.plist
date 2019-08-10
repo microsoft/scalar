@@ -5,9 +5,9 @@
         <key>EnvironmentVariables</key>
         <dict>
             <!--
-            Although VFSForGit.app gets launched in the GUI context of actively logged-in user, it
+            Although Scalar.app gets launched in the GUI context of actively logged-in user, it
             does not seem to inherit any user-specific environment variables (like user customized
-            $PATH specified in shell ~/.profile). VFSForGit needs /usr/local/bin to be in its 
+            $PATH specified in shell ~/.profile). Scalar needs /usr/local/bin to be in its 
             search PATH environment, so specifying it here, along with rest of the default paths 
             that are set by launchd.
             -->
@@ -15,13 +15,13 @@
             <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
         </dict>
         <key>Label</key>
-        <string>org.vfsforgit.usernotification</string>
+        <string>org.scalar.usernotification</string>
         <key>ProgramArguments</key>
         <array>
-            <string>/Library/Application Support/VFS For Git/VFS For Git.app/Contents/MacOS/VFS For Git</string>
+            <string>/Library/Application Support/Scalar/Scalar.app/Contents/MacOS/Scalar</string>
         </array>
         <key>WorkingDirectory</key>
-        <string>/usr/local/vfsforgit</string>
+        <string>/usr/local/scalar</string>
         <key>ProcessType</key>
         <string>Interactive</string>
         <key>Disabled</key>

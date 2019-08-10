@@ -20,7 +20,7 @@ mkdir -p $BUILDDROP_SRC
 mkdir -p $BUILDDROP_KEXT
 
 # Copy to the build drop, retaining directory structure.
-rsync -avm $VFS_OUTPUTDIR/Git $BUILDDROP_BUILDOUTPUT
-rsync -avm $VFS_PUBLISHDIR $BUILDDROP_ROOT
-rsync -avm $VFS_SCRIPTDIR $BUILDDROP_SRC/Scripts
-cp $VFS_SRCDIR/nuget.config $BUILDDROP_SRC
+rsync -avm $Scalar_OUTPUTDIR/Git $BUILDDROP_BUILDOUTPUT
+rsync -avm $Scalar_PUBLISHDIR $BUILDDROP_ROOT
+rsync -avm $Scalar_SCRIPTDIR $BUILDDROP_SRC/Scripts
+cp $Scalar_SRCDIR/nuget.config $BUILDDROP_SRC

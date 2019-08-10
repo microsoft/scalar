@@ -1,4 +1,4 @@
-namespace GVFS.Upgrader
+namespace Scalar.Upgrader
 {
     public class MacUpgradeOrchestrator : UpgradeOrchestrator
     {

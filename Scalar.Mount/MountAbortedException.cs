@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GVFS.Mount
+namespace Scalar.Mount
 {
     public class MountAbortedException : Exception
     {

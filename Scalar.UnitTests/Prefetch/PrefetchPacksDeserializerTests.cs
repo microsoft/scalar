@@ -1,12 +1,12 @@
-﻿using GVFS.Common.NetworkStreams;
-using GVFS.Tests.Should;
+﻿using Scalar.Common.NetworkStreams;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.UnitTests.Prefetch
+namespace Scalar.UnitTests.Prefetch
 {
     [TestFixture]
     public class PrefetchPacksDeserializerTests

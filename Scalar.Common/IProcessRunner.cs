@@ -1,4 +1,4 @@
-namespace GVFS.Common
+namespace Scalar.Common
 {
     /// <summary>
     /// Interface around process helper methods. This is to enable

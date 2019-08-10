@@ -1,15 +1,15 @@
-﻿using GVFS.Common.Git;
-using GVFS.Tests.Should;
+﻿using Scalar.Common.Git;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class GitPathConverterTests
     {
         private const string OctetEncoded = @"\330\261\331\212\331\204\331\214\330\243\331\203\330\252\331\210\330\250\330\261\303\273\331\205\330\247\330\261\330\263\330\243\330\272\330\263\330\267\330\263\302\272\331\260\331\260\333\202\331\227\331\222\333\265\330\261\331\212\331\204\331\214\330\243\331\203";
         private const string Utf8Encoded = @"ريلٌأكتوبرûمارسأغسطسºٰٰۂْٗ۵ريلٌأك";
-        private const string TestPath = @"/GVFS/";
+        private const string TestPath = @"/Scalar/";
 
         [TestCase]
         public void NullFilepathTest()

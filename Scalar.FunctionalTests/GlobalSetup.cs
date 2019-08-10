@@ -1,11 +1,11 @@
-﻿using GVFS.FunctionalTests.Tests;
-using GVFS.FunctionalTests.Tools;
+﻿using Scalar.FunctionalTests.Tests;
+using Scalar.FunctionalTests.Tools;
 using NUnit.Framework;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace GVFS.FunctionalTests
+namespace Scalar.FunctionalTests
 {
     [SetUpFixture]
     public class GlobalSetup
@@ -22,17 +22,17 @@ namespace GVFS.FunctionalTests
             {
                 string serviceLogFolder = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                    "GVFS",
-                    GVFSServiceProcess.TestServiceName,
+                    "Scalar",
+                    ScalarServiceProcess.TestServiceName,
                     "Logs");
 
-                Console.WriteLine("GVFS.Service logs at '{0}' attached below.\n\n", serviceLogFolder);
+                Console.WriteLine("Scalar.Service logs at '{0}' attached below.\n\n", serviceLogFolder);
                 foreach (string filename in TestResultsHelper.GetAllFilesInDirectory(serviceLogFolder))
                 {
                     TestResultsHelper.OutputFileContents(filename);
                 }
 
-                GVFSServiceProcess.UninstallService();
+                ScalarServiceProcess.UninstallService();
             }
 
             PrintTestCaseStats.PrintRunTimeStats();

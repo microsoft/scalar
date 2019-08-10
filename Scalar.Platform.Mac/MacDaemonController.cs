@@ -1,10 +1,10 @@
-using GVFS.Common;
+using Scalar.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.Platform.Mac
+namespace Scalar.Platform.Mac
 {
     /// <summary>
     /// Class to query the configured services on macOS

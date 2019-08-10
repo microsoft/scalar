@@ -1,11 +1,11 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Should;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Should;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System.IO;
 
-namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
+namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
 {
     [TestFixture]
     [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
@@ -24,22 +24,22 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
         public void CaseRenameFoldersAndRemountAndRenameAgain()
         {
             // Projected folder without a physical folder
-            string parentFolderName = "GVFS";
-            string oldGVFSSubFolderName = "GVFS";
-            string oldGVFSSubFolderPath = Path.Combine(parentFolderName, oldGVFSSubFolderName);
-            string newGVFSSubFolderName = "gvfs";
-            string newGVFSSubFolderPath = Path.Combine(parentFolderName, newGVFSSubFolderName);
+            string parentFolderName = "Scalar";
+            string oldScalarSubFolderName = "Scalar";
+            string oldScalarSubFolderPath = Path.Combine(parentFolderName, oldScalarSubFolderName);
+            string newScalarSubFolderName = "scalar";
+            string newScalarSubFolderPath = Path.Combine(parentFolderName, newScalarSubFolderName);
 
-            this.Enlistment.GetVirtualPathTo(oldGVFSSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(oldGVFSSubFolderName);
+            this.Enlistment.GetVirtualPathTo(oldScalarSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(oldScalarSubFolderName);
 
-            this.fileSystem.MoveFile(this.Enlistment.GetVirtualPathTo(oldGVFSSubFolderPath), this.Enlistment.GetVirtualPathTo(newGVFSSubFolderPath));
+            this.fileSystem.MoveFile(this.Enlistment.GetVirtualPathTo(oldScalarSubFolderPath), this.Enlistment.GetVirtualPathTo(newScalarSubFolderPath));
 
-            this.Enlistment.GetVirtualPathTo(newGVFSSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newGVFSSubFolderName);
+            this.Enlistment.GetVirtualPathTo(newScalarSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newScalarSubFolderName);
 
             // Projected folder with a physical folder
-            string oldTestsSubFolderName = "GVFS.FunctionalTests";
+            string oldTestsSubFolderName = "Scalar.FunctionalTests";
             string oldTestsSubFolderPath = Path.Combine(parentFolderName, oldTestsSubFolderName);
-            string newTestsSubFolderName = "gvfs.functionaltests";
+            string newTestsSubFolderName = "scalar.functionaltests";
             string newTestsSubFolderPath = Path.Combine(parentFolderName, newTestsSubFolderName);
 
             string fileToAdd = "NewFile.txt";
@@ -54,20 +54,20 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
             this.Enlistment.GetVirtualPathTo(newTestsSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newTestsSubFolderName);
 
             // Remount
-            this.Enlistment.UnmountGVFS();
-            this.Enlistment.MountGVFS();
+            this.Enlistment.UnmountScalar();
+            this.Enlistment.MountScalar();
 
-            this.Enlistment.GetVirtualPathTo(newGVFSSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newGVFSSubFolderName);
+            this.Enlistment.GetVirtualPathTo(newScalarSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newScalarSubFolderName);
             this.Enlistment.GetVirtualPathTo(newTestsSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newTestsSubFolderName);
             this.Enlistment.GetVirtualPathTo(Path.Combine(newTestsSubFolderPath, fileToAdd)).ShouldBeAFile(this.fileSystem).WithContents().ShouldEqual(fileToAddContent);
 
             // Rename each folder again
-            string finalGVFSSubFolderName = "gvFS";
-            string finalGVFSSubFolderPath = Path.Combine(parentFolderName, finalGVFSSubFolderName);
-            this.fileSystem.MoveFile(this.Enlistment.GetVirtualPathTo(newGVFSSubFolderPath), this.Enlistment.GetVirtualPathTo(finalGVFSSubFolderPath));
-            this.Enlistment.GetVirtualPathTo(finalGVFSSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(finalGVFSSubFolderName);
+            string finalScalarSubFolderName = "gvFS";
+            string finalScalarSubFolderPath = Path.Combine(parentFolderName, finalScalarSubFolderName);
+            this.fileSystem.MoveFile(this.Enlistment.GetVirtualPathTo(newScalarSubFolderPath), this.Enlistment.GetVirtualPathTo(finalScalarSubFolderPath));
+            this.Enlistment.GetVirtualPathTo(finalScalarSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(finalScalarSubFolderName);
 
-            string finalTestsSubFolderName = "gvfs.FunctionalTESTS";
+            string finalTestsSubFolderName = "scalar.FunctionalTESTS";
             string finalTestsSubFolderPath = Path.Combine(parentFolderName, finalTestsSubFolderName);
             this.fileSystem.MoveFile(this.Enlistment.GetVirtualPathTo(newTestsSubFolderPath), this.Enlistment.GetVirtualPathTo(finalTestsSubFolderPath));
             this.Enlistment.GetVirtualPathTo(finalTestsSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(finalTestsSubFolderName);

@@ -1,3 +1,3 @@
-#import "VFSNotificationErrors.h"
+#import "ScalarNotificationErrors.h"
 
-NSErrorDomain const VFSForGitNotificationErrorDomain = @"VFSForGitNotificationErrorDomain";
+NSErrorDomain const ScalarNotificationErrorDomain = @"ScalarNotificationErrorDomain";

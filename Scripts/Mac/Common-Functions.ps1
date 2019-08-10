@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Generates the text for GVFS.Installer.Mac nuspec file from the provided inputs
+Generates the text for Scalar.Installer.Mac nuspec file from the provided inputs
 #>
 function Write-Nuspec
 {
@@ -27,14 +27,14 @@ function Write-Nuspec
      "<?xml version=""1.0""?>
      <package xmlns=""http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"">
        <metadata>
-         <id>GVFS.Installers.Mac</id>
+         <id>Scalar.Installers.Mac</id>
          <version>$PackageVersion</version>
          <authors>Microsoft</authors>
          <requireLicenseAcceptance>false</requireLicenseAcceptance>
-         <description>GVFS and G4M Mac installers</description>
+         <description>Scalar and G4M Mac installers</description>
        </metadata>
        <files>
-         <file src=""$GvfsInstallerPkg"" target=""GVFS"" />
+         <file src=""$GvfsInstallerPkg"" target=""Scalar"" />
          <file src=""$GitInstallerPkg"" target=""G4M"" />
          <file src=""$GcmInstallerPkg"" target=""GCM"" />
        </files>
@@ -108,8 +108,8 @@ function Get-GitVersionFromNuGetPackage
     )
 
     # Find the git version number (looking through packages directory)
-    $gitInstallerPath = $NuGetPackagesDir + "/gitformac.gvfs.installer/" + $GitPackageVersion + "/tools"
-    $toolsContents = Get-ChildItem -Path ($NuGetPackagesDir + "/gitformac.gvfs.installer/" + $GitPackageVersion + "/tools") -Include *.pkg
+    $gitInstallerPath = $NuGetPackagesDir + "/gitformac.scalar.installer/" + $GitPackageVersion + "/tools"
+    $toolsContents = Get-ChildItem -Path ($NuGetPackagesDir + "/gitformac.scalar.installer/" + $GitPackageVersion + "/tools") -Include *.pkg
 
     $gitInstallerPkgName = $toolsContents[0].Name
     return $gitInstallerPkgName
@@ -117,7 +117,7 @@ function Get-GitVersionFromNuGetPackage
 
 <#
 .DESCRIPTION
-Generate and write a GVFS.Installers.Mac NuSpec from given
+Generate and write a Scalar.Installers.Mac NuSpec from given
 parameters. This function orchestrates finding the various packages
 required for generating the installer assuming the behavior for how
 the current CI/CD Release pipleline lays out artifacts. It will also
@@ -151,8 +151,8 @@ function Generate-NuSpec
     # Gcm installer pkg: Download
     $GcmInstallerPkg = Download-GCM -GcmReleaseVersion $GcmReleaseVersion -GcmPackageName $GcmPackageName -DownloadLocation $PackageDir
 
-    # GVFS installer pkg
-    $GvfsInstallerPkg = $PackageDir + "/" + "VFSForGit.$GvfsVersion.pkg"
+    # Scalar installer pkg
+    $GvfsInstallerPkg = $PackageDir + "/" + "Scalar.$GvfsVersion.pkg"
 
     $template = Write-Nuspec -PackageVersion $GvfsVersion -GvfsInstallerPkg $GvfsInstallerPkg -GitInstallerPkg $gitInstallerPkg -GcmInstallerPkg $GcmInstallerPkg
     return $template

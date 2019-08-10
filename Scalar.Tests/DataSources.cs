@@ -1,4 +1,4 @@
-﻿namespace GVFS.Tests
+﻿namespace Scalar.Tests
 {
     public class DataSources
     {

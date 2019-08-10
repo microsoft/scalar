@@ -1,13 +1,13 @@
-// GVFS.ReadObjectHook
+// Scalar.ReadObjectHook
 //
-// When GVFS installs GVFS.ReadObjectHook, it copies the file to
+// When Scalar installs Scalar.ReadObjectHook, it copies the file to
 // the .git\hooks folder, and renames the executable to read-object
 // read-object is called by git when it fails to find the object it's looking for on disk.
 //
 // Git and read-object negotiate an interface and capabilities then git issues a "get" command for the missing SHA.
 // See Git Documentation/Technical/read-object-protocol.txt for details.
-// GVFS.ReadObjectHook decides which GVFS instance to connect to based on its path.
-// It then connects to GVFS and asks GVFS to download the requested object (to the .git\objects folder).
+// Scalar.ReadObjectHook decides which Scalar instance to connect to based on its path.
+// It then connects to Scalar and asks Scalar to download the requested object (to the .git\objects folder).
 
 #include "stdafx.h"
 #include "packet.h"
@@ -118,9 +118,9 @@ int main(int, char *argv[])
     packet_txt_write("capability=get");
     packet_flush();
 
-    PATH_STRING pipeName(GetGVFSPipeName(argv[0]));
+    PATH_STRING pipeName(GetScalarPipeName(argv[0]));
 
-    PIPE_HANDLE pipeHandle = CreatePipeToGVFS(pipeName);
+    PIPE_HANDLE pipeHandle = CreatePipeToScalar(pipeName);
 
     while (1)
     {

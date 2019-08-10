@@ -1,4 +1,4 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Security;
 using System.Threading;
 
-namespace GVFS.Common.FileSystem
+namespace Scalar.Common.FileSystem
 {
     public class PhysicalFileSystem
     {
@@ -127,12 +127,12 @@ namespace GVFS.Common.FileSystem
 
         public virtual void MoveAndOverwriteFile(string sourceFileName, string destinationFilename)
         {
-            GVFSPlatform.Instance.FileSystem.MoveAndOverwriteFile(sourceFileName, destinationFilename);
+            ScalarPlatform.Instance.FileSystem.MoveAndOverwriteFile(sourceFileName, destinationFilename);
         }
 
         public virtual bool TryGetNormalizedPath(string path, out string normalizedPath, out string errorMessage)
         {
-            return GVFSPlatform.Instance.FileSystem.TryGetNormalizedPath(path, out normalizedPath, out errorMessage);
+            return ScalarPlatform.Instance.FileSystem.TryGetNormalizedPath(path, out normalizedPath, out errorMessage);
         }
 
         public virtual Stream OpenFileStream(string path, FileMode fileMode, FileAccess fileAccess, FileShare shareMode, FileOptions options, bool callFlushFileBuffers)
@@ -147,7 +147,7 @@ namespace GVFS.Common.FileSystem
 
         public virtual void FlushFileBuffers(string path)
         {
-            GVFSPlatform.Instance.FileSystem.FlushFileBuffers(path);
+            ScalarPlatform.Instance.FileSystem.FlushFileBuffers(path);
         }
 
         public virtual void CreateDirectory(string path)
@@ -157,12 +157,12 @@ namespace GVFS.Common.FileSystem
 
         public virtual bool TryCreateDirectoryWithAdminAndUserModifyPermissions(string directoryPath, out string error)
         {
-            return GVFSPlatform.Instance.FileSystem.TryCreateDirectoryWithAdminAndUserModifyPermissions(directoryPath, out error);
+            return ScalarPlatform.Instance.FileSystem.TryCreateDirectoryWithAdminAndUserModifyPermissions(directoryPath, out error);
         }
 
         public virtual bool TryCreateOrUpdateDirectoryToAdminModifyPermissions(ITracer tracer, string directoryPath, out string error)
         {
-            return GVFSPlatform.Instance.FileSystem.TryCreateOrUpdateDirectoryToAdminModifyPermissions(tracer, directoryPath, out error);
+            return ScalarPlatform.Instance.FileSystem.TryCreateOrUpdateDirectoryToAdminModifyPermissions(tracer, directoryPath, out error);
         }
 
         public virtual bool IsSymLink(string path)
@@ -294,7 +294,7 @@ namespace GVFS.Common.FileSystem
             try
             {
                 File.Copy(sourcePath, tempFilePath, overwrite: true);
-                GVFSPlatform.Instance.FileSystem.FlushFileBuffers(tempFilePath);
+                ScalarPlatform.Instance.FileSystem.FlushFileBuffers(tempFilePath);
                 this.MoveAndOverwriteFile(tempFilePath, destinationPath);
                 return true;
             }

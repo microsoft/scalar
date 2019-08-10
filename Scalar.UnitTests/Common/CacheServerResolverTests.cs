@@ -1,13 +1,13 @@
-﻿using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.Git;
+﻿using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.Git;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class CacheServerResolverTests
@@ -18,7 +18,7 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void CanGetCacheServerFromNewConfig()
         {
-            MockGVFSEnlistment enlistment = this.CreateEnlistment(CacheServerUrl);
+            MockScalarEnlistment enlistment = this.CreateEnlistment(CacheServerUrl);
             CacheServerInfo cacheServer = CacheServerResolver.GetCacheServerFromConfig(enlistment);
 
             cacheServer.Url.ShouldEqual(CacheServerUrl);
@@ -28,7 +28,7 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void CanGetCacheServerFromOldConfig()
         {
-            MockGVFSEnlistment enlistment = this.CreateEnlistment(null, CacheServerUrl);
+            MockScalarEnlistment enlistment = this.CreateEnlistment(null, CacheServerUrl);
             CacheServerInfo cacheServer = CacheServerResolver.GetCacheServerFromConfig(enlistment);
 
             cacheServer.Url.ShouldEqual(CacheServerUrl);
@@ -38,7 +38,7 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void CanGetCacheServerWithNoConfig()
         {
-            MockGVFSEnlistment enlistment = this.CreateEnlistment();
+            MockScalarEnlistment enlistment = this.CreateEnlistment();
 
             this.ValidateIsNone(enlistment, CacheServerResolver.GetCacheServerFromConfig(enlistment));
             CacheServerResolver.GetUrlFromConfig(enlistment).ShouldEqual(enlistment.RepoUrl);
@@ -51,7 +51,7 @@ namespace GVFS.UnitTests.Common
 
             CacheServerInfo resolvedCacheServer;
             string error;
-            resolver.TryResolveUrlFromRemote(CacheServerName, this.CreateGVFSConfig(), out resolvedCacheServer, out error);
+            resolver.TryResolveUrlFromRemote(CacheServerName, this.CreateScalarConfig(), out resolvedCacheServer, out error);
 
             resolvedCacheServer.Url.ShouldEqual(CacheServerUrl);
             resolvedCacheServer.Name.ShouldEqual(CacheServerName);
@@ -61,7 +61,7 @@ namespace GVFS.UnitTests.Common
         public void CanResolveNameFromKnownUrl()
         {
             CacheServerResolver resolver = this.CreateResolver();
-            CacheServerInfo resolvedCacheServer = resolver.ResolveNameFromRemote(CacheServerUrl, this.CreateGVFSConfig());
+            CacheServerInfo resolvedCacheServer = resolver.ResolveNameFromRemote(CacheServerUrl, this.CreateScalarConfig());
 
             resolvedCacheServer.Url.ShouldEqual(CacheServerUrl);
             resolvedCacheServer.Name.ShouldEqual(CacheServerName);
@@ -73,7 +73,7 @@ namespace GVFS.UnitTests.Common
             const string CustomUrl = "https://not/a/known/cache/server";
 
             CacheServerResolver resolver = this.CreateResolver();
-            CacheServerInfo resolvedCacheServer = resolver.ResolveNameFromRemote(CustomUrl, this.CreateGVFSConfig());
+            CacheServerInfo resolvedCacheServer = resolver.ResolveNameFromRemote(CustomUrl, this.CreateScalarConfig());
 
             resolvedCacheServer.Url.ShouldEqual(CustomUrl);
             resolvedCacheServer.Name.ShouldEqual(CacheServerInfo.ReservedNames.UserDefined);
@@ -82,16 +82,16 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void CanResolveUrlAsRepoUrl()
         {
-            MockGVFSEnlistment enlistment = this.CreateEnlistment();
+            MockScalarEnlistment enlistment = this.CreateEnlistment();
             CacheServerResolver resolver = this.CreateResolver(enlistment);
 
-            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl, this.CreateGVFSConfig()));
-            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl + "/", this.CreateGVFSConfig()));
-            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl + "//", this.CreateGVFSConfig()));
-            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl.ToUpper(), this.CreateGVFSConfig()));
-            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl.ToUpper() + "/", this.CreateGVFSConfig()));
-            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl.ToLower(), this.CreateGVFSConfig()));
-            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl.ToLower() + "/", this.CreateGVFSConfig()));
+            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl, this.CreateScalarConfig()));
+            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl + "/", this.CreateScalarConfig()));
+            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl + "//", this.CreateScalarConfig()));
+            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl.ToUpper(), this.CreateScalarConfig()));
+            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl.ToUpper() + "/", this.CreateScalarConfig()));
+            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl.ToLower(), this.CreateScalarConfig()));
+            this.ValidateIsNone(enlistment, resolver.ResolveNameFromRemote(enlistment.RepoUrl.ToLower() + "/", this.CreateScalarConfig()));
         }
 
         [TestCase]
@@ -125,7 +125,7 @@ namespace GVFS.UnitTests.Common
 
             CacheServerInfo resolvedCacheServer;
             string error;
-            resolver.TryResolveUrlFromRemote(parsedCacheServer.Name, this.CreateGVFSConfig(), out resolvedCacheServer, out error);
+            resolver.TryResolveUrlFromRemote(parsedCacheServer.Name, this.CreateScalarConfig(), out resolvedCacheServer, out error);
 
             resolvedCacheServer.Url.ShouldEqual(CacheServerUrl);
             resolvedCacheServer.Name.ShouldEqual(CacheServerName);
@@ -134,7 +134,7 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void CanParseAndResolveNoCacheServer()
         {
-            MockGVFSEnlistment enlistment = this.CreateEnlistment();
+            MockScalarEnlistment enlistment = this.CreateEnlistment();
             CacheServerResolver resolver = this.CreateResolver(enlistment);
 
             this.ValidateIsNone(enlistment, resolver.ParseUrlOrFriendlyName(CacheServerInfo.ReservedNames.None));
@@ -149,7 +149,7 @@ namespace GVFS.UnitTests.Common
 
             CacheServerInfo resolvedCacheServer;
             string error;
-            resolver.TryResolveUrlFromRemote(CacheServerInfo.ReservedNames.None, this.CreateGVFSConfig(), out resolvedCacheServer, out error)
+            resolver.TryResolveUrlFromRemote(CacheServerInfo.ReservedNames.None, this.CreateScalarConfig(), out resolvedCacheServer, out error)
                 .ShouldEqual(false, "Should not succeed in resolving the name 'None'");
 
             resolvedCacheServer.ShouldEqual(null);
@@ -159,12 +159,12 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void CanParseAndResolveDefaultWhenServerAdvertisesNullListOfCacheServers()
         {
-            MockGVFSEnlistment enlistment = this.CreateEnlistment();
+            MockScalarEnlistment enlistment = this.CreateEnlistment();
             CacheServerResolver resolver = this.CreateResolver(enlistment);
 
             CacheServerInfo resolvedCacheServer;
             string error;
-            resolver.TryResolveUrlFromRemote(CacheServerInfo.ReservedNames.Default, this.CreateDefaultDeserializedGVFSConfig(), out resolvedCacheServer, out error)
+            resolver.TryResolveUrlFromRemote(CacheServerInfo.ReservedNames.Default, this.CreateDefaultDeserializedScalarConfig(), out resolvedCacheServer, out error)
                 .ShouldEqual(true);
 
             this.ValidateIsNone(enlistment, resolvedCacheServer);
@@ -173,12 +173,12 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void CanParseAndResolveOtherWhenServerAdvertisesNullListOfCacheServers()
         {
-            MockGVFSEnlistment enlistment = this.CreateEnlistment();
+            MockScalarEnlistment enlistment = this.CreateEnlistment();
             CacheServerResolver resolver = this.CreateResolver(enlistment);
 
             CacheServerInfo resolvedCacheServer;
             string error;
-            resolver.TryResolveUrlFromRemote(CacheServerInfo.ReservedNames.None, this.CreateDefaultDeserializedGVFSConfig(), out resolvedCacheServer, out error)
+            resolver.TryResolveUrlFromRemote(CacheServerInfo.ReservedNames.None, this.CreateDefaultDeserializedScalarConfig(), out resolvedCacheServer, out error)
                 .ShouldEqual(false, "Should not succeed in resolving the name 'None'");
 
             resolvedCacheServer.ShouldEqual(null);
@@ -191,22 +191,22 @@ namespace GVFS.UnitTests.Common
             cacheServer.Name.ShouldEqual(CacheServerInfo.ReservedNames.None);
         }
 
-        private MockGVFSEnlistment CreateEnlistment(string newConfigValue = null, string oldConfigValue = null)
+        private MockScalarEnlistment CreateEnlistment(string newConfigValue = null, string oldConfigValue = null)
         {
             MockGitProcess gitProcess = new MockGitProcess();
             gitProcess.SetExpectedCommandResult(
-                "config --local gvfs.cache-server",
+                "config --local scalar.cache-server",
                 () => new GitProcess.Result(newConfigValue ?? string.Empty, string.Empty, newConfigValue != null ? GitProcess.Result.SuccessCode : GitProcess.Result.GenericFailureCode));
             gitProcess.SetExpectedCommandResult(
-                "config gvfs.mock:..repourl.cache-server-url",
+                "config scalar.mock:..repourl.cache-server-url",
                 () => new GitProcess.Result(oldConfigValue ?? string.Empty, string.Empty, oldConfigValue != null ? GitProcess.Result.SuccessCode : GitProcess.Result.GenericFailureCode));
 
-            return new MockGVFSEnlistment(gitProcess);
+            return new MockScalarEnlistment(gitProcess);
         }
 
-        private ServerGVFSConfig CreateGVFSConfig()
+        private ServerScalarConfig CreateScalarConfig()
         {
-            return new ServerGVFSConfig
+            return new ServerScalarConfig
             {
                 CacheServers = new[]
                 {
@@ -215,12 +215,12 @@ namespace GVFS.UnitTests.Common
             };
         }
 
-        private ServerGVFSConfig CreateDefaultDeserializedGVFSConfig()
+        private ServerScalarConfig CreateDefaultDeserializedScalarConfig()
         {
-            return JsonConvert.DeserializeObject<ServerGVFSConfig>("{}");
+            return JsonConvert.DeserializeObject<ServerScalarConfig>("{}");
         }
 
-        private CacheServerResolver CreateResolver(MockGVFSEnlistment enlistment = null)
+        private CacheServerResolver CreateResolver(MockScalarEnlistment enlistment = null)
         {
             enlistment = enlistment ?? this.CreateEnlistment();
             return new CacheServerResolver(new MockTracer(), enlistment);

@@ -1,9 +1,9 @@
-﻿using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.Linq;
 
-namespace GVFS.Common.Http
+namespace Scalar.Common.Http
 {
     public class CacheServerResolver
     {
@@ -32,14 +32,14 @@ namespace GVFS.Common.Http
 
             // TODO 1057500: Remove support for encoded-repo-url cache config setting
             return
-                GetValueFromConfig(git, GVFSConstants.GitConfig.CacheServer, localOnly: true)
+                GetValueFromConfig(git, ScalarConstants.GitConfig.CacheServer, localOnly: true)
                 ?? GetValueFromConfig(git, GetDeprecatedCacheConfigSettingName(enlistment), localOnly: false)
                 ?? enlistment.RepoUrl;
         }
 
         public bool TryResolveUrlFromRemote(
             string cacheServerName,
-            ServerGVFSConfig serverGVFSConfig,
+            ServerScalarConfig serverScalarConfig,
             out CacheServerInfo cacheServer,
             out string error)
         {
@@ -54,12 +54,12 @@ namespace GVFS.Common.Http
             if (cacheServerName.Equals(CacheServerInfo.ReservedNames.Default, StringComparison.OrdinalIgnoreCase))
             {
                 cacheServer =
-                    serverGVFSConfig.CacheServers.FirstOrDefault(cache => cache.GlobalDefault)
+                    serverScalarConfig.CacheServers.FirstOrDefault(cache => cache.GlobalDefault)
                     ?? this.CreateNone();
             }
             else
             {
-                cacheServer = serverGVFSConfig.CacheServers.FirstOrDefault(cache =>
+                cacheServer = serverScalarConfig.CacheServers.FirstOrDefault(cache =>
                     cache.Name.Equals(cacheServerName, StringComparison.OrdinalIgnoreCase));
 
                 if (cacheServer == null)
@@ -74,7 +74,7 @@ namespace GVFS.Common.Http
 
         public CacheServerInfo ResolveNameFromRemote(
             string cacheServerUrl,
-            ServerGVFSConfig serverGVFSConfig)
+            ServerScalarConfig serverScalarConfig)
         {
             if (string.IsNullOrWhiteSpace(cacheServerUrl))
             {
@@ -87,7 +87,7 @@ namespace GVFS.Common.Http
             }
 
             return
-                serverGVFSConfig.CacheServers.FirstOrDefault(cache => cache.Url.Equals(cacheServerUrl, StringComparison.OrdinalIgnoreCase))
+                serverScalarConfig.CacheServers.FirstOrDefault(cache => cache.Url.Equals(cacheServerUrl, StringComparison.OrdinalIgnoreCase))
                 ?? new CacheServerInfo(cacheServerUrl, CacheServerInfo.ReservedNames.UserDefined);
         }
 
@@ -123,7 +123,7 @@ namespace GVFS.Common.Http
         public bool TrySaveUrlToLocalConfig(CacheServerInfo cache, out string error)
         {
             GitProcess git = this.enlistment.CreateGitProcess();
-            GitProcess.Result result = git.SetInLocalConfig(GVFSConstants.GitConfig.CacheServer, cache.Url, replaceAll: true);
+            GitProcess.Result result = git.SetInLocalConfig(ScalarConstants.GitConfig.CacheServer, cache.Url, replaceAll: true);
 
             error = result.Errors;
             return result.ExitCodeIsSuccess;
@@ -152,7 +152,7 @@ namespace GVFS.Common.Http
                 .Replace("http://", string.Empty)
                 .Replace('/', '.');
 
-            return GVFSConstants.GitConfig.GVFSPrefix + sectionUrl + GVFSConstants.GitConfig.DeprecatedCacheEndpointSuffix;
+            return ScalarConstants.GitConfig.ScalarPrefix + sectionUrl + ScalarConstants.GitConfig.DeprecatedCacheEndpointSuffix;
         }
 
         private CacheServerInfo CreateNone()

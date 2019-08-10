@@ -1,18 +1,18 @@
 #import <objc/runtime.h>
-#import "VFSProductInfoFetcher.h"
+#import "ScalarProductInfoFetcher.h"
 
-NSString * const VFSForGitPath = @"/usr/local/bin/gvfs";
+NSString * const ScalarPath = @"/usr/local/bin/scalar";
 NSString * const GitPath = @"/usr/local/bin/git";
 
-@interface VFSProductInfoFetcher()
+@interface ScalarProductInfoFetcher()
 
-@property (strong, nonnull) VFSProcessRunner *processRunner;
+@property (strong, nonnull) ScalarProcessRunner *processRunner;
 
 @end
 
-@implementation VFSProductInfoFetcher
+@implementation ScalarProductInfoFetcher
 
-- (instancetype)initWithProcessRunner:(VFSProcessRunner *)processRunner
+- (instancetype)initWithProcessRunner:(ScalarProcessRunner *)processRunner
 {
     if (processRunner == nil)
     {
@@ -26,12 +26,12 @@ NSString * const GitPath = @"/usr/local/bin/git";
     return self;
 }
 
-- (BOOL)tryGetVFSForGitVersion:(NSString *__autoreleasing *)version
+- (BOOL)tryGetScalarVersion:(NSString *__autoreleasing *)version
                          error:(NSError *__autoreleasing *)error
 {
     NSParameterAssert(version);
     
-    if (![self.processRunner tryRunExecutable:[NSURL fileURLWithPath:VFSForGitPath]
+    if (![self.processRunner tryRunExecutable:[NSURL fileURLWithPath:ScalarPath]
                                          args:@[ @"version" ]
                                        output:version
                                         error:error])

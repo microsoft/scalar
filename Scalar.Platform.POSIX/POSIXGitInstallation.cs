@@ -1,8 +1,8 @@
-﻿using GVFS.Common;
-using GVFS.Common.Git;
+﻿using Scalar.Common;
+using Scalar.Common.Git;
 using System.IO;
 
-namespace GVFS.Platform.POSIX
+namespace Scalar.Platform.POSIX
 {
     public class POSIXGitInstallation : IGitInstallation
     {

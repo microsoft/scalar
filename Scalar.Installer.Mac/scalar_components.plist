@@ -12,7 +12,7 @@
 		<key>BundleOverwriteAction</key>
 		<string>upgrade</string>
 		<key>RootRelativeBundlePath</key>
-		<string>Library/Application Support/VFS For Git/VFS For Git.app</string>
+		<string>Library/Application Support/Scalar/Scalar.app</string>
 	</dict>
 </array>
 </plist>

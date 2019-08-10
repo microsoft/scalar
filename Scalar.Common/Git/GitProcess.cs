@@ -1,5 +1,5 @@
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public class GitProcess : ICredentialStore
     {
@@ -50,7 +50,7 @@ namespace GVFS.Common.Git
                     // If the standard input for a console is redirected / not available,
                     // then we might not be able to set the InputEncoding here.
                     // In practice, this can happen if we attempt to run a GitProcess from within a Service,
-                    // such as GVFS.Service.
+                    // such as Scalar.Service.
                     // Record that we failed to set the encoding, but do not quite the process.
                     // This means that git commands that use stdin will not work, but
                     // for our scenarios, we do not expect these calls at this this time.
@@ -77,7 +77,7 @@ namespace GVFS.Common.Git
 
             if (this.workingDirectoryRoot != null)
             {
-                this.dotGitRoot = Path.Combine(this.workingDirectoryRoot, GVFSConstants.DotGit.Root);
+                this.dotGitRoot = Path.Combine(this.workingDirectoryRoot, ScalarConstants.DotGit.Root);
             }
         }
 
@@ -148,7 +148,7 @@ namespace GVFS.Common.Git
                 {
                     processName = process.ProcessName;
 
-                    return GVFSPlatform.Instance.TryKillProcessTree(process.Id, out exitCode, out error);
+                    return ScalarPlatform.Instance.TryKillProcessTree(process.Id, out exitCode, out error);
                 }
 
                 return true;
@@ -488,7 +488,7 @@ namespace GVFS.Common.Git
 
         public Result PackObjects(string filenamePrefix, string gitObjectsDirectory, Action<StreamWriter> packFileStream)
         {
-            string packFilePath = Path.Combine(gitObjectsDirectory, GVFSConstants.DotGit.Objects.Pack.Name, filenamePrefix);
+            string packFilePath = Path.Combine(gitObjectsDirectory, ScalarConstants.DotGit.Objects.Pack.Name, filenamePrefix);
 
             // Since we don't provide paths we won't be able to complete good deltas
             // avoid the unnecessary computation by setting window/depth to 0

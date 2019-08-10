@@ -1,4 +1,4 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public class GitIndexGenerator
     {
@@ -53,7 +53,7 @@ namespace GVFS.Common.Git
             this.enlistment = enlistment;
             this.shouldHashIndex = shouldHashIndex;
 
-            this.indexLockPath = Path.Combine(enlistment.DotGitRoot, GVFSConstants.DotGit.IndexName + GVFSConstants.DotGit.LockExtension);
+            this.indexLockPath = Path.Combine(enlistment.DotGitRoot, ScalarConstants.DotGit.IndexName + ScalarConstants.DotGit.LockExtension);
         }
 
         public bool HasFailures { get; private set; }
@@ -67,7 +67,7 @@ namespace GVFS.Common.Git
 
                 GitProcess git = new GitProcess(this.enlistment);
                 GitProcess.Result result = git.LsTree(
-                    GVFSConstants.DotGit.HeadName,
+                    ScalarConstants.DotGit.HeadName,
                     this.EnqueueEntriesFromLsTree,
                     recursive: true,
                     showAllTrees: false);
@@ -233,7 +233,7 @@ namespace GVFS.Common.Git
 
         private void ReplaceExistingIndex()
         {
-            string indexPath = Path.Combine(this.enlistment.DotGitRoot, GVFSConstants.DotGit.IndexName);
+            string indexPath = Path.Combine(this.enlistment.DotGitRoot, ScalarConstants.DotGit.IndexName);
             File.Delete(indexPath);
             File.Move(this.indexLockPath, indexPath);
         }
@@ -253,7 +253,7 @@ namespace GVFS.Common.Git
                 if (DiffTreeResult.IsLsTreeLineOfType(line, DiffTreeResult.BlobMarker))
                 {
                     LsTreeEntry blobEntry = new LsTreeEntry();
-                    blobEntry.Sha = line.Substring(DiffTreeResult.TypeMarkerStartIndex + DiffTreeResult.BlobMarker.Length, GVFSConstants.ShaStringLength);
+                    blobEntry.Sha = line.Substring(DiffTreeResult.TypeMarkerStartIndex + DiffTreeResult.BlobMarker.Length, ScalarConstants.ShaStringLength);
                     blobEntry.Filename = GitPathConverter.ConvertPathOctetsToUtf8(line.Substring(line.LastIndexOf("\t") + 1).Trim('"'));
 
                     return blobEntry;

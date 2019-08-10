@@ -3,21 +3,21 @@
 
 ; General documentation on how to use InnoSetup scripts: http://www.jrsoftware.org/ishelp/index.php
 
-#define VCRuntimeDir PackagesDir + "\GVFS.VCRuntime.0.2.0-build\lib\x64"
-#define GVFSDir BuildOutputDir + "\GVFS.Windows\bin\" + PlatformAndConfiguration
-#define GVFSCommonDir BuildOutputDir + "\GVFS.Common\bin\" + PlatformAndConfiguration + "\netstandard2.0"
-#define ServiceDir BuildOutputDir + "\GVFS.Service.Windows\bin\" + PlatformAndConfiguration
-#define ServiceUIDir BuildOutputDir + "\GVFS.Service.UI\bin\" + PlatformAndConfiguration
-#define GVFSMountDir BuildOutputDir + "\GVFS.Mount.Windows\bin\" + PlatformAndConfiguration
-#define ReadObjectDir BuildOutputDir + "\GVFS.ReadObjectHook.Windows\bin\" + PlatformAndConfiguration
-#define GVFSUpgraderDir BuildOutputDir + "\GVFS.Upgrader\bin\" + PlatformAndConfiguration + "\net461"
+#define VCRuntimeDir PackagesDir + "\Scalar.VCRuntime.0.2.0-build\lib\x64"
+#define ScalarDir BuildOutputDir + "\Scalar.Windows\bin\" + PlatformAndConfiguration
+#define ScalarCommonDir BuildOutputDir + "\Scalar.Common\bin\" + PlatformAndConfiguration + "\netstandard2.0"
+#define ServiceDir BuildOutputDir + "\Scalar.Service.Windows\bin\" + PlatformAndConfiguration
+#define ServiceUIDir BuildOutputDir + "\Scalar.Service.UI\bin\" + PlatformAndConfiguration
+#define ScalarMountDir BuildOutputDir + "\Scalar.Mount.Windows\bin\" + PlatformAndConfiguration
+#define ReadObjectDir BuildOutputDir + "\Scalar.ReadObjectHook.Windows\bin\" + PlatformAndConfiguration
+#define ScalarUpgraderDir BuildOutputDir + "\Scalar.Upgrader\bin\" + PlatformAndConfiguration + "\net461"
 
-#define MyAppName "GVFS"
-#define MyAppInstallerVersion GetFileVersion(GVFSDir + "\GVFS.exe")
+#define MyAppName "Scalar"
+#define MyAppInstallerVersion GetFileVersion(ScalarDir + "\Scalar.exe")
 #define MyAppPublisher "Microsoft Corporation"
 #define MyAppPublisherURL "http://www.microsoft.com"
-#define MyAppURL "https://github.com/microsoft/VFSForGit"
-#define MyAppExeName "GVFS.exe"
+#define MyAppURL "https://github.com/microsoft/Scalar"
+#define MyAppExeName "Scalar.exe"
 #define EnvironmentKey "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
 #define FileSystemKey "SYSTEM\CurrentControlSet\Control\FileSystem"
 
@@ -34,7 +34,7 @@ AppCopyright=Copyright � Microsoft 2019
 BackColor=clWhite
 BackSolid=yes
 DefaultDirName={pf}\{#MyAppName}
-OutputBaseFilename=SetupGVFS.{#GVFSVersion}
+OutputBaseFilename=SetupScalar.{#ScalarVersion}
 OutputDir=Setup
 Compression=lzma2
 InternalCompressLevel=ultra64
@@ -42,7 +42,7 @@ SolidCompression=yes
 MinVersion=10.0.14374
 DisableDirPage=yes
 DisableReadyPage=yes
-SetupIconFile="{#GVFSDir}\GitVirtualFileSystem.ico"
+SetupIconFile="{#ScalarDir}\GitVirtualFileSystem.ico"
 ArchitecturesInstallIn64BitMode=x64
 ArchitecturesAllowed=x64
 WizardImageStretch=no
@@ -65,22 +65,22 @@ Type: files; Name: "{app}\ucrtbase.dll"
 
 [Files]
 
-; GVFS.Common Files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSCommonDir}\git2.dll"
+; Scalar.Common Files
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarCommonDir}\git2.dll"
 
-; GVFS.Mount Files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSMountDir}\GVFS.Mount.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSMountDir}\GVFS.Mount.exe"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSMountDir}\GVFS.Mount.exe.config"
+; Scalar.Mount Files
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarMountDir}\Scalar.Mount.pdb"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarMountDir}\Scalar.Mount.exe"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarMountDir}\Scalar.Mount.exe.config"
 
-; GVFS.Upgrader Files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSUpgraderDir}\GVFS.Upgrader.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSUpgraderDir}\GVFS.Upgrader.exe"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSUpgraderDir}\GVFS.Upgrader.exe.config"
+; Scalar.Upgrader Files
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarUpgraderDir}\Scalar.Upgrader.pdb"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarUpgraderDir}\Scalar.Upgrader.exe"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarUpgraderDir}\Scalar.Upgrader.exe.config"
 
-; GVFS.ReadObjectHook files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ReadObjectDir}\GVFS.ReadObjectHook.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ReadObjectDir}\GVFS.ReadObjectHook.exe"
+; Scalar.ReadObjectHook files
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ReadObjectDir}\Scalar.ReadObjectHook.pdb"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ReadObjectDir}\Scalar.ReadObjectHook.exe"
 
 ; Cpp Dependencies
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#VCRuntimeDir}\msvcp140.dll"
@@ -88,52 +88,52 @@ DestDir: "{app}"; Flags: ignoreversion; Source:"{#VCRuntimeDir}\msvcp140_1.dll"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#VCRuntimeDir}\msvcp140_2.dll"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#VCRuntimeDir}\vcruntime140.dll"
 
-; GVFS PDB's
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.Common.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.Platform.Windows.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.pdb"
+; Scalar PDB's
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.Common.pdb"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.Platform.Windows.pdb"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.pdb"
 
-; GVFS.Service.UI Files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\GVFS.Service.UI.exe" 
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\GVFS.Service.UI.exe.config" 
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\GVFS.Service.UI.pdb"
+; Scalar.Service.UI Files
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\Scalar.Service.UI.exe" 
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\Scalar.Service.UI.exe.config" 
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\Scalar.Service.UI.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\GitVirtualFileSystem.ico"
 
-; GVFS Files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\CommandLine.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.Common.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.Platform.Windows.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\Newtonsoft.Json.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.exe.config"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GitVirtualFileSystem.ico"  
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.exe" 
+; Scalar Files
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\CommandLine.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.Common.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.Platform.Windows.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Newtonsoft.Json.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.exe.config"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\GitVirtualFileSystem.ico"  
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.exe" 
 
 ; NuGet support DLLs
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\NuGet.Commands.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\NuGet.Common.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\NuGet.Configuration.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\NuGet.Frameworks.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\NuGet.Packaging.Core.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\NuGet.Packaging.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\NuGet.Protocol.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\NuGet.Versioning.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Commands.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Common.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Configuration.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Frameworks.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Packaging.Core.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Packaging.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Protocol.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Versioning.dll"
 
 ; .NET Standard Files
 ; See https://github.com/dotnet/standard/issues/415 for a discussion on why this are copied
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\netstandard.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\System.Net.Http.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\System.ValueTuple.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\System.IO.Compression.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\netstandard.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\System.Net.Http.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\System.ValueTuple.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\System.IO.Compression.dll"
 
-; GVFS.Service Files and PDB's
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceDir}\GVFS.Service.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceDir}\GVFS.Service.exe.config"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceDir}\GVFS.Service.exe"; AfterInstall: InstallGVFSService
+; Scalar.Service Files and PDB's
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceDir}\Scalar.Service.pdb"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceDir}\Scalar.Service.exe.config"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceDir}\Scalar.Service.exe"; AfterInstall: InstallScalarService
 
 [UninstallDelete]
 ; Deletes the entire installation directory, including files and subdirectories
 Type: filesandordirs; Name: "{app}";
-Type: filesandordirs; Name: "{commonappdata}\GVFS\GVFS.Upgrade";
+Type: filesandordirs; Name: "{commonappdata}\Scalar\Scalar.Upgrade";
 
 [Registry]
 Root: HKLM; Subkey: "{#EnvironmentKey}"; \
@@ -268,7 +268,7 @@ begin
     end
 end;
 
-procedure InstallGVFSService();
+procedure InstallScalarService();
 var
   ResultCode: integer;
   StatusText: string;
@@ -277,15 +277,15 @@ begin
   InstallSuccessful := False;
   
   StatusText := WizardForm.StatusLabel.Caption;
-  WizardForm.StatusLabel.Caption := 'Installing GVFS.Service.';
+  WizardForm.StatusLabel.Caption := 'Installing Scalar.Service.';
   WizardForm.ProgressGauge.Style := npbstMarquee;
   
   try
-    if Exec(ExpandConstant('{sys}\SC.EXE'), ExpandConstant('create GVFS.Service binPath="{app}\GVFS.Service.exe" start=auto'), '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0) then
+    if Exec(ExpandConstant('{sys}\SC.EXE'), ExpandConstant('create Scalar.Service binPath="{app}\Scalar.Service.exe" start=auto'), '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0) then
       begin
-        if Exec(ExpandConstant('{sys}\SC.EXE'), 'failure GVFS.Service reset= 30 actions= restart/10/restart/5000//1', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+        if Exec(ExpandConstant('{sys}\SC.EXE'), 'failure Scalar.Service reset= 30 actions= restart/10/restart/5000//1', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
           begin
-            if Exec(ExpandConstant('{sys}\SC.EXE'), 'start GVFS.Service', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+            if Exec(ExpandConstant('{sys}\SC.EXE'), 'start Scalar.Service', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
               begin
                 InstallSuccessful := True;
               end;
@@ -300,7 +300,7 @@ begin
 
   if InstallSuccessful = False then
     begin
-      RaiseException('Fatal: An error occured while installing GVFS.Service.');
+      RaiseException('Fatal: An error occured while installing Scalar.Service.');
     end;
 end;
 
@@ -333,11 +333,11 @@ begin
     end;
 end;
 
-function IsGVFSRunning(): Boolean;
+function IsScalarRunning(): Boolean;
 var
   ResultCode: integer;
 begin
-  if Exec('powershell.exe', '-NoProfile "Get-Process gvfs,gvfs.mount | foreach {exit 10}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  if Exec('powershell.exe', '-NoProfile "Get-Process scalar,scalar.mount | foreach {exit 10}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     begin
       if ResultCode = 10 then
         begin
@@ -371,7 +371,7 @@ procedure UnmountRepos();
 var
   ResultCode: integer;
 begin
-  Exec('gvfs.exe', 'service --unmount-all', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec('scalar.exe', 'service --unmount-all', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
 procedure MountRepos();
@@ -385,7 +385,7 @@ begin
   WizardForm.StatusLabel.Caption := 'Mounting Repos.';
   WizardForm.ProgressGauge.Style := npbstMarquee;
 
-  ExecWithResult(ExpandConstant('{app}') + '\gvfs.exe', 'service --mount-all', '', SW_HIDE, ewWaitUntilTerminated, ResultCode, MountOutput);
+  ExecWithResult(ExpandConstant('{app}') + '\scalar.exe', 'service --mount-all', '', SW_HIDE, ewWaitUntilTerminated, ResultCode, MountOutput);
   WizardForm.StatusLabel.Caption := StatusText;
   WizardForm.ProgressGauge.Style := npbstNormal;
 
@@ -405,7 +405,7 @@ var
   MsgBoxText: string;
 begin
   Result := False;
-  if ExecWithResult('gvfs.exe', 'service --list-mounted', '', SW_HIDE, ewWaitUntilTerminated, ResultCode, Repos) then
+  if ExecWithResult('scalar.exe', 'service --list-mounted', '', SW_HIDE, ewWaitUntilTerminated, ResultCode, Repos) then
     begin
       if Repos = '' then
         begin
@@ -435,11 +435,11 @@ var
   MsgBoxResult: integer;
 begin
   MsgBoxResult := IDRETRY;
-  while (IsGVFSRunning()) Do
+  while (IsScalarRunning()) Do
     begin
       if(MsgBoxResult = IDRETRY) then
         begin
-          MsgBoxResult := SuppressibleMsgBox('GVFS is currently running. Please close all instances of GVFS before continuing the installation.', mbError, MB_RETRYCANCEL, IDCANCEL);
+          MsgBoxResult := SuppressibleMsgBox('Scalar is currently running. Please close all instances of Scalar before continuing the installation.', mbError, MB_RETRYCANCEL, IDCANCEL);
         end;
       if(MsgBoxResult = IDCANCEL) then
         begin
@@ -460,7 +460,7 @@ var
   ResultString: ansiString;
 begin
   Result := urUnconfigured;
-  if ExecWithResult('gvfs.exe', 'config upgrade.ring', '', SW_HIDE, ewWaitUntilTerminated, ResultCode, ResultString) then begin
+  if ExecWithResult('scalar.exe', 'config upgrade.ring', '', SW_HIDE, ewWaitUntilTerminated, ResultCode, ResultString) then begin
     if ResultCode = 0 then begin
       ResultString := AnsiLowercase(Trim(ResultString));
       Log('GetConfiguredUpgradeRing: upgrade.ring is ' + ResultString);
@@ -474,10 +474,10 @@ begin
         Log('GetConfiguredUpgradeRing: Unknown upgrade ring: ' + ResultString);
       end;
     end else begin
-      Log('GetConfiguredUpgradeRing: Call to gvfs config upgrade.ring failed with ' + SysErrorMessage(ResultCode));
+      Log('GetConfiguredUpgradeRing: Call to scalar config upgrade.ring failed with ' + SysErrorMessage(ResultCode));
     end;
   end else begin
-    Log('GetConfiguredUpgradeRing: Call to gvfs config upgrade.ring failed with ' + SysErrorMessage(ResultCode));
+    Log('GetConfiguredUpgradeRing: Call to scalar config upgrade.ring failed with ' + SysErrorMessage(ResultCode));
   end;
 end;
 
@@ -487,7 +487,7 @@ var
   ResultString: ansiString;
 begin
   Result := False
-  if ExecWithResult('gvfs.exe', Format('config %s', [ConfigKey]), '', SW_HIDE, ewWaitUntilTerminated, ResultCode, ResultString) then begin
+  if ExecWithResult('scalar.exe', Format('config %s', [ConfigKey]), '', SW_HIDE, ewWaitUntilTerminated, ResultCode, ResultString) then begin
     ResultString := AnsiLowercase(Trim(ResultString));
     Log(Format('IsConfigured(%s): value is %s', [ConfigKey, ResultString]));
     Result := Length(ResultString) > 1
@@ -500,7 +500,7 @@ var
   ResultString: ansiString;
 begin
   if IsConfigured(ConfigKey) = False then begin
-    if ExecWithResult('gvfs.exe', Format('config %s %s', [ConfigKey, ConfigValue]), '', SW_HIDE, ewWaitUntilTerminated, ResultCode, ResultString) then begin
+    if ExecWithResult('scalar.exe', Format('config %s %s', [ConfigKey, ConfigValue]), '', SW_HIDE, ewWaitUntilTerminated, ResultCode, ResultString) then begin
       Log(Format('SetIfNotConfigured: Set %s to %s', [ConfigKey, ConfigValue]));
     end else begin
       Log(Format('SetIfNotConfigured: Failed to set %s with %s', [ConfigKey, SysErrorMessage(ResultCode)]));
@@ -527,7 +527,7 @@ begin
     exit;
   end;
 
-  TargetFeed := Format('https://pkgs.dev.azure.com/microsoft/_packaging/VFSForGit-%s/nuget/v3/index.json', [RingName]);
+  TargetFeed := Format('https://pkgs.dev.azure.com/microsoft/_packaging/Scalar-%s/nuget/v3/index.json', [RingName]);
   FeedPackageName := 'Microsoft.VfsForGitEnvironment';
 
   SetIfNotConfigured('upgrade.feedurl', TargetFeed);
@@ -559,7 +559,7 @@ begin
   case CurStep of
     ssInstall:
       begin
-        UninstallService('GVFS.Service', True);
+        UninstallService('Scalar.Service', True);
       end;
     ssPostInstall:
       begin
@@ -581,7 +581,7 @@ begin
   case CurStep of
     usUninstall:
       begin
-        UninstallService('GVFS.Service', False);
+        UninstallService('Scalar.Service', False);
         RemovePath(ExpandConstant('{app}'));
       end;
     end;
@@ -603,5 +603,5 @@ begin
     begin
       Abort();
     end;
-  StopService('GVFS.Service');
+  StopService('Scalar.Service');
 end;

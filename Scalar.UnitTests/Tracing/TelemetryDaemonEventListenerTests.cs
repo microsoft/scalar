@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Tracing
+namespace Scalar.UnitTests.Tracing
 {
     [TestFixture]
     public class TelemetryDaemonEventListenerTests

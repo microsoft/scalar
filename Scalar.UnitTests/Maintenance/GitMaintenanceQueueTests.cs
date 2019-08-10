@@ -1,23 +1,23 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Maintenance;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Maintenance;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace GVFS.UnitTests.Maintenance
+namespace Scalar.UnitTests.Maintenance
 {
     [TestFixture]
     public class GitMaintenanceQueueTests
     {
         private int maxWaitTime = 500;
         private ReadyFileSystem fileSystem;
-        private GVFSEnlistment enlistment;
-        private GVFSContext context;
+        private ScalarEnlistment enlistment;
+        private ScalarContext context;
         private GitObjects gitObjects;
 
         [TestCase]
@@ -106,7 +106,7 @@ namespace GVFS.UnitTests.Maintenance
         private void TestSetup()
         {
             ITracer tracer = new MockTracer();
-            this.enlistment = new MockGVFSEnlistment();
+            this.enlistment = new MockScalarEnlistment();
 
             // We need to have the EnlistmentRoot and GitObjectsRoot available for jobs to run
             this.fileSystem = new ReadyFileSystem(new string[]
@@ -115,7 +115,7 @@ namespace GVFS.UnitTests.Maintenance
                 this.enlistment.GitObjectsRoot
             });
 
-            this.context = new GVFSContext(tracer, this.fileSystem, null, this.enlistment);
+            this.context = new ScalarContext(tracer, this.fileSystem, null, this.enlistment);
             this.gitObjects = new MockPhysicalGitObjects(tracer, this.fileSystem, this.enlistment, null);
         }
 
@@ -136,7 +136,7 @@ namespace GVFS.UnitTests.Maintenance
 
         public class TestGitMaintenanceStep : GitMaintenanceStep
         {
-            public TestGitMaintenanceStep(GVFSContext context)
+            public TestGitMaintenanceStep(ScalarContext context)
                 : base(context, requireObjectCacheLock: true)
             {
                 this.EventTriggered = new ManualResetEvent(initialState: false);
@@ -156,7 +156,7 @@ namespace GVFS.UnitTests.Maintenance
 
         private class WatchForStopStep : GitMaintenanceStep
         {
-            public WatchForStopStep(GitMaintenanceQueue queue, GVFSContext context)
+            public WatchForStopStep(GitMaintenanceQueue queue, ScalarContext context)
                 : base(context, requireObjectCacheLock: true)
             {
                 this.Queue = queue;

@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\GVFS.Build\GVFS.cs.props" />
+  <Import Project="..\Scalar.Build\Scalar.cs.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <RootNamespace>GVFS.Service</RootNamespace>
-    <AssemblyName>GVFS.Service</AssemblyName>
+    <RootNamespace>Scalar.Service</RootNamespace>
+    <AssemblyName>Scalar.Service</AssemblyName>
     <!-- Target netstandard2.0 as well so that .NET Framework unit tests can consume this assembly -->
     <TargetFrameworks>netcoreapp2.1; netstandard2.0</TargetFrameworks>
     <Platforms>x64</Platforms>
@@ -13,16 +13,16 @@
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\GVFS.PlatformLoader\PlatformLoader.Mac.cs" Link="Mac\PlatformLoader.Mac.cs" />
+    <Compile Include="..\Scalar.PlatformLoader\PlatformLoader.Mac.cs" Link="Mac\PlatformLoader.Mac.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="GVFSMountProcess.Mac.cs" />
-    <Compile Include="GVFSService.Mac.cs" />
+    <Compile Include="ScalarMountProcess.Mac.cs" />
+    <Compile Include="ScalarService.Mac.cs" />
     <Compile Include="Handlers\INotificationHandler.cs" />
     <Compile Include="Handlers\NotificationHandler.Mac.cs" />
     <Compile Include="Handlers\RequestHandler.cs" />
@@ -38,8 +38,8 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\GVFS.Platform.Mac\GVFS.Platform.Mac.csproj" />
-    <ProjectReference Include="..\GVFS.Common\GVFS.Common.csproj" />
+    <ProjectReference Include="..\Scalar.Platform.Mac\Scalar.Platform.Mac.csproj" />
+    <ProjectReference Include="..\Scalar.Common\Scalar.Common.csproj" />
   </ItemGroup>
   
   <ItemGroup>

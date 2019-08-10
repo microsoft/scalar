@@ -52,18 +52,18 @@ PATH_STRING GetFinalPathName(const PATH_STRING& path)
     return finalPath;
 }
 
-PATH_STRING GetGVFSPipeName(const char *appName)
+PATH_STRING GetScalarPipeName(const char *appName)
 {
-    // The pipe name is built using the path of the GVFS enlistment root.
+    // The pipe name is built using the path of the Scalar enlistment root.
     // Start in the current directory and walk up the directory tree
-    // until we find a folder that contains the ".gvfs" folder
+    // until we find a folder that contains the ".scalar" folder
 
-    const size_t dotGVFSRelativePathLength = sizeof(L"\\.gvfs") / sizeof(wchar_t);
+    const size_t dotScalarRelativePathLength = sizeof(L"\\.scalar") / sizeof(wchar_t);
 
     // TODO 640838: Support paths longer than MAX_PATH
     wchar_t enlistmentRoot[MAX_PATH];
-    DWORD currentDirResult = GetCurrentDirectoryW(MAX_PATH - dotGVFSRelativePathLength, enlistmentRoot);
-    if (currentDirResult == 0 || currentDirResult > MAX_PATH - dotGVFSRelativePathLength)
+    DWORD currentDirResult = GetCurrentDirectoryW(MAX_PATH - dotScalarRelativePathLength, enlistmentRoot);
+    if (currentDirResult == 0 || currentDirResult > MAX_PATH - dotScalarRelativePathLength)
     {
         die(ReturnCode::GetCurrentDirectoryFailure, "GetCurrentDirectory failed (%d)\n", GetLastError());
     }
@@ -82,17 +82,17 @@ PATH_STRING GetGVFSPipeName(const char *appName)
         enlistmentRootLength++;
     }
 
-    // Walk up enlistmentRoot looking for a folder named .gvfs
+    // Walk up enlistmentRoot looking for a folder named .scalar
     wchar_t* lastslash = enlistmentRoot + enlistmentRootLength - 1;
     WIN32_FIND_DATAW findFileData;
-    HANDLE dotGVFSHandle;
+    HANDLE dotScalarHandle;
     while (1)
     {
-        wcscat_s(lastslash, MAX_PATH - (lastslash - enlistmentRoot), L".gvfs");
-        dotGVFSHandle = FindFirstFileW(enlistmentRoot, &findFileData);
-        if (dotGVFSHandle != INVALID_HANDLE_VALUE)
+        wcscat_s(lastslash, MAX_PATH - (lastslash - enlistmentRoot), L".scalar");
+        dotScalarHandle = FindFirstFileW(enlistmentRoot, &findFileData);
+        if (dotScalarHandle != INVALID_HANDLE_VALUE)
         {
-            FindClose(dotGVFSHandle);
+            FindClose(dotScalarHandle);
             if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
                 break;
@@ -107,7 +107,7 @@ PATH_STRING GetGVFSPipeName(const char *appName)
 
         if (enlistmentRoot == lastslash)
         {
-            die(ReturnCode::NotInGVFSEnlistment, "%s must be run from inside a GVFS enlistment\n", appName);
+            die(ReturnCode::NotInScalarEnlistment, "%s must be run from inside a Scalar enlistment\n", appName);
         }
 
         *(lastslash + 1) = 0;
@@ -117,10 +117,10 @@ PATH_STRING GetGVFSPipeName(const char *appName)
 
     PATH_STRING namedPipe(CharUpperW(enlistmentRoot));
     std::replace(namedPipe.begin(), namedPipe.end(), L':', L'_');
-    return L"\\\\.\\pipe\\GVFS_" + namedPipe;
+    return L"\\\\.\\pipe\\Scalar_" + namedPipe;
 }
 
-PIPE_HANDLE CreatePipeToGVFS(const PATH_STRING& pipeName)
+PIPE_HANDLE CreatePipeToScalar(const PATH_STRING& pipeName)
 {
     PIPE_HANDLE pipeHandle;
     while (1)

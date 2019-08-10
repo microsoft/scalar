@@ -1,5 +1,5 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public abstract class FileBasedCollection : IDisposable
     {

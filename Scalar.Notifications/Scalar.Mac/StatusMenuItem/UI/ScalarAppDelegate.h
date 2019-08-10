@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 
-@interface VFSAppDelegate : NSObject <NSApplicationDelegate>
+@interface ScalarAppDelegate : NSObject <NSApplicationDelegate>
 
 @end
 

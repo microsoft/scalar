@@ -1,4 +1,4 @@
-﻿namespace GVFS.Common
+﻿namespace Scalar.Common
 {
     public class ProcessResult
     {

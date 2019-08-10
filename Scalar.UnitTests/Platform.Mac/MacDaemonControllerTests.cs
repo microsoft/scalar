@@ -1,6 +1,6 @@
-using GVFS.Common;
-using GVFS.Platform.Mac;
-using GVFS.Tests.Should;
+using Scalar.Common;
+using Scalar.Platform.Mac;
+using Scalar.Tests.Should;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace GVFS.UnitTests.Platform.Mac
+namespace Scalar.UnitTests.Platform.Mac
 {
     [TestFixture]
     public class MacServiceProcessTests

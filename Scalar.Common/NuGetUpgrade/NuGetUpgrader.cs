@@ -1,7 +1,7 @@
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
 using System;
@@ -11,7 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 
-namespace GVFS.Common.NuGetUpgrade
+namespace Scalar.Common.NuGetUpgrade
 {
     public class NuGetUpgrader : ProductUpgrader
     {
@@ -48,10 +48,10 @@ namespace GVFS.Common.NuGetUpgrade
                     config.PackageFeedName,
                     downloadFolder,
                     null,
-                    GVFSPlatform.Instance.UnderConstruction.SupportsNuGetEncryption,
+                    ScalarPlatform.Instance.UnderConstruction.SupportsNuGetEncryption,
                     tracer),
                 credentialStore,
-                GVFSPlatform.Instance.CreateProductUpgraderPlatformInteractions(fileSystem, tracer))
+                ScalarPlatform.Instance.CreateProductUpgraderPlatformInteractions(fileSystem, tracer))
         {
         }
 
@@ -104,7 +104,7 @@ namespace GVFS.Common.NuGetUpgrade
         public static bool TryCreate(
             ITracer tracer,
             PhysicalFileSystem fileSystem,
-            LocalGVFSConfig gvfsConfig,
+            LocalScalarConfig scalarConfig,
             ICredentialStore credentialStore,
             bool dryRun,
             bool noVerify,
@@ -112,7 +112,7 @@ namespace GVFS.Common.NuGetUpgrade
             out bool isConfigured,
             out string error)
         {
-            NuGetUpgraderConfig upgraderConfig = new NuGetUpgraderConfig(tracer, gvfsConfig);
+            NuGetUpgraderConfig upgraderConfig = new NuGetUpgraderConfig(tracer, scalarConfig);
             nuGetUpgrader = null;
             isConfigured = false;
 
@@ -328,7 +328,7 @@ namespace GVFS.Common.NuGetUpgrade
                 InstallActionInfo currentInstallAction = null;
                 try
                 {
-                    string platformKey = GVFSPlatform.Instance.Name;
+                    string platformKey = ScalarPlatform.Instance.Name;
 
                     if (!this.TryRecursivelyDeleteInstallerDirectory(out error))
                     {
@@ -642,20 +642,20 @@ namespace GVFS.Common.NuGetUpgrade
         public class NuGetUpgraderConfig
         {
             protected readonly ITracer tracer;
-            protected readonly LocalGVFSConfig localConfig;
+            protected readonly LocalScalarConfig localConfig;
 
-            public NuGetUpgraderConfig(ITracer tracer, LocalGVFSConfig localGVFSConfig)
+            public NuGetUpgraderConfig(ITracer tracer, LocalScalarConfig localScalarConfig)
             {
                 this.tracer = tracer;
-                this.localConfig = localGVFSConfig;
+                this.localConfig = localScalarConfig;
             }
 
             public NuGetUpgraderConfig(
                 ITracer tracer,
-                LocalGVFSConfig localGVFSConfig,
+                LocalScalarConfig localScalarConfig,
                 string feedUrl,
                 string packageFeedName)
-                : this(tracer, localGVFSConfig)
+                : this(tracer, localScalarConfig)
             {
                 this.FeedUrl = feedUrl;
                 this.PackageFeedName = packageFeedName;
@@ -678,7 +678,7 @@ namespace GVFS.Common.NuGetUpgrade
                     error = string.Join(
                         Environment.NewLine,
                         "One or more required settings for NuGetUpgrader are missing.",
-                        $"Use `gvfs config [{GVFSConstants.LocalGVFSConfig.UpgradeFeedUrl} | {GVFSConstants.LocalGVFSConfig.UpgradeFeedPackageName}] <value>` to set the config.");
+                        $"Use `scalar config [{ScalarConstants.LocalScalarConfig.UpgradeFeedUrl} | {ScalarConstants.LocalScalarConfig.UpgradeFeedPackageName}] <value>` to set the config.");
                     return false;
                 }
 
@@ -697,7 +697,7 @@ namespace GVFS.Common.NuGetUpgrade
                     error = string.Join(
                         Environment.NewLine,
                         "NuGet upgrade server is not configured.",
-                        $"Use `gvfs config [ {GVFSConstants.LocalGVFSConfig.UpgradeFeedUrl} | {GVFSConstants.LocalGVFSConfig.UpgradeFeedPackageName}] <value>` to set the config.");
+                        $"Use `scalar config [ {ScalarConstants.LocalScalarConfig.UpgradeFeedUrl} | {ScalarConstants.LocalScalarConfig.UpgradeFeedPackageName}] <value>` to set the config.");
                     return false;
                 }
 
@@ -711,7 +711,7 @@ namespace GVFS.Common.NuGetUpgrade
             public virtual bool TryLoad(out string error)
             {
                 string configValue;
-                if (!this.localConfig.TryGetConfig(GVFSConstants.LocalGVFSConfig.UpgradeFeedUrl, out configValue, out error))
+                if (!this.localConfig.TryGetConfig(ScalarConstants.LocalScalarConfig.UpgradeFeedUrl, out configValue, out error))
                 {
                     this.tracer.RelatedError(error);
                     return false;
@@ -719,7 +719,7 @@ namespace GVFS.Common.NuGetUpgrade
 
                 this.FeedUrl = configValue;
 
-                if (!this.localConfig.TryGetConfig(GVFSConstants.LocalGVFSConfig.UpgradeFeedPackageName, out configValue, out error))
+                if (!this.localConfig.TryGetConfig(ScalarConstants.LocalScalarConfig.UpgradeFeedPackageName, out configValue, out error))
                 {
                     this.tracer.RelatedError(error);
                     return false;

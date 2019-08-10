@@ -1,7 +1,7 @@
-﻿using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
 
-namespace GVFS.Service.Handlers
+namespace Scalar.Service.Handlers
 {
     public abstract class MessageHandler
     {

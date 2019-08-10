@@ -1,19 +1,19 @@
 ﻿using CommandLine;
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.Maintenance;
-using GVFS.Common.Prefetch;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.Maintenance;
+using Scalar.Common.Prefetch;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
     [Verb(PrefetchVerb.PrefetchVerbName, HelpText = "Prefetch remote objects for the current head")]
-    public class PrefetchVerb : GVFSVerb.ForExistingEnlistment
+    public class PrefetchVerb : ScalarVerb.ForExistingEnlistment
     {
         private const string PrefetchVerbName = "prefetch";
 
@@ -93,16 +93,16 @@ namespace GVFS.CommandLine
 
         public bool SkipVersionCheck { get; set; }
         public CacheServerInfo ResolvedCacheServer { get; set; }
-        public ServerGVFSConfig ServerGVFSConfig { get; set; }
+        public ServerScalarConfig ServerScalarConfig { get; set; }
 
         protected override string VerbName
         {
             get { return PrefetchVerbName; }
         }
 
-        protected override void Execute(GVFSEnlistment enlistment)
+        protected override void Execute(ScalarEnlistment enlistment)
         {
-            using (JsonTracer tracer = new JsonTracer(GVFSConstants.GVFSEtwProviderName, "Prefetch"))
+            using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "Prefetch"))
             {
                 if (this.Verbose)
                 {
@@ -112,7 +112,7 @@ namespace GVFS.CommandLine
                 string cacheServerUrl = CacheServerResolver.GetUrlFromConfig(enlistment);
 
                 tracer.AddLogFileEventListener(
-                    GVFSEnlistment.GetNewGVFSLogFileName(enlistment.GVFSLogsRoot, GVFSConstants.LogFileTypes.Prefetch),
+                    ScalarEnlistment.GetNewScalarLogFileName(enlistment.ScalarLogsRoot, ScalarConstants.LogFileTypes.Prefetch),
                     EventLevel.Informational,
                     Keywords.Any);
                 tracer.WriteStartEvent(
@@ -194,7 +194,7 @@ namespace GVFS.CommandLine
                 catch (AggregateException aggregateException)
                 {
                     this.Output.WriteLine(
-                        "Cannot prefetch {0}. " + ConsoleHelper.GetGVFSLogMessage(enlistment.EnlistmentRoot),
+                        "Cannot prefetch {0}. " + ConsoleHelper.GetScalarLogMessage(enlistment.EnlistmentRoot),
                         enlistment.EnlistmentRoot);
                     foreach (Exception innerException in aggregateException.Flatten().InnerExceptions)
                     {
@@ -212,7 +212,7 @@ namespace GVFS.CommandLine
                 catch (Exception e)
                 {
                     this.Output.WriteLine(
-                        "Cannot prefetch {0}. " + ConsoleHelper.GetGVFSLogMessage(enlistment.EnlistmentRoot),
+                        "Cannot prefetch {0}. " + ConsoleHelper.GetScalarLogMessage(enlistment.EnlistmentRoot),
                         enlistment.EnlistmentRoot);
                     tracer.RelatedError(
                         new EventMetadata
@@ -229,7 +229,7 @@ namespace GVFS.CommandLine
 
         private void InitializeServerConnection(
             ITracer tracer,
-            GVFSEnlistment enlistment,
+            ScalarEnlistment enlistment,
             string cacheServerUrl,
             out GitObjectsHttpRequestor objectRequestor,
             out CacheServerInfo cacheServer)
@@ -237,7 +237,7 @@ namespace GVFS.CommandLine
             RetryConfig retryConfig = this.GetRetryConfig(tracer, enlistment, TimeSpan.FromMinutes(RetryConfig.FetchAndCloneTimeoutMinutes));
 
             cacheServer = this.ResolvedCacheServer;
-            ServerGVFSConfig serverGVFSConfig = this.ServerGVFSConfig;
+            ServerScalarConfig serverScalarConfig = this.ServerScalarConfig;
             if (!this.SkipVersionCheck)
             {
                 string authErrorMessage;
@@ -246,34 +246,34 @@ namespace GVFS.CommandLine
                     this.ReportErrorAndExit(tracer, "Unable to prefetch because authentication failed: " + authErrorMessage);
                 }
 
-                if (serverGVFSConfig == null)
+                if (serverScalarConfig == null)
                 {
-                    serverGVFSConfig = this.QueryGVFSConfig(tracer, enlistment, retryConfig);
+                    serverScalarConfig = this.QueryScalarConfig(tracer, enlistment, retryConfig);
                 }
 
                 if (cacheServer == null)
                 {
                     CacheServerResolver cacheServerResolver = new CacheServerResolver(tracer, enlistment);
-                    cacheServer = cacheServerResolver.ResolveNameFromRemote(cacheServerUrl, serverGVFSConfig);
+                    cacheServer = cacheServerResolver.ResolveNameFromRemote(cacheServerUrl, serverScalarConfig);
                 }
 
-                this.ValidateClientVersions(tracer, enlistment, serverGVFSConfig, showWarnings: false);
+                this.ValidateClientVersions(tracer, enlistment, serverScalarConfig, showWarnings: false);
 
                 this.Output.WriteLine("Configured cache server: " + cacheServer);
             }
 
-            this.InitializeLocalCacheAndObjectsPaths(tracer, enlistment, retryConfig, serverGVFSConfig, cacheServer);
+            this.InitializeLocalCacheAndObjectsPaths(tracer, enlistment, retryConfig, serverScalarConfig, cacheServer);
             objectRequestor = new GitObjectsHttpRequestor(tracer, enlistment, cacheServer, retryConfig);
         }
 
-        private void PrefetchCommits(ITracer tracer, GVFSEnlistment enlistment, GitObjectsHttpRequestor objectRequestor, CacheServerInfo cacheServer)
+        private void PrefetchCommits(ITracer tracer, ScalarEnlistment enlistment, GitObjectsHttpRequestor objectRequestor, CacheServerInfo cacheServer)
         {
             bool success;
             string error = string.Empty;
             PhysicalFileSystem fileSystem = new PhysicalFileSystem();
             GitRepo repo = new GitRepo(tracer, enlistment, fileSystem);
-            GVFSContext context = new GVFSContext(tracer, fileSystem, repo, enlistment);
-            GitObjects gitObjects = new GVFSGitObjects(context, objectRequestor);
+            ScalarContext context = new ScalarContext(tracer, fileSystem, repo, enlistment);
+            GitObjects gitObjects = new ScalarGitObjects(context, objectRequestor);
 
             if (this.Verbose)
             {
@@ -294,7 +294,7 @@ namespace GVFS.CommandLine
 
         private void LoadBlobPrefetchArgs(
             ITracer tracer,
-            GVFSEnlistment enlistment,
+            ScalarEnlistment enlistment,
             out string headCommitId,
             out List<string> filesList,
             out List<string> foldersList,
@@ -304,7 +304,7 @@ namespace GVFS.CommandLine
 
             if (!FileBasedDictionary<string, string>.TryCreate(
                     tracer,
-                    Path.Combine(enlistment.DotGVFSRoot, "LastBlobPrefetch.dat"),
+                    Path.Combine(enlistment.DotScalarRoot, "LastBlobPrefetch.dat"),
                     new PhysicalFileSystem(),
                     out lastPrefetchArgs,
                     out error))
@@ -326,7 +326,7 @@ namespace GVFS.CommandLine
             }
 
             GitProcess gitProcess = new GitProcess(enlistment);
-            GitProcess.Result result = gitProcess.RevParse(GVFSConstants.DotGit.HeadName);
+            GitProcess.Result result = gitProcess.RevParse(ScalarConstants.DotGit.HeadName);
             if (result.ExitCodeIsFailure)
             {
                 this.ReportErrorAndExit(tracer, result.Errors);
@@ -337,7 +337,7 @@ namespace GVFS.CommandLine
 
         private void PrefetchBlobs(
             ITracer tracer,
-            GVFSEnlistment enlistment,
+            ScalarEnlistment enlistment,
             string headCommitId,
             List<string> filesList,
             List<string> foldersList,
@@ -367,7 +367,7 @@ namespace GVFS.CommandLine
             {
                 if (!this.CheckIsMounted(verbose: true))
                 {
-                    this.ReportErrorAndExit("You can only specify --hydrate if the repo is mounted. Run 'gvfs mount' and try again.");
+                    this.ReportErrorAndExit("You can only specify --hydrate if the repo is mounted. Run 'scalar mount' and try again.");
                 }
             }
 
@@ -437,10 +437,10 @@ namespace GVFS.CommandLine
             {
                 return ConsoleHelper.ShowStatusWhileRunning(
                     checkMount,
-                    "Checking that GVFS is mounted",
+                    "Checking that Scalar is mounted",
                     this.Output,
                     showSpinner: true,
-                    gvfsLogEnlistmentRoot: null);
+                    scalarLogEnlistmentRoot: null);
             }
             else
             {

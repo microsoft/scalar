@@ -1,13 +1,13 @@
-﻿using GVFS.Common.Http;
+﻿using Scalar.Common.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
-    public class ServerGVFSConfig
+    public class ServerScalarConfig
     {
-        public IEnumerable<VersionRange> AllowedGVFSClientVersions { get; set; }
+        public IEnumerable<VersionRange> AllowedScalarClientVersions { get; set; }
 
         public IEnumerable<CacheServerInfo> CacheServers { get; set; } = Enumerable.Empty<CacheServerInfo>();
 

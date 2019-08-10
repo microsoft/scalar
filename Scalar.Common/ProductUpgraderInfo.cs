@@ -1,9 +1,9 @@
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.IO;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public partial class ProductUpgraderInfo
     {
@@ -16,14 +16,14 @@ namespace GVFS.Common
             this.fileSystem = fileSystem;
         }
 
-        public static string CurrentGVFSVersion()
+        public static string CurrentScalarVersion()
         {
             return ProcessHelper.GetCurrentProcessVersion();
         }
 
         public static string GetUpgradeProtectedDataDirectory()
         {
-            return GVFSPlatform.Instance.GetUpgradeProtectedDataDirectory();
+            return ScalarPlatform.Instance.GetUpgradeProtectedDataDirectory();
         }
 
         public static string GetUpgradeApplicationDirectory()
@@ -35,26 +35,26 @@ namespace GVFS.Common
 
         public static string GetParentLogDirectoryPath()
         {
-            return GVFSPlatform.Instance.GetUpgradeLogDirectoryParentDirectory();
+            return ScalarPlatform.Instance.GetUpgradeLogDirectoryParentDirectory();
         }
 
         public static string GetLogDirectoryPath()
         {
             return Path.Combine(
-                GVFSPlatform.Instance.GetUpgradeLogDirectoryParentDirectory(),
+                ScalarPlatform.Instance.GetUpgradeLogDirectoryParentDirectory(),
                 ProductUpgraderInfo.LogDirectory);
         }
 
         public static string GetAssetDownloadsPath()
         {
             return Path.Combine(
-                GVFSPlatform.Instance.GetUpgradeProtectedDataDirectory(),
+                ScalarPlatform.Instance.GetUpgradeProtectedDataDirectory(),
                 ProductUpgraderInfo.DownloadDirectory);
         }
 
         public static string GetHighestAvailableVersionDirectory()
         {
-            return GVFSPlatform.Instance.GetUpgradeHighestAvailableVersionDirectory();
+            return ScalarPlatform.Instance.GetUpgradeHighestAvailableVersionDirectory();
         }
 
         public void DeleteAllInstallerDownloads()

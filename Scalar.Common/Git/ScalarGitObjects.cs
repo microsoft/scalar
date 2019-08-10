@@ -1,5 +1,5 @@
-﻿using GVFS.Common.Http;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.Http;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,15 +7,15 @@ using System.IO;
 using System.Net;
 using System.Threading;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
-    public class GVFSGitObjects : GitObjects
+    public class ScalarGitObjects : GitObjects
     {
         private static readonly TimeSpan NegativeCacheTTL = TimeSpan.FromSeconds(30);
 
         private ConcurrentDictionary<string, DateTime> objectNegativeCache;
 
-        public GVFSGitObjects(GVFSContext context, GitObjectsHttpRequestor objectRequestor)
+        public ScalarGitObjects(ScalarContext context, GitObjectsHttpRequestor objectRequestor)
             : base(context.Tracer, context.Enlistment, objectRequestor, context.FileSystem)
         {
             this.Context = context;
@@ -26,12 +26,12 @@ namespace GVFS.Common.Git
         {
             Invalid = 0,
             FileStreamCallback,
-            GVFSVerb,
+            ScalarVerb,
             NamedPipeMessage,
             SymLinkCreation,
         }
 
-        protected GVFSContext Context { get; private set; }
+        protected ScalarContext Context { get; private set; }
 
         public DownloadAndSaveObjectResult TryDownloadAndSaveObject(string objectId, RequestSource requestSource)
         {
@@ -54,7 +54,7 @@ namespace GVFS.Common.Git
             RequestSource requestSource,
             bool retryOnFailure)
         {
-            if (objectId == GVFSConstants.AllZeroSha)
+            if (objectId == ScalarConstants.AllZeroSha)
             {
                 return DownloadAndSaveObjectResult.Error;
             }

@@ -1,28 +1,28 @@
-﻿using GVFS.Tests.Should;
+﻿using Scalar.Tests.Should;
 using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace GVFS.FunctionalTests.Tools
+namespace Scalar.FunctionalTests.Tools
 {
-    public class GVFSProcess
+    public class ScalarProcess
     {
         private const int SuccessExitCode = 0;
         private const int ExitCodeShouldNotBeZero = -1;
         private const int DoNotCheckExitCode = -2;
 
-        private readonly string pathToGVFS;
+        private readonly string pathToScalar;
         private readonly string enlistmentRoot;
         private readonly string localCacheRoot;
 
-        public GVFSProcess(GVFSFunctionalTestEnlistment enlistment)
-            : this(GVFSTestConfig.PathToGVFS, enlistment.EnlistmentRoot, Path.Combine(enlistment.EnlistmentRoot, GVFSTestConfig.DotGVFSRoot))
+        public ScalarProcess(ScalarFunctionalTestEnlistment enlistment)
+            : this(ScalarTestConfig.PathToScalar, enlistment.EnlistmentRoot, Path.Combine(enlistment.EnlistmentRoot, ScalarTestConfig.DotScalarRoot))
         {
         }
 
-        public GVFSProcess(string pathToGVFS, string enlistmentRoot, string localCacheRoot)
+        public ScalarProcess(string pathToScalar, string enlistmentRoot, string localCacheRoot)
         {
-            this.pathToGVFS = pathToGVFS;
+            this.pathToScalar = pathToScalar;
             this.enlistmentRoot = enlistmentRoot;
             this.localCacheRoot = localCacheRoot;
         }
@@ -36,20 +36,20 @@ namespace GVFS.FunctionalTests.Tools
                 branchToCheckout,
                 this.localCacheRoot,
                 skipPrefetch ? "--no-prefetch" : string.Empty);
-            this.CallGVFS(args, expectedExitCode: SuccessExitCode);
+            this.CallScalar(args, expectedExitCode: SuccessExitCode);
         }
 
         public void Mount()
         {
             string output;
-            this.TryMount(out output).ShouldEqual(true, "GVFS did not mount: " + output);
+            this.TryMount(out output).ShouldEqual(true, "Scalar did not mount: " + output);
             output.ShouldNotContain(ignoreCase: true, unexpectedSubstrings: "warning");
         }
 
         public bool TryMount(out string output)
         {
-            this.IsEnlistmentMounted().ShouldEqual(false, "GVFS is already mounted");
-            output = this.CallGVFS("mount \"" + this.enlistmentRoot + "\"");
+            this.IsEnlistmentMounted().ShouldEqual(false, "Scalar is already mounted");
+            output = this.CallScalar("mount \"" + this.enlistmentRoot + "\"");
             return this.IsEnlistmentMounted();
         }
 
@@ -82,12 +82,12 @@ namespace GVFS.FunctionalTests.Tools
                 folderList = $"\"{folderList}\"";
             }
 
-            return this.CallGVFS($"sparse {this.enlistmentRoot} {action} {folderList}", expectedExitCode: shouldSucceed ? SuccessExitCode : ExitCodeShouldNotBeZero);
+            return this.CallScalar($"sparse {this.enlistmentRoot} {action} {folderList}", expectedExitCode: shouldSucceed ? SuccessExitCode : ExitCodeShouldNotBeZero);
         }
 
         public string[] GetSparseFolders()
         {
-            string output = this.CallGVFS($"sparse {this.enlistmentRoot} -l");
+            string output = this.CallScalar($"sparse {this.enlistmentRoot} -l");
             if (output.StartsWith("No folders in sparse list."))
             {
                 return new string[0];
@@ -98,30 +98,30 @@ namespace GVFS.FunctionalTests.Tools
 
         public string Prefetch(string args, bool failOnError, string standardInput = null)
         {
-            return this.CallGVFS("prefetch \"" + this.enlistmentRoot + "\" " + args, failOnError ? SuccessExitCode : DoNotCheckExitCode, standardInput: standardInput);
+            return this.CallScalar("prefetch \"" + this.enlistmentRoot + "\" " + args, failOnError ? SuccessExitCode : DoNotCheckExitCode, standardInput: standardInput);
         }
 
         public void Repair(bool confirm)
         {
             string confirmArg = confirm ? "--confirm " : string.Empty;
-            this.CallGVFS(
+            this.CallScalar(
                 "repair " + confirmArg + "\"" + this.enlistmentRoot + "\"",
                 expectedExitCode: SuccessExitCode);
         }
 
         public string LooseObjectStep()
         {
-            return this.CallGVFS(
+            return this.CallScalar(
                 "dehydrate \"" + this.enlistmentRoot + "\"",
                 expectedExitCode: SuccessExitCode,
-                internalParameter: GVFSHelpers.GetInternalParameter("\\\"LooseObjects\\\""));
+                internalParameter: ScalarHelpers.GetInternalParameter("\\\"LooseObjects\\\""));
         }
 
         public string PackfileMaintenanceStep(long? batchSize)
         {
             string sizeString = batchSize.HasValue ? $"\\\"{batchSize.Value}\\\"" : "null";
-            string internalParameter = GVFSHelpers.GetInternalParameter("\\\"PackfileMaintenance\\\"", sizeString);
-            return this.CallGVFS(
+            string internalParameter = ScalarHelpers.GetInternalParameter("\\\"PackfileMaintenance\\\"", sizeString);
+            return this.CallScalar(
                 "dehydrate \"" + this.enlistmentRoot + "\"",
                 expectedExitCode: SuccessExitCode,
                 internalParameter: internalParameter);
@@ -129,8 +129,8 @@ namespace GVFS.FunctionalTests.Tools
 
         public string PostFetchStep()
         {
-            string internalParameter = GVFSHelpers.GetInternalParameter("\\\"PostFetch\\\"");
-            return this.CallGVFS(
+            string internalParameter = ScalarHelpers.GetInternalParameter("\\\"PostFetch\\\"");
+            return this.CallScalar(
                 "dehydrate \"" + this.enlistmentRoot + "\"",
                 expectedExitCode: SuccessExitCode,
                 internalParameter: internalParameter);
@@ -138,58 +138,58 @@ namespace GVFS.FunctionalTests.Tools
 
         public string Diagnose()
         {
-            return this.CallGVFS("diagnose \"" + this.enlistmentRoot + "\"");
+            return this.CallScalar("diagnose \"" + this.enlistmentRoot + "\"");
         }
 
         public string Status(string trace = null)
         {
-            return this.CallGVFS("status " + this.enlistmentRoot, trace: trace);
+            return this.CallScalar("status " + this.enlistmentRoot, trace: trace);
         }
 
         public string CacheServer(string args)
         {
-            return this.CallGVFS("cache-server " + args + " \"" + this.enlistmentRoot + "\"");
+            return this.CallScalar("cache-server " + args + " \"" + this.enlistmentRoot + "\"");
         }
 
         public void Unmount()
         {
             if (this.IsEnlistmentMounted())
             {
-                string result = this.CallGVFS("unmount \"" + this.enlistmentRoot + "\"", expectedExitCode: SuccessExitCode);
-                this.IsEnlistmentMounted().ShouldEqual(false, "GVFS did not unmount: " + result);
+                string result = this.CallScalar("unmount \"" + this.enlistmentRoot + "\"", expectedExitCode: SuccessExitCode);
+                this.IsEnlistmentMounted().ShouldEqual(false, "Scalar did not unmount: " + result);
             }
         }
 
         public bool IsEnlistmentMounted()
         {
-            string statusResult = this.CallGVFS("status \"" + this.enlistmentRoot + "\"");
+            string statusResult = this.CallScalar("status \"" + this.enlistmentRoot + "\"");
             return statusResult.Contains("Mount status: Ready");
         }
 
         public string RunServiceVerb(string argument)
         {
-            return this.CallGVFS("service " + argument, expectedExitCode: SuccessExitCode);
+            return this.CallScalar("service " + argument, expectedExitCode: SuccessExitCode);
         }
 
         public string ReadConfig(string key, bool failOnError)
         {
-            return this.CallGVFS($"config {key}", failOnError ? SuccessExitCode : DoNotCheckExitCode).TrimEnd('\r', '\n');
+            return this.CallScalar($"config {key}", failOnError ? SuccessExitCode : DoNotCheckExitCode).TrimEnd('\r', '\n');
         }
 
         public void WriteConfig(string key, string value)
         {
-            this.CallGVFS($"config {key} {value}", expectedExitCode: SuccessExitCode);
+            this.CallScalar($"config {key} {value}", expectedExitCode: SuccessExitCode);
         }
 
         public void DeleteConfig(string key)
         {
-            this.CallGVFS($"config --delete {key}", expectedExitCode: SuccessExitCode);
+            this.CallScalar($"config --delete {key}", expectedExitCode: SuccessExitCode);
         }
 
         /// <summary>
-        /// Invokes a call to gvfs using the arguments specified
+        /// Invokes a call to scalar using the arguments specified
         /// </summary>
-        /// <param name="args">The arguments to use when invoking gvfs</param>
+        /// <param name="args">The arguments to use when invoking scalar</param>
         /// <param name="expectedExitCode">
         /// What the expected exit code should be.
         /// >= than 0 to check the exit code explicitly
@@ -200,14 +200,14 @@ namespace GVFS.FunctionalTests.Tools
         /// <param name="standardInput">What to write to the standard input stream</param>
         /// <param name="internalParameter">The internal parameter to set in the arguments</param>
         /// <returns></returns>
-        private string CallGVFS(string args, int expectedExitCode = DoNotCheckExitCode, string trace = null, string standardInput = null, string internalParameter = null)
+        private string CallScalar(string args, int expectedExitCode = DoNotCheckExitCode, string trace = null, string standardInput = null, string internalParameter = null)
         {
             ProcessStartInfo processInfo = null;
-            processInfo = new ProcessStartInfo(this.pathToGVFS);
+            processInfo = new ProcessStartInfo(this.pathToScalar);
 
             if (internalParameter == null)
             {
-                internalParameter = GVFSHelpers.GetInternalParameter();
+                internalParameter = ScalarHelpers.GetInternalParameter();
             }
 
             processInfo.Arguments = args + " " + TestConstants.InternalUseOnlyFlag + " " + internalParameter;

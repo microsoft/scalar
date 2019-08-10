@@ -1,9 +1,9 @@
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class ProductUpgraderInfoTests

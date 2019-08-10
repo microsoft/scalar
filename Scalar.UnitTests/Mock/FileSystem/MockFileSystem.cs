@@ -1,14 +1,14 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
 using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace GVFS.UnitTests.Mock.FileSystem
+namespace Scalar.UnitTests.Mock.FileSystem
 {
     public class MockFileSystem : PhysicalFileSystem
     {
@@ -227,13 +227,13 @@ namespace GVFS.UnitTests.Mock.FileSystem
 
             if (this.TryCreateOrUpdateDirectoryToAdminModifyPermissionsShouldSucceed)
             {
-                // TryCreateOrUpdateDirectoryToAdminModifyPermissions is typically called for paths in C:\ProgramData\GVFS,
+                // TryCreateOrUpdateDirectoryToAdminModifyPermissions is typically called for paths in C:\ProgramData\Scalar,
                 // if it's called for one of those paths remap the paths to be inside the mock: root
                 string mockDirectoryPath = directoryPath;
-                string gvfsProgramData = @"C:\ProgramData\GVFS";
-                if (directoryPath.StartsWith(gvfsProgramData, StringComparison.OrdinalIgnoreCase))
+                string scalarProgramData = @"C:\ProgramData\Scalar";
+                if (directoryPath.StartsWith(scalarProgramData, StringComparison.OrdinalIgnoreCase))
                 {
-                    mockDirectoryPath = mockDirectoryPath.Substring(gvfsProgramData.Length);
+                    mockDirectoryPath = mockDirectoryPath.Substring(scalarProgramData.Length);
                     mockDirectoryPath = "mock:" + mockDirectoryPath;
                 }
 

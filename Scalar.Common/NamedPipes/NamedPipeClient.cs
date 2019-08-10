@@ -2,7 +2,7 @@
 using System.IO;
 using System.IO.Pipes;
 
-namespace GVFS.Common.NamedPipes
+namespace Scalar.Common.NamedPipes
 {
     public class NamedPipeClient : IDisposable
     {

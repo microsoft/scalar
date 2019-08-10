@@ -1,18 +1,18 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Maintenance;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
-using GVFS.UnitTests.Mock.Git;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Maintenance;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
+using Scalar.UnitTests.Mock.Git;
 using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.UnitTests.Maintenance
+namespace Scalar.UnitTests.Maintenance
 {
     [TestFixture]
     public class LooseObjectStepTests
@@ -21,7 +21,7 @@ namespace GVFS.UnitTests.Maintenance
         private string packCommand;
         private MockTracer tracer;
         private MockGitProcess gitProcess;
-        private GVFSContext context;
+        private ScalarContext context;
 
         [TestCase]
         public void LooseObjectsIgnoreTimeRestriction()
@@ -192,7 +192,7 @@ namespace GVFS.UnitTests.Maintenance
                 () => new GitProcess.Result(string.Empty, string.Empty, GitProcess.Result.SuccessCode));
 
             // Create enlistment using git process
-            GVFSEnlistment enlistment = new MockGVFSEnlistment(this.gitProcess);
+            ScalarEnlistment enlistment = new MockScalarEnlistment(this.gitProcess);
 
             string packPrefix = Path.Combine(enlistment.GitPackRoot, "from-loose");
             this.packCommand = $"pack-objects {packPrefix} --non-empty --window=0 --depth=0 -q";
@@ -252,7 +252,7 @@ namespace GVFS.UnitTests.Maintenance
 
             // Create and return Context
             this.tracer = new MockTracer();
-            this.context = new GVFSContext(this.tracer, fileSystem, repository: null, enlistment: enlistment);
+            this.context = new ScalarContext(this.tracer, fileSystem, repository: null, enlistment: enlistment);
         }
     }
 }

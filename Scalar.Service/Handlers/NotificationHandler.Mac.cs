@@ -1,13 +1,13 @@
-﻿using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
 using System;
 using System.IO;
 
-namespace GVFS.Service.Handlers
+namespace Scalar.Service.Handlers
 {
     public class NotificationHandler : INotificationHandler
     {
-        private const string NotificationServerPipeName = "vfsforgit.notification";
+        private const string NotificationServerPipeName = "scalar.notification";
         private ITracer tracer;
 
         public NotificationHandler(ITracer tracer)

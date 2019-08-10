@@ -1,14 +1,14 @@
-﻿using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.Git;
+﻿using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.Git;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
-    public class GVFSEnlistmentTests
+    public class ScalarEnlistmentTests
     {
         private const string MountId = "85576f54f9ab4388bcdc19b4f6c17696";
         private const string EnlistmentId = "520dcf634ce34065a06abaa4010a256f";
@@ -16,30 +16,30 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void CanGetMountId()
         {
-            TestGVFSEnlistment enlistment = new TestGVFSEnlistment();
+            TestScalarEnlistment enlistment = new TestScalarEnlistment();
             enlistment.GetMountId().ShouldEqual(MountId);
         }
 
         [TestCase]
         public void CanGetEnlistmentId()
         {
-            TestGVFSEnlistment enlistment = new TestGVFSEnlistment();
+            TestScalarEnlistment enlistment = new TestScalarEnlistment();
             enlistment.GetEnlistmentId().ShouldEqual(EnlistmentId);
         }
 
-        private class TestGVFSEnlistment : GVFSEnlistment
+        private class TestScalarEnlistment : ScalarEnlistment
         {
             private MockGitProcess gitProcess;
 
-            public TestGVFSEnlistment()
+            public TestScalarEnlistment()
                 : base("mock:\\path", "mock://repoUrl", "mock:\\git", authentication: null)
             {
                 this.gitProcess = new MockGitProcess();
                 this.gitProcess.SetExpectedCommandResult(
-                    "config --local gvfs.mount-id",
+                    "config --local scalar.mount-id",
                     () => new GitProcess.Result(MountId, string.Empty, GitProcess.Result.SuccessCode));
                 this.gitProcess.SetExpectedCommandResult(
-                    "config --local gvfs.enlistment-id",
+                    "config --local scalar.enlistment-id",
                     () => new GitProcess.Result(EnlistmentId, string.Empty, GitProcess.Result.SuccessCode));
             }
 

@@ -1,12 +1,12 @@
 using System.Linq;
-using GVFS.Common.Git;
-using GVFS.Tests;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.Git;
+using Scalar.Common.Git;
+using Scalar.Tests;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.Git;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Git
+namespace Scalar.UnitTests.Git
 {
     [TestFixtureSource(typeof(DataSources), nameof(DataSources.AllBools))]
     public class GitAuthenticationTests
@@ -248,8 +248,8 @@ namespace GVFS.UnitTests.Git
         private MockGitProcess GetGitProcess()
         {
             MockGitProcess gitProcess = new MockGitProcess();
-            gitProcess.SetExpectedCommandResult("config gvfs.FunctionalTests.UserName", () => new GitProcess.Result(string.Empty, string.Empty, GitProcess.Result.GenericFailureCode));
-            gitProcess.SetExpectedCommandResult("config gvfs.FunctionalTests.Password", () => new GitProcess.Result(string.Empty, string.Empty, GitProcess.Result.GenericFailureCode));
+            gitProcess.SetExpectedCommandResult("config scalar.FunctionalTests.UserName", () => new GitProcess.Result(string.Empty, string.Empty, GitProcess.Result.GenericFailureCode));
+            gitProcess.SetExpectedCommandResult("config scalar.FunctionalTests.Password", () => new GitProcess.Result(string.Empty, string.Empty, GitProcess.Result.GenericFailureCode));
 
             if (this.sslSettingsPresent)
             {

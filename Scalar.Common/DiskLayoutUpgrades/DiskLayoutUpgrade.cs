@@ -1,12 +1,12 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.DiskLayoutUpgrades
+namespace Scalar.DiskLayoutUpgrades
 {
     public abstract class DiskLayoutUpgrade
     {
@@ -21,12 +21,12 @@ namespace GVFS.DiskLayoutUpgrades
             majorVersionUpgrades = new Dictionary<int, MajorUpgrade>();
             minorVersionUpgrades = new Dictionary<int, Dictionary<int, MinorUpgrade>>();
 
-            foreach (DiskLayoutUpgrade upgrade in GVFSPlatform.Instance.DiskLayoutUpgrade.Upgrades)
+            foreach (DiskLayoutUpgrade upgrade in ScalarPlatform.Instance.DiskLayoutUpgrade.Upgrades)
             {
                 RegisterUpgrade(upgrade);
             }
 
-            using (JsonTracer tracer = new JsonTracer(GVFSConstants.GVFSEtwProviderName, "DiskLayoutUpgrade"))
+            using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "DiskLayoutUpgrade"))
             {
                 try
                 {
@@ -73,33 +73,33 @@ namespace GVFS.DiskLayoutUpgrades
             {
                 if (TryGetDiskLayoutVersion(tracer, enlistmentRoot, out majorVersion, out minorVersion, out error))
                 {
-                    if (majorVersion < GVFSPlatform.Instance.DiskLayoutUpgrade.Version.MinimumSupportedMajorVersion)
+                    if (majorVersion < ScalarPlatform.Instance.DiskLayoutUpgrade.Version.MinimumSupportedMajorVersion)
                     {
                         error = string.Format(
-                            "Breaking change to GVFS disk layout has been made since cloning. \r\nEnlistment disk layout version: {0} \r\nGVFS disk layout version: {1} \r\nMinimum supported version: {2}",
+                            "Breaking change to Scalar disk layout has been made since cloning. \r\nEnlistment disk layout version: {0} \r\nScalar disk layout version: {1} \r\nMinimum supported version: {2}",
                             majorVersion,
-                            GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion,
-                            GVFSPlatform.Instance.DiskLayoutUpgrade.Version.MinimumSupportedMajorVersion);
+                            ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion,
+                            ScalarPlatform.Instance.DiskLayoutUpgrade.Version.MinimumSupportedMajorVersion);
 
                         return false;
                     }
-                    else if (majorVersion > GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion)
+                    else if (majorVersion > ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion)
                     {
                         error = string.Format(
-                            "Changes to GVFS disk layout do not allow mounting after downgrade. Try mounting again using a more recent version of GVFS. \r\nEnlistment disk layout version: {0} \r\nGVFS disk layout version: {1}",
+                            "Changes to Scalar disk layout do not allow mounting after downgrade. Try mounting again using a more recent version of Scalar. \r\nEnlistment disk layout version: {0} \r\nScalar disk layout version: {1}",
                             majorVersion,
-                            GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion);
+                            ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion);
 
                         return false;
                     }
-                    else if (majorVersion != GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion)
+                    else if (majorVersion != ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion)
                     {
                         error = string.Format(
-                            "GVFS disk layout version doesn't match current version. Try running 'gvfs mount' to upgrade. \r\nEnlistment disk layout version: {0}.{1} \r\nGVFS disk layout version: {2}.{3}",
+                            "Scalar disk layout version doesn't match current version. Try running 'scalar mount' to upgrade. \r\nEnlistment disk layout version: {0}.{1} \r\nScalar disk layout version: {2}.{3}",
                             majorVersion,
                             minorVersion,
-                            GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion,
-                            GVFSPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMinorVersion);
+                            ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion,
+                            ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMinorVersion);
 
                         return false;
                     }
@@ -112,7 +112,7 @@ namespace GVFS.DiskLayoutUpgrades
                 RepoMetadata.Shutdown();
             }
 
-            error = "Failed to read disk layout version. " + ConsoleHelper.GetGVFSLogMessage(enlistmentRoot);
+            error = "Failed to read disk layout version. " + ConsoleHelper.GetScalarLogMessage(enlistmentRoot);
             return false;
         }
 
@@ -170,13 +170,13 @@ namespace GVFS.DiskLayoutUpgrades
 
         protected bool TrySetGitConfig(ITracer tracer, string enlistmentRoot, Dictionary<string, string> configSettings)
         {
-            GVFSEnlistment enlistment;
+            ScalarEnlistment enlistment;
 
             try
             {
-                enlistment = GVFSEnlistment.CreateFromDirectory(
+                enlistment = ScalarEnlistment.CreateFromDirectory(
                     enlistmentRoot,
-                    GVFSPlatform.Instance.GitInstallation.GetInstalledGitBinPath(),
+                    ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath(),
                     authentication: null);
             }
             catch (InvalidRepoException e)
@@ -184,7 +184,7 @@ namespace GVFS.DiskLayoutUpgrades
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add("Exception", e.ToString());
                 metadata.Add(nameof(enlistmentRoot), enlistmentRoot);
-                tracer.RelatedError(metadata, $"{nameof(this.TrySetGitConfig)}: Failed to create GVFSEnlistment from directory");
+                tracer.RelatedError(metadata, $"{nameof(this.TrySetGitConfig)}: Failed to create ScalarEnlistment from directory");
                 return false;
             }
 
@@ -312,9 +312,9 @@ namespace GVFS.DiskLayoutUpgrades
         {
             minorVersion = 0;
 
-            string dotGVFSPath = Path.Combine(enlistmentRoot, GVFSPlatform.Instance.Constants.DotGVFSRoot);
+            string dotScalarPath = Path.Combine(enlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot);
 
-            if (!RepoMetadata.TryInitialize(tracer, dotGVFSPath, out error))
+            if (!RepoMetadata.TryInitialize(tracer, dotScalarPath, out error))
             {
                 majorVersion = 0;
                 return false;
@@ -334,9 +334,9 @@ namespace GVFS.DiskLayoutUpgrades
             if (!tracer.HasLogFileEventListener)
             {
                 tracer.AddLogFileEventListener(
-                    GVFSEnlistment.GetNewGVFSLogFileName(
-                        Path.Combine(enlistmentRoot, GVFSPlatform.Instance.Constants.DotGVFSRoot, GVFSConstants.DotGVFS.LogName),
-                        GVFSConstants.LogFileTypes.MountUpgrade),
+                    ScalarEnlistment.GetNewScalarLogFileName(
+                        Path.Combine(enlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot, ScalarConstants.DotScalar.LogName),
+                        ScalarConstants.LogFileTypes.MountUpgrade),
                     EventLevel.Informational,
                     Keywords.Any);
 
@@ -359,9 +359,9 @@ namespace GVFS.DiskLayoutUpgrades
             protected bool TryIncrementMajorVersion(ITracer tracer, string enlistmentRoot)
             {
                 string newMajorVersion = (this.SourceMajorVersion + 1).ToString();
-                string dotGVFSPath = Path.Combine(enlistmentRoot, GVFSPlatform.Instance.Constants.DotGVFSRoot);
+                string dotScalarPath = Path.Combine(enlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot);
                 string error;
-                if (!RepoMetadata.TryInitialize(tracer, dotGVFSPath, out error))
+                if (!RepoMetadata.TryInitialize(tracer, dotScalarPath, out error))
                 {
                     tracer.RelatedError("Could not initialize repo metadata: " + error);
                     return false;
@@ -385,9 +385,9 @@ namespace GVFS.DiskLayoutUpgrades
             protected bool TryIncrementMinorVersion(ITracer tracer, string enlistmentRoot)
             {
                 string newMinorVersion = (this.SourceMinorVersion + 1).ToString();
-                string dotGVFSPath = Path.Combine(enlistmentRoot, GVFSPlatform.Instance.Constants.DotGVFSRoot);
+                string dotScalarPath = Path.Combine(enlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot);
                 string error;
-                if (!RepoMetadata.TryInitialize(tracer, dotGVFSPath, out error))
+                if (!RepoMetadata.TryInitialize(tracer, dotScalarPath, out error))
                 {
                     tracer.RelatedError("Could not initialize repo metadata: " + error);
                     return false;

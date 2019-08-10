@@ -1,10 +1,10 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Threading;
 
-namespace GVFS.Common.NamedPipes
+namespace Scalar.Common.NamedPipes
 {
     /// <summary>
     /// The server side of a Named Pipe used for interprocess communication.
@@ -39,9 +39,9 @@ namespace GVFS.Common.NamedPipes
 
         public static NamedPipeServer StartNewServer(string pipeName, ITracer tracer, Action<ITracer, string, Connection> handleRequest)
         {
-            if (pipeName.Length > GVFSPlatform.Instance.Constants.MaxPipePathLength)
+            if (pipeName.Length > ScalarPlatform.Instance.Constants.MaxPipePathLength)
             {
-                throw new PipeNameLengthException(string.Format("The pipe name ({0}) exceeds the max length allowed({1})", pipeName, GVFSPlatform.Instance.Constants.MaxPipePathLength));
+                throw new PipeNameLengthException(string.Format("The pipe name ({0}) exceeds the max length allowed({1})", pipeName, ScalarPlatform.Instance.Constants.MaxPipePathLength));
             }
 
             NamedPipeServer pipeServer = new NamedPipeServer(pipeName, tracer, connection => HandleConnection(tracer, connection, handleRequest));
@@ -86,7 +86,7 @@ namespace GVFS.Common.NamedPipes
                     throw new InvalidOperationException("There is already a pipe listening for a connection");
                 }
 
-                this.listeningPipe = GVFSPlatform.Instance.CreatePipeByName(this.pipeName);
+                this.listeningPipe = ScalarPlatform.Instance.CreatePipeByName(this.pipeName);
                 this.listeningPipe.BeginWaitForConnection(this.OnNewConnection, this.listeningPipe);
             }
             catch (Exception e)

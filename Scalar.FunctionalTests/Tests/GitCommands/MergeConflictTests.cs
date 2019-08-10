@@ -1,9 +1,9 @@
-﻿using GVFS.FunctionalTests.Properties;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.Properties;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 
-namespace GVFS.FunctionalTests.Tests.GitCommands
+namespace Scalar.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]
@@ -86,20 +86,20 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
         [TestCase]
         public void MergeConflictEnsureStatusFailsDueToConfig()
         {
-            // This is compared against the message emitted by GVFS.Hooks\Program.cs
+            // This is compared against the message emitted by Scalar.Hooks\Program.cs
             string expectedErrorMessagePart = "--no-renames";
 
             this.ValidateGitCommand("checkout " + GitRepoTests.ConflictTargetBranch);
             this.RunGitCommand("merge " + GitRepoTests.ConflictSourceBranch, checkStatus: false);
 
-            ProcessResult result1 = GitHelpers.InvokeGitAgainstGVFSRepo(this.Enlistment.RepoRoot, "status");
+            ProcessResult result1 = GitHelpers.InvokeGitAgainstScalarRepo(this.Enlistment.RepoRoot, "status");
             result1.Errors.Contains(expectedErrorMessagePart);
 
-            ProcessResult result2 = GitHelpers.InvokeGitAgainstGVFSRepo(this.Enlistment.RepoRoot, "status --no-renames");
+            ProcessResult result2 = GitHelpers.InvokeGitAgainstScalarRepo(this.Enlistment.RepoRoot, "status --no-renames");
             result2.Errors.Contains(expectedErrorMessagePart);
 
             // Complete setup to ensure teardown succeeds
-            GitHelpers.InvokeGitAgainstGVFSRepo(this.Enlistment.RepoRoot, "config --local test.renames false");
+            GitHelpers.InvokeGitAgainstScalarRepo(this.Enlistment.RepoRoot, "config --local test.renames false");
         }
 
         protected override void CreateEnlistment()

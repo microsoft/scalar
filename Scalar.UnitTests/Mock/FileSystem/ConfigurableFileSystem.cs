@@ -1,9 +1,9 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Tests.Should;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Tests.Should;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.UnitTests.Mock.FileSystem
+namespace Scalar.UnitTests.Mock.FileSystem
 {
     public class ConfigurableFileSystem : PhysicalFileSystem
     {

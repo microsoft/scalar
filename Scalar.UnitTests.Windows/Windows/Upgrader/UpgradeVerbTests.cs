@@ -1,13 +1,13 @@
-﻿using GVFS.CommandLine;
-using GVFS.Common;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
-using GVFS.UnitTests.Mock.Upgrader;
-using GVFS.UnitTests.Upgrader;
+﻿using Scalar.CommandLine;
+using Scalar.Common;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
+using Scalar.UnitTests.Mock.Upgrader;
+using Scalar.UnitTests.Upgrader;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace GVFS.UnitTests.Windows.Upgrader
+namespace Scalar.UnitTests.Windows.Upgrader
 {
     [TestFixture]
     public class UpgradeVerbTests : UpgradeTests
@@ -29,7 +29,7 @@ namespace GVFS.UnitTests.Windows.Upgrader
                 this.processLauncher,
                 this.Output);
             this.upgradeVerb.Confirmed = false;
-            this.PrerunChecker.SetCommandToRerun("`gvfs upgrade`");
+            this.PrerunChecker.SetCommandToRerun("`scalar upgrade`");
         }
 
         [TestCase]
@@ -46,8 +46,8 @@ namespace GVFS.UnitTests.Windows.Upgrader
                 expectedReturn: ReturnCode.Success,
                 expectedOutput: new List<string>
                 {
-                    "New GVFS version " + NewerThanLocalVersion + " available in ring Slow",
-                    "When ready, run `gvfs upgrade --confirm` from an elevated command prompt."
+                    "New Scalar version " + NewerThanLocalVersion + " available in ring Slow",
+                    "When ready, run `scalar upgrade --confirm` from an elevated command prompt."
                 },
                 expectedErrors: null);
         }
@@ -66,7 +66,7 @@ namespace GVFS.UnitTests.Windows.Upgrader
                 expectedReturn: ReturnCode.Success,
                 expectedOutput: new List<string>
                 {
-                    "Checking for GVFS upgrades...Succeeded",
+                    "Checking for Scalar upgrades...Succeeded",
                     "Great news, you're all caught up on upgrades in the Slow ring!"
                 },
                 expectedErrors: null);
@@ -80,12 +80,12 @@ namespace GVFS.UnitTests.Windows.Upgrader
                 {
                     this.SetUpgradeRing("Slow");
                     this.upgradeVerb.Confirmed = true;
-                    this.PrerunChecker.SetCommandToRerun("`gvfs upgrade --confirm`");
+                    this.PrerunChecker.SetCommandToRerun("`scalar upgrade --confirm`");
                 },
                 expectedReturn: ReturnCode.Success,
                 expectedOutput: new List<string>
                 {
-                    "New GVFS version " + NewerThanLocalVersion + " available in ring Slow",
+                    "New Scalar version " + NewerThanLocalVersion + " available in ring Slow",
                     "Launching upgrade tool..."
                 },
                 expectedErrors:null);
@@ -117,7 +117,7 @@ namespace GVFS.UnitTests.Windows.Upgrader
                     this.SetUpgradeRing("Slow");
                     this.Upgrader.SetFailOnAction(MockGitHubUpgrader.ActionType.CopyTools);
                     this.upgradeVerb.Confirmed = true;
-                    this.PrerunChecker.SetCommandToRerun("`gvfs upgrade --confirm`");
+                    this.PrerunChecker.SetCommandToRerun("`scalar upgrade --confirm`");
                 },
                 expectedReturn: ReturnCode.GenericError,
                 expectedOutput: new List<string>
@@ -131,9 +131,9 @@ namespace GVFS.UnitTests.Windows.Upgrader
         }
 
         [TestCase]
-        public void IsGVFSServiceRunningPreCheck()
+        public void IsScalarServiceRunningPreCheck()
         {
-            this.PrerunChecker.SetCommandToRerun("`gvfs upgrade --confirm`");
+            this.PrerunChecker.SetCommandToRerun("`scalar upgrade --confirm`");
             this.ConfigureRunAndVerify(
                 configure: () =>
                 {
@@ -143,20 +143,20 @@ namespace GVFS.UnitTests.Windows.Upgrader
                 expectedReturn: ReturnCode.GenericError,
                 expectedOutput: new List<string>
                 {
-                    "GVFS Service is not running.",
-                    "Run `sc start GVFS.Service` and run `gvfs upgrade --confirm` again from an elevated command prompt."
+                    "Scalar Service is not running.",
+                    "Run `sc start Scalar.Service` and run `scalar upgrade --confirm` again from an elevated command prompt."
                 },
                 expectedErrors: null,
                 expectedWarnings: new List<string>
                 {
-                    "GVFS Service is not running."
+                    "Scalar Service is not running."
                 });
         }
 
         [TestCase]
         public void ElevatedRunPreCheck()
         {
-            this.PrerunChecker.SetCommandToRerun("`gvfs upgrade --confirm`");
+            this.PrerunChecker.SetCommandToRerun("`scalar upgrade --confirm`");
             this.ConfigureRunAndVerify(
                 configure: () =>
                 {
@@ -167,7 +167,7 @@ namespace GVFS.UnitTests.Windows.Upgrader
                 expectedOutput: new List<string>
                 {
                     "The installer needs to be run from an elevated command prompt.",
-                    "Run `gvfs upgrade --confirm` again from an elevated command prompt."
+                    "Run `scalar upgrade --confirm` again from an elevated command prompt."
                 },
                 expectedErrors: null,
                 expectedWarnings: new List<string>
@@ -188,12 +188,12 @@ namespace GVFS.UnitTests.Windows.Upgrader
                 expectedReturn: ReturnCode.GenericError,
                 expectedOutput: new List<string>
                 {
-                    "`gvfs upgrade` is not supported in unattended mode"
+                    "`scalar upgrade` is not supported in unattended mode"
                 },
                 expectedErrors: null,
                 expectedWarnings: new List<string>
                 {
-                    "`gvfs upgrade` is not supported in unattended mode"
+                    "`scalar upgrade` is not supported in unattended mode"
                 });
         }
 
@@ -223,7 +223,7 @@ namespace GVFS.UnitTests.Windows.Upgrader
             {
                 this.upgradeVerb.Execute();
             }
-            catch (GVFSVerb.VerbAbortedException)
+            catch (ScalarVerb.VerbAbortedException)
             {
                 // ignore. exceptions are expected while simulating some failures.
             }

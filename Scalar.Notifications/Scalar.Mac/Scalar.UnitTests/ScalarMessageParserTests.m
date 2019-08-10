@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#import "VFSMessageParser.h"
+#import "ScalarMessageParser.h"
 
 @interface MessageParserTests : XCTestCase
 @end
@@ -16,7 +16,7 @@
     
     NSError *error;
     NSDictionary *parsedMessage;
-    XCTAssertTrue([VFSMessageParser tryParseData:messageData
+    XCTAssertTrue([ScalarMessageParser tryParseData:messageData
                                          message:&parsedMessage
                                            error:&error]);
     XCTAssertNil(error);
@@ -45,7 +45,7 @@
     
     NSError *error;
     NSDictionary *parsedMessage;
-    XCTAssertTrue([VFSMessageParser tryParseData:dataWithCtrlChars
+    XCTAssertTrue([ScalarMessageParser tryParseData:dataWithCtrlChars
                                          message:&parsedMessage
                                            error:&error]);
     XCTAssertNil(error);
@@ -58,7 +58,7 @@
     NSString *message = @"{ \"Id\", \"Message\", \"Foobar\"}";
     NSError *error;
     NSDictionary *parsedMessage;
-    XCTAssertFalse([VFSMessageParser tryParseData:[message dataUsingEncoding:NSUTF8StringEncoding]
+    XCTAssertFalse([ScalarMessageParser tryParseData:[message dataUsingEncoding:NSUTF8StringEncoding]
                                           message:&parsedMessage
                                             error:&error]);
     XCTAssertNil(parsedMessage);
@@ -71,7 +71,7 @@
     NSError *error;
     NSDictionary *parsedMessage;
     
-    XCTAssertFalse([VFSMessageParser tryParseData:[message dataUsingEncoding:NSUTF8StringEncoding]
+    XCTAssertFalse([ScalarMessageParser tryParseData:[message dataUsingEncoding:NSUTF8StringEncoding]
                                           message:&parsedMessage
                                             error:&error]);
     XCTAssertNil(parsedMessage);
@@ -83,7 +83,7 @@
 - (NSDictionary *)validMessage
 {
     NSInteger messageId = 1;
-    NSString *title = @"GVFS Mount";
+    NSString *title = @"Scalar Mount";
     NSString *message = @"Successfully mount repo";
     NSString *enlistment = @"/Users/foo/bar";
     NSInteger enlistmentCount = 0;

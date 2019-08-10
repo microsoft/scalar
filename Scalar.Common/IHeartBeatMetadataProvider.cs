@@ -1,6 +1,6 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public interface IHeartBeatMetadataProvider
     {

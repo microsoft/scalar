@@ -1,19 +1,19 @@
-﻿using GVFS.Common;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
-using GVFS.UnitTests.Mock.Upgrader;
+﻿using Scalar.Common;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
+using Scalar.UnitTests.Mock.Upgrader;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace GVFS.UnitTests.Upgrader
+namespace Scalar.UnitTests.Upgrader
 {
     public abstract class UpgradeTests
     {
         protected const string OlderThanLocalVersion = "1.0.17000.1";
-        protected const string LocalGVFSVersion = "1.0.18115.1";
+        protected const string LocalScalarVersion = "1.0.18115.1";
         protected const string NewerThanLocalVersion = "1.1.18115.1";
 
         protected MockTracer Tracer { get; private set; }
@@ -21,18 +21,18 @@ namespace GVFS.UnitTests.Upgrader
         protected MockTextWriter Output { get; private set; }
         protected MockInstallerPrerunChecker PrerunChecker { get; private set; }
         protected MockGitHubUpgrader Upgrader { get; private set; }
-        protected MockLocalGVFSConfig LocalConfig { get; private set; }
+        protected MockLocalScalarConfig LocalConfig { get; private set; }
 
         public virtual void Setup()
         {
             this.Tracer = new MockTracer();
-            this.FileSystem = new MockFileSystem(new MockDirectory(@"mock:\GVFS.Upgrades\Download", null, null));
+            this.FileSystem = new MockFileSystem(new MockDirectory(@"mock:\Scalar.Upgrades\Download", null, null));
             this.Output = new MockTextWriter();
             this.PrerunChecker = new MockInstallerPrerunChecker(this.Tracer);
-            this.LocalConfig = new MockLocalGVFSConfig();
+            this.LocalConfig = new MockLocalScalarConfig();
 
             this.Upgrader = new MockGitHubUpgrader(
-                LocalGVFSVersion,
+                LocalScalarVersion,
                 this.Tracer,
                 this.FileSystem,
                 new GitHubUpgrader.GitHubUpgraderConfig(this.Tracer, this.LocalConfig));
@@ -68,7 +68,7 @@ namespace GVFS.UnitTests.Upgrader
         {
             this.SetUpgradeRing("Invalid");
 
-            string expectedError = "Invalid upgrade ring `Invalid` specified in gvfs config.";
+            string expectedError = "Invalid upgrade ring `Invalid` specified in scalar config.";
             string errorString;
             GitHubUpgrader.Create(
                 this.Tracer,
@@ -171,7 +171,7 @@ namespace GVFS.UnitTests.Upgrader
         }
 
         protected void VerifyConfig(
-            GVFS.Common.GitHubUpgrader.GitHubUpgraderConfig.RingType ring,
+            Scalar.Common.GitHubUpgrader.GitHubUpgraderConfig.RingType ring,
             bool isUpgradeAllowed,
             bool isConfigError)
         {

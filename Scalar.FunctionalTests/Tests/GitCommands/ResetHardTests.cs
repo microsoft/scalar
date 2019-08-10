@@ -1,8 +1,8 @@
-﻿using GVFS.FunctionalTests.Properties;
-using GVFS.FunctionalTests.Should;
+﻿using Scalar.FunctionalTests.Properties;
+using Scalar.FunctionalTests.Should;
 using NUnit.Framework;
 
-namespace GVFS.FunctionalTests.Tests.GitCommands
+namespace Scalar.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]

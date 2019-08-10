@@ -1,10 +1,10 @@
-﻿using GVFS.Common;
-using GVFS.Platform.POSIX;
+﻿using Scalar.Common;
+using Scalar.Platform.POSIX;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace GVFS.Platform.Mac
+namespace Scalar.Platform.Mac
 {
     public class MacFileSystem : POSIXFileSystem
     {
@@ -46,7 +46,7 @@ namespace GVFS.Platform.Mac
                 }
 
                 File.Delete(lowerCaseFile);
-                error = "VFS for Git does not support case sensitive filesystems";
+                error = "Scalar does not support case sensitive filesystems";
                 return false;
             }
             catch (Exception ex)

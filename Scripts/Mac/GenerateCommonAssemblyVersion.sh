@@ -4,11 +4,11 @@ if [ -z $1 ]; then
   echo "Version Number not defined for CommonAssemblyVersion.cs"
 fi
 
-# Update the version number in GVFS.props for other consumers of GVFSVersion
-sed -i "" -E "s@<GVFSVersion>[0-9]+(\.[0-9]+)*</GVFSVersion>@<GVFSVersion>$1</GVFSVersion>@g" $VFS_SRCDIR/GVFS/GVFS.Build/GVFS.props
+# Update the version number in Scalar.props for other consumers of ScalarVersion
+sed -i "" -E "s@<ScalarVersion>[0-9]+(\.[0-9]+)*</ScalarVersion>@<ScalarVersion>$1</ScalarVersion>@g" $Scalar_SRCDIR/Scalar/Scalar.Build/Scalar.props
 
 # Then generate CommonAssemblyVersion.cs
-cat >$VFS_OUTPUTDIR/CommonAssemblyVersion.cs <<TEMPLATE
+cat >$Scalar_OUTPUTDIR/CommonAssemblyVersion.cs <<TEMPLATE
 using System.Reflection;
 
 [assembly: AssemblyVersion("$1")]

@@ -1,12 +1,12 @@
-﻿using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.Common.Prefetch.Git
+namespace Scalar.Common.Prefetch.Git
 {
     public class DiffHelper
     {

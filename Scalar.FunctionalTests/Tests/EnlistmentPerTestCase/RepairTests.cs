@@ -1,5 +1,5 @@
-﻿using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
+namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
@@ -17,7 +17,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
         [TestCase]
         public void NoFixesNeeded()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
             this.Enlistment.Repair(confirm: false);
             this.Enlistment.Repair(confirm: true);
         }
@@ -25,11 +25,11 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
         [TestCase]
         public void FixesCorruptHeadSha()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string headFilePath = Path.Combine(this.Enlistment.RepoRoot, ".git", "HEAD");
             File.WriteAllText(headFilePath, "0000");
-            this.Enlistment.TryMountGVFS().ShouldEqual(false, "GVFS shouldn't mount when HEAD is corrupt");
+            this.Enlistment.TryMountScalar().ShouldEqual(false, "Scalar shouldn't mount when HEAD is corrupt");
 
             this.RepairWithoutConfirmShouldNotFix();
 
@@ -39,11 +39,11 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
         [TestCase]
         public void FixesCorruptHeadSymRef()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string headFilePath = Path.Combine(this.Enlistment.RepoRoot, ".git", "HEAD");
             File.WriteAllText(headFilePath, "ref: refs");
-            this.Enlistment.TryMountGVFS().ShouldEqual(false, "GVFS shouldn't mount when HEAD is corrupt");
+            this.Enlistment.TryMountScalar().ShouldEqual(false, "Scalar shouldn't mount when HEAD is corrupt");
 
             this.RepairWithoutConfirmShouldNotFix();
 
@@ -53,11 +53,11 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
         [TestCase]
         public void FixesMissingGitIndex()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string gitIndexPath = Path.Combine(this.Enlistment.RepoRoot, ".git", "index");
             File.Delete(gitIndexPath);
-            this.Enlistment.TryMountGVFS().ShouldEqual(false, "GVFS shouldn't mount when git index is missing");
+            this.Enlistment.TryMountScalar().ShouldEqual(false, "Scalar shouldn't mount when git index is missing");
 
             this.RepairWithoutConfirmShouldNotFix();
 
@@ -67,7 +67,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
         [TestCase]
         public void FixesGitIndexCorruptedWithBadData()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string gitIndexPath = Path.Combine(this.Enlistment.RepoRoot, ".git", "index");
             this.CreateCorruptIndexAndRename(
@@ -79,7 +79,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
                 });
 
             string output;
-            this.Enlistment.TryMountGVFS(out output).ShouldEqual(false, "GVFS shouldn't mount when index is corrupt");
+            this.Enlistment.TryMountScalar(out output).ShouldEqual(false, "Scalar shouldn't mount when index is corrupt");
             output.ShouldContain("Index validation failed");
 
             this.RepairWithoutConfirmShouldNotFix();
@@ -90,7 +90,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
         [TestCase]
         public void FixesGitIndexContainingAllNulls()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string gitIndexPath = Path.Combine(this.Enlistment.RepoRoot, ".git", "index");
 
@@ -103,7 +103,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
                 });
 
             string output;
-            this.Enlistment.TryMountGVFS(out output).ShouldEqual(false, "GVFS shouldn't mount when index is corrupt");
+            this.Enlistment.TryMountScalar(out output).ShouldEqual(false, "Scalar shouldn't mount when index is corrupt");
             output.ShouldContain("Index validation failed");
 
             this.RepairWithoutConfirmShouldNotFix();
@@ -114,7 +114,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
         [TestCase]
         public void FixesGitIndexCorruptedByTruncation()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string gitIndexPath = Path.Combine(this.Enlistment.RepoRoot, ".git", "index");
 
@@ -130,7 +130,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
                 });
 
             string output;
-            this.Enlistment.TryMountGVFS(out output).ShouldEqual(false, "GVFS shouldn't mount when index is corrupt");
+            this.Enlistment.TryMountScalar(out output).ShouldEqual(false, "Scalar shouldn't mount when index is corrupt");
             output.ShouldContain("Index validation failed");
 
             this.RepairWithoutConfirmShouldNotFix();
@@ -141,19 +141,19 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
         [TestCase]
         public void FixesCorruptGitConfig()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string gitIndexPath = Path.Combine(this.Enlistment.RepoRoot, ".git", "config");
             File.WriteAllText(gitIndexPath, "[cor");
 
-            this.Enlistment.TryMountGVFS().ShouldEqual(false, "GVFS shouldn't mount when git config is missing");
+            this.Enlistment.TryMountScalar().ShouldEqual(false, "Scalar shouldn't mount when git config is missing");
 
             this.RepairWithoutConfirmShouldNotFix();
 
             this.Enlistment.Repair(confirm: true);
             ProcessResult result = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "remote add origin " + this.Enlistment.RepoUrl);
             result.ExitCode.ShouldEqual(0, result.Errors);
-            this.Enlistment.MountGVFS();
+            this.Enlistment.MountScalar();
         }
 
         private void CreateCorruptIndexAndRename(string indexPath, Action<FileStream, FileStream> corruptionAction)
@@ -172,13 +172,13 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
         private void RepairWithConfirmShouldFix()
         {
             this.Enlistment.Repair(confirm: true);
-            this.Enlistment.MountGVFS();
+            this.Enlistment.MountScalar();
         }
 
         private void RepairWithoutConfirmShouldNotFix()
         {
             this.Enlistment.Repair(confirm: false);
-            this.Enlistment.TryMountGVFS().ShouldEqual(false, "Repair without confirm should not fix the enlistment");
+            this.Enlistment.TryMountScalar().ShouldEqual(false, "Repair without confirm should not fix the enlistment");
         }
     }
 }

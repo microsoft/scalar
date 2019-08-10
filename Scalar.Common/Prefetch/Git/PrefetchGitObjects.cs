@@ -1,9 +1,9 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.Tracing;
 
-namespace GVFS.Common.Prefetch.Git
+namespace Scalar.Common.Prefetch.Git
 {
     public class PrefetchGitObjects : GitObjects
     {

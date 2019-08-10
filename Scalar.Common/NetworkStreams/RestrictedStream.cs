@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace GVFS.Common.NetworkStreams
+namespace Scalar.Common.NetworkStreams
 {
     /// <summary>
     /// Stream wrapper for a length-limited subview of another stream.

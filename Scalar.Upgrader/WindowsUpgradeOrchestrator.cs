@@ -1,9 +1,9 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System.IO;
 
-namespace GVFS.Upgrader
+namespace Scalar.Upgrader
 {
     public class WindowsUpgradeOrchestrator : UpgradeOrchestrator
     {
@@ -30,12 +30,12 @@ namespace GVFS.Upgrader
                 () =>
                 {
                     string mountError;
-                    if (!this.preRunChecker.TryMountAllGVFSRepos(out mountError))
+                    if (!this.preRunChecker.TryMountAllScalarRepos(out mountError))
                     {
                         EventMetadata metadata = new EventMetadata();
                         metadata.Add("Upgrade Step", nameof(this.TryMountRepositories));
                         metadata.Add("Mount Error", mountError);
-                        this.tracer.RelatedError(metadata, $"{nameof(this.preRunChecker.TryMountAllGVFSRepos)} failed.");
+                        this.tracer.RelatedError(metadata, $"{nameof(this.preRunChecker.TryMountAllScalarRepos)} failed.");
                         errorMessage += mountError;
                         return false;
                     }

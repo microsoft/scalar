@@ -1,10 +1,10 @@
 #import <XCTest/XCTest.h>
-#import "VFSForGitNotification.h"
+#import "ScalarNotification.h"
 
-@interface VFSForGitNotificationTests : XCTestCase
+@interface ScalarNotificationTests : XCTestCase
 @end
 
-@implementation VFSForGitNotificationTests
+@implementation ScalarNotificationTests
 
 - (void)testCreateNotificationWithMissingIdFails
 {
@@ -16,9 +16,9 @@
                               };
     
     NSError *error;
-    VFSForGitNotification *notification;
+    ScalarNotification *notification;
     
-    XCTAssertFalse([VFSForGitNotification tryValidateMessage:message
+    XCTAssertFalse([ScalarNotification tryValidateMessage:message
                                            buildNotification:&notification
                                                        error:&error]);
     XCTAssertNotNil(error);
@@ -34,8 +34,8 @@
                               };
     
     NSError *error;
-    VFSForGitNotification *notification;
-    XCTAssertFalse([VFSForGitNotification tryValidateMessage:message
+    ScalarNotification *notification;
+    XCTAssertFalse([ScalarNotification tryValidateMessage:message
                                            buildNotification:&notification
                                                        error:&error]);
     XCTAssertNotNil(error);
@@ -49,12 +49,12 @@
                               };
     
     NSError *error;
-    VFSForGitNotification *notification;
-    XCTAssertTrue([VFSForGitNotification tryValidateMessage:message
+    ScalarNotification *notification;
+    XCTAssertTrue([ScalarNotification tryValidateMessage:message
                                           buildNotification:&notification
                                                       error:&error]);
-    XCTAssertTrue([notification.title isEqualToString:@"GVFS AutoMount"]);
-    XCTAssertTrue([notification.message isEqualToString:@"Attempting to mount 5 GVFS repos(s)"]);
+    XCTAssertTrue([notification.title isEqualToString:@"Scalar AutoMount"]);
+    XCTAssertTrue([notification.message isEqualToString:@"Attempting to mount 5 Scalar repos(s)"]);
     XCTAssertNil(error);
 }
 
@@ -67,11 +67,11 @@
                               };
     
     NSError *error;
-    VFSForGitNotification *notification;
-    XCTAssertTrue([VFSForGitNotification tryValidateMessage:message
+    ScalarNotification *notification;
+    XCTAssertTrue([ScalarNotification tryValidateMessage:message
                                           buildNotification:&notification
                                                       error:&error]);
-    XCTAssertTrue([notification.title isEqualToString:@"GVFS AutoMount"]);
+    XCTAssertTrue([notification.title isEqualToString:@"Scalar AutoMount"]);
     XCTAssertTrue([notification.message containsString:enlistment]);
     XCTAssertNil(error);
 }
@@ -83,8 +83,8 @@
                               };
     
     NSError *error;
-    VFSForGitNotification *notification;
-    XCTAssertFalse([VFSForGitNotification tryValidateMessage:message
+    ScalarNotification *notification;
+    XCTAssertFalse([ScalarNotification tryValidateMessage:message
                                            buildNotification:&notification
                                                        error:&error]);
     XCTAssertNotNil(error);

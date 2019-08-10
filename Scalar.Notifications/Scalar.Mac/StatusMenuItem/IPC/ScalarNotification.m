@@ -1,5 +1,5 @@
-#import "VFSForGitNotification.h"
-#import "VFSNotificationErrors.h"
+#import "ScalarNotification.h"
+#import "ScalarNotificationErrors.h"
 
 NSString * const IdentifierKey = @"Id";
 NSString * const EnlistmentKey = @"Enlistment";
@@ -7,12 +7,12 @@ NSString * const EnlistmentCountKey = @"EnlistmentCount";
 NSString * const TitleKey = @"Title";
 NSString * const MessageKey = @"Message";
 
-NSString * const AutomountTitle = @"GVFS AutoMount";
-NSString * const AutomountStartMessageFormat = @"Attempting to mount %lu GVFS repos(s)";
-NSString * const AutomountSuccessMessageFormat = @"The following GVFS repo is now mounted: \n%@";
-NSString * const AutomountFailureMessageFormat = @"The following GVFS repo failed to mount: \n%@";
+NSString * const AutomountTitle = @"Scalar AutoMount";
+NSString * const AutomountStartMessageFormat = @"Attempting to mount %lu Scalar repos(s)";
+NSString * const AutomountSuccessMessageFormat = @"The following Scalar repo is now mounted: \n%@";
+NSString * const AutomountFailureMessageFormat = @"The following Scalar repo failed to mount: \n%@";
 
-@interface VFSForGitNotification()
+@interface ScalarNotification()
 
 @property (readwrite) NSString *title;
 @property (readwrite) NSString *message;
@@ -34,10 +34,10 @@ NS_ASSUME_NONNULL_END
 
 @end
 
-@implementation VFSForGitNotification
+@implementation ScalarNotification
 
 + (BOOL)tryValidateMessage:(NSDictionary *)jsonMessage
-         buildNotification:(VFSForGitNotification **)notification
+         buildNotification:(ScalarNotification **)notification
                      error:(NSError *__autoreleasing *)error
 {
     NSParameterAssert(notification);
@@ -48,8 +48,8 @@ NS_ASSUME_NONNULL_END
     {
         if (error != nil)
         {
-            *error = [NSError errorWithDomain:VFSForGitNotificationErrorDomain
-                                         code:VFSForGitInvalidMessageIdFormatError
+            *error = [NSError errorWithDomain:ScalarNotificationErrorDomain
+                                         code:ScalarInvalidMessageIdFormatError
                                      userInfo:@{ NSLocalizedDescriptionKey : @"Unexpected message id/format)" }];
         }
         
@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_END
     {
         case AutomountStart:
         {
-            *notification = [[VFSForGitNotification alloc]
+            *notification = [[ScalarNotification alloc]
                              initAsAutomountStartWithMessage:jsonMessage
                              error:&initError];
             break;
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_END
         
         case MountSuccess:
         {
-            *notification = [[VFSForGitNotification alloc]
+            *notification = [[ScalarNotification alloc]
                              initAsMountSuccessWithMessage:jsonMessage
                              error:&initError];
             break;
@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_END
             
         case MountFailure:
         {
-            *notification = [[VFSForGitNotification alloc]
+            *notification = [[ScalarNotification alloc]
                              initAsMountFailureWithMessage:jsonMessage
                              error:&initError];
             break;
@@ -87,8 +87,8 @@ NS_ASSUME_NONNULL_END
         default:
         {
             *notification = nil;
-            initError = [NSError errorWithDomain:VFSForGitNotificationErrorDomain
-                                            code:VFSForGitUnsupportedMessageError
+            initError = [NSError errorWithDomain:ScalarNotificationErrorDomain
+                                            code:ScalarUnsupportedMessageError
                                         userInfo:@{ NSLocalizedDescriptionKey : @"Unrecognised message id" }];
             break;
         }
@@ -119,8 +119,8 @@ NS_ASSUME_NONNULL_END
         
         if (error != nil)
         {
-            *error = [NSError errorWithDomain:VFSForGitNotificationErrorDomain
-                                         code:VFSForGitMissingRepoCountError
+            *error = [NSError errorWithDomain:ScalarNotificationErrorDomain
+                                         code:ScalarMissingRepoCountError
                                      userInfo:@{ NSLocalizedDescriptionKey : @"Missing repos count in AutomountStart message" }];
         }
         
@@ -170,8 +170,8 @@ NS_ASSUME_NONNULL_END
         
         if (error != nil)
         {
-            *error = [NSError errorWithDomain:VFSForGitNotificationErrorDomain
-                                         code:VFSForGitMissingEntitlementInfoError
+            *error = [NSError errorWithDomain:ScalarNotificationErrorDomain
+                                         code:ScalarMissingEntitlementInfoError
                                      userInfo:@{ NSLocalizedDescriptionKey : @"ERROR: missing enlistment info." }];
         }
         

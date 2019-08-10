@@ -1,9 +1,9 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.Prefetch.Git;
-using GVFS.Common.Prefetch.Pipeline;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.Prefetch.Git;
+using Scalar.Common.Prefetch.Pipeline;
+using Scalar.Common.Tracing;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -12,7 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace GVFS.Common.Prefetch
+namespace Scalar.Common.Prefetch
 {
     public class BlobPrefetcher
     {
@@ -73,8 +73,8 @@ namespace GVFS.Common.Prefetch
 
             this.lastPrefetchArgs = lastPrefetchArgs;
 
-            // We never want to update config settings for a GVFSEnlistment
-            this.SkipConfigUpdate = enlistment is GVFSEnlistment;
+            // We never want to update config settings for a ScalarEnlistment
+            this.SkipConfigUpdate = enlistment is ScalarEnlistment;
         }
 
         public bool HasFailures { get; protected set; }
@@ -115,7 +115,7 @@ namespace GVFS.Common.Prefetch
                         return "Only prefix wildcards are supported. Invalid entry: " + s;
                     }
 
-                    if (s.EndsWith(GVFSConstants.GitPathSeparatorString) ||
+                    if (s.EndsWith(ScalarConstants.GitPathSeparatorString) ||
                         s.EndsWith(pathSeparatorString))
                     {
                         return "Folders are not allowed in the file list. Invalid entry: " + s;
@@ -253,7 +253,7 @@ namespace GVFS.Common.Prefetch
             this.DownloadMissingCommit(commitToFetch, this.GitObjects);
 
             // For FastFetch only, examine the shallow file to determine the previous commit that had been fetched
-            string shallowFile = Path.Combine(this.Enlistment.WorkingDirectoryBackingRoot, GVFSConstants.DotGit.Shallow);
+            string shallowFile = Path.Combine(this.Enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Shallow);
             string previousCommit = null;
 
             // Use the shallow file to find a recent commit to diff against to try and reduce the number of SHAs to check.
@@ -436,7 +436,7 @@ namespace GVFS.Common.Prefetch
             }
 
             // Update shallow file to ensure this is a valid shallow repo
-            AppendToNewlineSeparatedFile(Path.Combine(this.Enlistment.WorkingDirectoryBackingRoot, GVFSConstants.DotGit.Shallow), commitSha);
+            AppendToNewlineSeparatedFile(Path.Combine(this.Enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Shallow), commitSha);
         }
 
         protected bool UpdateRef(ITracer tracer, string refName, string targetCommitish)
@@ -534,7 +534,7 @@ namespace GVFS.Common.Prefetch
                 GetFilesFromVerbParameter(valueString)
                 .Union(GetFilesFromFile(listFileName, out string fileReadError))
                 .Union(GetFilesFromStdin(readListFromStdIn))
-                .Where(path => !path.StartsWith(GVFSConstants.GitCommentSign.ToString()))
+                .Where(path => !path.StartsWith(ScalarConstants.GitCommentSign.ToString()))
                 .Where(path => !string.IsNullOrWhiteSpace(path))
                 .Select(path => BlobPrefetcher.ToFilterPath(path, isFolder: isFolder)));
 
@@ -564,7 +564,7 @@ namespace GVFS.Common.Prefetch
             string filterPath =
                 path.StartsWith("*")
                 ? path
-                : path.Replace(GVFSConstants.GitPathSeparator, Path.DirectorySeparatorChar).TrimStart(Path.DirectorySeparatorChar);
+                : path.Replace(ScalarConstants.GitPathSeparator, Path.DirectorySeparatorChar).TrimStart(Path.DirectorySeparatorChar);
 
             if (isFolder && filterPath.Length > 0 && !filterPath.EndsWith(pathSeparatorString))
             {

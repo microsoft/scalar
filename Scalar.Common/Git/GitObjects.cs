@@ -1,7 +1,7 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Http;
-using GVFS.Common.NetworkStreams;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Http;
+using Scalar.Common.NetworkStreams;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +13,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public abstract class GitObjects
     {
@@ -78,7 +78,7 @@ namespace GVFS.Common.Git
 
         public virtual void DeleteStaleTempPrefetchPackAndIdxs()
         {
-            string[] staleTempPacks = this.ReadPackFileNames(Path.Combine(this.Enlistment.GitPackRoot, GitObjects.TempPackFolder), GVFSConstants.PrefetchPackPrefix);
+            string[] staleTempPacks = this.ReadPackFileNames(Path.Combine(this.Enlistment.GitPackRoot, GitObjects.TempPackFolder), ScalarConstants.PrefetchPackPrefix);
             foreach (string stalePackPath in staleTempPacks)
             {
                 string staleIdxPath = Path.ChangeExtension(stalePackPath, ".idx");
@@ -136,7 +136,7 @@ namespace GVFS.Common.Git
                             latestTimestamp)),
                     requestBodyGenerator: () => null,
                     cancellationToken: CancellationToken.None,
-                    acceptType: new MediaTypeWithQualityHeaderValue(GVFSConstants.MediaTypes.PrefetchPackFilesAndIndexesMediaType));
+                    acceptType: new MediaTypeWithQualityHeaderValue(ScalarConstants.MediaTypes.PrefetchPackFilesAndIndexesMediaType));
 
                 packIndexes = innerPackIndexes;
 
@@ -145,7 +145,7 @@ namespace GVFS.Common.Git
                     if (result.Result != null && result.Result.HttpStatusCodeResult == HttpStatusCode.NotFound)
                     {
                         EventMetadata warning = CreateEventMetadata();
-                        warning.Add(TracingConstants.MessageKey.WarningMessage, "The server does not support " + GVFSConstants.Endpoints.GVFSPrefetch);
+                        warning.Add(TracingConstants.MessageKey.WarningMessage, "The server does not support " + ScalarConstants.Endpoints.ScalarPrefetch);
                         warning.Add(nameof(this.GitObjectRequestor.CacheServer.PrefetchEndpointUrl), this.GitObjectRequestor.CacheServer.PrefetchEndpointUrl);
                         activity.RelatedEvent(EventLevel.Warning, "CommandNotSupported", warning);
                     }
@@ -516,7 +516,7 @@ namespace GVFS.Common.Git
             bool flushedBuffers = false;
             try
             {
-                GVFSPlatform.Instance.FileSystem.FlushFileBuffers(path);
+                ScalarPlatform.Instance.FileSystem.FlushFileBuffers(path);
                 flushedBuffers = true;
             }
             catch (Win32Exception e)
@@ -635,9 +635,9 @@ namespace GVFS.Common.Git
 
                     // Write the temp and index to a temp folder to avoid putting corrupt files in the pack folder
                     // Once the files are validated and flushed they can be moved to the pack folder
-                    string packName = string.Format("{0}-{1}-{2}.pack", GVFSConstants.PrefetchPackPrefix, pack.Timestamp, pack.UniqueId);
+                    string packName = string.Format("{0}-{1}-{2}.pack", ScalarConstants.PrefetchPackPrefix, pack.Timestamp, pack.UniqueId);
                     string packTempPath = Path.Combine(tempPackFolderPath, packName);
-                    string idxName = string.Format("{0}-{1}-{2}.idx", GVFSConstants.PrefetchPackPrefix, pack.Timestamp, pack.UniqueId);
+                    string idxName = string.Format("{0}-{1}-{2}.idx", ScalarConstants.PrefetchPackPrefix, pack.Timestamp, pack.UniqueId);
                     string idxTempPath = Path.Combine(tempPackFolderPath, idxName);
 
                     EventMetadata data = CreateEventMetadata();

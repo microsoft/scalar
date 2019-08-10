@@ -1,6 +1,6 @@
 using System;
 
-namespace GVFS.Common.Tracing
+namespace Scalar.Common.Tracing
 {
     public interface IQueuedPipeStringWriterEventSink
     {

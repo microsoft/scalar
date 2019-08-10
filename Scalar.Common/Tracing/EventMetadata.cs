@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GVFS.Common.Tracing
+namespace Scalar.Common.Tracing
 {
     // This is a convenience class to make code around event metadata look nicer.
     // It's more obvious to see EventMetadata than Dictionary<string, object> everywhere.

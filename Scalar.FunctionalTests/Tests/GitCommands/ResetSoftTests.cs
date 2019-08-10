@@ -1,7 +1,7 @@
-﻿using GVFS.FunctionalTests.Properties;
+﻿using Scalar.FunctionalTests.Properties;
 using NUnit.Framework;
 
-namespace GVFS.FunctionalTests.Tests.GitCommands
+namespace Scalar.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]
@@ -28,8 +28,8 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
             this.ValidateGitCommand("reset --soft HEAD~1");
             this.FilesShouldMatchCheckoutOfTargetBranch();
 
-            this.Enlistment.UnmountGVFS();
-            this.Enlistment.MountGVFS();
+            this.Enlistment.UnmountScalar();
+            this.Enlistment.MountScalar();
             this.ValidateGitCommand("status");
             this.FilesShouldMatchCheckoutOfTargetBranch();
         }

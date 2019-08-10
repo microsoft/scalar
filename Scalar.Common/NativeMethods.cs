@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public static partial class NativeMethods
     {

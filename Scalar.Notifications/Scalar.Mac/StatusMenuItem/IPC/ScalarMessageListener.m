@@ -1,19 +1,19 @@
 #import <netinet/in.h>
 #import <sys/socket.h>
 #import <sys/un.h>
-#import "VFSMessageListener.h"
-#import "VFSMessageParser.h"
+#import "ScalarMessageListener.h"
+#import "ScalarMessageParser.h"
 
-NSString * const NotificationServerPipeName = @"vfsforgit.notification";
+NSString * const NotificationServerPipeName = @"scalar.notification";
 
-@interface VFSMessageListener ()
+@interface ScalarMessageListener ()
 
 @property (strong) NSFileHandle *connectionHandle;
 @property CFSocketRef socketRef;
 
 @end
 
-@implementation VFSMessageListener
+@implementation ScalarMessageListener
 
 - (instancetype)initWithSocket:(NSString *)socketPath
                       callback:(nonnull NewMessageCallback)callback
@@ -142,7 +142,7 @@ NSString * const NotificationServerPipeName = @"vfsforgit.notification";
         {
             NSError *error;
             NSDictionary *message;
-            if([VFSMessageParser tryParseData:data message:&message error:&error])
+            if([ScalarMessageParser tryParseData:data message:&message error:&error])
             {
                 self.messageCallback(message);
             }

@@ -1,13 +1,13 @@
-﻿using GVFS.Common;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
+﻿using Scalar.Common;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
 using NUnit.Framework;
 using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class RetryWrapperTests

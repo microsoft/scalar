@@ -1,9 +1,9 @@
-﻿using GVFS.Common.Git;
+﻿using Scalar.Common.Git;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace GVFS.Common.Maintenance
+namespace Scalar.Common.Maintenance
 {
     public class GitMaintenanceScheduler : IDisposable
     {
@@ -16,11 +16,11 @@ namespace GVFS.Common.Maintenance
         private readonly TimeSpan prefetchPeriod = TimeSpan.FromMinutes(15);
 
         private List<Timer> stepTimers;
-        private GVFSContext context;
+        private ScalarContext context;
         private GitObjects gitObjects;
         private GitMaintenanceQueue queue;
 
-        public GitMaintenanceScheduler(GVFSContext context, GitObjects gitObjects)
+        public GitMaintenanceScheduler(ScalarContext context, GitObjects gitObjects)
         {
             this.context = context;
             this.gitObjects = gitObjects;

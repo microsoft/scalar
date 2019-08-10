@@ -1,9 +1,9 @@
-﻿using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.Linq;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public class RetryConfig
     {
@@ -103,7 +103,7 @@ namespace GVFS.Common
         {
             return TryGetFromGitConfig(
                 git,
-                GVFSConstants.GitConfig.MaxRetriesConfig,
+                ScalarConstants.GitConfig.MaxRetriesConfig,
                 DefaultMaxRetries,
                 MinRetries,
                 out attempts,
@@ -116,7 +116,7 @@ namespace GVFS.Common
             int timeoutSeconds;
             if (!TryGetFromGitConfig(
                 git,
-                GVFSConstants.GitConfig.TimeoutSecondsConfig,
+                ScalarConstants.GitConfig.TimeoutSecondsConfig,
                 DefaultTimeoutSeconds,
                 0,
                 out timeoutSeconds,

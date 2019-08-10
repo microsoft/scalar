@@ -1,13 +1,13 @@
 using CommandLine;
-using GVFS.Common;
+using Scalar.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
-    [Verb(LogVerb.LogVerbName, HelpText = "Show the most recent GVFS log files")]
-    public class LogVerb : GVFSVerb
+    [Verb(LogVerb.LogVerbName, HelpText = "Show the most recent Scalar log files")]
+    public class LogVerb : ScalarVerb
     {
         private const string LogVerbName = "log";
         private static readonly int LogNameConsoleOutputFormatWidth = GetMaxLogNameLength();
@@ -17,7 +17,7 @@ namespace GVFS.CommandLine
             Required = false,
             Default = "",
             MetaName = "Enlistment Root Path",
-            HelpText = "Full or relative path to the GVFS enlistment root")]
+            HelpText = "Full or relative path to the Scalar enlistment root")]
         public override string EnlistmentRootPathParameter { get; set; }
 
         [Option(
@@ -39,39 +39,39 @@ namespace GVFS.CommandLine
 
             string errorMessage;
             string enlistmentRoot;
-            if (!GVFSPlatform.Instance.TryGetGVFSEnlistmentRoot(this.EnlistmentRootPathParameter, out enlistmentRoot, out errorMessage))
+            if (!ScalarPlatform.Instance.TryGetScalarEnlistmentRoot(this.EnlistmentRootPathParameter, out enlistmentRoot, out errorMessage))
             {
                 this.ReportErrorAndExit(
-                    "Error: '{0}' is not a valid GVFS enlistment",
+                    "Error: '{0}' is not a valid Scalar enlistment",
                     this.EnlistmentRootPathParameter);
             }
 
-            string gvfsLogsRoot = Path.Combine(
+            string scalarLogsRoot = Path.Combine(
                 enlistmentRoot,
-                GVFSPlatform.Instance.Constants.DotGVFSRoot,
-                GVFSConstants.DotGVFS.LogName);
+                ScalarPlatform.Instance.Constants.DotScalarRoot,
+                ScalarConstants.DotScalar.LogName);
 
             if (this.LogType == null)
             {
-                this.DisplayMostRecent(gvfsLogsRoot, GVFSConstants.LogFileTypes.Clone);
+                this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.Clone);
 
                 // By using MountPrefix ("mount") DisplayMostRecent will display either mount_verb, mount_upgrade, or mount_process, whichever is more recent
-                this.DisplayMostRecent(gvfsLogsRoot, GVFSConstants.LogFileTypes.MountPrefix);
-                this.DisplayMostRecent(gvfsLogsRoot, GVFSConstants.LogFileTypes.Prefetch);
-                this.DisplayMostRecent(gvfsLogsRoot, GVFSConstants.LogFileTypes.Dehydrate);
-                this.DisplayMostRecent(gvfsLogsRoot, GVFSConstants.LogFileTypes.Repair);
-                this.DisplayMostRecent(gvfsLogsRoot, GVFSConstants.LogFileTypes.Sparse);
+                this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.MountPrefix);
+                this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.Prefetch);
+                this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.Dehydrate);
+                this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.Repair);
+                this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.Sparse);
 
                 string serviceLogsRoot = Path.Combine(
-                    GVFSPlatform.Instance.GetDataRootForGVFSComponent(GVFSConstants.Service.ServiceName),
-                    GVFSConstants.Service.LogDirectory);
-                this.DisplayMostRecent(serviceLogsRoot, GVFSConstants.LogFileTypes.Service);
+                    ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.Service.ServiceName),
+                    ScalarConstants.Service.LogDirectory);
+                this.DisplayMostRecent(serviceLogsRoot, ScalarConstants.LogFileTypes.Service);
 
-                this.DisplayMostRecent(ProductUpgraderInfo.GetLogDirectoryPath(), GVFSConstants.LogFileTypes.UpgradePrefix);
+                this.DisplayMostRecent(ProductUpgraderInfo.GetLogDirectoryPath(), ScalarConstants.LogFileTypes.UpgradePrefix);
             }
             else
             {
-                string logFile = FindNewestFileInFolder(gvfsLogsRoot, this.LogType);
+                string logFile = FindNewestFileInFolder(scalarLogsRoot, this.LogType);
                 if (logFile == null)
                 {
                     this.ReportErrorAndExit("No log file found");
@@ -111,21 +111,21 @@ namespace GVFS.CommandLine
 
         private static string GetLogFilePatternForType(string logFileType)
         {
-            return "gvfs_" + logFileType + "_*.log";
+            return "scalar_" + logFileType + "_*.log";
         }
 
         private static int GetMaxLogNameLength()
         {
             List<string> lognames = new List<string>
             {
-                GVFSConstants.LogFileTypes.Clone,
-                GVFSConstants.LogFileTypes.MountPrefix,
-                GVFSConstants.LogFileTypes.Prefetch,
-                GVFSConstants.LogFileTypes.Dehydrate,
-                GVFSConstants.LogFileTypes.Repair,
-                GVFSConstants.LogFileTypes.Sparse,
-                GVFSConstants.LogFileTypes.Service,
-                GVFSConstants.LogFileTypes.UpgradePrefix,
+                ScalarConstants.LogFileTypes.Clone,
+                ScalarConstants.LogFileTypes.MountPrefix,
+                ScalarConstants.LogFileTypes.Prefetch,
+                ScalarConstants.LogFileTypes.Dehydrate,
+                ScalarConstants.LogFileTypes.Repair,
+                ScalarConstants.LogFileTypes.Sparse,
+                ScalarConstants.LogFileTypes.Service,
+                ScalarConstants.LogFileTypes.UpgradePrefix,
             };
 
             return lognames.Max(s => s.Length) + 1;

@@ -1,9 +1,9 @@
-﻿using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common.Tracing;
+﻿using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common.Tracing;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class JsonTracerTests
@@ -11,7 +11,7 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void EventsAreFilteredByVerbosity()
         {
-            using (JsonTracer tracer = new JsonTracer("Microsoft-GVFS-Test", "EventsAreFilteredByVerbosity1", disableTelemetry: true))
+            using (JsonTracer tracer = new JsonTracer("Microsoft-Scalar-Test", "EventsAreFilteredByVerbosity1", disableTelemetry: true))
             using (MockListener listener = new MockListener(EventLevel.Informational, Keywords.Any))
             {
                 tracer.AddEventListener(listener);
@@ -23,7 +23,7 @@ namespace GVFS.UnitTests.Common
                 listener.EventNamesRead.ShouldNotContain(name => name.Equals("ShouldNotReceive"));
             }
 
-            using (JsonTracer tracer = new JsonTracer("Microsoft-GVFS-Test", "EventsAreFilteredByVerbosity2", disableTelemetry: true))
+            using (JsonTracer tracer = new JsonTracer("Microsoft-Scalar-Test", "EventsAreFilteredByVerbosity2", disableTelemetry: true))
             using (MockListener listener = new MockListener(EventLevel.Verbose, Keywords.Any))
             {
                 tracer.AddEventListener(listener);
@@ -40,7 +40,7 @@ namespace GVFS.UnitTests.Common
         public void EventsAreFilteredByKeyword()
         {
             // Network filters all but network out
-            using (JsonTracer tracer = new JsonTracer("Microsoft-GVFS-Test", "EventsAreFilteredByKeyword1", disableTelemetry: true))
+            using (JsonTracer tracer = new JsonTracer("Microsoft-Scalar-Test", "EventsAreFilteredByKeyword1", disableTelemetry: true))
             using (MockListener listener = new MockListener(EventLevel.Verbose, Keywords.Network))
             {
                 tracer.AddEventListener(listener);
@@ -53,7 +53,7 @@ namespace GVFS.UnitTests.Common
             }
 
             // Any filters nothing out
-            using (JsonTracer tracer = new JsonTracer("Microsoft-GVFS-Test", "EventsAreFilteredByKeyword2", disableTelemetry: true))
+            using (JsonTracer tracer = new JsonTracer("Microsoft-Scalar-Test", "EventsAreFilteredByKeyword2", disableTelemetry: true))
             using (MockListener listener = new MockListener(EventLevel.Verbose, Keywords.Any))
             {
                 tracer.AddEventListener(listener);
@@ -66,7 +66,7 @@ namespace GVFS.UnitTests.Common
             }
 
             // None filters everything out (including events marked as none)
-            using (JsonTracer tracer = new JsonTracer("Microsoft-GVFS-Test", "EventsAreFilteredByKeyword3", disableTelemetry: true))
+            using (JsonTracer tracer = new JsonTracer("Microsoft-Scalar-Test", "EventsAreFilteredByKeyword3", disableTelemetry: true))
             using (MockListener listener = new MockListener(EventLevel.Verbose, Keywords.None))
             {
                 tracer.AddEventListener(listener);
@@ -82,7 +82,7 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void EventMetadataWithKeywordsIsOptional()
         {
-            using (JsonTracer tracer = new JsonTracer("Microsoft-GVFS-Test", "EventMetadataWithKeywordsIsOptional", disableTelemetry: true))
+            using (JsonTracer tracer = new JsonTracer("Microsoft-Scalar-Test", "EventMetadataWithKeywordsIsOptional", disableTelemetry: true))
             using (MockListener listener = new MockListener(EventLevel.Verbose, Keywords.Any))
             {
                 tracer.AddEventListener(listener);
@@ -98,7 +98,7 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void StartEventDoesNotDispatchTelemetry()
         {
-            using (JsonTracer tracer = new JsonTracer("Microsoft-GVFS-Test", "StartEventDoesNotDispatchTelemetry", disableTelemetry: true))
+            using (JsonTracer tracer = new JsonTracer("Microsoft-Scalar-Test", "StartEventDoesNotDispatchTelemetry", disableTelemetry: true))
             using (MockListener listener = new MockListener(EventLevel.Verbose, Keywords.Telemetry))
             {
                 tracer.AddEventListener(listener);
@@ -116,7 +116,7 @@ namespace GVFS.UnitTests.Common
         [TestCase]
         public void StopEventIsDispatchedOnDispose()
         {
-            using (JsonTracer tracer = new JsonTracer("Microsoft-GVFS-Test", "StopEventIsDispatchedOnDispose", disableTelemetry: true))
+            using (JsonTracer tracer = new JsonTracer("Microsoft-Scalar-Test", "StopEventIsDispatchedOnDispose", disableTelemetry: true))
             using (MockListener listener = new MockListener(EventLevel.Verbose, Keywords.Telemetry))
             {
                 tracer.AddEventListener(listener);

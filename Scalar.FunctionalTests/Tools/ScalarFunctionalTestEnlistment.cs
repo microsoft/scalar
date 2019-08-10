@@ -1,7 +1,7 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Should;
-using GVFS.FunctionalTests.Tests;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Should;
+using Scalar.FunctionalTests.Tests;
+using Scalar.Tests.Should;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -11,18 +11,18 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace GVFS.FunctionalTests.Tools
+namespace Scalar.FunctionalTests.Tools
 {
-    public class GVFSFunctionalTestEnlistment
+    public class ScalarFunctionalTestEnlistment
     {
-        private const string LockHeldByGit = "GVFS Lock: Held by {0}";
+        private const string LockHeldByGit = "Scalar Lock: Held by {0}";
         private const int SleepMSWaitingForStatusCheck = 100;
         private const int DefaultMaxWaitMSForStatusCheck = 5000;
         private static readonly string ZeroBackgroundOperations = "Background operations: 0" + Environment.NewLine;
 
-        private GVFSProcess gvfsProcess;
+        private ScalarProcess scalarProcess;
 
-        private GVFSFunctionalTestEnlistment(string pathToGVFS, string enlistmentRoot, string repoUrl, string commitish, string localCacheRoot = null)
+        private ScalarFunctionalTestEnlistment(string pathToScalar, string enlistmentRoot, string repoUrl, string commitish, string localCacheRoot = null)
         {
             this.EnlistmentRoot = enlistmentRoot;
             this.RepoUrl = repoUrl;
@@ -30,21 +30,21 @@ namespace GVFS.FunctionalTests.Tools
 
             if (localCacheRoot == null)
             {
-                if (GVFSTestConfig.NoSharedCache)
+                if (ScalarTestConfig.NoSharedCache)
                 {
-                    // eg C:\Repos\GVFSFunctionalTests\enlistment\7942ca69d7454acbb45ea39ef5be1d15\.gvfs\.gvfsCache
+                    // eg C:\Repos\ScalarFunctionalTests\enlistment\7942ca69d7454acbb45ea39ef5be1d15\.scalar\.scalarCache
                     localCacheRoot = GetRepoSpecificLocalCacheRoot(enlistmentRoot);
                 }
                 else
                 {
-                    // eg C:\Repos\GVFSFunctionalTests\.gvfsCache
+                    // eg C:\Repos\ScalarFunctionalTests\.scalarCache
                     // Ensures the general cache is not cleaned up between test runs
-                    localCacheRoot = Path.Combine(Properties.Settings.Default.EnlistmentRoot, "..", ".gvfsCache");
+                    localCacheRoot = Path.Combine(Properties.Settings.Default.EnlistmentRoot, "..", ".scalarCache");
                 }
             }
 
             this.LocalCacheRoot = localCacheRoot;
-            this.gvfsProcess = new GVFSProcess(pathToGVFS, this.EnlistmentRoot, this.LocalCacheRoot);
+            this.scalarProcess = new ScalarProcess(pathToScalar, this.EnlistmentRoot, this.LocalCacheRoot);
         }
 
         public string EnlistmentRoot
@@ -64,19 +64,19 @@ namespace GVFS.FunctionalTests.Tools
             get { return Path.Combine(this.EnlistmentRoot, "src"); }
         }
 
-        public string DotGVFSRoot
+        public string DotScalarRoot
         {
-            get { return Path.Combine(this.EnlistmentRoot, GVFSTestConfig.DotGVFSRoot); }
+            get { return Path.Combine(this.EnlistmentRoot, ScalarTestConfig.DotScalarRoot); }
         }
 
-        public string GVFSLogsRoot
+        public string ScalarLogsRoot
         {
-            get { return Path.Combine(this.DotGVFSRoot, "logs"); }
+            get { return Path.Combine(this.DotScalarRoot, "logs"); }
         }
 
         public string DiagnosticsRoot
         {
-            get { return Path.Combine(this.DotGVFSRoot, "diagnostics"); }
+            get { return Path.Combine(this.DotScalarRoot, "diagnostics"); }
         }
 
         public string Commitish
@@ -84,27 +84,27 @@ namespace GVFS.FunctionalTests.Tools
             get; private set;
         }
 
-        public static GVFSFunctionalTestEnlistment CloneAndMountWithPerRepoCache(string pathToGvfs, bool skipPrefetch)
+        public static ScalarFunctionalTestEnlistment CloneAndMountWithPerRepoCache(string pathToGvfs, bool skipPrefetch)
         {
-            string enlistmentRoot = GVFSFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
-            string localCache = GVFSFunctionalTestEnlistment.GetRepoSpecificLocalCacheRoot(enlistmentRoot);
+            string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
+            string localCache = ScalarFunctionalTestEnlistment.GetRepoSpecificLocalCacheRoot(enlistmentRoot);
             return CloneAndMount(pathToGvfs, enlistmentRoot, null, localCache, skipPrefetch);
         }
 
-        public static GVFSFunctionalTestEnlistment CloneAndMount(
+        public static ScalarFunctionalTestEnlistment CloneAndMount(
             string pathToGvfs,
             string commitish = null,
             string localCacheRoot = null,
             bool skipPrefetch = false)
         {
-            string enlistmentRoot = GVFSFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
+            string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
             return CloneAndMount(pathToGvfs, enlistmentRoot, commitish, localCacheRoot, skipPrefetch);
         }
 
-        public static GVFSFunctionalTestEnlistment CloneAndMountEnlistmentWithSpacesInPath(string pathToGvfs, string commitish = null)
+        public static ScalarFunctionalTestEnlistment CloneAndMountEnlistmentWithSpacesInPath(string pathToGvfs, string commitish = null)
         {
-            string enlistmentRoot = GVFSFunctionalTestEnlistment.GetUniqueEnlistmentRootWithSpaces();
-            string localCache = GVFSFunctionalTestEnlistment.GetRepoSpecificLocalCacheRoot(enlistmentRoot);
+            string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRootWithSpaces();
+            string localCache = ScalarFunctionalTestEnlistment.GetRepoSpecificLocalCacheRoot(enlistmentRoot);
             return CloneAndMount(pathToGvfs, enlistmentRoot, commitish, localCache);
         }
 
@@ -153,13 +153,13 @@ namespace GVFS.FunctionalTests.Tools
 
         public void DeleteEnlistment()
         {
-            TestResultsHelper.OutputGVFSLogs(this);
+            TestResultsHelper.OutputScalarLogs(this);
             RepositoryHelpers.DeleteTestDirectory(this.EnlistmentRoot);
         }
 
         public void CloneAndMount(bool skipPrefetch)
         {
-            this.gvfsProcess.Clone(this.RepoUrl, this.Commitish, skipPrefetch);
+            this.scalarProcess.Clone(this.RepoUrl, this.Commitish, skipPrefetch);
 
             GitProcess.Invoke(this.RepoRoot, "checkout " + this.Commitish);
             GitProcess.Invoke(this.RepoRoot, "branch --unset-upstream");
@@ -180,55 +180,55 @@ namespace GVFS.FunctionalTests.Tools
             }
         }
 
-        public void MountGVFS()
+        public void MountScalar()
         {
-            this.gvfsProcess.Mount();
+            this.scalarProcess.Mount();
         }
 
-        public bool TryMountGVFS()
+        public bool TryMountScalar()
         {
             string output;
-            return this.TryMountGVFS(out output);
+            return this.TryMountScalar(out output);
         }
 
-        public bool TryMountGVFS(out string output)
+        public bool TryMountScalar(out string output)
         {
-            return this.gvfsProcess.TryMount(out output);
+            return this.scalarProcess.TryMount(out output);
         }
 
         public string Prefetch(string args, bool failOnError = true, string standardInput = null)
         {
-            return this.gvfsProcess.Prefetch(args, failOnError, standardInput);
+            return this.scalarProcess.Prefetch(args, failOnError, standardInput);
         }
 
         public void Repair(bool confirm)
         {
-            this.gvfsProcess.Repair(confirm);
+            this.scalarProcess.Repair(confirm);
         }
 
         public string Diagnose()
         {
-            return this.gvfsProcess.Diagnose();
+            return this.scalarProcess.Diagnose();
         }
 
         public string LooseObjectStep()
         {
-            return this.gvfsProcess.LooseObjectStep();
+            return this.scalarProcess.LooseObjectStep();
         }
 
         public string PackfileMaintenanceStep(long? batchSize = null)
         {
-            return this.gvfsProcess.PackfileMaintenanceStep(batchSize);
+            return this.scalarProcess.PackfileMaintenanceStep(batchSize);
         }
 
         public string PostFetchStep()
         {
-            return this.gvfsProcess.PostFetchStep();
+            return this.scalarProcess.PostFetchStep();
         }
 
         public string Status(string trace = null)
         {
-            return this.gvfsProcess.Status(trace);
+            return this.scalarProcess.Status(trace);
         }
 
         public bool WaitForBackgroundOperations(int maxWaitMilliseconds = DefaultMaxWaitMSForStatusCheck)
@@ -241,24 +241,24 @@ namespace GVFS.FunctionalTests.Tools
             return this.WaitForStatus(maxWaitMilliseconds, string.Format(LockHeldByGit, lockCommand));
         }
 
-        public void UnmountGVFS()
+        public void UnmountScalar()
         {
-            this.gvfsProcess.Unmount();
+            this.scalarProcess.Unmount();
         }
 
         public string GetCacheServer()
         {
-            return this.gvfsProcess.CacheServer("--get");
+            return this.scalarProcess.CacheServer("--get");
         }
 
         public string SetCacheServer(string arg)
         {
-            return this.gvfsProcess.CacheServer("--set " + arg);
+            return this.scalarProcess.CacheServer("--set " + arg);
         }
 
         public void UnmountAndDeleteAll()
         {
-            this.UnmountGVFS();
+            this.UnmountScalar();
             this.DeleteEnlistment();
         }
 
@@ -283,14 +283,14 @@ namespace GVFS.FunctionalTests.Tools
                 objectHash.Substring(2));
         }
 
-        private static GVFSFunctionalTestEnlistment CloneAndMount(string pathToGvfs, string enlistmentRoot, string commitish, string localCacheRoot, bool skipPrefetch = false)
+        private static ScalarFunctionalTestEnlistment CloneAndMount(string pathToGvfs, string enlistmentRoot, string commitish, string localCacheRoot, bool skipPrefetch = false)
         {
-            GVFSFunctionalTestEnlistment enlistment = new GVFSFunctionalTestEnlistment(
+            ScalarFunctionalTestEnlistment enlistment = new ScalarFunctionalTestEnlistment(
                 pathToGvfs,
                 enlistmentRoot ?? GetUniqueEnlistmentRoot(),
-                GVFSTestConfig.RepoToClone,
+                ScalarTestConfig.RepoToClone,
                 commitish ?? Properties.Settings.Default.Commitish,
-                localCacheRoot ?? GVFSTestConfig.LocalCacheRoot);
+                localCacheRoot ?? ScalarTestConfig.LocalCacheRoot);
 
             try
             {
@@ -299,7 +299,7 @@ namespace GVFS.FunctionalTests.Tools
             catch (Exception e)
             {
                 Console.WriteLine("Unhandled exception in CloneAndMount: " + e.ToString());
-                TestResultsHelper.OutputGVFSLogs(enlistment);
+                TestResultsHelper.OutputScalarLogs(enlistment);
                 throw;
             }
 
@@ -308,7 +308,7 @@ namespace GVFS.FunctionalTests.Tools
 
         private static string GetRepoSpecificLocalCacheRoot(string enlistmentRoot)
         {
-            return Path.Combine(enlistmentRoot, GVFSTestConfig.DotGVFSRoot, ".gvfsCache");
+            return Path.Combine(enlistmentRoot, ScalarTestConfig.DotScalarRoot, ".scalarCache");
         }
 
         private bool WaitForStatus(int maxWaitMilliseconds, string statusShouldContain)

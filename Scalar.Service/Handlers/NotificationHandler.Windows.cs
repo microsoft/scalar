@@ -1,11 +1,11 @@
-﻿using GVFS.Common;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
-using GVFS.Platform.Windows;
+﻿using Scalar.Common;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
+using Scalar.Platform.Windows;
 using System;
 using System.Diagnostics;
 
-namespace GVFS.Service.Handlers
+namespace Scalar.Service.Handlers
 {
     public class NotificationHandler : INotificationHandler
     {
@@ -21,14 +21,14 @@ namespace GVFS.Service.Handlers
             NamedPipeClient client;
             if (!this.TryOpenConnectionToUIProcess(out client))
             {
-                this.TerminateExistingProcess(GVFSConstants.Service.UIName);
+                this.TerminateExistingProcess(ScalarConstants.Service.UIName);
 
                 CurrentUser currentUser = new CurrentUser(this.tracer, sessionId);
                 if (!currentUser.RunAs(
-                    Configuration.Instance.GVFSServiceUILocation,
+                    Configuration.Instance.ScalarServiceUILocation,
                     string.Empty))
                 {
-                    this.tracer.RelatedError("Could not start " + GVFSConstants.Service.UIName);
+                    this.tracer.RelatedError("Could not start " + ScalarConstants.Service.UIName);
                     return;
                 }
 
@@ -37,7 +37,7 @@ namespace GVFS.Service.Handlers
 
             if (client == null)
             {
-                this.tracer.RelatedError("Failed to connect to " + GVFSConstants.Service.UIName);
+                this.tracer.RelatedError("Failed to connect to " + ScalarConstants.Service.UIName);
                 return;
             }
 
@@ -45,7 +45,7 @@ namespace GVFS.Service.Handlers
             {
                 if (!client.TrySendRequest(request.ToMessage()))
                 {
-                    this.tracer.RelatedInfo("Failed to send notification request to " + GVFSConstants.Service.UIName);
+                    this.tracer.RelatedInfo("Failed to send notification request to " + ScalarConstants.Service.UIName);
                 }
             }
             finally
@@ -56,7 +56,7 @@ namespace GVFS.Service.Handlers
 
         private bool TryOpenConnectionToUIProcess(out NamedPipeClient client)
         {
-            client = new NamedPipeClient(GVFSConstants.Service.UIName);
+            client = new NamedPipeClient(ScalarConstants.Service.UIName);
             if (client.Connect())
             {
                 return true;

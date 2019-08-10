@@ -1,18 +1,18 @@
 using CommandLine;
-using GVFS.CommandLine;
-using GVFS.Common;
-using GVFS.PlatformLoader;
+using Scalar.CommandLine;
+using Scalar.Common;
+using Scalar.PlatformLoader;
 using System;
 using System.IO;
 using System.Linq;
 
-namespace GVFS
+namespace Scalar
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            GVFSPlatformLoader.Initialize();
+            ScalarPlatformLoader.Initialize();
 
             Type[] verbTypes = new Type[]
             {
@@ -74,13 +74,13 @@ namespace GVFS
                             clone.Execute();
                             Environment.Exit((int)ReturnCode.Success);
                         })
-                    .WithParsed<GVFSVerb.ForNoEnlistment>(
+                    .WithParsed<ScalarVerb.ForNoEnlistment>(
                         verb =>
                         {
                             verb.Execute();
                             Environment.Exit((int)ReturnCode.Success);
                         })
-                    .WithParsed<GVFSVerb>(
+                    .WithParsed<ScalarVerb>(
                         verb =>
                         {
                             // For all other verbs, they don't care if the enlistment root is explicitly
@@ -94,7 +94,7 @@ namespace GVFS
                             Environment.Exit((int)ReturnCode.Success);
                         });
             }
-            catch (GVFSVerb.VerbAbortedException e)
+            catch (ScalarVerb.VerbAbortedException e)
             {
                 // Calling Environment.Exit() is required, to force all background threads to exit as well
                 Environment.Exit((int)e.Verb.ReturnCode);

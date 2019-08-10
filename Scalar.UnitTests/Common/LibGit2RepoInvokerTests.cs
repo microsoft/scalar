@@ -1,11 +1,11 @@
-﻿using GVFS.Common.Git;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
+﻿using Scalar.Common.Git;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
 using NUnit.Framework;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class LibGit2RepoInvokerTests

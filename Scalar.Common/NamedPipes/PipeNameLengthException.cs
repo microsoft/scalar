@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GVFS.Common.NamedPipes
+namespace Scalar.Common.NamedPipes
 {
     public class PipeNameLengthException : Exception
     {

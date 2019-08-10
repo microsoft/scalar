@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public class GitCommandLineParser
     {
@@ -95,7 +95,7 @@ namespace GVFS.Common
                 // e.g. git checkout HEAD fileName
                 if (numArguments >= 2 &&
                     !this.HasAnyArgument(arg => arg.StartsWith("-")) &&
-                    this.HasArgumentAtIndex(GVFSConstants.DotGit.HeadName, argumentIndex: 0))
+                    this.HasArgumentAtIndex(ScalarConstants.DotGit.HeadName, argumentIndex: 0))
                 {
                     return true;
                 }

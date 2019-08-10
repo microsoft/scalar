@@ -1,57 +1,57 @@
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Pipes;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
-    public abstract class GVFSPlatform
+    public abstract class ScalarPlatform
     {
-        public GVFSPlatform(UnderConstructionFlags underConstruction)
+        public ScalarPlatform(UnderConstructionFlags underConstruction)
         {
             this.UnderConstruction = underConstruction;
         }
 
-        public static GVFSPlatform Instance { get; private set; }
+        public static ScalarPlatform Instance { get; private set; }
 
         public abstract IGitInstallation GitInstallation { get; }
         public abstract IDiskLayoutUpgradeData DiskLayoutUpgrade { get; }
         public abstract IPlatformFileSystem FileSystem { get; }
 
-        public abstract GVFSPlatformConstants Constants { get; }
+        public abstract ScalarPlatformConstants Constants { get; }
         public UnderConstructionFlags UnderConstruction { get; }
         public abstract string Name { get; }
 
-        public abstract string GVFSConfigPath { get; }
+        public abstract string ScalarConfigPath { get; }
 
-        public static void Register(GVFSPlatform platform)
+        public static void Register(ScalarPlatform platform)
         {
-            if (GVFSPlatform.Instance != null)
+            if (ScalarPlatform.Instance != null)
             {
                 throw new InvalidOperationException("Cannot register more than one platform");
             }
 
-            GVFSPlatform.Instance = platform;
+            ScalarPlatform.Instance = platform;
         }
 
         /// <summary>
-        /// Starts a VFS for Git process in the background.
+        /// Starts a Scalar process in the background.
         /// </summary>
         /// <remarks>
         /// This method should only be called by processes whose code we own as the background process must
         /// do some extra work after it starts.
         /// </remarks>
-        public abstract void StartBackgroundVFS4GProcess(ITracer tracer, string programName, string[] args);
+        public abstract void StartBackgroundScalar4GProcess(ITracer tracer, string programName, string[] args);
 
         /// <summary>
         /// Adjusts the current process for running in the background.
         /// </summary>
         /// <remarks>
-        /// This method should be called after starting by processes launched using <see cref="GVFSPlatform.StartBackgroundVFS4GProcess"/>
+        /// This method should be called after starting by processes launched using <see cref="ScalarPlatform.StartBackgroundScalar4GProcess"/>
         /// </remarks>
         /// <exception cref="Win32Exception">
         /// Failed to prepare process to run in background.
@@ -61,12 +61,12 @@ namespace GVFS.Common
         public abstract bool IsProcessActive(int processId);
         public abstract void IsServiceInstalledAndRunning(string name, out bool installed, out bool running);
         public abstract string GetNamedPipeName(string enlistmentRoot);
-        public abstract string GetGVFSServiceNamedPipeName(string serviceName);
+        public abstract string GetScalarServiceNamedPipeName(string serviceName);
         public abstract NamedPipeServerStream CreatePipeByName(string pipeName);
 
         public abstract string GetOSVersionInformation();
-        public abstract string GetDataRootForGVFS();
-        public abstract string GetDataRootForGVFSComponent(string componentName);
+        public abstract string GetDataRootForScalar();
+        public abstract string GetDataRootForScalarComponent(string componentName);
         public abstract void InitializeEnlistmentACLs(string enlistmentPath);
         public abstract bool IsElevated();
         public abstract string GetCurrentUser();
@@ -102,7 +102,7 @@ namespace GVFS.Common
 
         public abstract bool TryKillProcessTree(int processId, out int exitCode, out string error);
 
-        public abstract bool TryGetGVFSEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage);
+        public abstract bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage);
         public abstract bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError);
 
         public abstract FileBasedLock CreateFileBasedLock(
@@ -129,7 +129,7 @@ namespace GVFS.Common
             return true;
         }
 
-        public abstract class GVFSPlatformConstants
+        public abstract class ScalarPlatformConstants
         {
             public static readonly char PathSeparator = Path.DirectorySeparatorChar;
             public abstract int MaxPipePathLength { get; }
@@ -142,20 +142,20 @@ namespace GVFS.Common
             /// </summary>
             public abstract bool SupportsUpgradeWhileRunning { get; }
             public abstract string WorkingDirectoryBackingRootPath { get; }
-            public abstract string DotGVFSRoot { get; }
+            public abstract string DotScalarRoot { get; }
 
-            public abstract string GVFSBinDirectoryPath { get; }
+            public abstract string ScalarBinDirectoryPath { get; }
 
-            public abstract string GVFSBinDirectoryName { get; }
+            public abstract string ScalarBinDirectoryName { get; }
 
-            public abstract string GVFSExecutableName { get; }
+            public abstract string ScalarExecutableName { get; }
 
             public abstract string ProgramLocaterCommand { get; }
 
             /// <summary>
             /// Different platforms can have different requirements
             /// around which processes can block upgrade. For example,
-            /// on Windows, we will block upgrade if any GVFS commands
+            /// on Windows, we will block upgrade if any Scalar commands
             /// are running, but on POSIX platforms, we relax this
             /// constraint to allow upgrade to run while the upgrade
             /// command is running. Another example is that
@@ -164,40 +164,40 @@ namespace GVFS.Common
             /// </summary>
             public abstract HashSet<string> UpgradeBlockingProcesses { get; }
 
-            public string GVFSReadObjectHookExecutableName
+            public string ScalarReadObjectHookExecutableName
             {
-                get { return "GVFS.ReadObjectHook" + this.ExecutableExtension; }
+                get { return "Scalar.ReadObjectHook" + this.ExecutableExtension; }
             }
 
             public string MountExecutableName
             {
-                get { return "GVFS.Mount" + this.ExecutableExtension; }
+                get { return "Scalar.Mount" + this.ExecutableExtension; }
             }
 
-            public string GVFSUpgraderExecutableName
+            public string ScalarUpgraderExecutableName
             {
-                get { return "GVFS.Upgrader" + this.ExecutableExtension; }
+                get { return "Scalar.Upgrader" + this.ExecutableExtension; }
             }
         }
 
         public class UnderConstructionFlags
         {
             public UnderConstructionFlags(
-                bool supportsGVFSUpgrade = true,
-                bool supportsGVFSConfig = true,
+                bool supportsScalarUpgrade = true,
+                bool supportsScalarConfig = true,
                 bool supportsNuGetEncryption = true,
-                bool supportsGVFSService = false)
+                bool supportsScalarService = false)
             {
-                this.SupportsGVFSUpgrade = supportsGVFSUpgrade;
-                this.SupportsGVFSConfig = supportsGVFSConfig;
+                this.SupportsScalarUpgrade = supportsScalarUpgrade;
+                this.SupportsScalarConfig = supportsScalarConfig;
                 this.SupportsNuGetEncryption = supportsNuGetEncryption;
-                this.SupportsGVFSService = supportsGVFSService;
+                this.SupportsScalarService = supportsScalarService;
             }
 
-            public bool SupportsGVFSUpgrade { get; }
-            public bool SupportsGVFSConfig { get; }
+            public bool SupportsScalarUpgrade { get; }
+            public bool SupportsScalarConfig { get; }
             public bool SupportsNuGetEncryption { get; }
-            public bool SupportsGVFSService { get; }
+            public bool SupportsScalarService { get; }
         }
     }
 }

@@ -1,7 +1,7 @@
-﻿using GVFS.Common;
-using GVFS.Platform.Windows;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Common.NuGetUpgrade;
+﻿using Scalar.Common;
+using Scalar.Platform.Windows;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Common.NuGetUpgrade;
 using Moq;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.UnitTests.Windows.Common.Upgrader
+namespace Scalar.UnitTests.Windows.Common.Upgrader
 {
     [TestFixture]
     public class WindowsNuGetUpgraderTests : NuGetUpgraderTests

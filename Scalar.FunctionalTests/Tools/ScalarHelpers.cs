@@ -1,6 +1,6 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Should;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Should;
+using Scalar.Tests.Should;
 using Microsoft.Data.Sqlite;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace GVFS.FunctionalTests.Tools
+namespace Scalar.FunctionalTests.Tools
 {
-    public static class GVFSHelpers
+    public static class ScalarHelpers
     {
         public const string ModifiedPathsNewLine = "\r\n";
         public const string PlaceholderFieldDelimiter = "\0";
@@ -34,41 +34,41 @@ namespace GVFS.FunctionalTests.Tools
             return path.Replace(Path.DirectorySeparatorChar, TestConstants.GitPathSeparator);
         }
 
-        public static void SaveDiskLayoutVersion(string dotGVFSRoot, string majorVersion, string minorVersion)
+        public static void SaveDiskLayoutVersion(string dotScalarRoot, string majorVersion, string minorVersion)
         {
-            SavePersistedValue(dotGVFSRoot, DiskLayoutMajorVersionKey, majorVersion);
-            SavePersistedValue(dotGVFSRoot, DiskLayoutMinorVersionKey, minorVersion);
+            SavePersistedValue(dotScalarRoot, DiskLayoutMajorVersionKey, majorVersion);
+            SavePersistedValue(dotScalarRoot, DiskLayoutMinorVersionKey, minorVersion);
         }
 
-        public static void GetPersistedDiskLayoutVersion(string dotGVFSRoot, out string majorVersion, out string minorVersion)
+        public static void GetPersistedDiskLayoutVersion(string dotScalarRoot, out string majorVersion, out string minorVersion)
         {
-            majorVersion = GetPersistedValue(dotGVFSRoot, DiskLayoutMajorVersionKey);
-            minorVersion = GetPersistedValue(dotGVFSRoot, DiskLayoutMinorVersionKey);
+            majorVersion = GetPersistedValue(dotScalarRoot, DiskLayoutMajorVersionKey);
+            minorVersion = GetPersistedValue(dotScalarRoot, DiskLayoutMinorVersionKey);
         }
 
-        public static void SaveLocalCacheRoot(string dotGVFSRoot, string value)
+        public static void SaveLocalCacheRoot(string dotScalarRoot, string value)
         {
-            SavePersistedValue(dotGVFSRoot, LocalCacheRootKey, value);
+            SavePersistedValue(dotScalarRoot, LocalCacheRootKey, value);
         }
 
-        public static string GetPersistedLocalCacheRoot(string dotGVFSRoot)
+        public static string GetPersistedLocalCacheRoot(string dotScalarRoot)
         {
-            return GetPersistedValue(dotGVFSRoot, LocalCacheRootKey);
+            return GetPersistedValue(dotScalarRoot, LocalCacheRootKey);
         }
 
-        public static void SaveGitObjectsRoot(string dotGVFSRoot, string value)
+        public static void SaveGitObjectsRoot(string dotScalarRoot, string value)
         {
-            SavePersistedValue(dotGVFSRoot, GitObjectsRootKey, value);
+            SavePersistedValue(dotScalarRoot, GitObjectsRootKey, value);
         }
 
-        public static string GetPersistedGitObjectsRoot(string dotGVFSRoot)
+        public static string GetPersistedGitObjectsRoot(string dotScalarRoot)
         {
-            return GetPersistedValue(dotGVFSRoot, GitObjectsRootKey);
+            return GetPersistedValue(dotScalarRoot, GitObjectsRootKey);
         }
 
-        public static string GetPersistedBlobSizesRoot(string dotGVFSRoot)
+        public static string GetPersistedBlobSizesRoot(string dotScalarRoot)
         {
-            return GetPersistedValue(dotGVFSRoot, BlobSizesRootKey);
+            return GetPersistedValue(dotScalarRoot, BlobSizesRootKey);
         }
 
         public static void SQLiteBlobSizesDatabaseHasEntry(string blobSizesDbPath, string blobSha, long blobSize)
@@ -140,13 +140,13 @@ namespace GVFS.FunctionalTests.Tools
             }
         }
 
-        public static void ModifiedPathsContentsShouldEqual(GVFSFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem, string contents)
+        public static void ModifiedPathsContentsShouldEqual(ScalarFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem, string contents)
         {
             string modifedPathsContents = GetModifiedPathsContents(enlistment, fileSystem);
             modifedPathsContents.ShouldEqual(contents);
         }
 
-        public static void ModifiedPathsShouldContain(GVFSFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem, params string[] gitPaths)
+        public static void ModifiedPathsShouldContain(ScalarFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem, params string[] gitPaths)
         {
             string modifedPathsContents = GetModifiedPathsContents(enlistment, fileSystem);
             string[] modifedPathLines = modifedPathsContents.Split(new[] { ModifiedPathsNewLine }, StringSplitOptions.None);
@@ -156,7 +156,7 @@ namespace GVFS.FunctionalTests.Tools
             }
         }
 
-        public static void ModifiedPathsShouldNotContain(GVFSFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem, params string[] gitPaths)
+        public static void ModifiedPathsShouldNotContain(ScalarFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem, params string[] gitPaths)
         {
             string modifedPathsContents = GetModifiedPathsContents(enlistment, fileSystem);
             string[] modifedPathLines = modifedPathsContents.Split(new[] { ModifiedPathsNewLine }, StringSplitOptions.None);
@@ -173,18 +173,18 @@ namespace GVFS.FunctionalTests.Tools
 
         public static string GetInternalParameter(string maintenanceJob = "null", string packfileMaintenanceBatchSize = "null")
         {
-            return $"\"{{\\\"ServiceName\\\":\\\"{GVFSServiceProcess.TestServiceName}\\\"," +
+            return $"\"{{\\\"ServiceName\\\":\\\"{ScalarServiceProcess.TestServiceName}\\\"," +
                     "\\\"StartedByService\\\":false," +
                     $"\\\"MaintenanceJob\\\":{maintenanceJob}," +
                     $"\\\"PackfileMaintenanceBatchSize\\\":{packfileMaintenanceBatchSize}}}\"";
         }
 
-        private static string GetModifiedPathsContents(GVFSFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem)
+        private static string GetModifiedPathsContents(ScalarFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem)
         {
             enlistment.WaitForBackgroundOperations();
-            string modifiedPathsDatabase = Path.Combine(enlistment.DotGVFSRoot, TestConstants.Databases.ModifiedPaths);
+            string modifiedPathsDatabase = Path.Combine(enlistment.DotScalarRoot, TestConstants.Databases.ModifiedPaths);
             modifiedPathsDatabase.ShouldBeAFile(fileSystem);
-            return GVFSHelpers.ReadAllTextFromWriteLockedFile(modifiedPathsDatabase);
+            return ScalarHelpers.ReadAllTextFromWriteLockedFile(modifiedPathsDatabase);
         }
 
         private static T RunSqliteCommand<T>(string sqliteDbPath, Func<SqliteCommand, T> runCommand)
@@ -234,9 +234,9 @@ namespace GVFS.FunctionalTests.Tools
             return 0;
         }
 
-        private static string GetPersistedValue(string dotGVFSRoot, string key)
+        private static string GetPersistedValue(string dotScalarRoot, string key)
         {
-            string metadataPath = Path.Combine(dotGVFSRoot, RepoMetadataName);
+            string metadataPath = Path.Combine(dotScalarRoot, RepoMetadataName);
             string json;
             using (FileStream fs = new FileStream(metadataPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
             using (StreamReader reader = new StreamReader(fs))
@@ -257,9 +257,9 @@ namespace GVFS.FunctionalTests.Tools
             return null;
         }
 
-        private static void SavePersistedValue(string dotGVFSRoot, string key, string value)
+        private static void SavePersistedValue(string dotScalarRoot, string key, string value)
         {
-            string metadataPath = Path.Combine(dotGVFSRoot, RepoMetadataName);
+            string metadataPath = Path.Combine(dotScalarRoot, RepoMetadataName);
 
             Dictionary<string, string> repoMetadata = new Dictionary<string, string>();
             string json;

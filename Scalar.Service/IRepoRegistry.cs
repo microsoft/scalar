@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GVFS.Service
+namespace Scalar.Service
 {
     public interface IRepoRegistry
     {

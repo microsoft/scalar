@@ -1,6 +1,6 @@
-﻿using GVFS.Common.Http;
+﻿using Scalar.Common.Http;
 
-namespace GVFS.UnitTests.Mock
+namespace Scalar.UnitTests.Mock
 {
     public class MockCacheServerInfo : CacheServerInfo
     {

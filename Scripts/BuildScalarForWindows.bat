@@ -4,11 +4,11 @@ setlocal enabledelayedexpansion
 CALL %~dp0\InitializeEnvironment.bat || EXIT /b 10
 
 IF "%1"=="" (SET "Configuration=Debug") ELSE (SET "Configuration=%1")
-IF "%2"=="" (SET "GVFSVersion=0.2.173.2") ELSE (SET "GVFSVersion=%2")
+IF "%2"=="" (SET "ScalarVersion=0.2.173.2") ELSE (SET "ScalarVersion=%2")
 
 SET SolutionConfiguration=%Configuration%.Windows
 
-SET nuget="%VFS_TOOLSDIR%\nuget.exe"
+SET nuget="%Scalar_TOOLSDIR%\nuget.exe"
 IF NOT EXIST %nuget% (
   mkdir %nuget%\..
   powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe' -OutFile %nuget%"
@@ -17,7 +17,7 @@ IF NOT EXIST %nuget% (
 :: Acquire vswhere to find dev15 installations reliably.
 SET vswherever=2.6.7
 %nuget% install vswhere -Version %vswherever% || exit /b 1
-SET vswhere=%VFS_PACKAGESDIR%\vswhere.%vswherever%\tools\vswhere.exe
+SET vswhere=%Scalar_PACKAGESDIR%\vswhere.%vswherever%\tools\vswhere.exe
 
 :: Assumes default installation location for Windows 10 SDKs
 IF NOT EXIST "c:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0" (
@@ -37,6 +37,6 @@ IF NOT DEFINED msbuild (
   exit /b 10
 )
 
-%msbuild% %VFS_SRCDIR%\GVFS.sln /p:GVFSVersion=%GVFSVersion% /p:Configuration=%SolutionConfiguration% /p:Platform=x64 || exit /b 1
+%msbuild% %Scalar_SRCDIR%\Scalar.sln /p:ScalarVersion=%ScalarVersion% /p:Configuration=%SolutionConfiguration% /p:Platform=x64 || exit /b 1
 
 ENDLOCAL

@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\GVFS.Build\GVFS.cs.props" />
+  <Import Project="..\Scalar.Build\Scalar.cs.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -11,14 +11,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RootNamespace>GVFS.FunctionalTests</RootNamespace>
-    <AssemblyName>GVFS.FunctionalTests</AssemblyName>
+    <RootNamespace>Scalar.FunctionalTests</RootNamespace>
+    <AssemblyName>Scalar.FunctionalTests</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,17 +32,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GVFS.Tests\GVFS.Tests.csproj" />
+    <ProjectReference Include="..\Scalar.Tests\Scalar.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <WindowsBuildOutputs Include="$(BuildOutputDir)\GVFS.Windows\bin\$(Platform)\$(Configuration)\**\*.*" />
-    <WindowsBuildOutputs Include="$(BuildOutputDir)\GVFS.Windows\bin\$(Platform)\$(Configuration)\$(Platform)\**\*.*" />
-    <WindowsBuildOutputs Include="$(BuildOutputDir)\GVFS.Service.Windows\bin\$(Platform)\$(Configuration)\**\*.*" />
-    <WindowsBuildOutputs Include="$(BuildOutputDir)\GVFS.Mount.Windows\bin\$(Platform)\$(Configuration)\**\*.*" />
-    <WindowsBuildOutputs Include="$(BuildOutputDir)\GVFS.NativeTests\bin\$(Platform)\$(Configuration)\**\*.*" />
-    <WindowsBuildOutputs Include="$(BuildOutputDir)\GVFS.Hooks.Windows\bin\$(Platform)\$(Configuration)\**\*.*" />
-    <WindowsBuildOutputs Include="$(BuildOutputDir)\GVFS.FunctionalTests.LockHolder\bin\$(Platform)\$(Configuration)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.Windows\bin\$(Platform)\$(Configuration)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.Windows\bin\$(Platform)\$(Configuration)\$(Platform)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.Service.Windows\bin\$(Platform)\$(Configuration)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.Mount.Windows\bin\$(Platform)\$(Configuration)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.NativeTests\bin\$(Platform)\$(Configuration)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.Hooks.Windows\bin\$(Platform)\$(Configuration)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.FunctionalTests.LockHolder\bin\$(Platform)\$(Configuration)\**\*.*" />
   </ItemGroup>
 
   <Target Name="CopyWindowsTestDependencies" AfterTargets="PostBuildEvent" Condition="'$(OS)' == 'Windows_NT'">

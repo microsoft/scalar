@@ -1,11 +1,11 @@
 #import <Cocoa/Cocoa.h>
-#import "VFSProductInfoFetcher.h"
+#import "ScalarProductInfoFetcher.h"
 
-@interface VFSAboutWindowController : NSWindowController
+@interface ScalarAboutWindowController : NSWindowController
 
-@property (readonly, nullable) NSString *vfsforgitVersion;
+@property (readonly, nullable) NSString *scalarVersion;
 @property (readonly, nullable) NSString *gitVersion;
 
-- (instancetype _Nullable)initWithProductInfoFetcher:(VFSProductInfoFetcher *_Nonnull)productInfoFetcher;
+- (instancetype _Nullable)initWithProductInfoFetcher:(ScalarProductInfoFetcher *_Nonnull)productInfoFetcher;
 
 @end

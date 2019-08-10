@@ -1,28 +1,28 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
-    public class GVFSContext : IDisposable
+    public class ScalarContext : IDisposable
     {
         private bool disposedValue = false;
 
-        public GVFSContext(ITracer tracer, PhysicalFileSystem fileSystem, GitRepo repository, GVFSEnlistment enlistment)
+        public ScalarContext(ITracer tracer, PhysicalFileSystem fileSystem, GitRepo repository, ScalarEnlistment enlistment)
         {
             this.Tracer = tracer;
             this.FileSystem = fileSystem;
             this.Enlistment = enlistment;
             this.Repository = repository;
 
-            this.Unattended = GVFSEnlistment.IsUnattended(this.Tracer);
+            this.Unattended = ScalarEnlistment.IsUnattended(this.Tracer);
         }
 
         public ITracer Tracer { get; private set; }
         public PhysicalFileSystem FileSystem { get; private set; }
         public GitRepo Repository { get; private set; }
-        public GVFSEnlistment Enlistment { get; private set; }
+        public ScalarEnlistment Enlistment { get; private set; }
         public bool Unattended { get; private set; }
 
         public void Dispose()

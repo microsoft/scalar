@@ -1,14 +1,14 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
-using GVFS.Service.Handlers;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
+using Scalar.Service.Handlers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.Service
+namespace Scalar.Service
 {
     public class RepoRegistry : IRepoRegistry
     {

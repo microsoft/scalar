@@ -1,6 +1,6 @@
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,28 +11,28 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public class GitHubUpgrader : ProductUpgrader
     {
-        private const string GitHubReleaseURL = @"https://api.github.com/repos/microsoft/vfsforgit/releases";
+        private const string GitHubReleaseURL = @"https://api.github.com/repos/microsoft/scalar/releases";
         private const string JSONMediaType = @"application/vnd.github.v3+json";
-        private const string UserAgent = @"GVFS_Auto_Upgrader";
+        private const string UserAgent = @"Scalar_Auto_Upgrader";
         private const string CommonInstallerArgs = "/VERYSILENT /CLOSEAPPLICATIONS /SUPPRESSMSGBOXES /NORESTART";
-        private const string GVFSInstallerArgs = CommonInstallerArgs + " /REMOUNTREPOS=false";
+        private const string ScalarInstallerArgs = CommonInstallerArgs + " /REMOUNTREPOS=false";
         private const string GitInstallerArgs = CommonInstallerArgs + " /ALLOWDOWNGRADE=1";
         private const string GitAssetId = "Git";
-        private const string GVFSAssetId = "GVFS";
+        private const string ScalarAssetId = "Scalar";
         private const string GitInstallerFileNamePrefix = "Git-";
-        private const string GVFSSigner = "Microsoft Corporation";
-        private const string GVFSCertIssuer = "Microsoft Code Signing PCA";
+        private const string ScalarSigner = "Microsoft Corporation";
+        private const string ScalarCertIssuer = "Microsoft Code Signing PCA";
         private const string GitSigner = "Johannes Schindelin";
         private const string GitCertIssuer = "COMODO RSA Code Signing CA";
 
-        private static readonly HashSet<string> GVFSInstallerFileNamePrefixCandidates = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> ScalarInstallerFileNamePrefixCandidates = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "SetupGVFS",
-            "VFSForGit"
+            "SetupScalar",
+            "Scalar"
         };
 
         private Version newestVersion;
@@ -57,12 +57,12 @@ namespace GVFS.Common
         public static GitHubUpgrader Create(
             ITracer tracer,
             PhysicalFileSystem fileSystem,
-            LocalGVFSConfig gvfsConfig,
+            LocalScalarConfig scalarConfig,
             bool dryRun,
             bool noVerify,
             out string error)
         {
-            return Create(tracer, fileSystem, dryRun, noVerify, gvfsConfig, out error);
+            return Create(tracer, fileSystem, dryRun, noVerify, scalarConfig, out error);
         }
 
         public static GitHubUpgrader Create(
@@ -70,7 +70,7 @@ namespace GVFS.Common
             PhysicalFileSystem fileSystem,
             bool dryRun,
             bool noVerify,
-            LocalGVFSConfig localConfig,
+            LocalScalarConfig localConfig,
             out string error)
         {
             GitHubUpgrader upgrader = null;
@@ -123,7 +123,7 @@ namespace GVFS.Common
                         newVersion = releaseVersion;
                         this.newestVersion = releaseVersion;
                         this.newestRelease = nextRelease;
-                        message = $"New GVFS version {newVersion.ToString()} available in ring {this.Config.UpgradeRing}.";
+                        message = $"New Scalar version {newVersion.ToString()} available in ring {this.Config.UpgradeRing}.";
                         break;
                     }
                 }
@@ -148,33 +148,33 @@ namespace GVFS.Common
             }
 
             bool downloadedGit = false;
-            bool downloadedGVFS = false;
+            bool downloadedScalar = false;
 
             foreach (Asset asset in this.newestRelease.Assets)
             {
-                bool targetOSMatch = string.Equals(Path.GetExtension(asset.Name), GVFSPlatform.Instance.Constants.InstallerExtension, StringComparison.OrdinalIgnoreCase);
+                bool targetOSMatch = string.Equals(Path.GetExtension(asset.Name), ScalarPlatform.Instance.Constants.InstallerExtension, StringComparison.OrdinalIgnoreCase);
                 bool isGitAsset = this.IsGitAsset(asset);
-                bool isGVFSAsset = isGitAsset ? false : this.IsGVFSAsset(asset);
-                if (!targetOSMatch || (!isGVFSAsset && !isGitAsset))
+                bool isScalarAsset = isGitAsset ? false : this.IsScalarAsset(asset);
+                if (!targetOSMatch || (!isScalarAsset && !isGitAsset))
                 {
                     continue;
                 }
 
                 if (!this.TryDownloadAsset(asset, out errorMessage))
                 {
-                    errorMessage = $"Could not download {(isGVFSAsset ? GVFSAssetId : GitAssetId)} installer. {errorMessage}";
+                    errorMessage = $"Could not download {(isScalarAsset ? ScalarAssetId : GitAssetId)} installer. {errorMessage}";
                     return false;
                 }
                 else
                 {
                     downloadedGit = isGitAsset ? true : downloadedGit;
-                    downloadedGVFS = isGVFSAsset ? true : downloadedGVFS;
+                    downloadedScalar = isScalarAsset ? true : downloadedScalar;
                 }
             }
 
-            if (!downloadedGit || !downloadedGVFS)
+            if (!downloadedGit || !downloadedScalar)
             {
-                errorMessage = $"Could not find {(!downloadedGit ? GitAssetId : GVFSAssetId)} installer in the latest release.";
+                errorMessage = $"Could not find {(!downloadedGit ? GitAssetId : ScalarAssetId)} installer in the latest release.";
                 return false;
             }
 
@@ -207,14 +207,14 @@ namespace GVFS.Common
             if (!installActionWrapper(
                  () =>
                  {
-                     if (!this.TryInstallUpgrade(GVFSAssetId, this.newestVersion.ToString(), out localError))
+                     if (!this.TryInstallUpgrade(ScalarAssetId, this.newestVersion.ToString(), out localError))
                      {
                          return false;
                      }
 
                      return true;
                  },
-                $"Installing GVFS version: {this.newestVersion}"))
+                $"Installing Scalar version: {this.newestVersion}"))
             {
                 error = localError;
                 return false;
@@ -329,7 +329,7 @@ namespace GVFS.Common
                 string expectecIssuerCNPrefix = $"CN={issuerCN}";
                 string subject;
                 string issuer;
-                if (!GVFSPlatform.Instance.TryVerifyAuthenticodeSignature(path, out subject, out issuer, out error))
+                if (!ScalarPlatform.Instance.TryVerifyAuthenticodeSignature(path, out subject, out issuer, out error))
                 {
                     exitCode = -1;
                     return;
@@ -354,7 +354,7 @@ namespace GVFS.Common
             foreach (Asset asset in this.newestRelease.Assets)
             {
                 if (asset.Name.StartsWith(GitInstallerFileNamePrefix) &&
-                    GitVersion.TryParseInstallerName(asset.Name, GVFSPlatform.Instance.Constants.InstallerExtension, out gitVersion))
+                    GitVersion.TryParseInstallerName(asset.Name, ScalarPlatform.Instance.Constants.InstallerExtension, out gitVersion))
                 {
                     return true;
                 }
@@ -383,7 +383,7 @@ namespace GVFS.Common
                     return false;
                 }
 
-                activity.RelatedInfo("Successfully installed GVFS version: " + version);
+                activity.RelatedInfo("Successfully installed Scalar version: " + version);
             }
 
             return installSuccess;
@@ -413,7 +413,7 @@ namespace GVFS.Common
             {
                 if (!this.dryRun)
                 {
-                    string logFilePath = GVFSEnlistment.GetNewLogFileName(
+                    string logFilePath = ScalarEnlistment.GetNewLogFileName(
                         ProductUpgraderInfo.GetLogDirectoryPath(),
                         Path.GetFileNameWithoutExtension(path),
                         this.UpgradeInstanceId,
@@ -424,10 +424,10 @@ namespace GVFS.Common
                     string issuerCN = null;
                     switch (assetId)
                     {
-                        case GVFSAssetId:
+                        case ScalarAssetId:
                         {
-                            certCN = GVFSSigner;
-                            issuerCN = GVFSCertIssuer;
+                            certCN = ScalarSigner;
+                            issuerCN = ScalarCertIssuer;
                             break;
                         }
 
@@ -461,7 +461,7 @@ namespace GVFS.Common
         {
             foreach (Asset asset in this.newestRelease.Assets)
             {
-                if (string.Equals(Path.GetExtension(asset.Name), GVFSPlatform.Instance.Constants.InstallerExtension, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(Path.GetExtension(asset.Name), ScalarPlatform.Instance.Constants.InstallerExtension, StringComparison.OrdinalIgnoreCase))
                 {
                     path = asset.LocalPath;
                     if (assetId == GitAssetId && this.IsGitAsset(asset))
@@ -470,9 +470,9 @@ namespace GVFS.Common
                         return true;
                     }
 
-                    if (assetId == GVFSAssetId && this.IsGVFSAsset(asset))
+                    if (assetId == ScalarAssetId && this.IsScalarAsset(asset))
                     {
-                        args = GVFSInstallerArgs;
+                        args = ScalarInstallerArgs;
                         return true;
                     }
                 }
@@ -483,9 +483,9 @@ namespace GVFS.Common
             return false;
         }
 
-        private bool IsGVFSAsset(Asset asset)
+        private bool IsScalarAsset(Asset asset)
         {
-            return this.AssetInstallerNameCompare(asset, GVFSInstallerFileNamePrefixCandidates);
+            return this.AssetInstallerNameCompare(asset, ScalarInstallerFileNamePrefixCandidates);
         }
 
         private bool IsGitAsset(Asset asset)
@@ -507,12 +507,12 @@ namespace GVFS.Common
         }
 
         private void LogVersionInfo(
-            Version gvfsVersion,
+            Version scalarVersion,
             GitVersion gitVersion,
             string message)
         {
             EventMetadata metadata = new EventMetadata();
-            metadata.Add(nameof(gvfsVersion), gvfsVersion.ToString());
+            metadata.Add(nameof(scalarVersion), scalarVersion.ToString());
             metadata.Add(nameof(gitVersion), gitVersion.ToString());
 
             this.tracer.RelatedEvent(EventLevel.Informational, message, metadata);
@@ -520,10 +520,10 @@ namespace GVFS.Common
 
         public class GitHubUpgraderConfig
         {
-            public GitHubUpgraderConfig(ITracer tracer, LocalGVFSConfig localGVFSConfig)
+            public GitHubUpgraderConfig(ITracer tracer, LocalScalarConfig localScalarConfig)
             {
                 this.Tracer = tracer;
-                this.LocalConfig = localGVFSConfig;
+                this.LocalConfig = localScalarConfig;
             }
 
             public enum RingType
@@ -544,7 +544,7 @@ namespace GVFS.Common
             }
 
             public RingType UpgradeRing { get; private set; }
-            public LocalGVFSConfig LocalConfig { get; private set; }
+            public LocalScalarConfig LocalConfig { get; private set; }
             private ITracer Tracer { get; set; }
 
             public bool TryLoad(out string error)
@@ -552,9 +552,9 @@ namespace GVFS.Common
                 this.UpgradeRing = RingType.NoConfig;
 
                 string ringConfig = null;
-                string loadError = "Could not read GVFS Config." + Environment.NewLine + GVFSConstants.UpgradeVerbMessages.SetUpgradeRingCommand;
+                string loadError = "Could not read Scalar Config." + Environment.NewLine + ScalarConstants.UpgradeVerbMessages.SetUpgradeRingCommand;
 
-                if (!this.LocalConfig.TryGetConfig(GVFSConstants.LocalGVFSConfig.UpgradeRing, out ringConfig, out error))
+                if (!this.LocalConfig.TryGetConfig(ScalarConstants.LocalScalarConfig.UpgradeRing, out ringConfig, out error))
                 {
                     error = loadError;
                     return false;
@@ -608,12 +608,12 @@ namespace GVFS.Common
 
                 if (this.UpgradeRing == GitHubUpgraderConfig.RingType.None)
                 {
-                    message = GVFSConstants.UpgradeVerbMessages.NoneRingConsoleAlert + Environment.NewLine + GVFSConstants.UpgradeVerbMessages.SetUpgradeRingCommand;
+                    message = ScalarConstants.UpgradeVerbMessages.NoneRingConsoleAlert + Environment.NewLine + ScalarConstants.UpgradeVerbMessages.SetUpgradeRingCommand;
                 }
 
                 if (this.UpgradeRing == GitHubUpgraderConfig.RingType.NoConfig)
                 {
-                    message = GVFSConstants.UpgradeVerbMessages.NoRingConfigConsoleAlert + Environment.NewLine + GVFSConstants.UpgradeVerbMessages.SetUpgradeRingCommand;
+                    message = ScalarConstants.UpgradeVerbMessages.NoRingConfigConsoleAlert + Environment.NewLine + ScalarConstants.UpgradeVerbMessages.SetUpgradeRingCommand;
                 }
 
                 if (this.UpgradeRing == GitHubUpgraderConfig.RingType.Invalid)
@@ -621,12 +621,12 @@ namespace GVFS.Common
                     string ring;
                     string error;
                     string prefix = string.Empty;
-                    if (this.LocalConfig.TryGetConfig(GVFSConstants.LocalGVFSConfig.UpgradeRing, out ring, out error))
+                    if (this.LocalConfig.TryGetConfig(ScalarConstants.LocalScalarConfig.UpgradeRing, out ring, out error))
                     {
-                        prefix = $"Invalid upgrade ring `{ring}` specified in gvfs config. ";
+                        prefix = $"Invalid upgrade ring `{ring}` specified in scalar config. ";
                     }
 
-                    message = prefix + Environment.NewLine + GVFSConstants.UpgradeVerbMessages.SetUpgradeRingCommand;
+                    message = prefix + Environment.NewLine + ScalarConstants.UpgradeVerbMessages.SetUpgradeRingCommand;
                 }
             }
         }

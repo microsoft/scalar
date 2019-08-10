@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface VFSMessageParser : NSObject
+@interface ScalarMessageParser : NSObject
 
 + (BOOL)tryParseData:(NSData *)data
              message:(NSDictionary *_Nullable __autoreleasing *_Nonnull)parsedMessage

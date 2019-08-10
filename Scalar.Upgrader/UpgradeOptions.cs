@@ -1,15 +1,15 @@
 using CommandLine;
 
-namespace GVFS.Upgrader
+namespace Scalar.Upgrader
 {
-    [Verb("UpgradeOrchestrator", HelpText = "Upgrade VFS for Git.")]
+    [Verb("UpgradeOrchestrator", HelpText = "Upgrade Scalar.")]
     public class UpgradeOptions
     {
         [Option(
             "dry-run",
             Default = false,
             Required = false,
-            HelpText = "Display progress and errors, but don't install GVFS")]
+            HelpText = "Display progress and errors, but don't install Scalar")]
         public bool DryRun { get; set; }
 
         [Option(

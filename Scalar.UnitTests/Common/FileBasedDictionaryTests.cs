@@ -1,15 +1,15 @@
-﻿using GVFS.Common;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
-using GVFS.UnitTests.Mock;
-using GVFS.UnitTests.Mock.FileSystem;
+﻿using Scalar.Common;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
+using Scalar.UnitTests.Mock;
+using Scalar.UnitTests.Mock.FileSystem;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class FileBasedDictionaryTests

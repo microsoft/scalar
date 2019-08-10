@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace GVFS.Service
+namespace Scalar.Service
 {
     public class RepoRegistration
     {

@@ -1,10 +1,10 @@
-using GVFS.Tests.Should;
+using Scalar.Tests.Should;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
-namespace GVFS.FunctionalTests.FileSystemRunners
+namespace Scalar.FunctionalTests.FileSystemRunners
 {
     public class CmdRunner : ShellRunner
     {

@@ -4,7 +4,7 @@ typedef void (^NewMessageCallback) (NSDictionary *_Nonnull messageInfo);
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface VFSMessageListener : NSObject
+@interface ScalarMessageListener : NSObject
 
 @property (copy) NSString *socketPath;
 @property (copy) NewMessageCallback messageCallback;

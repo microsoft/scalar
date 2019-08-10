@@ -1,21 +1,21 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.NamedPipes;
-using GVFS.Platform.Mac;
-using GVFS.Service;
-using GVFS.Service.Handlers;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.NamedPipes;
+using Scalar.Platform.Mac;
+using Scalar.Service;
+using Scalar.Service.Handlers;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
 using Moq;
 using NUnit.Framework;
 using System.IO;
 
-namespace GVFS.UnitTests.Service.Mac
+namespace Scalar.UnitTests.Service.Mac
 {
     [TestFixture]
     public class MacServiceTests
     {
-        private const string GVFSServiceName = "GVFS.Service";
+        private const string ScalarServiceName = "Scalar.Service";
         private const int ExpectedActiveUserId = 502;
         private const int ExpectedSessionId = 502;
         private static readonly string ExpectedActiveRepoPath = Path.Combine("mock:", "code", "repo2");
@@ -23,15 +23,15 @@ namespace GVFS.UnitTests.Service.Mac
 
         private MockFileSystem fileSystem;
         private MockTracer tracer;
-        private MockPlatform gvfsPlatform;
+        private MockPlatform scalarPlatform;
 
         [SetUp]
         public void SetUp()
         {
             this.tracer = new MockTracer();
             this.fileSystem = new MockFileSystem(new MockDirectory(ServiceDataLocation, null, null));
-            this.gvfsPlatform = (MockPlatform)GVFSPlatform.Instance;
-            this.gvfsPlatform.MockCurrentUser = ExpectedActiveUserId.ToString();
+            this.scalarPlatform = (MockPlatform)ScalarPlatform.Instance;
+            this.scalarPlatform.MockCurrentUser = ExpectedActiveUserId.ToString();
         }
 
         [TestCase]
@@ -41,7 +41,7 @@ namespace GVFS.UnitTests.Service.Mac
             repoRegistry.Setup(r => r.AutoMountRepos(ExpectedActiveUserId.ToString(), ExpectedSessionId));
             repoRegistry.Setup(r => r.TraceStatus());
 
-            GVFSService service = new GVFSService(
+            ScalarService service = new ScalarService(
                 this.tracer,
                 serviceName: null,
                 repoRegistry: repoRegistry.Object);
@@ -75,10 +75,10 @@ namespace GVFS.UnitTests.Service.Mac
         public void MountProcessLaunchedUsingCorrectArgs()
         {
             string executable = @"/bin/launchctl";
-            string gvfsBinPath = Path.Combine(this.gvfsPlatform.Constants.GVFSBinDirectoryPath, this.gvfsPlatform.Constants.GVFSExecutableName);
-            string expectedArgs = $"asuser {ExpectedActiveUserId} {gvfsBinPath} mount {ExpectedActiveRepoPath}";
+            string scalarBinPath = Path.Combine(this.scalarPlatform.Constants.ScalarBinDirectoryPath, this.scalarPlatform.Constants.ScalarExecutableName);
+            string expectedArgs = $"asuser {ExpectedActiveUserId} {scalarBinPath} mount {ExpectedActiveRepoPath}";
 
-            Mock<GVFSMountProcess.MountLauncher> mountLauncherMock = new Mock<GVFSMountProcess.MountLauncher>(MockBehavior.Strict, this.tracer);
+            Mock<ScalarMountProcess.MountLauncher> mountLauncherMock = new Mock<ScalarMountProcess.MountLauncher>(MockBehavior.Strict, this.tracer);
             mountLauncherMock.Setup(mp => mp.LaunchProcess(
                 executable,
                 expectedArgs,
@@ -93,7 +93,7 @@ namespace GVFS.UnitTests.Service.Mac
                 out errorString))
                 .Returns(true);
 
-            GVFSMountProcess mountProcess = new GVFSMountProcess(this.tracer, mountLauncherMock.Object);
+            ScalarMountProcess mountProcess = new ScalarMountProcess(this.tracer, mountLauncherMock.Object);
             mountProcess.MountRepository(ExpectedActiveRepoPath, ExpectedActiveUserId);
 
             mountLauncherMock.VerifyAll();

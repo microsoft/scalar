@@ -1,14 +1,14 @@
-using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Platform.Mac;
+using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Platform.Mac;
 
-namespace GVFS.PlatformLoader
+namespace Scalar.PlatformLoader
 {
-    public static class GVFSPlatformLoader
+    public static class ScalarPlatformLoader
     {
         public static void Initialize()
         {
-            GVFSPlatform.Register(new MacPlatform());
+            ScalarPlatform.Register(new MacPlatform());
             return;
         }
      }

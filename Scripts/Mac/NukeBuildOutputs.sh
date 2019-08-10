@@ -2,9 +2,9 @@
 
 . "$(dirname ${BASH_SOURCE[0]})/InitializeEnvironment.sh"
 
-sudo rm -Rf $VFS_OUTPUTDIR
-rm -Rf $VFS_PACKAGESDIR
-rm -Rf $VFS_PUBLISHDIR
+sudo rm -Rf $Scalar_OUTPUTDIR
+rm -Rf $Scalar_PACKAGESDIR
+rm -Rf $Scalar_PUBLISHDIR
 
-echo git --work-tree=$VFS_SRCDIR clean -Xdf -n
-git --work-tree=$VFS_SRCDIR clean -Xdf -n
+echo git --work-tree=$Scalar_SRCDIR clean -Xdf -n
+git --work-tree=$Scalar_SRCDIR clean -Xdf -n

@@ -1,13 +1,13 @@
-﻿using GVFS.FunctionalTests.Properties;
-using GVFS.FunctionalTests.Should;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.Properties;
+using Scalar.FunctionalTests.Should;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace GVFS.FunctionalTests.Tests.GitCommands
+namespace Scalar.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]
@@ -21,12 +21,12 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
         private const string UnknownTestName = "Unknown";
         private const string SubFolderToCreate = "level2";
 
-        private static readonly string EditFilePath = Path.Combine("GVFS", "GVFS.Common", "GVFSContext.cs");
-        private static readonly string DeleteFilePath = Path.Combine("GVFS", "GVFS", "Program.cs");
-        private static readonly string RenameFilePathFrom = Path.Combine("GVFS", "GVFS.Common", "Physical", "FileSystem", "FileProperties.cs");
-        private static readonly string RenameFilePathTo = Path.Combine("GVFS", "GVFS.Common", "Physical", "FileSystem", "FileProperties2.cs");
-        private static readonly string RenameFolderPathFrom = Path.Combine("GVFS", "GVFS.Common", "PrefetchPacks");
-        private static readonly string RenameFolderPathTo = Path.Combine("GVFS", "GVFS.Common", "PrefetchPacksRenamed");
+        private static readonly string EditFilePath = Path.Combine("Scalar", "Scalar.Common", "ScalarContext.cs");
+        private static readonly string DeleteFilePath = Path.Combine("Scalar", "Scalar", "Program.cs");
+        private static readonly string RenameFilePathFrom = Path.Combine("Scalar", "Scalar.Common", "Physical", "FileSystem", "FileProperties.cs");
+        private static readonly string RenameFilePathTo = Path.Combine("Scalar", "Scalar.Common", "Physical", "FileSystem", "FileProperties2.cs");
+        private static readonly string RenameFolderPathFrom = Path.Combine("Scalar", "Scalar.Common", "PrefetchPacks");
+        private static readonly string RenameFolderPathTo = Path.Combine("Scalar", "Scalar.Common", "PrefetchPacksRenamed");
 
         public GitCommandsTests(Settings.ValidateWorkingTreeMode validateWorkingTree)
             : base(enlistmentPerTest: false, validateWorkingTree: validateWorkingTree)
@@ -318,7 +318,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
         public void AddFileAndCommitOnNewBranchSwitchDeleteFolderAndSwitchBack()
         {
             // 663045 - Confirm that folder can be deleted after adding a file then changing branches
-            string newFileParentFolderPath = Path.Combine("GVFS", "GVFS", "CommandLine");
+            string newFileParentFolderPath = Path.Combine("Scalar", "Scalar", "CommandLine");
             string newFilePath = Path.Combine(newFileParentFolderPath, "testfile.txt");
             string newFileContents = "test contents";
 
@@ -426,7 +426,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
             // repo and is cleaned up when the functional tests run
             string oldFilePath = Path.Combine(this.Enlistment.EnlistmentRoot, filename);
             string controlFilePath = Path.Combine(this.ControlGitRepo.RootPath, filename);
-            string gvfsFilePath = Path.Combine(this.Enlistment.RepoRoot, filename);
+            string scalarFilePath = Path.Combine(this.Enlistment.RepoRoot, filename);
 
             string newBranchName = "tests/functional/MoveFileFromOutsideRepoToInsideRepoAndAdd";
             this.ValidateGitCommand("checkout -b " + newBranchName);
@@ -437,11 +437,11 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
             oldFilePath.ShouldNotExistOnDisk(this.FileSystem);
             controlFilePath.ShouldBeAFile(this.FileSystem).WithContents(testFileContents);
 
-            // Move file to GVFS repo
+            // Move file to Scalar repo
             this.FileSystem.WriteAllText(oldFilePath, testFileContents);
-            this.FileSystem.MoveFile(oldFilePath, gvfsFilePath);
+            this.FileSystem.MoveFile(oldFilePath, scalarFilePath);
             oldFilePath.ShouldNotExistOnDisk(this.FileSystem);
-            gvfsFilePath.ShouldBeAFile(this.FileSystem).WithContents(testFileContents);
+            scalarFilePath.ShouldBeAFile(this.FileSystem).WithContents(testFileContents);
 
             this.ValidateGitCommand("status");
             this.ValidateGitCommand("add .");
@@ -461,7 +461,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
             string oldFolderPath = Path.Combine(this.Enlistment.EnlistmentRoot, folderName);
             string oldFilePath = Path.Combine(this.Enlistment.EnlistmentRoot, folderName, filename);
             string controlFolderPath = Path.Combine(this.ControlGitRepo.RootPath, folderName);
-            string gvfsFolderPath = Path.Combine(this.Enlistment.RepoRoot, folderName);
+            string scalarFolderPath = Path.Combine(this.Enlistment.RepoRoot, folderName);
 
             string newBranchName = "tests/functional/MoveFolderFromOutsideRepoToInsideRepoAndAdd";
             this.ValidateGitCommand("checkout -b " + newBranchName);
@@ -473,12 +473,12 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
             oldFolderPath.ShouldNotExistOnDisk(this.FileSystem);
             Path.Combine(controlFolderPath, filename).ShouldBeAFile(this.FileSystem).WithContents(testFileContents);
 
-            // Move folder to GVFS repo
+            // Move folder to Scalar repo
             this.FileSystem.CreateDirectory(oldFolderPath);
             this.FileSystem.WriteAllText(oldFilePath, testFileContents);
-            this.FileSystem.MoveDirectory(oldFolderPath, gvfsFolderPath);
+            this.FileSystem.MoveDirectory(oldFolderPath, scalarFolderPath);
             oldFolderPath.ShouldNotExistOnDisk(this.FileSystem);
-            Path.Combine(gvfsFolderPath, filename).ShouldBeAFile(this.FileSystem).WithContents(testFileContents);
+            Path.Combine(scalarFolderPath, filename).ShouldBeAFile(this.FileSystem).WithContents(testFileContents);
 
             this.ValidateGitCommand("status");
             this.ValidateGitCommand("add .");
@@ -494,27 +494,27 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
 
             // Confirm that no other test has caused "Protocol.md" to be added to the modified paths
             string fileName = "Protocol.md";
-            GVFSHelpers.ModifiedPathsShouldNotContain(this.Enlistment, this.FileSystem, fileName);
+            ScalarHelpers.ModifiedPathsShouldNotContain(this.Enlistment, this.FileSystem, fileName);
 
             string controlTargetFolder = "MoveFileFromInsideRepoToOutsideRepoAndCommit_ControlTarget";
-            string gvfsTargetFolder = "MoveFileFromInsideRepoToOutsideRepoAndCommit_GVFSTarget";
+            string scalarTargetFolder = "MoveFileFromInsideRepoToOutsideRepoAndCommit_ScalarTarget";
 
             // Create the target folders in this.Enlistment.EnlistmentRoot as it's outside of src and the control repo
             // and is cleaned up when the functional tests run
             string controlTargetFolderPath = Path.Combine(this.Enlistment.EnlistmentRoot, controlTargetFolder);
-            string gvfsTargetFolderPath = Path.Combine(this.Enlistment.EnlistmentRoot, gvfsTargetFolder);
+            string scalarTargetFolderPath = Path.Combine(this.Enlistment.EnlistmentRoot, scalarTargetFolder);
             string controlTargetFilePath = Path.Combine(controlTargetFolderPath, fileName);
-            string gvfsTargetFilePath = Path.Combine(gvfsTargetFolderPath, fileName);
+            string scalarTargetFilePath = Path.Combine(scalarTargetFolderPath, fileName);
 
             // Move control repo file
             this.FileSystem.CreateDirectory(controlTargetFolderPath);
             this.FileSystem.MoveFile(Path.Combine(this.ControlGitRepo.RootPath, fileName), controlTargetFilePath);
             controlTargetFilePath.ShouldBeAFile(this.FileSystem);
 
-            // Move GVFS repo file
-            this.FileSystem.CreateDirectory(gvfsTargetFolderPath);
-            this.FileSystem.MoveFile(Path.Combine(this.Enlistment.RepoRoot, fileName), gvfsTargetFilePath);
-            gvfsTargetFilePath.ShouldBeAFile(this.FileSystem);
+            // Move Scalar repo file
+            this.FileSystem.CreateDirectory(scalarTargetFolderPath);
+            this.FileSystem.MoveFile(Path.Combine(this.Enlistment.RepoRoot, fileName), scalarTargetFilePath);
+            scalarTargetFilePath.ShouldBeAFile(this.FileSystem);
 
             this.ValidateGitCommand("status");
             this.ValidateGitCommand("add .");
@@ -577,7 +577,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
         {
             this.ValidateGitCommand("checkout -b tests/functional/AddFileCommitThenDeleteAndCommit_before");
             this.ValidateGitCommand("checkout -b tests/functional/AddFileCommitThenDeleteAndCommit_after");
-            string filePath = Path.Combine("GVFS", "testfile.txt");
+            string filePath = Path.Combine("Scalar", "testfile.txt");
             this.CreateFile("Some new content for the file", filePath);
             this.ValidateGitCommand("status");
             this.ValidateGitCommand("add .");
@@ -596,7 +596,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
         public void AddFileCommitThenDeleteAndResetSoft()
         {
             this.ValidateGitCommand("checkout -b tests/functional/AddFileCommitThenDeleteAndResetSoft");
-            string filePath = Path.Combine("GVFS", "testfile.txt");
+            string filePath = Path.Combine("Scalar", "testfile.txt");
             this.CreateFile("Some new content for the file", filePath);
             this.ValidateGitCommand("status");
             this.ValidateGitCommand("add .");
@@ -610,7 +610,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
         public void AddFileCommitThenDeleteAndResetMixed()
         {
             this.ValidateGitCommand("checkout -b tests/functional/AddFileCommitThenDeleteAndResetSoft");
-            string filePath = Path.Combine("GVFS", "testfile.txt");
+            string filePath = Path.Combine("Scalar", "testfile.txt");
             this.CreateFile("Some new content for the file", filePath);
             this.ValidateGitCommand("status");
             this.ValidateGitCommand("add .");
@@ -975,13 +975,13 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
 
             // NOTE: Due to optimizations in checkout -b, the modified files will not be included as part of the
             // success message.  Validate that the succcess messages match, and the call to validate "status" below
-            // will ensure that GVFS is still reporting the edited file as modified.
+            // will ensure that Scalar is still reporting the edited file as modified.
 
             string controlRepoRoot = this.ControlGitRepo.RootPath;
-            string gvfsRepoRoot = this.Enlistment.RepoRoot;
+            string scalarRepoRoot = this.Enlistment.RepoRoot;
             string command = "checkout -b tests/functional/OpenFileThenCheckout_2";
             ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command);
-            ProcessResult actualResult = GitHelpers.InvokeGitAgainstGVFSRepo(gvfsRepoRoot, command);
+            ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command);
             GitHelpers.ErrorsShouldMatch(command, expectedResult, actualResult);
             actualResult.Errors.ShouldContain("Switched to a new branch");
 
@@ -1003,7 +1003,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
             contents.ShouldEqual(expectedContents);
 
             // Confirm that the entry is not in the the modified paths database
-            GVFSHelpers.ModifiedPathsShouldNotContain(this.Enlistment, this.FileSystem, relativeGitPath);
+            ScalarHelpers.ModifiedPathsShouldNotContain(this.Enlistment, this.FileSystem, relativeGitPath);
             this.ValidateGitCommand("status");
 
             this.AppendAllText(ContentWhenEditingFile, virtualFile);
@@ -1012,7 +1012,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
             this.ValidateGitCommand("status");
 
             // Confirm that the entry was added to the modified paths database
-            GVFSHelpers.ModifiedPathsShouldContain(this.Enlistment, this.FileSystem, relativeGitPath);
+            ScalarHelpers.ModifiedPathsShouldContain(this.Enlistment, this.FileSystem, relativeGitPath);
         }
 
         [TestCase]

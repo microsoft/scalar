@@ -12,14 +12,14 @@ typedef NS_ENUM(NSInteger, Identifier)
     UnknownMessage
 };
 
-@interface VFSForGitNotification : NSObject
+@interface ScalarNotification : NSObject
 
 @property (assign, readonly) Identifier identifier;
 @property (copy, readonly) NSString *title;
 @property (copy, readonly) NSString *message;
 
 + (BOOL)tryValidateMessage:(NSDictionary *)jsonMessage
-         buildNotification:(VFSForGitNotification *_Nullable *_Nonnull)notification
+         buildNotification:(ScalarNotification *_Nullable *_Nonnull)notification
                      error:(NSError *__autoreleasing *)error;
 @end
 

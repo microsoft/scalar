@@ -1,24 +1,24 @@
-﻿using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.FunctionalTests.Tests
+namespace Scalar.FunctionalTests.Tests
 {
     public static class TestResultsHelper
     {
-        public static void OutputGVFSLogs(GVFSFunctionalTestEnlistment enlistment)
+        public static void OutputScalarLogs(ScalarFunctionalTestEnlistment enlistment)
         {
             if (enlistment == null)
             {
                 return;
             }
 
-            Console.WriteLine("GVFS logs output attached below.\n\n");
+            Console.WriteLine("Scalar logs output attached below.\n\n");
 
-            foreach (string filename in GetAllFilesInDirectory(enlistment.GVFSLogsRoot))
+            foreach (string filename in GetAllFilesInDirectory(enlistment.ScalarLogsRoot))
             {
                 if (filename.Contains("mount_process"))
                 {

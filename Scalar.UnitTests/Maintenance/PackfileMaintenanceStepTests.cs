@@ -1,18 +1,18 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Maintenance;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
-using GVFS.UnitTests.Mock.Git;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Maintenance;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
+using Scalar.UnitTests.Mock.Git;
 using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.UnitTests.Maintenance
+namespace Scalar.UnitTests.Maintenance
 {
     [TestFixture]
     public class PackfileMaintenanceStepTests
@@ -21,7 +21,7 @@ namespace GVFS.UnitTests.Maintenance
         private const string KeepName = "pack-3.keep";
         private MockTracer tracer;
         private MockGitProcess gitProcess;
-        private GVFSContext context;
+        private ScalarContext context;
 
         private string ExpireCommand => $"multi-pack-index expire --object-dir=\"{this.context.Enlistment.GitObjectsRoot}\"";
         private string VerifyCommand => $"-c core.multiPackIndex=true multi-pack-index verify --object-dir=\"{this.context.Enlistment.GitObjectsRoot}\"";
@@ -187,7 +187,7 @@ namespace GVFS.UnitTests.Maintenance
             this.gitProcess = new MockGitProcess();
 
             // Create enlistment using git process
-            GVFSEnlistment enlistment = new MockGVFSEnlistment(this.gitProcess);
+            ScalarEnlistment enlistment = new MockScalarEnlistment(this.gitProcess);
 
             // Create a last run time file
             MockFile timeFile = new MockFile(Path.Combine(enlistment.GitObjectsRoot, "info", PackfileMaintenanceStep.PackfileLastRunFileName), lastRunTime);
@@ -225,7 +225,7 @@ namespace GVFS.UnitTests.Maintenance
 
             // Create and return Context
             this.tracer = new MockTracer();
-            this.context = new GVFSContext(this.tracer, fileSystem, repository, enlistment);
+            this.context = new ScalarContext(this.tracer, fileSystem, repository, enlistment);
 
             this.gitProcess.SetExpectedCommandResult(
                 this.WriteCommand,

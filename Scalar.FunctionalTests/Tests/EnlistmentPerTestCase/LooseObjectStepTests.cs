@@ -1,13 +1,13 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
+namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
 {
     [TestFixture]
     [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
@@ -126,7 +126,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
 
         private void ClearAllObjects()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             // Delete/Move any starting loose objects and packfiles
             this.DeleteFiles(this.GetLooseObjectFiles());

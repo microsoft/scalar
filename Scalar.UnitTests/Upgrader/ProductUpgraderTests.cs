@@ -1,9 +1,9 @@
-﻿using GVFS.Common;
-using GVFS.Tests.Should;
+﻿using Scalar.Common;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 
-namespace GVFS.UnitTests.Upgrader
+namespace Scalar.UnitTests.Upgrader
 {
     [TestFixture]
     public class ProductUpgraderTests : UpgradeTests

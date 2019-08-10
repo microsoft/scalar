@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public class AzDevOpsOrgFromNuGetFeed
     {

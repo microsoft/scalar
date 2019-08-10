@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace GVFS.FunctionalTests.Tools
+namespace Scalar.FunctionalTests.Tools
 {
     public static class GitProcess
     {

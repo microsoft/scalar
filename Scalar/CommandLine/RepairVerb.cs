@@ -1,16 +1,16 @@
 ﻿using CommandLine;
-using GVFS.Common;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
-using GVFS.DiskLayoutUpgrades;
-using GVFS.RepairJobs;
+using Scalar.Common;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
+using Scalar.DiskLayoutUpgrades;
+using Scalar.RepairJobs;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
-    [Verb(RepairVerb.RepairVerbName, HelpText = "EXPERIMENTAL FEATURE - Repair issues that prevent a GVFS repo from mounting")]
-    public class RepairVerb : GVFSVerb
+    [Verb(RepairVerb.RepairVerbName, HelpText = "EXPERIMENTAL FEATURE - Repair issues that prevent a Scalar repo from mounting")]
+    public class RepairVerb : ScalarVerb
     {
         private const string RepairVerbName = "repair";
 
@@ -19,7 +19,7 @@ namespace GVFS.CommandLine
             Required = false,
             Default = "",
             MetaName = "Enlistment Root Path",
-            HelpText = "Full or relative path to the GVFS enlistment root")]
+            HelpText = "Full or relative path to the Scalar enlistment root")]
         public override string EnlistmentRootPathParameter { get; set; }
 
         [Option(
@@ -45,18 +45,18 @@ namespace GVFS.CommandLine
 
             string errorMessage;
             string enlistmentRoot;
-            if (!GVFSPlatform.Instance.TryGetGVFSEnlistmentRoot(this.EnlistmentRootPathParameter, out enlistmentRoot, out errorMessage))
+            if (!ScalarPlatform.Instance.TryGetScalarEnlistmentRoot(this.EnlistmentRootPathParameter, out enlistmentRoot, out errorMessage))
             {
-                this.ReportErrorAndExit("'gvfs repair' must be run within a GVFS enlistment");
+                this.ReportErrorAndExit("'scalar repair' must be run within a Scalar enlistment");
             }
 
-            GVFSEnlistment enlistment = null;
+            ScalarEnlistment enlistment = null;
 
             try
             {
-                enlistment = GVFSEnlistment.CreateFromDirectory(
+                enlistment = ScalarEnlistment.CreateFromDirectory(
                     this.EnlistmentRootPathParameter,
-                    GVFSPlatform.Instance.GitInstallation.GetInstalledGitBinPath(),
+                    ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath(),
                     authentication: null,
                     createWithoutRepoURL: true);
             }
@@ -70,12 +70,12 @@ namespace GVFS.CommandLine
                 this.Output.WriteLine(
 @"WARNING: THIS IS AN EXPERIMENTAL FEATURE
 
-This command detects and repairs issues that prevent a GVFS repo from mounting.
+This command detects and repairs issues that prevent a Scalar repo from mounting.
 A few such checks are currently implemented, and some of them can be repaired.
 More repairs and more checks are coming soon.
 
 Without --confirm, it will non-invasively check if repairs are necessary.
-To actually execute any necessary repair(s), run 'gvfs repair --confirm'
+To actually execute any necessary repair(s), run 'scalar repair --confirm'
 ");
             }
 
@@ -88,7 +88,7 @@ To actually execute any necessary repair(s), run 'gvfs repair --confirm'
             if (!ConsoleHelper.ShowStatusWhileRunning(
                 () =>
                 {
-                    // Don't use 'gvfs status' here. The repo may be corrupt such that 'gvfs status' cannot run normally,
+                    // Don't use 'scalar status' here. The repo may be corrupt such that 'scalar status' cannot run normally,
                     // causing repair to continue when it shouldn't.
                     using (NamedPipeClient pipeClient = new NamedPipeClient(enlistment.NamedPipeName))
                     {
@@ -100,20 +100,20 @@ To actually execute any necessary repair(s), run 'gvfs repair --confirm'
 
                     return false;
                 },
-                "Checking that GVFS is not mounted",
+                "Checking that Scalar is not mounted",
                 this.Output,
                 showSpinner: true,
-                gvfsLogEnlistmentRoot: null))
+                scalarLogEnlistmentRoot: null))
             {
-                this.ReportErrorAndExit("You can only run 'gvfs repair' if GVFS is not mounted. Run 'gvfs unmount' and try again.");
+                this.ReportErrorAndExit("You can only run 'scalar repair' if Scalar is not mounted. Run 'scalar unmount' and try again.");
             }
 
             this.Output.WriteLine();
 
-            using (JsonTracer tracer = new JsonTracer(GVFSConstants.GVFSEtwProviderName, "RepairVerb", enlistment.GetEnlistmentId(), mountId: null))
+            using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "RepairVerb", enlistment.GetEnlistmentId(), mountId: null))
             {
                 tracer.AddLogFileEventListener(
-                    GVFSEnlistment.GetNewGVFSLogFileName(enlistment.GVFSLogsRoot, GVFSConstants.LogFileTypes.Repair),
+                    ScalarEnlistment.GetNewScalarLogFileName(enlistment.ScalarLogsRoot, ScalarConstants.LogFileTypes.Repair),
                     EventLevel.Verbose,
                     Keywords.Any);
                 tracer.WriteStartEvent(
@@ -123,7 +123,7 @@ To actually execute any necessary repair(s), run 'gvfs repair --confirm'
                     new EventMetadata
                     {
                         { "Confirmed", this.Confirmed },
-                        { "IsElevated", GVFSPlatform.Instance.IsElevated() },
+                        { "IsElevated", ScalarPlatform.Instance.IsElevated() },
                         { "NamedPipename", enlistment.NamedPipeName },
                         { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
                     });
@@ -176,7 +176,7 @@ To actually execute any necessary repair(s), run 'gvfs repair --confirm'
                     this.WriteMessage(tracer, job.Name);
                     this.WriteMessages(tracer, cantFix[job]);
                     this.Indent();
-                    this.WriteMessage(tracer, "'gvfs repair' does not currently support fixing this problem");
+                    this.WriteMessage(tracer, "'scalar repair' does not currently support fixing this problem");
                     this.Output.WriteLine();
                 }
 
@@ -198,7 +198,7 @@ To actually execute any necessary repair(s), run 'gvfs repair --confirm'
                                 this.WriteMessage(tracer, "Repair succeeded, but requires some manual steps before remounting.");
                                 break;
                             case RepairJob.FixResult.Failure:
-                                this.WriteMessage(tracer, "Repair failed. " + ConsoleHelper.GetGVFSLogMessage(enlistment.EnlistmentRoot));
+                                this.WriteMessage(tracer, "Repair failed. " + ConsoleHelper.GetScalarLogMessage(enlistment.EnlistmentRoot));
                                 break;
                         }
 
@@ -206,7 +206,7 @@ To actually execute any necessary repair(s), run 'gvfs repair --confirm'
                     }
                     else
                     {
-                        this.WriteMessage(tracer, "Run 'gvfs repair --confirm' to attempt a repair");
+                        this.WriteMessage(tracer, "Run 'scalar repair --confirm' to attempt a repair");
                     }
 
                     this.Output.WriteLine();

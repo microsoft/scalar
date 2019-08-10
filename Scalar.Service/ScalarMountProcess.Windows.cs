@@ -1,15 +1,15 @@
-﻿using GVFS.Common;
-using GVFS.Common.Tracing;
-using GVFS.Platform.Windows;
-using GVFS.Service.Handlers;
+﻿using Scalar.Common;
+using Scalar.Common.Tracing;
+using Scalar.Platform.Windows;
+using Scalar.Service.Handlers;
 
-namespace GVFS.Service
+namespace Scalar.Service
 {
-    public class GVFSMountProcess : IRepoMounter
+    public class ScalarMountProcess : IRepoMounter
     {
         private readonly ITracer tracer;
 
-        public GVFSMountProcess(ITracer tracer)
+        public ScalarMountProcess(ITracer tracer)
         {
             this.tracer = tracer;
         }
@@ -18,14 +18,14 @@ namespace GVFS.Service
         {
             using (CurrentUser currentUser = new CurrentUser(this.tracer, sessionId))
             {
-                if (!this.CallGVFSMount(repoRoot, currentUser))
+                if (!this.CallScalarMount(repoRoot, currentUser))
                 {
-                    this.tracer.RelatedError($"{nameof(this.MountRepository)}: Unable to start the GVFS.exe process.");
+                    this.tracer.RelatedError($"{nameof(this.MountRepository)}: Unable to start the Scalar.exe process.");
                     return false;
                 }
 
                 string errorMessage;
-                if (!GVFSEnlistment.WaitUntilMounted(this.tracer, repoRoot, false, out errorMessage))
+                if (!ScalarEnlistment.WaitUntilMounted(this.tracer, repoRoot, false, out errorMessage))
                 {
                     this.tracer.RelatedError(errorMessage);
                     return false;
@@ -35,12 +35,12 @@ namespace GVFS.Service
             return true;
         }
 
-        private bool CallGVFSMount(string repoRoot, CurrentUser currentUser)
+        private bool CallScalarMount(string repoRoot, CurrentUser currentUser)
         {
             InternalVerbParameters mountInternal = new InternalVerbParameters(startedByService: true);
             return currentUser.RunAs(
-                Configuration.Instance.GVFSLocation,
-                $"mount {repoRoot} --{GVFSConstants.VerbParameters.InternalUseOnly} {mountInternal.ToJson()}");
+                Configuration.Instance.ScalarLocation,
+                $"mount {repoRoot} --{ScalarConstants.VerbParameters.InternalUseOnly} {mountInternal.ToJson()}");
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     [StructLayout(LayoutKind.Explicit, Size = ShaBufferLength, Pack = 1)]
     public struct Sha1Id

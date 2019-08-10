@@ -1,4 +1,4 @@
-﻿using GVFS.Tests.Should;
+﻿using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.Diagnostics;
@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-namespace GVFS.FunctionalTests.FileSystemRunners
+namespace Scalar.FunctionalTests.FileSystemRunners
 {
     public class SystemIORunner : FileSystemRunner
     {

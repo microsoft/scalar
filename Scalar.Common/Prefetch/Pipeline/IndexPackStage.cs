@@ -1,10 +1,10 @@
-﻿using GVFS.Common.Git;
-using GVFS.Common.Prefetch.Pipeline.Data;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.Git;
+using Scalar.Common.Prefetch.Pipeline.Data;
+using Scalar.Common.Tracing;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace GVFS.Common.Prefetch.Pipeline
+namespace Scalar.Common.Prefetch.Pipeline
 {
     public class IndexPackStage : PrefetchPipelineStage
     {

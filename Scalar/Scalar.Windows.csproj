@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="$(SolutionDir)\GVFS\GVFS.Build\GVFS.cs.props" />
+  <Import Project="$(SolutionDir)\Scalar\Scalar.Build\Scalar.cs.props" />
   <PropertyGroup>
     <ProjectGuid>{32220664-594C-4425-B9A0-88E0BE2F3D2A}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GVFS</RootNamespace>
-    <AssemblyName>GVFS</AssemblyName>
+    <RootNamespace>Scalar</RootNamespace>
+    <AssemblyName>Scalar</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -115,7 +115,7 @@
     <Compile Include="CommandLine\ConfigVerb.cs" />
     <Compile Include="CommandLine\DehydrateVerb.cs" />
     <Compile Include="CommandLine\DiagnoseVerb.cs" />
-    <Compile Include="CommandLine\GVFSVerb.cs" />
+    <Compile Include="CommandLine\ScalarVerb.cs" />
     <Compile Include="CommandLine\LogVerb.cs" />
     <Compile Include="CommandLine\MountVerb.cs" />
     <Compile Include="CommandLine\PrefetchVerb.cs" />
@@ -129,7 +129,7 @@
     <Compile Include="CommandLine\StatusVerb.cs" />
     <Compile Include="CommandLine\UnmountVerb.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="..\GVFS.PlatformLoader\PlatformLoader.Windows.cs">
+    <Compile Include="..\Scalar.PlatformLoader\PlatformLoader.Windows.cs">
       <Link>PlatformLoader.Windows.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -144,13 +144,13 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GVFS.Common\GVFS.Common.csproj">
+    <ProjectReference Include="..\Scalar.Common\Scalar.Common.csproj">
       <Project>{374bf1e5-0b2d-4d4a-bd5e-4212299def09}</Project>
-      <Name>GVFS.Common</Name>
+      <Name>Scalar.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GVFS.Platform.Windows\GVFS.Platform.Windows.csproj">
+    <ProjectReference Include="..\Scalar.Platform.Windows\Scalar.Platform.Windows.csproj">
       <Project>{4ce404e7-d3fc-471c-993c-64615861ea63}</Project>
-      <Name>GVFS.Platform.Windows</Name>
+      <Name>Scalar.Platform.Windows</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -159,7 +159,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(BuildOutputDir)\GVFS.ReadObjectHook.Windows\bin\$(Platform)\$(Configuration)\GVFS.ReadObjectHook.* $(TargetDir)</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y $(BuildOutputDir)\Scalar.ReadObjectHook.Windows\bin\$(Platform)\$(Configuration)\Scalar.ReadObjectHook.* $(TargetDir)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>

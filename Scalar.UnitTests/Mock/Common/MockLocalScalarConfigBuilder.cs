@@ -1,9 +1,9 @@
-using GVFS.Common;
+using Scalar.Common;
 using System.Collections.Generic;
 
-namespace GVFS.UnitTests.Mock.Common
+namespace Scalar.UnitTests.Mock.Common
 {
-    public class MockLocalGVFSConfigBuilder
+    public class MockLocalScalarConfigBuilder
     {
         private string defaultRing;
         private string defaultUpgradeFeedUrl;
@@ -12,7 +12,7 @@ namespace GVFS.UnitTests.Mock.Common
 
         private Dictionary<string, string> entries;
 
-        public MockLocalGVFSConfigBuilder(
+        public MockLocalScalarConfigBuilder(
             string defaultRing,
             string defaultUpgradeFeedUrl,
             string defaultUpgradeFeedPackageName,
@@ -25,64 +25,64 @@ namespace GVFS.UnitTests.Mock.Common
             this.entries = new Dictionary<string, string>();
         }
 
-        public MockLocalGVFSConfigBuilder WithUpgradeRing(string value = null)
+        public MockLocalScalarConfigBuilder WithUpgradeRing(string value = null)
         {
-            return this.With(GVFSConstants.LocalGVFSConfig.UpgradeRing, value ?? this.defaultRing);
+            return this.With(ScalarConstants.LocalScalarConfig.UpgradeRing, value ?? this.defaultRing);
         }
 
-        public MockLocalGVFSConfigBuilder WithNoUpgradeRing()
+        public MockLocalScalarConfigBuilder WithNoUpgradeRing()
         {
-            return this.WithNo(GVFSConstants.LocalGVFSConfig.UpgradeRing);
+            return this.WithNo(ScalarConstants.LocalScalarConfig.UpgradeRing);
         }
 
-        public MockLocalGVFSConfigBuilder WithUpgradeFeedPackageName(string value = null)
+        public MockLocalScalarConfigBuilder WithUpgradeFeedPackageName(string value = null)
         {
-            return this.With(GVFSConstants.LocalGVFSConfig.UpgradeFeedPackageName, value ?? this.defaultUpgradeFeedPackageName);
+            return this.With(ScalarConstants.LocalScalarConfig.UpgradeFeedPackageName, value ?? this.defaultUpgradeFeedPackageName);
         }
 
-        public MockLocalGVFSConfigBuilder WithNoUpgradeFeedPackageName()
+        public MockLocalScalarConfigBuilder WithNoUpgradeFeedPackageName()
         {
-            return this.WithNo(GVFSConstants.LocalGVFSConfig.UpgradeFeedPackageName);
+            return this.WithNo(ScalarConstants.LocalScalarConfig.UpgradeFeedPackageName);
         }
 
-        public MockLocalGVFSConfigBuilder WithUpgradeFeedUrl(string value = null)
+        public MockLocalScalarConfigBuilder WithUpgradeFeedUrl(string value = null)
         {
-            return this.With(GVFSConstants.LocalGVFSConfig.UpgradeFeedUrl, value ?? this.defaultUpgradeFeedUrl);
+            return this.With(ScalarConstants.LocalScalarConfig.UpgradeFeedUrl, value ?? this.defaultUpgradeFeedUrl);
         }
 
-        public MockLocalGVFSConfigBuilder WithNoUpgradeFeedUrl()
+        public MockLocalScalarConfigBuilder WithNoUpgradeFeedUrl()
         {
-            return this.WithNo(GVFSConstants.LocalGVFSConfig.UpgradeFeedUrl);
+            return this.WithNo(ScalarConstants.LocalScalarConfig.UpgradeFeedUrl);
         }
 
-        public MockLocalGVFSConfigBuilder WithOrgInfoServerUrl(string value = null)
+        public MockLocalScalarConfigBuilder WithOrgInfoServerUrl(string value = null)
         {
-            return this.With(GVFSConstants.LocalGVFSConfig.OrgInfoServerUrl, value ?? this.defaultUpgradeFeedUrl);
+            return this.With(ScalarConstants.LocalScalarConfig.OrgInfoServerUrl, value ?? this.defaultUpgradeFeedUrl);
         }
 
-        public MockLocalGVFSConfigBuilder WithNoOrgInfoServerUrl()
+        public MockLocalScalarConfigBuilder WithNoOrgInfoServerUrl()
         {
-            return this.WithNo(GVFSConstants.LocalGVFSConfig.OrgInfoServerUrl);
+            return this.WithNo(ScalarConstants.LocalScalarConfig.OrgInfoServerUrl);
         }
 
-        public MockLocalGVFSConfig Build()
+        public MockLocalScalarConfig Build()
         {
-            MockLocalGVFSConfig gvfsConfig = new MockLocalGVFSConfig();
+            MockLocalScalarConfig scalarConfig = new MockLocalScalarConfig();
             foreach (KeyValuePair<string, string> kvp in this.entries)
             {
-                gvfsConfig.TrySetConfig(kvp.Key, kvp.Value, out _);
+                scalarConfig.TrySetConfig(kvp.Key, kvp.Value, out _);
             }
 
-            return gvfsConfig;
+            return scalarConfig;
         }
 
-        private MockLocalGVFSConfigBuilder With(string key, string value)
+        private MockLocalScalarConfigBuilder With(string key, string value)
         {
             this.entries.Add(key, value);
             return this;
         }
 
-        private MockLocalGVFSConfigBuilder WithNo(string key)
+        private MockLocalScalarConfigBuilder WithNo(string key)
         {
             this.entries.Remove(key);
             return this;

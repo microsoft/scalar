@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     public static class GitPathConverter
     {

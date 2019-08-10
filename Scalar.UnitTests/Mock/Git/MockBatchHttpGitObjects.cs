@@ -1,8 +1,8 @@
-﻿using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
+﻿using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +10,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 
-namespace GVFS.UnitTests.Mock.Git
+namespace Scalar.UnitTests.Mock.Git
 {
     public class MockBatchHttpGitObjects : GitObjectsHttpRequestor
     {
@@ -87,7 +87,7 @@ namespace GVFS.UnitTests.Mock.Git
 
                         using (GitEndPointResponseData response = new GitEndPointResponseData(
                             HttpStatusCode.OK,
-                            GVFSConstants.MediaTypes.CustomLooseObjectsMediaType,
+                            ScalarConstants.MediaTypes.CustomLooseObjectsMediaType,
                             mem,
                             message: null,
                             onResponseDisposed: null))

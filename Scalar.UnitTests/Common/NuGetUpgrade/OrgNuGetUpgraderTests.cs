@@ -1,11 +1,11 @@
-using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Common.NuGetUpgrade;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
+using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Common.NuGetUpgrade;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
 using Moq;
 using Moq.Protected;
 using NuGet.Packaging.Core;
@@ -20,7 +20,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GVFS.UnitTests.Common.NuGetUpgrade
+namespace Scalar.UnitTests.Common.NuGetUpgrade
 {
     [TestFixture]
     public class OrgNuGetUpgraderTests
@@ -63,7 +63,7 @@ namespace GVFS.UnitTests.Common.NuGetUpgrade
         [SetUp]
         public void SetUp()
         {
-            MockLocalGVFSConfig mockGvfsConfig = new MockLocalGVFSConfigBuilder(
+            MockLocalScalarConfig mockGvfsConfig = new MockLocalScalarConfigBuilder(
                 DefaultRing,
                 DefaultUpgradeFeedUrl,
                 DefaultUpgradeFeedPackageName,
@@ -84,7 +84,7 @@ namespace GVFS.UnitTests.Common.NuGetUpgrade
                 DefaultUpgradeFeedPackageName,
                 this.downloadDirectoryPath,
                 null,
-                GVFSPlatform.Instance.UnderConstruction.SupportsNuGetEncryption,
+                ScalarPlatform.Instance.UnderConstruction.SupportsNuGetEncryption,
                 this.tracer);
 
             this.mockFileSystem = new MockFileSystem(

@@ -1,20 +1,20 @@
-﻿using GVFS.Common.Git;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
+﻿using Scalar.Common.Git;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace GVFS.UnitTests.Mock.Git
+namespace Scalar.UnitTests.Mock.Git
 {
     public class MockGitProcess : GitProcess
     {
         private List<CommandInfo> expectedCommandInfos = new List<CommandInfo>();
 
         public MockGitProcess()
-            : base(new MockGVFSEnlistment())
+            : base(new MockScalarEnlistment())
         {
             this.CommandsRun = new List<string>();
             this.StoredCredentials = new Dictionary<string, Credential>(StringComparer.OrdinalIgnoreCase);

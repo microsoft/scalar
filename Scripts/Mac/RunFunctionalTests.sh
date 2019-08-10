@@ -7,6 +7,6 @@ if [ -z $CONFIGURATION ]; then
   CONFIGURATION=Debug
 fi
 
-mkdir ~/GVFS.FT
+mkdir ~/Scalar.FT
 
-$VFS_PUBLISHDIR/GVFS.FunctionalTests --full-suite $2
+$Scalar_PUBLISHDIR/Scalar.FunctionalTests --full-suite $2

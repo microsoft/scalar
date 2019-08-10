@@ -1,11 +1,11 @@
-﻿using GVFS.Common.Git;
+﻿using Scalar.Common.Git;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GVFS.UnitTests.Mock.Git
+namespace Scalar.UnitTests.Mock.Git
 {
     public class MockGitInstallation : IGitInstallation
     {

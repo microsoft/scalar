@@ -1,10 +1,10 @@
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.IO;
 
-namespace GVFS.Platform.Mac
+namespace Scalar.Platform.Mac
 {
     public class MacProductUpgraderPlatformStrategy : ProductUpgraderPlatformStrategy
     {

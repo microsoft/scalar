@@ -1,7 +1,7 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 using System.Collections.Generic;
 
-namespace GVFS.UnitTests.Mock.Common.Tracing
+namespace Scalar.UnitTests.Mock.Common.Tracing
 {
     public class MockListener : EventListener
     {

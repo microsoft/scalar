@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     /// <summary>
     /// The modified paths database is the list of files and folders that
@@ -44,7 +44,7 @@ namespace GVFS.Common
             if (temp.Count == 0)
             {
                 bool isRetryable;
-                temp.TryAdd(GVFSConstants.SpecialGitFiles.GitAttributes, isFolder: false, isRetryable: out isRetryable);
+                temp.TryAdd(ScalarConstants.SpecialGitFiles.GitAttributes, isFolder: false, isRetryable: out isRetryable);
             }
 
             error = null;
@@ -210,11 +210,11 @@ namespace GVFS.Common
 
         private bool ContainsParentDirectory(string modifiedPath)
         {
-            string[] pathParts = modifiedPath.Split(new char[] { GVFSConstants.GitPathSeparator }, StringSplitOptions.RemoveEmptyEntries);
+            string[] pathParts = modifiedPath.Split(new char[] { ScalarConstants.GitPathSeparator }, StringSplitOptions.RemoveEmptyEntries);
             string parentFolder = string.Empty;
             for (int i = 0; i < pathParts.Length - 1; i++)
             {
-                parentFolder += pathParts[i] + GVFSConstants.GitPathSeparatorString;
+                parentFolder += pathParts[i] + ScalarConstants.GitPathSeparatorString;
                 if (this.modifiedPaths.Contains(parentFolder))
                 {
                     return true;
@@ -226,8 +226,8 @@ namespace GVFS.Common
 
         private string NormalizeEntryString(string virtualPath, bool isFolder)
         {
-            return virtualPath.Replace(Path.DirectorySeparatorChar, GVFSConstants.GitPathSeparator).Trim(GVFSConstants.GitPathSeparator) +
-                (isFolder ? GVFSConstants.GitPathSeparatorString : string.Empty);
+            return virtualPath.Replace(Path.DirectorySeparatorChar, ScalarConstants.GitPathSeparator).Trim(ScalarConstants.GitPathSeparator) +
+                (isFolder ? ScalarConstants.GitPathSeparatorString : string.Empty);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GVFS.Common.Prefetch.Git
+namespace Scalar.Common.Prefetch.Git
 {
     public class PathWithMode
     {

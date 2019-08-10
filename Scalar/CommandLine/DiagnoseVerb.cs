@@ -1,19 +1,19 @@
 using CommandLine;
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
-    [Verb(DiagnoseVerb.DiagnoseVerbName, HelpText = "Diagnose issues with a GVFS repo")]
-    public class DiagnoseVerb : GVFSVerb.ForExistingEnlistment
+    [Verb(DiagnoseVerb.DiagnoseVerbName, HelpText = "Diagnose issues with a Scalar repo")]
+    public class DiagnoseVerb : ScalarVerb.ForExistingEnlistment
     {
         private const string DiagnoseVerbName = "diagnose";
         private const string DeprecatedUpgradeLogsDirectory = "Logs";
@@ -31,16 +31,16 @@ namespace GVFS.CommandLine
             get { return DiagnoseVerbName; }
         }
 
-        protected override void Execute(GVFSEnlistment enlistment)
+        protected override void Execute(ScalarEnlistment enlistment)
         {
-            string diagnosticsRoot = Path.Combine(enlistment.DotGVFSRoot, "diagnostics");
+            string diagnosticsRoot = Path.Combine(enlistment.DotScalarRoot, "diagnostics");
 
             if (!Directory.Exists(diagnosticsRoot))
             {
                 Directory.CreateDirectory(diagnosticsRoot);
             }
 
-            string archiveFolderPath = Path.Combine(diagnosticsRoot, "gvfs_" + DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+            string archiveFolderPath = Path.Combine(diagnosticsRoot, "scalar_" + DateTime.Now.ToString("yyyyMMdd_HHmmss"));
             Directory.CreateDirectory(archiveFolderPath);
 
             using (FileStream diagnosticLogFile = new FileStream(Path.Combine(archiveFolderPath, "diagnostics.log"), FileMode.CreateNew))
@@ -49,7 +49,7 @@ namespace GVFS.CommandLine
                 this.WriteMessage("Collecting diagnostic info into temp folder " + archiveFolderPath);
 
                 this.WriteMessage(string.Empty);
-                this.WriteMessage("gvfs version " + ProcessHelper.GetCurrentProcessVersion());
+                this.WriteMessage("scalar version " + ProcessHelper.GetCurrentProcessVersion());
 
                 GitVersion gitVersion = null;
                 string error = null;
@@ -80,44 +80,44 @@ namespace GVFS.CommandLine
 
                 this.ShowStatusWhileRunning(
                     () =>
-                        this.RunAndRecordGVFSVerb<StatusVerb>(archiveFolderPath, "gvfs_status.txt") != ReturnCode.Success ||
-                        this.RunAndRecordGVFSVerb<UnmountVerb>(archiveFolderPath, "gvfs_unmount.txt", verb => verb.SkipLock = true) == ReturnCode.Success,
+                        this.RunAndRecordScalarVerb<StatusVerb>(archiveFolderPath, "scalar_status.txt") != ReturnCode.Success ||
+                        this.RunAndRecordScalarVerb<UnmountVerb>(archiveFolderPath, "scalar_unmount.txt", verb => verb.SkipLock = true) == ReturnCode.Success,
                     "Unmounting",
                     suppressGvfsLogMessage: true);
 
                 this.ShowStatusWhileRunning(
                     () =>
                     {
-                        // .gvfs
-                        this.CopyAllFiles(enlistment.EnlistmentRoot, archiveFolderPath, GVFSPlatform.Instance.Constants.DotGVFSRoot, copySubFolders: false);
+                        // .scalar
+                        this.CopyAllFiles(enlistment.EnlistmentRoot, archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot, copySubFolders: false);
 
                         // .git
-                        this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, GVFSConstants.DotGit.Root, copySubFolders: false);
-                        this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, GVFSConstants.DotGit.Hooks.Root, copySubFolders: false);
-                        this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, GVFSConstants.DotGit.Info.Root, copySubFolders: false);
-                        this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, GVFSConstants.DotGit.Logs.Root, copySubFolders: true);
-                        this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, GVFSConstants.DotGit.Refs.Root, copySubFolders: true);
-                        this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, GVFSConstants.DotGit.Objects.Info.Root, copySubFolders: false);
-                        this.LogDirectoryEnumeration(enlistment.WorkingDirectoryRoot, Path.Combine(archiveFolderPath, GVFSConstants.DotGit.Objects.Root), GVFSConstants.DotGit.Objects.Pack.Root, "packs-local.txt");
-                        this.LogLooseObjectCount(enlistment.WorkingDirectoryRoot, Path.Combine(archiveFolderPath, GVFSConstants.DotGit.Objects.Root), GVFSConstants.DotGit.Objects.Root, "objects-local.txt");
+                        this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, ScalarConstants.DotGit.Root, copySubFolders: false);
+                        this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, ScalarConstants.DotGit.Hooks.Root, copySubFolders: false);
+                        this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, ScalarConstants.DotGit.Info.Root, copySubFolders: false);
+                        this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, ScalarConstants.DotGit.Logs.Root, copySubFolders: true);
+                        this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, ScalarConstants.DotGit.Refs.Root, copySubFolders: true);
+                        this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, ScalarConstants.DotGit.Objects.Info.Root, copySubFolders: false);
+                        this.LogDirectoryEnumeration(enlistment.WorkingDirectoryRoot, Path.Combine(archiveFolderPath, ScalarConstants.DotGit.Objects.Root), ScalarConstants.DotGit.Objects.Pack.Root, "packs-local.txt");
+                        this.LogLooseObjectCount(enlistment.WorkingDirectoryRoot, Path.Combine(archiveFolderPath, ScalarConstants.DotGit.Objects.Root), ScalarConstants.DotGit.Objects.Root, "objects-local.txt");
 
                         // databases
-                        this.CopyAllFiles(enlistment.DotGVFSRoot, Path.Combine(archiveFolderPath, GVFSPlatform.Instance.Constants.DotGVFSRoot), GVFSConstants.DotGVFS.Databases.Name, copySubFolders: false);
+                        this.CopyAllFiles(enlistment.DotScalarRoot, Path.Combine(archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot), ScalarConstants.DotScalar.Databases.Name, copySubFolders: false);
 
                         // local cache
                         this.CopyLocalCacheData(archiveFolderPath, localCacheRoot, gitObjectsRoot);
 
                         // corrupt objects
-                        this.CopyAllFiles(enlistment.DotGVFSRoot, Path.Combine(archiveFolderPath, GVFSPlatform.Instance.Constants.DotGVFSRoot), GVFSConstants.DotGVFS.CorruptObjectsName, copySubFolders: false);
+                        this.CopyAllFiles(enlistment.DotScalarRoot, Path.Combine(archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot), ScalarConstants.DotScalar.CorruptObjectsName, copySubFolders: false);
 
                         // service
                         this.CopyAllFiles(
-                            GVFSPlatform.Instance.GetDataRootForGVFS(),
+                            ScalarPlatform.Instance.GetDataRootForScalar(),
                             archiveFolderPath,
                             this.ServiceName,
                             copySubFolders: true);
 
-                        if (GVFSPlatform.Instance.UnderConstruction.SupportsGVFSUpgrade)
+                        if (ScalarPlatform.Instance.UnderConstruction.SupportsScalarUpgrade)
                         {
                             // upgrader
                             this.CopyAllFiles(
@@ -141,9 +141,9 @@ namespace GVFS.CommandLine
                                 "downloaded-assets.txt");
                         }
 
-                        if (GVFSPlatform.Instance.UnderConstruction.SupportsGVFSConfig)
+                        if (ScalarPlatform.Instance.UnderConstruction.SupportsScalarConfig)
                         {
-                            this.CopyFile(GVFSPlatform.Instance.GetDataRootForGVFS(), archiveFolderPath, LocalGVFSConfig.FileName);
+                            this.CopyFile(ScalarPlatform.Instance.GetDataRootForScalar(), archiveFolderPath, LocalScalarConfig.FileName);
                         }
 
                         return true;
@@ -151,11 +151,11 @@ namespace GVFS.CommandLine
                     "Copying logs");
 
                 this.ShowStatusWhileRunning(
-                    () => this.RunAndRecordGVFSVerb<MountVerb>(archiveFolderPath, "gvfs_mount.txt") == ReturnCode.Success,
+                    () => this.RunAndRecordScalarVerb<MountVerb>(archiveFolderPath, "scalar_mount.txt") == ReturnCode.Success,
                     "Mounting",
                     suppressGvfsLogMessage: true);
 
-                this.CopyAllFiles(enlistment.DotGVFSRoot, Path.Combine(archiveFolderPath, GVFSPlatform.Instance.Constants.DotGVFSRoot), "logs", copySubFolders: false);
+                this.CopyAllFiles(enlistment.DotScalarRoot, Path.Combine(archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot), "logs", copySubFolders: false);
             }
 
             string zipFilePath = archiveFolderPath + ".zip";
@@ -189,7 +189,7 @@ namespace GVFS.CommandLine
 
         private void RecordVersionInformation()
         {
-            string information = GVFSPlatform.Instance.GetOSVersionInformation();
+            string information = ScalarPlatform.Instance.GetOSVersionInformation();
             this.diagnosticLogFileWriter.WriteLine(information);
         }
 
@@ -254,17 +254,17 @@ namespace GVFS.CommandLine
             }
         }
 
-        private void GetLocalCachePaths(GVFSEnlistment enlistment, out string localCacheRoot, out string gitObjectsRoot)
+        private void GetLocalCachePaths(ScalarEnlistment enlistment, out string localCacheRoot, out string gitObjectsRoot)
         {
             localCacheRoot = null;
             gitObjectsRoot = null;
 
             try
             {
-                using (ITracer tracer = new JsonTracer(GVFSConstants.GVFSEtwProviderName, "DiagnoseVerb"))
+                using (ITracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "DiagnoseVerb"))
                 {
                     string error;
-                    if (RepoMetadata.TryInitialize(tracer, Path.Combine(enlistment.EnlistmentRoot, GVFSPlatform.Instance.Constants.DotGVFSRoot), out error))
+                    if (RepoMetadata.TryInitialize(tracer, Path.Combine(enlistment.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot), out error))
                     {
                         RepoMetadata.Instance.TryGetLocalCacheRoot(out localCacheRoot, out error);
                         RepoMetadata.Instance.TryGetGitObjectsRoot(out gitObjectsRoot, out error);
@@ -289,7 +289,7 @@ namespace GVFS.CommandLine
         {
             try
             {
-                string localCacheArchivePath = Path.Combine(archiveFolderPath, GVFSConstants.DefaultGVFSCacheFolderName);
+                string localCacheArchivePath = Path.Combine(archiveFolderPath, ScalarConstants.DefaultScalarCacheFolderName);
                 Directory.CreateDirectory(localCacheArchivePath);
 
                 if (!string.IsNullOrWhiteSpace(localCacheRoot))
@@ -316,11 +316,11 @@ namespace GVFS.CommandLine
 
                 if (!string.IsNullOrWhiteSpace(gitObjectsRoot))
                 {
-                    this.LogDirectoryEnumeration(gitObjectsRoot, localCacheArchivePath, GVFSConstants.DotGit.Objects.Pack.Name, "packs-cached.txt");
+                    this.LogDirectoryEnumeration(gitObjectsRoot, localCacheArchivePath, ScalarConstants.DotGit.Objects.Pack.Name, "packs-cached.txt");
                     this.LogLooseObjectCount(gitObjectsRoot, localCacheArchivePath, string.Empty, "objects-cached.txt");
 
                     // Store all commit-graph files
-                    this.CopyAllFiles(gitObjectsRoot, localCacheArchivePath, GVFSConstants.DotGit.Objects.Info.Root, copySubFolders: true);
+                    this.CopyAllFiles(gitObjectsRoot, localCacheArchivePath, ScalarConstants.DotGit.Objects.Info.Root, copySubFolders: true);
                 }
             }
             catch (Exception e)
@@ -430,8 +430,8 @@ namespace GVFS.CommandLine
                 try
                 {
                     string sourceFilePath = Path.Combine(sourcePath, fileName);
-                    if (!GVFSPlatform.Instance.FileSystem.IsSocket(sourceFilePath) &&
-                        !GVFSPlatform.Instance.FileSystem.IsExecutable(sourceFilePath))
+                    if (!ScalarPlatform.Instance.FileSystem.IsSocket(sourceFilePath) &&
+                        !ScalarPlatform.Instance.FileSystem.IsExecutable(sourceFilePath))
                     {
                         File.Copy(
                             Path.Combine(sourcePath, fileName),
@@ -474,8 +474,8 @@ namespace GVFS.CommandLine
             }
         }
 
-        private ReturnCode RunAndRecordGVFSVerb<TVerb>(string archiveFolderPath, string outputFileName, Action<TVerb> configureVerb = null)
-            where TVerb : GVFSVerb, new()
+        private ReturnCode RunAndRecordScalarVerb<TVerb>(string archiveFolderPath, string outputFileName, Action<TVerb> configureVerb = null)
+            where TVerb : ScalarVerb, new()
         {
             try
             {
@@ -515,8 +515,8 @@ namespace GVFS.CommandLine
                 string enlistmentErrorMessage;
                 string localCacheErrorMessage;
 
-                bool enlistmentSuccess = GVFSPlatform.Instance.TryGetNormalizedPathRoot(enlistmentRootParameter, out enlistmentNormalizedPathRoot, out enlistmentErrorMessage);
-                bool localCacheSuccess = GVFSPlatform.Instance.TryGetNormalizedPathRoot(localCacheRoot, out localCacheNormalizedPathRoot, out localCacheErrorMessage);
+                bool enlistmentSuccess = ScalarPlatform.Instance.TryGetNormalizedPathRoot(enlistmentRootParameter, out enlistmentNormalizedPathRoot, out enlistmentErrorMessage);
+                bool localCacheSuccess = ScalarPlatform.Instance.TryGetNormalizedPathRoot(localCacheRoot, out localCacheNormalizedPathRoot, out localCacheErrorMessage);
 
                 if (!enlistmentSuccess || !localCacheSuccess)
                 {

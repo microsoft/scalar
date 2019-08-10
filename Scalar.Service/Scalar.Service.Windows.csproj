@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="$(SolutionDir)\GVFS\GVFS.Build\GVFS.cs.props" />
+  <Import Project="$(SolutionDir)\Scalar\Scalar.Build\Scalar.cs.props" />
   <PropertyGroup>
     <ProjectGuid>{B8C1DFBA-CAFD-4F7E-A1A3-E11907B5467B}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GVFS.Service</RootNamespace>
-    <AssemblyName>GVFS.Service</AssemblyName>
+    <RootNamespace>Scalar.Service</RootNamespace>
+    <AssemblyName>Scalar.Service</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -35,7 +35,7 @@
     <StartupObject />
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationManifest>$(BuildOutputDir)\GVFS.Service.exe.manifest</ApplicationManifest>
+    <ApplicationManifest>$(BuildOutputDir)\Scalar.Service.exe.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -56,8 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
-    <Compile Include="GVFSMountProcess.Windows.cs" />
-    <Compile Include="GVFSService.Windows.cs">
+    <Compile Include="ScalarMountProcess.Windows.cs" />
+    <Compile Include="ScalarService.Windows.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Handlers\INotificationHandler.cs" />
@@ -76,23 +76,23 @@
     <Compile Include="RepoRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GVFS.Common\GVFS.Common.csproj">
+    <ProjectReference Include="..\Scalar.Common\Scalar.Common.csproj">
       <Project>{374bf1e5-0b2d-4d4a-bd5e-4212299def09}</Project>
-      <Name>GVFS.Common</Name>
+      <Name>Scalar.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GVFS.Platform.Windows\GVFS.Platform.Windows.csproj">
+    <ProjectReference Include="..\Scalar.Platform.Windows\Scalar.Platform.Windows.csproj">
       <Project>{4ce404e7-d3fc-471c-993c-64615861ea63}</Project>
-      <Name>GVFS.Platform.Windows</Name>
+      <Name>Scalar.Platform.Windows</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GVFS.Service.UI\GVFS.Service.UI.csproj">
+    <ProjectReference Include="..\Scalar.Service.UI\Scalar.Service.UI.csproj">
       <Project>{93b403fd-dafb-46c5-9636-b122792a548a}</Project>
-      <Name>GVFS.Service.UI</Name>
+      <Name>Scalar.Service.UI</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="$(BuildOutputDir)\GVFS.Service.exe.manifest">
-      <Link>GVFS.Service.exe.manifest</Link>
+    <None Include="$(BuildOutputDir)\Scalar.Service.exe.manifest">
+      <Link>Scalar.Service.exe.manifest</Link>
     </None>
     <None Include="packages.config" />
   </ItemGroup>

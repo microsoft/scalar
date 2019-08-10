@@ -2,13 +2,13 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="$(SolutionDir)\GVFS\GVFS.Build\GVFS.cs.props" />
+  <Import Project="$(SolutionDir)\Scalar\Scalar.Build\Scalar.cs.props" />
   <PropertyGroup>
     <ProjectGuid>{2F63B22B-EE26-4266-BF17-28A9146483A1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GVFS.SignFiles</RootNamespace>
-    <AssemblyName>GVFS.SignFiles</AssemblyName>
+    <RootNamespace>Scalar.SignFiles</RootNamespace>
+    <AssemblyName>Scalar.SignFiles</AssemblyName>
     <OutDir>$(BuildOutputDir)</OutDir>
     <!-- MicroBuild hack: override OutDir to make all files we want to sign under it. -->
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -35,14 +35,14 @@
   </PropertyGroup>
   <ItemGroup>
     <FilesToSign Include="
-      $(BuildOutputDir)\GVFS.Common\bin\$(Platform)\$(Configuration)\netstandard2.0\GVFS.Common.dll;
-      $(BuildOutputDir)\GVFS.Mount.Windows\bin\$(Platform)\$(Configuration)\GVFS.Mount.exe;
-      $(BuildOutputDir)\GVFS.Platform.Windows\bin\$(Platform)\$(Configuration)\GVFS.Platform.Windows.dll;
-      $(BuildOutputDir)\GVFS.ReadObjectHook.Windows\bin\$(Platform)\$(Configuration)\GVFS.ReadObjectHook.exe;
-      $(BuildOutputDir)\GVFS.Service.Windows\bin\$(Platform)\$(Configuration)\GVFS.Service.exe;
-      $(BuildOutputDir)\GVFS.Service.UI\bin\$(Platform)\$(Configuration)\GVFS.Service.UI.exe;
-      $(BuildOutputDir)\GVFS.Upgrader\bin\$(Platform)\$(Configuration)\net461\GVFS.Upgrader.exe;
-      $(BuildOutputDir)\GVFS.Windows\bin\$(Platform)\$(Configuration)\GVFS.exe;">
+      $(BuildOutputDir)\Scalar.Common\bin\$(Platform)\$(Configuration)\netstandard2.0\Scalar.Common.dll;
+      $(BuildOutputDir)\Scalar.Mount.Windows\bin\$(Platform)\$(Configuration)\Scalar.Mount.exe;
+      $(BuildOutputDir)\Scalar.Platform.Windows\bin\$(Platform)\$(Configuration)\Scalar.Platform.Windows.dll;
+      $(BuildOutputDir)\Scalar.ReadObjectHook.Windows\bin\$(Platform)\$(Configuration)\Scalar.ReadObjectHook.exe;
+      $(BuildOutputDir)\Scalar.Service.Windows\bin\$(Platform)\$(Configuration)\Scalar.Service.exe;
+      $(BuildOutputDir)\Scalar.Service.UI\bin\$(Platform)\$(Configuration)\Scalar.Service.UI.exe;
+      $(BuildOutputDir)\Scalar.Upgrader\bin\$(Platform)\$(Configuration)\net461\Scalar.Upgrader.exe;
+      $(BuildOutputDir)\Scalar.Windows\bin\$(Platform)\$(Configuration)\Scalar.exe;">
       <Authenticode>Microsoft400</Authenticode>
       <InProject>false</InProject>
     </FilesToSign>

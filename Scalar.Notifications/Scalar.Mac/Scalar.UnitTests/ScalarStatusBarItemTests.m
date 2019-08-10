@@ -1,30 +1,30 @@
 #import <XCTest/XCTest.h>
-#import "VFSMockAboutWindowController.h"
-#import "VFSMockProductInfoFetcher.h"
-#import "VFSStatusBarItem.h"
+#import "ScalarMockAboutWindowController.h"
+#import "ScalarMockProductInfoFetcher.h"
+#import "ScalarStatusBarItem.h"
 
-NSString * const ExpectedAboutMenuTitle = @"About VFS For Git";
+NSString * const ExpectedAboutMenuTitle = @"About Scalar";
 
-@interface VFSStatusBarItemTests : XCTestCase
+@interface ScalarStatusBarItemTests : XCTestCase
 
-@property (strong) VFSStatusBarItem *statusbarItem;
-@property (strong) VFSMockAboutWindowController *aboutWindowController;
+@property (strong) ScalarStatusBarItem *statusbarItem;
+@property (strong) ScalarMockAboutWindowController *aboutWindowController;
 
 @end
 
-@implementation VFSStatusBarItemTests
+@implementation ScalarStatusBarItemTests
 
 - (void)setUp
 {
     [super setUp];
     
-    VFSMockProductInfoFetcher *mockProductInfoFetcher = [[VFSMockProductInfoFetcher alloc]
+    ScalarMockProductInfoFetcher *mockProductInfoFetcher = [[ScalarMockProductInfoFetcher alloc]
                                                          initWithGitVersion:@""
-                                                         vfsforgitVersion:@""];
+                                                         scalarVersion:@""];
     
-    self.aboutWindowController = [[VFSMockAboutWindowController alloc]
+    self.aboutWindowController = [[ScalarMockAboutWindowController alloc]
                                   initWithProductInfoFetcher:mockProductInfoFetcher];
-    self.statusbarItem = [[VFSStatusBarItem alloc]
+    self.statusbarItem = [[ScalarStatusBarItem alloc]
                           initWithAboutWindowController:self.aboutWindowController];
     
     [self.statusbarItem load];
@@ -38,10 +38,10 @@ NSString * const ExpectedAboutMenuTitle = @"About VFS For Git";
 - (void)testStatusItemContainsAboutMenu
 {
     NSMenu *statusMenu = [self.statusbarItem getStatusMenu];
-    XCTAssertNotNil(statusMenu, @"Status bar does not contain VFSForGit menu");
+    XCTAssertNotNil(statusMenu, @"Status bar does not contain Scalar menu");
     
     NSMenuItem *menuItem = [statusMenu itemWithTitle:ExpectedAboutMenuTitle];
-    XCTAssertNotNil(menuItem, @"Missing \"%@\" item in VFSForGit menu", ExpectedAboutMenuTitle);
+    XCTAssertNotNil(menuItem, @"Missing \"%@\" item in Scalar menu", ExpectedAboutMenuTitle);
 }
 
 - (void)testAboutMenuClickDisplaysAboutBox

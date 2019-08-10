@@ -1,14 +1,14 @@
 ﻿using CommandLine;
-using GVFS.PlatformLoader;
+using Scalar.PlatformLoader;
 using System;
 
-namespace GVFS.Mount
+namespace Scalar.Mount
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            GVFSPlatformLoader.Initialize();
+            ScalarPlatformLoader.Initialize();
             try
             {
                 Parser.Default.ParseArguments<InProcessMountVerb>(args)

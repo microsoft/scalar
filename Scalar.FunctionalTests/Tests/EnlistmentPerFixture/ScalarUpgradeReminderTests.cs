@@ -1,6 +1,6 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
+namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [NonParallelizable]
@@ -31,8 +31,8 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem = new SystemIORunner();
             this.upgradeDownloadsDirectory = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.Create),
-                "GVFS",
-                "GVFS.Upgrade",
+                "Scalar",
+                "Scalar.Upgrade",
                 "Downloads");
         }
 
@@ -43,7 +43,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 
             for (int count = 0; count < 50; count++)
             {
-                ProcessResult result = GitHelpers.InvokeGitAgainstGVFSRepo(
+                ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(
                     this.Enlistment.RepoRoot,
                     "status");
 
@@ -66,9 +66,9 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 
             // This test should not use Nuget upgrader because it will usually find an upgrade
             // to download.  The "None" ring config doesn't stop the Nuget upgrader from checking
-            // its feed for updates, and the VFS4G binaries installed during functional test
+            // its feed for updates, and the Scalar4G binaries installed during functional test
             // runs typically have a 0.X version number (meaning there will always be a newer
-            // version of VFS4G available to download from the feed).
+            // version of Scalar4G available to download from the feed).
             this.ReadNugetConfig(out string feedUrl, out string feedName);
             this.DeleteNugetConfig();
             this.VerifyUpgradeVerbStopsReminder();
@@ -96,45 +96,45 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 
         private void ReadNugetConfig(out string feedUrl, out string feedName)
         {
-            GVFSProcess gvfs = new GVFSProcess(GVFSTestConfig.PathToGVFS, enlistmentRoot: null, localCacheRoot: null);
+            ScalarProcess scalar = new ScalarProcess(ScalarTestConfig.PathToScalar, enlistmentRoot: null, localCacheRoot: null);
 
-            // failOnError is set to false because gvfs config read can exit with
+            // failOnError is set to false because scalar config read can exit with
             // GenericError when the key-value is not available in config file. That
             // is normal.
-            feedUrl = gvfs.ReadConfig(NugetFeedURLKey, failOnError: false);
-            feedName = gvfs.ReadConfig(NugetFeedPackageNameKey, failOnError: false);
+            feedUrl = scalar.ReadConfig(NugetFeedURLKey, failOnError: false);
+            feedName = scalar.ReadConfig(NugetFeedPackageNameKey, failOnError: false);
         }
 
         private void DeleteNugetConfig()
         {
-            GVFSProcess gvfs = new GVFSProcess(GVFSTestConfig.PathToGVFS, enlistmentRoot: null, localCacheRoot: null);
-            gvfs.DeleteConfig(NugetFeedURLKey);
-            gvfs.DeleteConfig(NugetFeedPackageNameKey);
+            ScalarProcess scalar = new ScalarProcess(ScalarTestConfig.PathToScalar, enlistmentRoot: null, localCacheRoot: null);
+            scalar.DeleteConfig(NugetFeedURLKey);
+            scalar.DeleteConfig(NugetFeedPackageNameKey);
         }
 
         private void WriteNugetConfig(string feedUrl, string feedName)
         {
-            GVFSProcess gvfs = new GVFSProcess(GVFSTestConfig.PathToGVFS, enlistmentRoot: null, localCacheRoot: null);
+            ScalarProcess scalar = new ScalarProcess(ScalarTestConfig.PathToScalar, enlistmentRoot: null, localCacheRoot: null);
             if (!string.IsNullOrEmpty(feedUrl))
             {
-                gvfs.WriteConfig(NugetFeedURLKey, feedUrl);
+                scalar.WriteConfig(NugetFeedURLKey, feedUrl);
             }
 
             if (!string.IsNullOrEmpty(feedName))
             {
-                gvfs.WriteConfig(NugetFeedPackageNameKey, feedName);
+                scalar.WriteConfig(NugetFeedPackageNameKey, feedName);
             }
         }
 
         private bool ServiceLogContainsUpgradeMessaging()
         {
             // This test checks for the upgrade timer start message in the Service log
-            // file. GVFS.Service should schedule the timer as it starts.
+            // file. Scalar.Service should schedule the timer as it starts.
             string expectedTimerMessage = "Checking for product upgrades. (Start)";
             string serviceLogFolder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                "GVFS",
-                GVFSServiceProcess.TestServiceName,
+                "Scalar",
+                ScalarServiceProcess.TestServiceName,
                 "Logs");
             DirectoryInfo logsDirectory = new DirectoryInfo(serviceLogFolder);
             FileInfo logFile = logsDirectory.GetFiles()
@@ -173,29 +173,29 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 
         private void CreateUpgradeAvailableMarkerFile()
         {
-            string gvfsUpgradeAvailableFilePath = Path.Combine(
+            string scalarUpgradeAvailableFilePath = Path.Combine(
                 Path.GetDirectoryName(this.upgradeDownloadsDirectory),
                 HighestAvailableVersionFileName);
 
             this.EmptyDownloadDirectory();
 
-            this.fileSystem.CreateEmptyFile(gvfsUpgradeAvailableFilePath);
-            this.fileSystem.FileExists(gvfsUpgradeAvailableFilePath).ShouldBeTrue();
+            this.fileSystem.CreateEmptyFile(scalarUpgradeAvailableFilePath);
+            this.fileSystem.FileExists(scalarUpgradeAvailableFilePath).ShouldBeTrue();
         }
 
         private void SetUpgradeRing(string value)
         {
-            this.RunGVFS($"config {UpgradeRingKey} {value}");
+            this.RunScalar($"config {UpgradeRingKey} {value}");
         }
 
         private string RunUpgradeCommand()
         {
-            return this.RunGVFS("upgrade");
+            return this.RunScalar("upgrade");
         }
 
-        private string RunGVFS(string argument)
+        private string RunScalar(string argument)
         {
-            ProcessResult result = ProcessHelper.Run(GVFSTestConfig.PathToGVFS, argument);
+            ProcessResult result = ProcessHelper.Run(ScalarTestConfig.PathToScalar, argument);
             result.ExitCode.ShouldEqual(0, result.Errors);
 
             return result.Output;
@@ -203,15 +203,15 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 
         private void RestartService()
         {
-            GVFSServiceProcess.StopService();
-            GVFSServiceProcess.StartService();
+            ScalarServiceProcess.StopService();
+            ScalarServiceProcess.StartService();
         }
 
         private bool ReminderMessagingEnabled()
         {
             Dictionary<string, string> environmentVariables = new Dictionary<string, string>();
-            environmentVariables["GVFS_UPGRADE_DETERMINISTIC"] = "true";
-            ProcessResult result = GitHelpers.InvokeGitAgainstGVFSRepo(
+            environmentVariables["Scalar_UPGRADE_DETERMINISTIC"] = "true";
+            ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(
                                                     this.Enlistment.RepoRoot,
                                                     "status",
                                                     environmentVariables,
@@ -219,7 +219,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
                                                     removeUpgradeMessages: false);
 
             if (!string.IsNullOrEmpty(result.Errors) &&
-                result.Errors.Contains("A new version of GVFS is available."))
+                result.Errors.Contains("A new version of Scalar is available."))
             {
                 return true;
             }

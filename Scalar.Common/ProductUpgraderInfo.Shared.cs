@@ -1,12 +1,12 @@
-using GVFS.Common.Tracing;
+using Scalar.Common.Tracing;
 using System;
 using System.IO;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public partial class ProductUpgraderInfo
     {
-        public const string UpgradeDirectoryName = "GVFS.Upgrade";
+        public const string UpgradeDirectoryName = "Scalar.Upgrade";
         public const string LogDirectory = "UpgraderLogs";
         public const string DownloadDirectory = "Downloads";
 

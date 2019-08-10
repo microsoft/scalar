@@ -2,12 +2,12 @@ SCRIPTDIR="$(dirname ${BASH_SOURCE[0]})"
 
 # convert to an absolute path because it is required by `dotnet publish`
 pushd $SCRIPTDIR &>/dev/null
-export VFS_SCRIPTDIR="$(pwd)"
+export Scalar_SCRIPTDIR="$(pwd)"
 popd &>/dev/null
 
-export VFS_SRCDIR=$VFS_SCRIPTDIR/../..
+export Scalar_SRCDIR=$Scalar_SCRIPTDIR/../..
 
-VFS_ENLISTMENTDIR=$VFS_SRCDIR/..
-export VFS_OUTPUTDIR=$VFS_ENLISTMENTDIR/BuildOutput
-export VFS_PUBLISHDIR=$VFS_ENLISTMENTDIR/Publish
-export VFS_PACKAGESDIR=$VFS_ENLISTMENTDIR/packages
+Scalar_ENLISTMENTDIR=$Scalar_SRCDIR/..
+export Scalar_OUTPUTDIR=$Scalar_ENLISTMENTDIR/BuildOutput
+export Scalar_PUBLISHDIR=$Scalar_ENLISTMENTDIR/Publish
+export Scalar_PACKAGESDIR=$Scalar_ENLISTMENTDIR/packages

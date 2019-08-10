@@ -1,9 +1,9 @@
-﻿using GVFS.Common;
-using GVFS.Common.Git;
+﻿using Scalar.Common;
+using Scalar.Common.Git;
 using Microsoft.Win32;
 using System.IO;
 
-namespace GVFS.Platform.Windows
+namespace Scalar.Platform.Windows
 {
     public class WindowsGitInstallation : IGitInstallation
     {
@@ -19,7 +19,7 @@ namespace GVFS.Platform.Windows
                 return File.Exists(gitBinPath);
             }
 
-            return ProcessHelper.GetProgramLocation(GVFSPlatform.Instance.Constants.ProgramLocaterCommand, GitProcessName) != null;
+            return ProcessHelper.GetProgramLocation(ScalarPlatform.Instance.Constants.ProgramLocaterCommand, GitProcessName) != null;
         }
 
         public string GetInstalledGitBinPath()

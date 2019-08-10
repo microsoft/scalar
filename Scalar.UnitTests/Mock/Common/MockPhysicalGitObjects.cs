@@ -1,12 +1,12 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.Tracing;
 using System.Diagnostics;
 using System.IO;
 
-namespace GVFS.UnitTests.Mock.Common
+namespace Scalar.UnitTests.Mock.Common
 {
     public class MockPhysicalGitObjects : GitObjects
     {

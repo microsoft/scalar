@@ -5,9 +5,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-[assembly: GVFS.FunctionalTests.Tests.PrintTestCaseStats]
+[assembly: Scalar.FunctionalTests.Tests.PrintTestCaseStats]
 
-namespace GVFS.FunctionalTests.Tests
+namespace Scalar.FunctionalTests.Tests
 {
     public class PrintTestCaseStats : TestActionAttribute
     {

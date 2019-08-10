@@ -1,13 +1,13 @@
-﻿using GVFS.Common;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
+﻿using Scalar.Common;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
 using NUnit.Framework;
 using System;
 using System.IO;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class ModifiedPathsDatabaseTests
@@ -166,12 +166,12 @@ A dir1/dir2
 
         private static string ToGitPathSeparators(string path)
         {
-            return path.Replace(Path.DirectorySeparatorChar, GVFSConstants.GitPathSeparator);
+            return path.Replace(Path.DirectorySeparatorChar, ScalarConstants.GitPathSeparator);
         }
 
         private static string ToPathSeparators(string path)
         {
-            return path.Replace(GVFSConstants.GitPathSeparator, Path.DirectorySeparatorChar);
+            return path.Replace(ScalarConstants.GitPathSeparator, Path.DirectorySeparatorChar);
         }
 
         private static ModifiedPathsDatabase CreateModifiedPathsDatabase(string initialContents)

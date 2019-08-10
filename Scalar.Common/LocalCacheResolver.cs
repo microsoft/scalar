@@ -1,52 +1,52 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Http;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Http;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public class LocalCacheResolver
     {
         private const string EtwArea = nameof(LocalCacheResolver);
         private const string MappingFile = "mapping.dat";
-        private const string MappingVersionKey = "GVFS_LocalCache_MappingVersion";
+        private const string MappingVersionKey = "Scalar_LocalCache_MappingVersion";
         private const string CurrentMappingDataVersion = "1";
 
-        private GVFSEnlistment enlistment;
+        private ScalarEnlistment enlistment;
         private PhysicalFileSystem fileSystem;
 
-        public LocalCacheResolver(GVFSEnlistment enlistment, PhysicalFileSystem fileSystem = null)
+        public LocalCacheResolver(ScalarEnlistment enlistment, PhysicalFileSystem fileSystem = null)
         {
             this.fileSystem = fileSystem ?? new PhysicalFileSystem();
             this.enlistment = enlistment;
         }
 
-        public static bool TryGetDefaultLocalCacheRoot(GVFSEnlistment enlistment, out string localCacheRoot, out string localCacheRootError)
+        public static bool TryGetDefaultLocalCacheRoot(ScalarEnlistment enlistment, out string localCacheRoot, out string localCacheRootError)
         {
-            if (GVFSEnlistment.IsUnattended(tracer: null))
+            if (ScalarEnlistment.IsUnattended(tracer: null))
             {
-                localCacheRoot = Path.Combine(enlistment.DotGVFSRoot, GVFSConstants.DefaultGVFSCacheFolderName);
+                localCacheRoot = Path.Combine(enlistment.DotScalarRoot, ScalarConstants.DefaultScalarCacheFolderName);
                 localCacheRootError = null;
                 return true;
             }
 
-            return GVFSPlatform.Instance.TryGetDefaultLocalCacheRoot(enlistment.EnlistmentRoot, out localCacheRoot, out localCacheRootError);
+            return ScalarPlatform.Instance.TryGetDefaultLocalCacheRoot(enlistment.EnlistmentRoot, out localCacheRoot, out localCacheRootError);
         }
 
         public bool TryGetLocalCacheKeyFromLocalConfigOrRemoteCacheServers(
             ITracer tracer,
-            ServerGVFSConfig serverGVFSConfig,
+            ServerScalarConfig serverScalarConfig,
             CacheServerInfo currentCacheServer,
             string localCacheRoot,
             out string localCacheKey,
             out string errorMessage)
         {
-            if (serverGVFSConfig == null)
+            if (serverScalarConfig == null)
             {
-                throw new ArgumentNullException(nameof(serverGVFSConfig));
+                throw new ArgumentNullException(nameof(serverScalarConfig));
             }
 
             localCacheKey = null;
@@ -58,7 +58,7 @@ namespace GVFS.Common
                 string lockPath = Path.Combine(localCacheRoot, MappingFile + ".lock");
                 this.fileSystem.CreateDirectory(localCacheRoot);
 
-                using (FileBasedLock mappingLock = GVFSPlatform.Instance.CreateFileBasedLock(
+                using (FileBasedLock mappingLock = ScalarPlatform.Instance.CreateFileBasedLock(
                     this.fileSystem,
                     tracer,
                     lockPath))
@@ -109,7 +109,7 @@ namespace GVFS.Common
                                 metadata.Add("currentCacheServer", currentCacheServer.ToString());
 
                                 string getLocalCacheKeyError;
-                                if (this.TryGetLocalCacheKeyFromRemoteCacheServers(tracer, serverGVFSConfig, currentCacheServer, mappingFile, out localCacheKey, out getLocalCacheKeyError))
+                                if (this.TryGetLocalCacheKeyFromRemoteCacheServers(tracer, serverScalarConfig, currentCacheServer, mappingFile, out localCacheKey, out getLocalCacheKeyError))
                                 {
                                     metadata.Add("localCacheKey", localCacheKey);
                                     metadata.Add(TracingConstants.MessageKey.InfoMessage, nameof(this.TryGetLocalCacheKeyFromLocalConfigOrRemoteCacheServers) + ": Generated new local cache key");
@@ -186,7 +186,7 @@ namespace GVFS.Common
 
         private bool TryGetLocalCacheKeyFromRemoteCacheServers(
             ITracer tracer,
-            ServerGVFSConfig serverGVFSConfig,
+            ServerScalarConfig serverScalarConfig,
             CacheServerInfo currentCacheServer,
             FileBasedDictionary<string, string> mappingFile,
             out string localCacheKey,
@@ -197,7 +197,7 @@ namespace GVFS.Common
 
             try
             {
-                if (this.TryFindExistingLocalCacheKey(mappingFile, serverGVFSConfig.CacheServers, out localCacheKey))
+                if (this.TryFindExistingLocalCacheKey(mappingFile, serverScalarConfig.CacheServers, out localCacheKey))
                 {
                     EventMetadata metadata = CreateEventMetadata();
                     metadata.Add("currentCacheServer", currentCacheServer.ToString());
@@ -227,7 +227,7 @@ namespace GVFS.Common
                     mappingFileUpdates.Add(new KeyValuePair<string, string>(this.ToMappingKey(currentCacheServer.Url), localCacheKey));
                 }
 
-                foreach (CacheServerInfo cacheServer in serverGVFSConfig.CacheServers)
+                foreach (CacheServerInfo cacheServer in serverScalarConfig.CacheServers)
                 {
                     string persistedLocalCacheKey;
                     if (mappingFile.TryGetValue(this.ToMappingKey(cacheServer.Url), out persistedLocalCacheKey))

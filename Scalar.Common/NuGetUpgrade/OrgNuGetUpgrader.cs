@@ -1,13 +1,13 @@
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace GVFS.Common.NuGetUpgrade
+namespace Scalar.Common.NuGetUpgrade
 {
     public class OrgNuGetUpgrader : NuGetUpgrader
     {
@@ -59,7 +59,7 @@ namespace GVFS.Common.NuGetUpgrade
                config,
                nuGetFeed,
                credentialStore,
-               GVFSPlatform.Instance.CreateProductUpgraderPlatformInteractions(fileSystem, tracer))
+               ScalarPlatform.Instance.CreateProductUpgraderPlatformInteractions(fileSystem, tracer))
         {
             this.httpClient = httpClient;
             this.platform = platform;
@@ -74,7 +74,7 @@ namespace GVFS.Common.NuGetUpgrade
         public static bool TryCreate(
             ITracer tracer,
             PhysicalFileSystem fileSystem,
-            LocalGVFSConfig gvfsConfig,
+            LocalScalarConfig scalarConfig,
             HttpClient httpClient,
             ICredentialStore credentialStore,
             bool dryRun,
@@ -82,7 +82,7 @@ namespace GVFS.Common.NuGetUpgrade
             out OrgNuGetUpgrader upgrader,
             out string error)
         {
-            OrgNuGetUpgraderConfig upgraderConfig = new OrgNuGetUpgraderConfig(tracer, gvfsConfig);
+            OrgNuGetUpgraderConfig upgraderConfig = new OrgNuGetUpgraderConfig(tracer, scalarConfig);
             upgrader = null;
 
             if (!upgraderConfig.TryLoad(out error))
@@ -101,7 +101,7 @@ namespace GVFS.Common.NuGetUpgrade
                 return false;
             }
 
-            string platform = GVFSPlatform.Instance.Name;
+            string platform = ScalarPlatform.Instance.Name;
 
             upgrader = new OrgNuGetUpgrader(
                 ProcessHelper.GetCurrentProcessVersion(),
@@ -189,8 +189,8 @@ namespace GVFS.Common.NuGetUpgrade
 
         public class OrgNuGetUpgraderConfig : NuGetUpgraderConfig
         {
-            public OrgNuGetUpgraderConfig(ITracer tracer, LocalGVFSConfig localGVFSConfig)
-                : base(tracer, localGVFSConfig)
+            public OrgNuGetUpgraderConfig(ITracer tracer, LocalScalarConfig localScalarConfig)
+                : base(tracer, localScalarConfig)
             {
             }
 
@@ -205,7 +205,7 @@ namespace GVFS.Common.NuGetUpgrade
                     return false;
                 }
 
-                if (!this.localConfig.TryGetConfig(GVFSConstants.LocalGVFSConfig.OrgInfoServerUrl, out string orgInfoServerUrl, out error))
+                if (!this.localConfig.TryGetConfig(ScalarConstants.LocalScalarConfig.OrgInfoServerUrl, out string orgInfoServerUrl, out error))
                 {
                     this.tracer.RelatedError(error);
                     return false;
@@ -213,7 +213,7 @@ namespace GVFS.Common.NuGetUpgrade
 
                 this.OrgInfoServer = orgInfoServerUrl;
 
-                if (!this.localConfig.TryGetConfig(GVFSConstants.LocalGVFSConfig.UpgradeRing, out string upgradeRing, out error))
+                if (!this.localConfig.TryGetConfig(ScalarConstants.LocalScalarConfig.UpgradeRing, out string upgradeRing, out error))
                 {
                     this.tracer.RelatedError(error);
                     return false;
@@ -233,7 +233,7 @@ namespace GVFS.Common.NuGetUpgrade
                     error = string.Join(
                         Environment.NewLine,
                         "One or more required settings for OrgNuGetUpgrader are missing.",
-                        "Use `gvfs config [{GVFSConstants.LocalGVFSConfig.UpgradeFeedUrl} | {GVFSConstants.LocalGVFSConfig.UpgradeFeedPackageName} | {GVFSConstants.LocalGVFSConfig.UpgradeRing} | {GVFSConstants.LocalGVFSConfig.OrgInfoServerUrl}] <value>` to set the config.");
+                        "Use `scalar config [{ScalarConstants.LocalScalarConfig.UpgradeFeedUrl} | {ScalarConstants.LocalScalarConfig.UpgradeFeedPackageName} | {ScalarConstants.LocalScalarConfig.UpgradeRing} | {ScalarConstants.LocalScalarConfig.OrgInfoServerUrl}] <value>` to set the config.");
                     return false;
                 }
 

@@ -1,7 +1,7 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
 
-namespace GVFS.Common.X509Certificates
+namespace Scalar.Common.X509Certificates
 {
     public class SystemCertificateStore : IDisposable
     {

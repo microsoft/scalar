@@ -1,4 +1,4 @@
-﻿namespace GVFS.Platform.POSIX
+﻿namespace Scalar.Platform.POSIX
 {
     public partial class POSIXFileSystem
     {

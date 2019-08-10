@@ -1,13 +1,13 @@
 #!/bin/bash
 
-VFSFORDIRECTORY="/usr/local/vfsforgit"
+ScalarFORDIRECTORY="/usr/local/scalar"
 LAUNCHDAEMONDIRECTORY="/Library/LaunchDaemons"
 LAUNCHAGENTDIRECTORY="/Library/LaunchAgents"
-LIBRARYAPPSUPPORTDIRECTORY="/Library/Application Support/VFS For Git"
-SERVICEAGENTLAUNCHDFILENAME="org.vfsforgit.service.plist"
-GVFSCOMMANDPATH="/usr/local/bin/gvfs"
-UNINSTALLERCOMMANDPATH="/usr/local/bin/uninstall_vfsforgit.sh"
-INSTALLERPACKAGEID="com.vfsforgit.pkg"
+LIBRARYAPPSUPPORTDIRECTORY="/Library/Application Support/Scalar"
+SERVICEAGENTLAUNCHDFILENAME="org.scalar.service.plist"
+ScalarCOMMANDPATH="/usr/local/bin/scalar"
+UNINSTALLERCOMMANDPATH="/usr/local/bin/uninstall_scalar.sh"
+INSTALLERPACKAGEID="com.scalar.pkg"
 
 function UnloadKext()
 {
@@ -19,7 +19,7 @@ function UnloadKext()
     fi
 }
 
-function UnInstallVFSForGit()
+function UnInstallScalar()
 {           
     if [ -f "${LAUNCHDAEMONDIRECTORY}/$LOGDAEMONLAUNCHDFILENAME" ]; then
         rmCmd="sudo /bin/rm -Rf ${LAUNCHDAEMONDIRECTORY}/$LOGDAEMONLAUNCHDFILENAME"
@@ -33,8 +33,8 @@ function UnInstallVFSForGit()
     # Then use launchctl bootout gui/uid to unload the Service 
     # for each user.
     declare -a launchAgents=(
-    "org.vfsforgit.usernotification"
-    "org.vfsforgit.service"
+    "org.scalar.usernotification"
+    "org.scalar.service"
     )
     for nextLaunchAgent in "${launchAgents[@]}"; do
     	for uid in $(ps -Ac -o uid,command | grep -iw "loginwindow" | awk '{print $1}'); do
@@ -52,10 +52,10 @@ function UnInstallVFSForGit()
 		eval $rmCmd || { echo "Error: Could not delete ${LAUNCHAGENTDIRECTORY}/$nextLaunchAgent.plist. Delete it manually."; exit 1; }
 	done
         
-    if [ -s "${GVFSCOMMANDPATH}" ]; then
-        rmCmd="sudo /bin/rm -Rf ${GVFSCOMMANDPATH}"
+    if [ -s "${ScalarCOMMANDPATH}" ]; then
+        rmCmd="sudo /bin/rm -Rf ${ScalarCOMMANDPATH}"
         echo "$rmCmd..."
-        eval $rmCmd || { echo "Error: Could not delete ${GVFSCOMMANDPATH}. Delete it manually."; exit 1; }
+        eval $rmCmd || { echo "Error: Could not delete ${ScalarCOMMANDPATH}. Delete it manually."; exit 1; }
     fi
     
     if [ -d "${LIBRARYAPPSUPPORTDIRECTORY}" ]; then
@@ -64,10 +64,10 @@ function UnInstallVFSForGit()
         eval $rmCmd || { echo "Error: Could not delete ${LIBRARYAPPSUPPORTDIRECTORY}. Delete it manually."; exit 1; }
     fi
     
-    if [ -d "${VFSFORDIRECTORY}" ]; then
-        rmCmd="sudo /bin/rm -Rf ${VFSFORDIRECTORY}"
+    if [ -d "${ScalarFORDIRECTORY}" ]; then
+        rmCmd="sudo /bin/rm -Rf ${ScalarFORDIRECTORY}"
         echo "$rmCmd..."
-        eval $rmCmd || { echo "Error: Could not delete ${VFSFORDIRECTORY}. Delete it manually."; exit 1; }
+        eval $rmCmd || { echo "Error: Could not delete ${ScalarFORDIRECTORY}. Delete it manually."; exit 1; }
     fi
 }
 
@@ -83,9 +83,9 @@ function ForgetPackage()
 function Run()
 {
     UnloadKext
-    UnInstallVFSForGit
+    UnInstallScalar
     ForgetPackage
-    echo "Successfully uninstalled VFSForGit"
+    echo "Successfully uninstalled Scalar"
 }
 
 Run

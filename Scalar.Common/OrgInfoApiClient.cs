@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Web;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     /// <summary>
     /// Class that handles communication with a server that contains version information.

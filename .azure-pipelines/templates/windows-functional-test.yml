@@ -8,13 +8,13 @@ steps:
       artifactName: FunctionalTests_$(platformFriendlyName)_$(configuration)
       downloadPath: $(Build.BinariesDirectory)
 
-  - script: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/ReinstallGVFS.bat $(configuration)
-    displayName: Run VFSForGit and G4W installers
+  - script: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/ReinstallScalar.bat $(configuration)
+    displayName: Run Scalar and G4W installers
 
   - script: git config --global credential.interactive never
     displayName: Disable interactive auth
 
-  - script: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/RunFunctionalTests.bat $(configuration) --test-gvfs-on-path
+  - script: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/RunFunctionalTests.bat $(configuration) --test-scalar-on-path
     displayName: Run functional tests
 
   - task: PublishTestResults@2

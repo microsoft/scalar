@@ -1,18 +1,18 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.RepairJobs
+namespace Scalar.RepairJobs
 {
     public abstract class RepairJob
     {
         private const string BackupExtension = ".bak";
         private PhysicalFileSystem fileSystem;
 
-        public RepairJob(ITracer tracer, TextWriter output, GVFSEnlistment enlistment)
+        public RepairJob(ITracer tracer, TextWriter output, ScalarEnlistment enlistment)
         {
             this.Tracer = tracer;
             this.Output = output;
@@ -38,7 +38,7 @@ namespace GVFS.RepairJobs
 
         protected ITracer Tracer { get; }
         protected TextWriter Output { get; }
-        protected GVFSEnlistment Enlistment { get; }
+        protected ScalarEnlistment Enlistment { get; }
 
         public abstract IssueType HasIssue(List<string> messages);
         public abstract FixResult TryFixIssues(List<string> messages);

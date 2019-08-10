@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace GVFS.Common.Tracing
+namespace Scalar.Common.Tracing
 {
     /// <summary>
     ///   An event listener that will print any message that it can nicely format for the console

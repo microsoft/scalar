@@ -1,9 +1,9 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
 using System;
 using System.IO;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public abstract class Enlistment
     {
@@ -24,7 +24,7 @@ namespace GVFS.Common
             this.EnlistmentRoot = enlistmentRoot;
             this.WorkingDirectoryRoot = workingDirectoryRoot;
             this.WorkingDirectoryBackingRoot = workingDirectoryBackingRoot;
-            this.DotGitRoot = Path.Combine(this.WorkingDirectoryBackingRoot, GVFSConstants.DotGit.Root);
+            this.DotGitRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Root);
             this.GitBinPath = gitBinPath;
             this.FlushFileBuffersForPacks = flushFileBuffersForPacks;
 

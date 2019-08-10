@@ -1,4 +1,4 @@
-﻿namespace GVFS.Common.Tracing
+﻿namespace Scalar.Common.Tracing
 {
     public static class TracingConstants
     {

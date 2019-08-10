@@ -1,13 +1,13 @@
-#import "VFSProcessRunner.h"
-#import "VFSNotificationErrors.h"
+#import "ScalarProcessRunner.h"
+#import "ScalarNotificationErrors.h"
 
-@interface VFSProcessRunner()
+@interface ScalarProcessRunner()
 
 @property (strong) ProcessFactory processFactory;
 
 @end
 
-@implementation VFSProcessRunner
+@implementation ScalarProcessRunner
 
 - (instancetype)initWithProcessFactory:(ProcessFactory)processFactory
 {
@@ -67,7 +67,7 @@
             if (error != nil)
             {
                 NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : *output };
-                *error = [NSError errorWithDomain:VFSForGitNotificationErrorDomain
+                *error = [NSError errorWithDomain:ScalarNotificationErrorDomain
                                              code:exitCode
                                          userInfo:userInfo];
             }

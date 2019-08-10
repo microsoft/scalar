@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GVFS.Tests.Should
+namespace Scalar.Tests.Should
 {
     public static class StringExtensions
     {

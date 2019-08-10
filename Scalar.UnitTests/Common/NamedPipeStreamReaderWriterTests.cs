@@ -1,10 +1,10 @@
-﻿using GVFS.Common.NamedPipes;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
+﻿using Scalar.Common.NamedPipes;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
 using NUnit.Framework;
 using System.IO;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class NamedPipeStreamReaderWriterTests

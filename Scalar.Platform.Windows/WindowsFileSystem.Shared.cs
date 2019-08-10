@@ -1,9 +1,9 @@
-﻿using GVFS.Common;
+﻿using Scalar.Common;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 
-namespace GVFS.Platform.Windows
+namespace Scalar.Platform.Windows
 {
     public partial class WindowsFileSystem
     {

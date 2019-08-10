@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public static class ProcessHelper
     {

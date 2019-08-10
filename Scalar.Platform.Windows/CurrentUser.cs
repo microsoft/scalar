@@ -1,11 +1,11 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 
-namespace GVFS.Platform.Windows
+namespace Scalar.Platform.Windows
 {
     public class CurrentUser : IDisposable
     {

@@ -1,4 +1,4 @@
-using GVFS.Common.Tracing;
+using Scalar.Common.Tracing;
 using NuGet.Commands;
 using NuGet.Common;
 using NuGet.Configuration;
@@ -12,7 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GVFS.Common.NuGetUpgrade
+namespace Scalar.Common.NuGetUpgrade
 {
     /// <summary>
     /// Handles interactions with a NuGet Feed.
@@ -183,7 +183,7 @@ namespace GVFS.Common.NuGetUpgrade
 
         /// <summary>
         /// Implementation of logger used by NuGet library. It takes all output
-        /// and redirects it to the GVFS logger.
+        /// and redirects it to the Scalar logger.
         /// </summary>
         private class Logger : ILogger
         {

@@ -1,10 +1,10 @@
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.IO;
 
-namespace GVFS.Platform.Windows
+namespace Scalar.Platform.Windows
 {
     public class WindowsProductUpgraderPlatformStrategy : ProductUpgraderPlatformStrategy
     {
@@ -17,7 +17,7 @@ namespace GVFS.Platform.Windows
         {
             // Under normal circumstances
             // ProductUpgraderInfo.GetLogDirectoryPath will have
-            // already been created by GVFS.Service.  If for some
+            // already been created by Scalar.Service.  If for some
             // reason it does not (e.g. the service failed to start),
             // we need to create
             // ProductUpgraderInfo.GetLogDirectoryPath() explicity to
@@ -30,7 +30,7 @@ namespace GVFS.Platform.Windows
             {
                 error = $"ERROR: Unable to create directory `{ProductUpgraderInfo.GetLogDirectoryPath()}`";
                 error += $"\n{createDirectoryError}";
-                error += $"\n\nTry running {GVFSConstants.UpgradeVerbMessages.GVFSUpgrade} from an elevated command prompt.";
+                error += $"\n\nTry running {ScalarConstants.UpgradeVerbMessages.ScalarUpgrade} from an elevated command prompt.";
                 return false;
             }
 

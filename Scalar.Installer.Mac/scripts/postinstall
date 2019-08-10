@@ -27,8 +27,8 @@ function startOrRestartService()
 # Then use launchctl bootstrap gui/uid to auto load the Service 
 # for each user.
 declare -a launchAgents=(
-    "org.vfsforgit.usernotification"
-    "org.vfsforgit.service"
+    "org.scalar.usernotification"
+    "org.scalar.service"
 )
 for uid in $(ps -Ac -o uid,command | grep -iw "loginwindow" | awk '{print $1}'); do
     for nextLaunchAgent in "${launchAgents[@]}"; do

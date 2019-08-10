@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 
-namespace GVFS.Tests.Should
+namespace Scalar.Tests.Should
 {
     public static class StringShouldExtensions
     {

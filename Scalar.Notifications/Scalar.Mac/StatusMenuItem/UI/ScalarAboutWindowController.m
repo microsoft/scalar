@@ -1,20 +1,20 @@
-#import "VFSAboutWindowController.h"
+#import "ScalarAboutWindowController.h"
 
-@interface VFSAboutWindowController ()
+@interface ScalarAboutWindowController ()
 
-@property (strong) VFSProductInfoFetcher *productInfoFetcher;
+@property (strong) ScalarProductInfoFetcher *productInfoFetcher;
 
 @end
 
-@implementation VFSAboutWindowController
+@implementation ScalarAboutWindowController
 
-- (instancetype)initWithProductInfoFetcher:(VFSProductInfoFetcher *)productInfoFetcher
+- (instancetype)initWithProductInfoFetcher:(ScalarProductInfoFetcher *)productInfoFetcher
 {
     if (productInfoFetcher == nil)
     {
         self = nil;
     }
-    else if (self = [super initWithWindowNibName:@"VFSAboutWindowController"])
+    else if (self = [super initWithWindowNibName:@"ScalarAboutWindowController"])
     {
         _productInfoFetcher = productInfoFetcher;
     }
@@ -22,17 +22,17 @@
     return self;
 }
 
-- (NSString *)vfsforgitVersion
+- (NSString *)scalarVersion
 {
     NSString *version;
     NSError *error;
-    if ([self.productInfoFetcher tryGetVFSForGitVersion:&version error:&error])
+    if ([self.productInfoFetcher tryGetScalarVersion:&version error:&error])
     {
         return version;
     }
     else
     {
-        NSLog(@"Error getting VFS For Git version: %@", [error description]);
+        NSLog(@"Error getting Scalar version: %@", [error description]);
         return @"Not available";
     }
 }

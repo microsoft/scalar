@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace GVFS.Common.Tracing
+namespace Scalar.Common.Tracing
 {
     public class LogFileEventListener : EventListener
     {

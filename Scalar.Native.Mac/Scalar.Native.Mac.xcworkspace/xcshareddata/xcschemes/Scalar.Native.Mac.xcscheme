@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2673FD9120EBDAA900B64B7F"
-               BuildableName = "GVFS.ReadObjectHook"
-               BlueprintName = "GVFS.ReadObjectHook"
-               ReferencedContainer = "container:../GVFS.ReadObjectHook/GVFS.ReadObjectHook.Mac.xcodeproj">
+               BuildableName = "Scalar.ReadObjectHook"
+               BlueprintName = "Scalar.ReadObjectHook"
+               ReferencedContainer = "container:../Scalar.ReadObjectHook/Scalar.ReadObjectHook.Mac.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

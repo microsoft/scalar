@@ -1,27 +1,27 @@
-#import "VFSAboutWindowController.h"
-#import "VFSAppDelegate.h"
-#import "VFSMessageListener.h"
-#import "VFSNotificationDisplay.h"
-#import "VFSForGitNotification.h"
-#import "VFSProductInfoFetcher.h"
-#import "VFSStatusBarItem.h"
-#import "VFSNotificationDisplay.h"
+#import "ScalarAboutWindowController.h"
+#import "ScalarAppDelegate.h"
+#import "ScalarMessageListener.h"
+#import "ScalarNotificationDisplay.h"
+#import "ScalarNotification.h"
+#import "ScalarProductInfoFetcher.h"
+#import "ScalarStatusBarItem.h"
+#import "ScalarNotificationDisplay.h"
 
-@interface VFSAppDelegate ()
+@interface ScalarAppDelegate ()
 
 @property (weak) IBOutlet NSWindow *Window;
-@property (strong) VFSStatusBarItem *StatusDisplay;
-@property (strong) VFSMessageListener *messageListener;
+@property (strong) ScalarStatusBarItem *StatusDisplay;
+@property (strong) ScalarMessageListener *messageListener;
 
 - (void)displayNotification:(NSDictionary *_Nonnull)messageInfo;
 
 @end
 
-@implementation VFSAppDelegate
+@implementation ScalarAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    self.messageListener = [[VFSMessageListener alloc]
+    self.messageListener = [[ScalarMessageListener alloc]
         initWithSocket:NSTemporaryDirectory()
         callback:^(NSDictionary *messageInfo)
         {
@@ -30,15 +30,15 @@
     
     [self.messageListener startListening];
     
-    VFSProductInfoFetcher *productInfoFetcher =
-    [[VFSProductInfoFetcher alloc]
-     initWithProcessRunner:[[VFSProcessRunner alloc] initWithProcessFactory:^NSTask *
+    ScalarProductInfoFetcher *productInfoFetcher =
+    [[ScalarProductInfoFetcher alloc]
+     initWithProcessRunner:[[ScalarProcessRunner alloc] initWithProcessFactory:^NSTask *
                             {
                                 return [[NSTask alloc] init];
                             }]];
     
-    self.StatusDisplay = [[VFSStatusBarItem alloc] initWithAboutWindowController:
-                          [[VFSAboutWindowController alloc]
+    self.StatusDisplay = [[ScalarStatusBarItem alloc] initWithAboutWindowController:
+                          [[ScalarAboutWindowController alloc]
                            initWithProductInfoFetcher:productInfoFetcher]];
     
     [self.StatusDisplay load];
@@ -53,9 +53,9 @@
 {
     NSParameterAssert(messageInfo);
     
-    VFSForGitNotification *notification;
+    ScalarNotification *notification;
     NSError *error;
-    if (![VFSForGitNotification tryValidateMessage:messageInfo
+    if (![ScalarNotification tryValidateMessage:messageInfo
                                  buildNotification:&notification
                                              error:&error])
     {
@@ -63,8 +63,8 @@
         return;
     }
     
-    VFSNotificationDisplay *notificationDisplay =
-    [[VFSNotificationDisplay alloc] initWithTitle:notification.title
+    ScalarNotificationDisplay *notificationDisplay =
+    [[ScalarNotificationDisplay alloc] initWithTitle:notification.title
                                           message:notification.message];
     
     [notificationDisplay display];

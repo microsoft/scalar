@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\GVFS.Build\GVFS.cs.props" />
+  <Import Project="..\Scalar.Build\Scalar.cs.props" />
   
   <PropertyGroup>
-    <AssemblyName>GVFS.Installer.Mac</AssemblyName>
-    <RootNamespace>GVFS.Installer.Mac</RootNamespace>
+    <AssemblyName>Scalar.Installer.Mac</AssemblyName>
+    <RootNamespace>Scalar.Installer.Mac</RootNamespace>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <Platforms>x64</Platforms>
     <RunTimeIdentifiers>osx-x64</RunTimeIdentifiers>
   </PropertyGroup>
     
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
   
   <!-- Reference: https://stackoverflow.com/questions/47179705/net-core-override-default-build-targets -->
@@ -31,7 +31,7 @@
   </Target>
 
   <Target Name="AfterAllPublishing" AfterTargets="Publish">
-    <Message Text="$(ProjectDir)/CreateMacInstaller.sh $(MSBuildProjectDirectory) $(Configuration) $(GVFSVersion) $(OutputPath)" Importance="high"></Message>
-    <Exec Command="$(ProjectDir)/CreateMacInstaller.sh $(MSBuildProjectDirectory) $(Configuration) $(GVFSVersion) $(OutputPath)" />
+    <Message Text="$(ProjectDir)/CreateMacInstaller.sh $(MSBuildProjectDirectory) $(Configuration) $(ScalarVersion) $(OutputPath)" Importance="high"></Message>
+    <Exec Command="$(ProjectDir)/CreateMacInstaller.sh $(MSBuildProjectDirectory) $(Configuration) $(ScalarVersion) $(OutputPath)" />
   </Target>
 </Project>

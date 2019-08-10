@@ -1,11 +1,11 @@
 ﻿using CommandLine;
-using GVFS.Common;
-using GVFS.Common.NamedPipes;
+using Scalar.Common;
+using Scalar.Common.NamedPipes;
 
-namespace GVFS.CommandLine
+namespace Scalar.CommandLine
 {
-    [Verb(UnmountVerb.UnmountVerbName, HelpText = "Unmount a GVFS virtual repo")]
-    public class UnmountVerb : GVFSVerb
+    [Verb(UnmountVerb.UnmountVerbName, HelpText = "Unmount a Scalar virtual repo")]
+    public class UnmountVerb : ScalarVerb
     {
         private const string UnmountVerbName = "unmount";
 
@@ -14,11 +14,11 @@ namespace GVFS.CommandLine
             Required = false,
             Default = "",
             MetaName = "Enlistment Root Path",
-            HelpText = "Full or relative path to the GVFS enlistment root")]
+            HelpText = "Full or relative path to the Scalar enlistment root")]
         public override string EnlistmentRootPathParameter { get; set; }
 
         [Option(
-            GVFSConstants.VerbParameters.Unmount.SkipLock,
+            ScalarConstants.VerbParameters.Unmount.SkipLock,
             Default = false,
             Required = false,
             HelpText = "Force unmount even if the lock is not available.")]
@@ -37,10 +37,10 @@ namespace GVFS.CommandLine
 
             string errorMessage;
             string root;
-            if (!GVFSPlatform.Instance.TryGetGVFSEnlistmentRoot(this.EnlistmentRootPathParameter, out root, out errorMessage))
+            if (!ScalarPlatform.Instance.TryGetScalarEnlistmentRoot(this.EnlistmentRootPathParameter, out root, out errorMessage))
             {
                 this.ReportErrorAndExit(
-                   "Error: '{0}' is not a valid GVFS enlistment",
+                   "Error: '{0}' is not a valid Scalar enlistment",
                    this.EnlistmentRootPathParameter);
             }
 
@@ -51,7 +51,7 @@ namespace GVFS.CommandLine
                 this.ReportErrorAndExit(errorMessage);
             }
 
-            if (!this.Unattended && !this.SkipUnregister && GVFSPlatform.Instance.UnderConstruction.SupportsGVFSService)
+            if (!this.Unattended && !this.SkipUnregister && ScalarPlatform.Instance.UnderConstruction.SupportsScalarService)
             {
                 if (!this.ShowStatusWhileRunning(
                     () => { return this.UnregisterRepo(root, out errorMessage); },
@@ -66,7 +66,7 @@ namespace GVFS.CommandLine
         {
             errorMessage = string.Empty;
 
-            string pipeName = GVFSPlatform.Instance.GetNamedPipeName(enlistmentRoot);
+            string pipeName = ScalarPlatform.Instance.GetNamedPipeName(enlistmentRoot);
             string rawGetStatusResponse = string.Empty;
 
             try
@@ -75,7 +75,7 @@ namespace GVFS.CommandLine
                 {
                     if (!pipeClient.Connect())
                     {
-                        errorMessage = "Unable to connect to GVFS.Mount";
+                        errorMessage = "Unable to connect to Scalar.Mount";
                         return false;
                     }
 
@@ -139,7 +139,7 @@ namespace GVFS.CommandLine
             }
             catch (BrokenPipeException e)
             {
-                errorMessage = "Unable to communicate with GVFS: " + e.ToString();
+                errorMessage = "Unable to communicate with Scalar: " + e.ToString();
                 return false;
             }
         }
@@ -154,7 +154,7 @@ namespace GVFS.CommandLine
             {
                 if (!client.Connect())
                 {
-                    errorMessage = "Unable to unregister repo because GVFS.Service is not responding. " + GVFSVerb.StartServiceInstructions;
+                    errorMessage = "Unable to unregister repo because Scalar.Service is not responding. " + ScalarVerb.StartServiceInstructions;
                     return false;
                 }
 
@@ -179,13 +179,13 @@ namespace GVFS.CommandLine
                     }
                     else
                     {
-                        errorMessage = string.Format("GVFS.Service responded with unexpected message: {0}", response);
+                        errorMessage = string.Format("Scalar.Service responded with unexpected message: {0}", response);
                         return false;
                     }
                 }
                 catch (BrokenPipeException e)
                 {
-                    errorMessage = "Unable to communicate with GVFS.Service: " + e.ToString();
+                    errorMessage = "Unable to communicate with Scalar.Service: " + e.ToString();
                     return false;
                 }
             }

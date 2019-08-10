@@ -1,7 +1,7 @@
-﻿using GVFS.Tests.Should;
+﻿using Scalar.Tests.Should;
 using System.IO;
 
-namespace GVFS.FunctionalTests.FileSystemRunners
+namespace Scalar.FunctionalTests.FileSystemRunners
 {
     public class PowerShellRunner : ShellRunner
     {

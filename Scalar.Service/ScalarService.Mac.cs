@@ -1,17 +1,17 @@
-using GVFS.Common;
-using GVFS.Common.NamedPipes;
-using GVFS.Common.Tracing;
-using GVFS.Service.Handlers;
+using Scalar.Common;
+using Scalar.Common.NamedPipes;
+using Scalar.Common.Tracing;
+using Scalar.Service.Handlers;
 using System;
 using System.Threading;
 
-namespace GVFS.Service
+namespace Scalar.Service
 {
-    public class GVFSService
+    public class ScalarService
     {
         public const string ServiceNameArgPrefix = "--servicename=";
 
-        private const string EtwArea = nameof(GVFSService);
+        private const string EtwArea = nameof(ScalarService);
 
         private ITracer tracer;
         private Thread serviceThread;
@@ -20,7 +20,7 @@ namespace GVFS.Service
         private IRepoRegistry repoRegistry;
         private RequestHandler requestHandler;
 
-        public GVFSService(
+        public ScalarService(
             ITracer tracer,
             string serviceName,
             IRepoRegistry repoRegistry)
@@ -42,7 +42,7 @@ namespace GVFS.Service
 
                 if (!string.IsNullOrEmpty(this.serviceName))
                 {
-                    string pipeName = GVFSPlatform.Instance.GetGVFSServiceNamedPipeName(this.serviceName);
+                    string pipeName = ScalarPlatform.Instance.GetScalarServiceNamedPipeName(this.serviceName);
                     this.tracer.RelatedInfo("Starting pipe server with name: " + pipeName);
 
                     using (NamedPipeServer pipeServer = NamedPipeServer.StartNewServer(
@@ -71,7 +71,7 @@ namespace GVFS.Service
             {
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add("Version", ProcessHelper.GetCurrentProcessVersion());
-                this.tracer.RelatedEvent(EventLevel.Informational, $"{nameof(GVFSService)}_{nameof(this.ServiceThreadMain)}", metadata);
+                this.tracer.RelatedEvent(EventLevel.Informational, $"{nameof(ScalarService)}_{nameof(this.ServiceThreadMain)}", metadata);
 
                 this.serviceStopped.WaitOne();
                 this.serviceStopped.Dispose();
@@ -84,7 +84,7 @@ namespace GVFS.Service
 
         private void AutoMountReposForUser()
         {
-            string currentUser = GVFSPlatform.Instance.GetCurrentUser();
+            string currentUser = ScalarPlatform.Instance.GetCurrentUser();
             if (int.TryParse(currentUser, out int sessionId))
             {
                 // On Mac, there is no separate session Id. currentUser is used as sessionId

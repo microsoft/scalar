@@ -1,7 +1,7 @@
-﻿using GVFS.DiskLayoutUpgrades;
+﻿using Scalar.DiskLayoutUpgrades;
 using System;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public interface IDiskLayoutUpgradeData
     {

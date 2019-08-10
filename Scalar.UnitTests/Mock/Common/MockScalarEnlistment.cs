@@ -1,15 +1,15 @@
-﻿using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.UnitTests.Mock.Git;
+﻿using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.UnitTests.Mock.Git;
 using System.IO;
 
-namespace GVFS.UnitTests.Mock.Common
+namespace Scalar.UnitTests.Mock.Common
 {
-    public class MockGVFSEnlistment : GVFSEnlistment
+    public class MockScalarEnlistment : ScalarEnlistment
     {
         private MockGitProcess gitProcess;
 
-        public MockGVFSEnlistment()
+        public MockScalarEnlistment()
             : base(Path.Combine("mock:", "path"), "mock://repoUrl", Path.Combine("mock:", "git"), authentication: null)
         {
             this.GitObjectsRoot = Path.Combine("mock:", "path", ".git", "objects");
@@ -17,13 +17,13 @@ namespace GVFS.UnitTests.Mock.Common
             this.GitPackRoot = Path.Combine("mock:", "path", ".git", "objects", "pack");
         }
 
-        public MockGVFSEnlistment(string enlistmentRoot, string repoUrl, string gitBinPath, MockGitProcess gitProcess)
+        public MockScalarEnlistment(string enlistmentRoot, string repoUrl, string gitBinPath, MockGitProcess gitProcess)
             : base(enlistmentRoot, repoUrl, gitBinPath, authentication: null)
         {
             this.gitProcess = gitProcess;
         }
 
-        public MockGVFSEnlistment(MockGitProcess gitProcess)
+        public MockScalarEnlistment(MockGitProcess gitProcess)
             : this()
         {
             this.gitProcess = gitProcess;

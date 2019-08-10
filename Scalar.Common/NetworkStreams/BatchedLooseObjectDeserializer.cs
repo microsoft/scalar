@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace GVFS.Common.NetworkStreams
+namespace Scalar.Common.NetworkStreams
 {
     /// <summary>
     /// Deserializer for concatenated loose objects.
@@ -61,7 +61,7 @@ namespace GVFS.Common.NetworkStreams
                 {
                     string objectId = SHA1Util.HexStringFromBytes(curObjectHeader, NumObjectIdBytes);
 
-                    if (objectId.Equals(GVFSConstants.AllZeroSha))
+                    if (objectId.Equals(ScalarConstants.AllZeroSha))
                     {
                         throw new RetryableException("Received all-zero SHA before end of stream");
                     }

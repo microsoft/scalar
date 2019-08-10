@@ -1,25 +1,25 @@
-﻿using GVFS.Common.Tracing;
+﻿using Scalar.Common.Tracing;
 using System;
 using System.Security;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
-    public partial class GVFSEnlistment
+    public partial class ScalarEnlistment
     {
         public static bool IsUnattended(ITracer tracer)
         {
             try
             {
-                return Environment.GetEnvironmentVariable(GVFSConstants.UnattendedEnvironmentVariable) == "1";
+                return Environment.GetEnvironmentVariable(ScalarConstants.UnattendedEnvironmentVariable) == "1";
             }
             catch (SecurityException e)
             {
                 if (tracer != null)
                 {
                     EventMetadata metadata = new EventMetadata();
-                    metadata.Add("Area", nameof(GVFSEnlistment));
+                    metadata.Add("Area", nameof(ScalarEnlistment));
                     metadata.Add("Exception", e.ToString());
-                    tracer.RelatedError(metadata, "Unable to read environment variable " + GVFSConstants.UnattendedEnvironmentVariable);
+                    tracer.RelatedError(metadata, "Unable to read environment variable " + ScalarConstants.UnattendedEnvironmentVariable);
                 }
 
                 return false;

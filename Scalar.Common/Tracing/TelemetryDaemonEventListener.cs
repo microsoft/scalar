@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO.Pipes;
-using GVFS.Common.Git;
+using Scalar.Common.Git;
 using Newtonsoft.Json;
 
-namespace GVFS.Common.Tracing
+namespace Scalar.Common.Tracing
 {
     public class TelemetryDaemonEventListener : EventListener, IQueuedPipeStringWriterEventSink
     {
@@ -38,7 +38,7 @@ namespace GVFS.Common.Tracing
         public static TelemetryDaemonEventListener CreateIfEnabled(string gitBinRoot, string providerName, string enlistmentId, string mountId, IEventListenerEventSink eventSink)
         {
             // This listener is disabled unless the user specifies the proper git config setting.
-            string telemetryPipe = GetConfigValue(gitBinRoot, GVFSConstants.GitConfig.GVFSTelemetryPipe);
+            string telemetryPipe = GetConfigValue(gitBinRoot, ScalarConstants.GitConfig.ScalarTelemetryPipe);
             if (!string.IsNullOrEmpty(telemetryPipe))
             {
                 return new TelemetryDaemonEventListener(providerName, enlistmentId, mountId, telemetryPipe, eventSink);

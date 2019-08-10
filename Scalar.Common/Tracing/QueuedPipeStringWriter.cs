@@ -5,7 +5,7 @@ using System.IO.Pipes;
 using System.Text;
 using System.Threading;
 
-namespace GVFS.Common.Tracing
+namespace Scalar.Common.Tracing
 {
     public enum QueuedPipeStringWriterState
     {

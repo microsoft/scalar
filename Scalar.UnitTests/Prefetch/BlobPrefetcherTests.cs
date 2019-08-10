@@ -1,10 +1,10 @@
-﻿using GVFS.Common.Prefetch;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.FileSystem;
+﻿using Scalar.Common.Prefetch;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.FileSystem;
 using NUnit.Framework;
 using System.IO;
 
-namespace GVFS.UnitTests.Prefetch
+namespace Scalar.UnitTests.Prefetch
 {
     [TestFixture]
     public class BlobPrefetcherTests
@@ -12,10 +12,10 @@ namespace GVFS.UnitTests.Prefetch
         [TestCase]
         public void AppendToNewlineSeparatedFileTests()
         {
-            MockFileSystem fileSystem = new MockFileSystem(new MockDirectory(Path.Combine("mock:", "GVFS", "UnitTests", "Repo"), null, null));
+            MockFileSystem fileSystem = new MockFileSystem(new MockDirectory(Path.Combine("mock:", "Scalar", "UnitTests", "Repo"), null, null));
 
             // Validate can write to a file that doesn't exist.
-            string testFileName = Path.Combine("mock:", "GVFS", "UnitTests", "Repo", "appendTests");
+            string testFileName = Path.Combine("mock:", "Scalar", "UnitTests", "Repo", "appendTests");
             BlobPrefetcher.AppendToNewlineSeparatedFile(fileSystem, testFileName, "expected content line 1");
             fileSystem.ReadAllText(testFileName).ShouldEqual("expected content line 1\n");
 

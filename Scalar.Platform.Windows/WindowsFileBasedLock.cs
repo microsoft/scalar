@@ -1,12 +1,12 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
 
-namespace GVFS.Platform.Windows
+namespace Scalar.Platform.Windows
 {
     public class WindowsFileBasedLock : FileBasedLock
     {
@@ -25,8 +25,8 @@ namespace GVFS.Platform.Windows
         /// <param name="lockPath">Path to lock file</param>
         /// <param name="signature">Text to write in lock file</param>
         /// <remarks>
-        /// GVFS keeps an exclusive write handle open to lock files that it creates with FileBasedLock.  This means that
-        /// FileBasedLock still ensures exclusivity when the lock file is used only for coordination between multiple GVFS processes.
+        /// Scalar keeps an exclusive write handle open to lock files that it creates with FileBasedLock.  This means that
+        /// FileBasedLock still ensures exclusivity when the lock file is used only for coordination between multiple Scalar processes.
         /// </remarks>
         public WindowsFileBasedLock(
             PhysicalFileSystem fileSystem,
@@ -63,7 +63,7 @@ namespace GVFS.Platform.Windows
             catch (IOException e)
             {
                 // HResultErrorFileExists is expected when the lock file exists
-                // HResultErrorSharingViolation is expected when the lock file exists andanother GVFS process has acquired the lock file
+                // HResultErrorSharingViolation is expected when the lock file exists andanother Scalar process has acquired the lock file
                 if (e.HResult != HResultErrorFileExists && e.HResult != HResultErrorSharingViolation)
                 {
                     EventMetadata metadata = this.CreateLockMetadata(e);

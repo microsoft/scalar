@@ -1,15 +1,15 @@
 #import <Foundation/Foundation.h>
-#import "VFSMockAboutWindowController.h"
+#import "ScalarMockAboutWindowController.h"
 
-@interface VFSMockAboutWindowController()
+@interface ScalarMockAboutWindowController()
 
 @property (readwrite) BOOL aboutBoxDisplayed;
 
 @end
 
-@implementation VFSMockAboutWindowController
+@implementation ScalarMockAboutWindowController
 
-- (instancetype) initWithProductInfo:(VFSProductInfoFetcher *) productInfo
+- (instancetype) initWithProductInfo:(ScalarProductInfoFetcher *) productInfo
 {
     self = [super initWithProductInfoFetcher:productInfo];
     return self;

@@ -1,14 +1,14 @@
-﻿using GVFS.Common;
-using GVFS.Platform.Windows;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
+﻿using Scalar.Common;
+using Scalar.Platform.Windows;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
 using NUnit.Framework;
 using System;
 using System.IO;
 
-namespace GVFS.UnitTests.Windows
+namespace Scalar.UnitTests.Windows
 {
     [TestFixture]
     public class WindowsFileBasedLockTests

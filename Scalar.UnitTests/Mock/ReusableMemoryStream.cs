@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace GVFS.UnitTests.Mock
+namespace Scalar.UnitTests.Mock
 {
     public class ReusableMemoryStream : Stream
     {

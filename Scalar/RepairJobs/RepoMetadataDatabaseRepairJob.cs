@@ -1,13 +1,13 @@
-﻿using GVFS.Common;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common;
+using Scalar.Common.Tracing;
 using System.Collections.Generic;
 using System.IO;
 
-namespace GVFS.RepairJobs
+namespace Scalar.RepairJobs
 {
     public class RepoMetadataDatabaseRepairJob : RepairJob
     {
-        public RepoMetadataDatabaseRepairJob(ITracer tracer, TextWriter output, GVFSEnlistment enlistment)
+        public RepoMetadataDatabaseRepairJob(ITracer tracer, TextWriter output, ScalarEnlistment enlistment)
             : base(tracer, output, enlistment)
         {
         }
@@ -22,7 +22,7 @@ namespace GVFS.RepairJobs
             string error;
             try
             {
-                if (!RepoMetadata.TryInitialize(this.Tracer, this.Enlistment.DotGVFSRoot, out error))
+                if (!RepoMetadata.TryInitialize(this.Tracer, this.Enlistment.DotScalarRoot, out error))
                 {
                     messages.Add("Could not open repo metadata: " + error);
                     return IssueType.CantFix;

@@ -1,7 +1,7 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
-using GVFS.Platform.POSIX;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
+using Scalar.Platform.POSIX;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,30 +9,30 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace GVFS.Platform.Mac
+namespace Scalar.Platform.Mac
 {
     public partial class MacPlatform : POSIXPlatform
     {
-        private const string UpgradeProtectedDataDirectory = "/usr/local/vfsforgit_upgrader";
+        private const string UpgradeProtectedDataDirectory = "/usr/local/scalar_upgrader";
 
         public MacPlatform() : base(
              underConstruction: new UnderConstructionFlags(
-                supportsGVFSUpgrade: true,
-                supportsGVFSConfig: true,
+                supportsScalarUpgrade: true,
+                supportsScalarConfig: true,
                 supportsNuGetEncryption: false))
         {
         }
 
         public override IDiskLayoutUpgradeData DiskLayoutUpgrade { get; } = new MacDiskLayoutUpgradeData();
         public override string Name { get => "macOS"; }
-        public override GVFSPlatformConstants Constants { get; } = new MacPlatformConstants();
+        public override ScalarPlatformConstants Constants { get; } = new MacPlatformConstants();
         public override IPlatformFileSystem FileSystem { get; } = new MacFileSystem();
 
-        public override string GVFSConfigPath
+        public override string ScalarConfigPath
         {
             get
             {
-                return Path.Combine(this.Constants.GVFSBinDirectoryPath, LocalGVFSConfig.FileName);
+                return Path.Combine(this.Constants.ScalarBinDirectoryPath, LocalScalarConfig.FileName);
             }
         }
 
@@ -42,19 +42,19 @@ namespace GVFS.Platform.Mac
             return string.IsNullOrWhiteSpace(result.Output) ? result.Errors : result.Output;
         }
 
-        public override string GetDataRootForGVFS()
+        public override string GetDataRootForScalar()
         {
-            return MacPlatform.GetDataRootForGVFSImplementation();
+            return MacPlatform.GetDataRootForScalarImplementation();
         }
 
-        public override string GetDataRootForGVFSComponent(string componentName)
+        public override string GetDataRootForScalarComponent(string componentName)
         {
-            return MacPlatform.GetDataRootForGVFSComponentImplementation(componentName);
+            return MacPlatform.GetDataRootForScalarComponentImplementation(componentName);
         }
 
-        public override bool TryGetGVFSEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage)
+        public override bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage)
         {
-            return MacPlatform.TryGetGVFSEnlistmentRootImplementation(directory, out enlistmentRoot, out errorMessage);
+            return MacPlatform.TryGetScalarEnlistmentRootImplementation(directory, out enlistmentRoot, out errorMessage);
         }
 
         public override string GetNamedPipeName(string enlistmentRoot)
@@ -134,9 +134,9 @@ namespace GVFS.Platform.Mac
                 running = false;
             }
 
-            MacDaemonController.DaemonInfo gvfsService = daemons.FirstOrDefault(sc => string.Equals(sc.Name, "org.vfsforgit.service"));
-            installed = gvfsService != null;
-            running = installed && gvfsService.IsRunning;
+            MacDaemonController.DaemonInfo scalarService = daemons.FirstOrDefault(sc => string.Equals(sc.Name, "org.scalar.service"));
+            installed = scalarService != null;
+            running = installed && scalarService.IsRunning;
         }
 
         public class MacPlatformConstants : POSIXPlatformConstants
@@ -148,22 +148,22 @@ namespace GVFS.Platform.Mac
 
             public override string WorkingDirectoryBackingRootPath
             {
-                get { return GVFSConstants.WorkingDirectoryRootName; }
+                get { return ScalarConstants.WorkingDirectoryRootName; }
             }
 
-            public override string DotGVFSRoot
+            public override string DotScalarRoot
             {
-                get { return MacPlatform.DotGVFSRoot; }
+                get { return MacPlatform.DotScalarRoot; }
             }
 
-            public override string GVFSBinDirectoryPath
+            public override string ScalarBinDirectoryPath
             {
-                get { return Path.Combine("/usr", "local", this.GVFSBinDirectoryName); }
+                get { return Path.Combine("/usr", "local", this.ScalarBinDirectoryName); }
             }
 
-            public override string GVFSBinDirectoryName
+            public override string ScalarBinDirectoryName
             {
-                get { return "vfsforgit"; }
+                get { return "scalar"; }
             }
 
             // Documented here (in the addressing section): https://www.unix.com/man-page/mojave/4/unix/

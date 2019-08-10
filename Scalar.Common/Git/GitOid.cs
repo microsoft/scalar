@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace GVFS.Common.Git
+namespace Scalar.Common.Git
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct GitOid

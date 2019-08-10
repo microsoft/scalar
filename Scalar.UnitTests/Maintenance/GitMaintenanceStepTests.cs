@@ -1,19 +1,19 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Maintenance;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Maintenance;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Maintenance
+namespace Scalar.UnitTests.Maintenance
 {
     [TestFixture]
     public class GitMaintenanceStepTests
     {
-        private GVFSContext context;
+        private ScalarContext context;
 
         public enum WhenToStop
         {
@@ -79,17 +79,17 @@ namespace GVFS.UnitTests.Maintenance
         private void TestSetup()
         {
             ITracer tracer = new MockTracer();
-            GVFSEnlistment enlistment = new MockGVFSEnlistment();
+            ScalarEnlistment enlistment = new MockScalarEnlistment();
             PhysicalFileSystem fileSystem = new MockFileSystem(new MockDirectory(enlistment.EnlistmentRoot, null, null));
 
-            this.context = new GVFSContext(tracer, fileSystem, null, enlistment);
+            this.context = new ScalarContext(tracer, fileSystem, null, enlistment);
         }
 
         public class CheckMethodStep : GitMaintenanceStep
         {
             private WhenToStop when;
 
-            public CheckMethodStep(GVFSContext context, WhenToStop when)
+            public CheckMethodStep(ScalarContext context, WhenToStop when)
                 : base(context, requireObjectCacheLock: true)
             {
                 this.when = when;

@@ -1,12 +1,12 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.Common.Maintenance
+namespace Scalar.Common.Maintenance
 {
     // Performs LooseObject Maintenace
     // 1. Removes loose objects that appear in packfiles
@@ -17,7 +17,7 @@ namespace GVFS.Common.Maintenance
         private readonly bool forceRun;
 
         public LooseObjectsStep(
-            GVFSContext context,
+            ScalarContext context,
             bool requireCacheLock = true,
             bool forceRun = false,
             GitProcessChecker gitProcessChecker = null)
@@ -161,7 +161,7 @@ namespace GVFS.Common.Maintenance
             return Path.Combine(
                             this.Context.Enlistment.GitObjectsRoot,
                             objectId.Substring(0, 2),
-                            objectId.Substring(2, GVFSConstants.ShaStringLength - 2));
+                            objectId.Substring(2, ScalarConstants.ShaStringLength - 2));
         }
 
         public void ClearCorruptLooseObjects(EventMetadata metadata)

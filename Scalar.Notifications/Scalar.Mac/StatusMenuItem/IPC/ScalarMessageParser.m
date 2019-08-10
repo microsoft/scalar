@@ -1,9 +1,9 @@
-#import "VFSMessageParser.h"
-#import "VFSNotificationErrors.h"
+#import "ScalarMessageParser.h"
+#import "ScalarNotificationErrors.h"
 
 NSString * const NotificationPrefix = @"Notification|";
 
-@implementation VFSMessageParser
+@implementation ScalarMessageParser
 
 + (BOOL)tryParseData:(NSData *)data
              message:(NSDictionary *__autoreleasing *)parsedMessage
@@ -19,8 +19,8 @@ NSString * const NotificationPrefix = @"Notification|";
         {
             NSString *info = [NSString stringWithFormat:@"%@: ERROR: error reading data.",
                               NSStringFromSelector(_cmd)];
-            *error = [NSError errorWithDomain:VFSForGitNotificationErrorDomain
-                                         code:VFSForGitMessageReadError
+            *error = [NSError errorWithDomain:ScalarNotificationErrorDomain
+                                         code:ScalarMessageReadError
                                      userInfo:@{ NSLocalizedDescriptionKey : info }];
         }
         *parsedMessage = nil;
@@ -46,8 +46,8 @@ NSString * const NotificationPrefix = @"Notification|";
             {
                 NSString *info = [NSString stringWithFormat:@"%@: ERROR: Unknown parse error.",
                                   NSStringFromSelector(_cmd)];
-                *error = [NSError errorWithDomain:VFSForGitNotificationErrorDomain
-                                             code:VFSForGitMessageParseError
+                *error = [NSError errorWithDomain:ScalarNotificationErrorDomain
+                                             code:ScalarMessageParseError
                                          userInfo:@{ NSLocalizedDescriptionKey : info }];
             }
             else

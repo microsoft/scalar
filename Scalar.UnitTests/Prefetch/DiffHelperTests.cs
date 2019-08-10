@@ -1,16 +1,16 @@
-﻿using GVFS.Common.Git;
-using GVFS.Common.Prefetch.Git;
-using GVFS.Tests;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.Git;
+﻿using Scalar.Common.Git;
+using Scalar.Common.Prefetch.Git;
+using Scalar.Tests;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.Git;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace GVFS.UnitTests.Prefetch
+namespace Scalar.UnitTests.Prefetch
 {
     [TestFixtureSource(typeof(DataSources), nameof(DataSources.AllBools))]
     public class DiffHelperTests
@@ -53,7 +53,7 @@ namespace GVFS.UnitTests.Prefetch
         public void CanParseDiffForwards()
         {
             MockTracer tracer = new MockTracer();
-            DiffHelper diffForwards = new DiffHelper(tracer, new MockGVFSEnlistment(), new List<string>(), new List<string>(), includeSymLinks: this.IncludeSymLinks);
+            DiffHelper diffForwards = new DiffHelper(tracer, new MockScalarEnlistment(), new List<string>(), new List<string>(), includeSymLinks: this.IncludeSymLinks);
             diffForwards.ParseDiffFile(GetDataPath("forward.txt"));
 
             // File added, file edited, file renamed, folder => file, edit-rename file, SymLink added (if applicable)
@@ -81,7 +81,7 @@ namespace GVFS.UnitTests.Prefetch
         public void CanParseBackwardsDiff()
         {
             MockTracer tracer = new MockTracer();
-            DiffHelper diffBackwards = new DiffHelper(tracer, new Mock.Common.MockGVFSEnlistment(), new List<string>(), new List<string>(), includeSymLinks: this.IncludeSymLinks);
+            DiffHelper diffBackwards = new DiffHelper(tracer, new Mock.Common.MockScalarEnlistment(), new List<string>(), new List<string>(), includeSymLinks: this.IncludeSymLinks);
             diffBackwards.ParseDiffFile(GetDataPath("backward.txt"));
 
             // File > folder, deleted file, edited file, renamed file, rename-edit file
@@ -105,7 +105,7 @@ namespace GVFS.UnitTests.Prefetch
         public void ParsesCaseChangesAsAdds()
         {
             MockTracer tracer = new MockTracer();
-            DiffHelper diffBackwards = new DiffHelper(tracer, new Mock.Common.MockGVFSEnlistment(), new List<string>(), new List<string>(), includeSymLinks: this.IncludeSymLinks);
+            DiffHelper diffBackwards = new DiffHelper(tracer, new Mock.Common.MockScalarEnlistment(), new List<string>(), new List<string>(), includeSymLinks: this.IncludeSymLinks);
             diffBackwards.ParseDiffFile(GetDataPath("caseChange.txt"));
 
             diffBackwards.RequiredBlobs.Count.ShouldEqual(2);
@@ -125,7 +125,7 @@ namespace GVFS.UnitTests.Prefetch
             MockGitProcess gitProcess = new MockGitProcess();
             gitProcess.SetExpectedCommandResult("diff-tree -r -t sha1 sha2", () => new GitProcess.Result(string.Empty, string.Empty, 1));
 
-            DiffHelper diffBackwards = new DiffHelper(tracer, new Mock.Common.MockGVFSEnlistment(), gitProcess, new List<string>(), new List<string>(), includeSymLinks: this.IncludeSymLinks);
+            DiffHelper diffBackwards = new DiffHelper(tracer, new Mock.Common.MockScalarEnlistment(), gitProcess, new List<string>(), new List<string>(), includeSymLinks: this.IncludeSymLinks);
             diffBackwards.PerformDiff("sha1", "sha2");
             diffBackwards.HasFailures.ShouldEqual(true);
         }
@@ -137,7 +137,7 @@ namespace GVFS.UnitTests.Prefetch
             MockGitProcess gitProcess = new MockGitProcess();
             gitProcess.SetExpectedCommandResult("ls-tree -r -t sha1", () => new GitProcess.Result(string.Empty, string.Empty, 1));
 
-            DiffHelper diffBackwards = new DiffHelper(tracer, new Mock.Common.MockGVFSEnlistment(), gitProcess, new List<string>(), new List<string>(), includeSymLinks: this.IncludeSymLinks);
+            DiffHelper diffBackwards = new DiffHelper(tracer, new Mock.Common.MockScalarEnlistment(), gitProcess, new List<string>(), new List<string>(), includeSymLinks: this.IncludeSymLinks);
             diffBackwards.PerformDiff(null, "sha1");
             diffBackwards.HasFailures.ShouldEqual(true);
         }

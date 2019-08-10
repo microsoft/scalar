@@ -1,4 +1,4 @@
-﻿namespace GVFS.Common
+﻿namespace Scalar.Common
 {
     public class DiskLayoutVersion
     {
@@ -10,15 +10,15 @@
         }
 
         // The major version should be bumped whenever there is an on-disk format change that requires a one-way upgrade.
-        // Increasing this version will make older versions of GVFS unable to mount a repo that has been mounted by a newer
-        // version of GVFS.
+        // Increasing this version will make older versions of Scalar unable to mount a repo that has been mounted by a newer
+        // version of Scalar.
         public int CurrentMajorVersion { get; }
 
-        // The minor version should be bumped whenever there is an upgrade that can be safely ignored by older versions of GVFS.
+        // The minor version should be bumped whenever there is an upgrade that can be safely ignored by older versions of Scalar.
         // For example, this allows an upgrade step that sets a default value for some new config setting.
         public int CurrentMinorVersion { get; }
 
-        // This is the last time GVFS made a breaking change that required a reclone. This should not
+        // This is the last time Scalar made a breaking change that required a reclone. This should not
         // be incremented on platforms that have released a v1.0 as all their format changes should be
         // supported with an upgrade step.
         public int MinimumSupportedMajorVersion { get; }

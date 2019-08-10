@@ -1,12 +1,12 @@
 #import <Foundation/Foundation.h>
-#import "VFSProductInfoFetcher.h"
+#import "ScalarProductInfoFetcher.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface VFSMockProductInfoFetcher : VFSProductInfoFetcher
+@interface ScalarMockProductInfoFetcher : ScalarProductInfoFetcher
 
 - (instancetype _Nullable) initWithGitVersion:(NSString *) gitVersion
-                             vfsforgitVersion:(NSString *) vfsforgitVersion;
+                             scalarVersion:(NSString *) scalarVersion;
 
 @end
 

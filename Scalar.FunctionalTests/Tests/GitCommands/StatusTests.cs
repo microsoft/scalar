@@ -1,14 +1,14 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Properties;
-using GVFS.FunctionalTests.Should;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Properties;
+using Scalar.FunctionalTests.Should;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System;
 using System.IO;
 using System.Threading;
 
-namespace GVFS.FunctionalTests.Tests.GitCommands
+namespace Scalar.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]
@@ -161,7 +161,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
         {
             this.WaitForUpToDateStatusCache();
 
-            string statusCachePath = Path.Combine(this.Enlistment.DotGVFSRoot, "GitStatusCache", "GitStatusCache.dat");
+            string statusCachePath = Path.Combine(this.Enlistment.DotScalarRoot, "GitStatusCache", "GitStatusCache.dat");
             File.Delete(statusCachePath);
 
             // Create a new file with an extension that will be ignored later in the test.
@@ -187,7 +187,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
 
         private void WaitForStatusCacheToBeGenerated(bool waitForNewFile = true)
         {
-            string statusCachePath = Path.Combine(this.Enlistment.DotGVFSRoot, "GitStatusCache", "GitStatusCache.dat");
+            string statusCachePath = Path.Combine(this.Enlistment.DotScalarRoot, "GitStatusCache", "GitStatusCache.dat");
 
             if (waitForNewFile)
             {
@@ -213,7 +213,7 @@ namespace GVFS.FunctionalTests.Tests.GitCommands
         private void ValidGitStatusWithRetry(string srcPath)
         {
             this.Enlistment.WaitForBackgroundOperations();
-            GVFSHelpers.ModifiedPathsShouldContain(this.Enlistment, this.FileSystem, srcPath);
+            ScalarHelpers.ModifiedPathsShouldContain(this.Enlistment, this.FileSystem, srcPath);
             try
             {
                 this.ValidateGitCommand("status");

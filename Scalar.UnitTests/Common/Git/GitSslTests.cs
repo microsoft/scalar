@@ -1,12 +1,12 @@
 #if NETCOREAPP2_1
-using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Common.X509Certificates;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
-using GVFS.UnitTests.Mock.Git;
+using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Common.X509Certificates;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
+using Scalar.UnitTests.Mock.Git;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -15,7 +15,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
-namespace GVFS.UnitTests.Common.Git
+namespace Scalar.UnitTests.Common.Git
 {
     [TestFixture]
     public class GitSslTests

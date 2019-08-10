@@ -1,11 +1,11 @@
-﻿using GVFS.Common.Git;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Category;
+﻿using Scalar.Common.Git;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Category;
 using NUnit.Framework;
 using System;
 using System.IO;
 
-namespace GVFS.UnitTests.Prefetch
+namespace Scalar.UnitTests.Prefetch
 {
     [TestFixture]
     public class DiffTreeResultTests
@@ -14,7 +14,7 @@ namespace GVFS.UnitTests.Prefetch
         private const string Test2Sha1 = "2052fbe2ce5b081db3e3b9ffdebe9b0258d14cce";
         private const string EmptySha1 = "0000000000000000000000000000000000000000";
 
-        private const string TestTreePath1 = "Test/GVFS";
+        private const string TestTreePath1 = "Test/Scalar";
         private const string TestTreePath2 = "Test/directory with blob and spaces";
         private const string TestBlobPath1 = "Test/file with spaces.txt";
         private const string TestBlobPath2 = "Test/file with tree and spaces.txt";
@@ -341,11 +341,11 @@ namespace GVFS.UnitTests.Prefetch
             this.ValidateDiffTreeResult(expected, result);
         }
 
-        [TestCase("040000 tree 73b881d52b607b0f3e9e620d36f556d3d233a11d\tGVFS", DiffTreeResult.TreeMarker, true)]
-        [TestCase("040000 tree 73b881d52b607b0f3e9e620d36f556d3d233a11d\tGVFS", DiffTreeResult.BlobMarker, false)]
+        [TestCase("040000 tree 73b881d52b607b0f3e9e620d36f556d3d233a11d\tScalar", DiffTreeResult.TreeMarker, true)]
+        [TestCase("040000 tree 73b881d52b607b0f3e9e620d36f556d3d233a11d\tScalar", DiffTreeResult.BlobMarker, false)]
         [TestCase("100644 blob 44c5f5cba4b29d31c2ad06eed51ea02af76c27c0\tReadme.md", DiffTreeResult.BlobMarker, true)]
-        [TestCase("100755 blob 196142fbb753c0a3c7c6690323db7aa0a11f41ec\tScripts / BuildGVFSForMac.sh", DiffTreeResult.BlobMarker, true)]
-        [TestCase("100755 blob 196142fbb753c0a3c7c6690323db7aa0a11f41ec\tScripts / BuildGVFSForMac.sh", DiffTreeResult.BlobMarker, true)]
+        [TestCase("100755 blob 196142fbb753c0a3c7c6690323db7aa0a11f41ec\tScripts / BuildScalarForMac.sh", DiffTreeResult.BlobMarker, true)]
+        [TestCase("100755 blob 196142fbb753c0a3c7c6690323db7aa0a11f41ec\tScripts / BuildScalarForMac.sh", DiffTreeResult.BlobMarker, true)]
         [TestCase("100755 blob 196142fbb753c0a3c7c6690323db7aa0a11f41ec\tScripts / tree file.txt", DiffTreeResult.TreeMarker, false)]
         [TestCase("100755 ", DiffTreeResult.TreeMarker, false)]
         public void TestGetIndexOfTypeMarker(string line, string typeMarker, bool expectedResult)

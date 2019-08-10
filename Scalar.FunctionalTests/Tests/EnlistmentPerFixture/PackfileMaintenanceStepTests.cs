@@ -1,12 +1,12 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
+namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
@@ -65,7 +65,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         {
             // Create new pack(s) by prefetching blobs for a folder.
             // This generates a number of packs, based on the processor number (for parallel downloads).
-            this.Enlistment.Prefetch($"--folders {Path.Combine("GVFS", "GVFS")}");
+            this.Enlistment.Prefetch($"--folders {Path.Combine("Scalar", "Scalar")}");
 
             // Create a multi-pack-index that covers the prefetch packs
             // (The post-fetch job creates a multi-pack-index only after a --commits prefetch)

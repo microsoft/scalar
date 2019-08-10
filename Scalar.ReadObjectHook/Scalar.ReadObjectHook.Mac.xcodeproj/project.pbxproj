@@ -25,12 +25,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2673FD9220EBDAA900B64B7F /* GVFS.ReadObjectHook */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GVFS.ReadObjectHook; sourceTree = BUILT_PRODUCTS_DIR; };
+		2673FD9220EBDAA900B64B7F /* Scalar.ReadObjectHook */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Scalar.ReadObjectHook; sourceTree = BUILT_PRODUCTS_DIR; };
 		2673FD9520EBDAA900B64B7F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = SOURCE_ROOT; };
 		2673FD9A20EBDEA500B64B7F /* packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = packet.h; sourceTree = SOURCE_ROOT; };
 		2673FD9B20EBDEA500B64B7F /* packet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = packet.cpp; sourceTree = SOURCE_ROOT; };
-		2673FD9D20EBDEAA00B64B7F /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = ../GVFS.NativeHooks.Common/common.h; sourceTree = SOURCE_ROOT; };
-		26E839D720FD29EC004E53CE /* common.posix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = common.posix.cpp; path = ../GVFS.NativeHooks.Common/common.posix.cpp; sourceTree = SOURCE_ROOT; };
+		2673FD9D20EBDEAA00B64B7F /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = ../Scalar.NativeHooks.Common/common.h; sourceTree = SOURCE_ROOT; };
+		26E839D720FD29EC004E53CE /* common.posix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = common.posix.cpp; path = ../Scalar.NativeHooks.Common/common.posix.cpp; sourceTree = SOURCE_ROOT; };
 		26E839DA20FD58B8004E53CE /* stdafx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -61,7 +61,7 @@
 		2673FD9320EBDAA900B64B7F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2673FD9220EBDAA900B64B7F /* GVFS.ReadObjectHook */,
+				2673FD9220EBDAA900B64B7F /* Scalar.ReadObjectHook */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -69,9 +69,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2673FD9120EBDAA900B64B7F /* GVFS.ReadObjectHook */ = {
+		2673FD9120EBDAA900B64B7F /* Scalar.ReadObjectHook */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2673FD9720EBDAA900B64B7F /* Build configuration list for PBXNativeTarget "GVFS.ReadObjectHook" */;
+			buildConfigurationList = 2673FD9720EBDAA900B64B7F /* Build configuration list for PBXNativeTarget "Scalar.ReadObjectHook" */;
 			buildPhases = (
 				2673FD8E20EBDAA900B64B7F /* Sources */,
 				2673FD8F20EBDAA900B64B7F /* Frameworks */,
@@ -81,9 +81,9 @@
 			);
 			dependencies = (
 			);
-			name = GVFS.ReadObjectHook;
-			productName = GVFS.ReadObjectHook;
-			productReference = 2673FD9220EBDAA900B64B7F /* GVFS.ReadObjectHook */;
+			name = Scalar.ReadObjectHook;
+			productName = Scalar.ReadObjectHook;
+			productReference = 2673FD9220EBDAA900B64B7F /* Scalar.ReadObjectHook */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -99,7 +99,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 2673FD8320EBD81D00B64B7F /* Build configuration list for PBXProject "GVFS.ReadObjectHook.Mac" */;
+			buildConfigurationList = 2673FD8320EBD81D00B64B7F /* Build configuration list for PBXProject "Scalar.ReadObjectHook.Mac" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -111,7 +111,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2673FD9120EBDAA900B64B7F /* GVFS.ReadObjectHook */,
+				2673FD9120EBDAA900B64B7F /* Scalar.ReadObjectHook */,
 			);
 		};
 /* End PBXProject section */
@@ -262,7 +262,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2673FD8320EBD81D00B64B7F /* Build configuration list for PBXProject "GVFS.ReadObjectHook.Mac" */ = {
+		2673FD8320EBD81D00B64B7F /* Build configuration list for PBXProject "Scalar.ReadObjectHook.Mac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2673FD8420EBD81D00B64B7F /* Debug */,
@@ -271,7 +271,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2673FD9720EBDAA900B64B7F /* Build configuration list for PBXNativeTarget "GVFS.ReadObjectHook" */ = {
+		2673FD9720EBDAA900B64B7F /* Build configuration list for PBXNativeTarget "Scalar.ReadObjectHook" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2673FD9820EBDAA900B64B7F /* Debug */,

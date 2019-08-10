@@ -1,18 +1,18 @@
-﻿using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Common.Http;
+﻿using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Common.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-namespace GVFS.UnitTests.Mock.Git
+namespace Scalar.UnitTests.Mock.Git
 {
-    public class MockGVFSGitObjects : GVFSGitObjects
+    public class MockScalarGitObjects : ScalarGitObjects
     {
-        private GVFSContext context;
+        private ScalarContext context;
 
-        public MockGVFSGitObjects(GVFSContext context, GitObjectsHttpRequestor httpGitObjects)
+        public MockScalarGitObjects(ScalarContext context, GitObjectsHttpRequestor httpGitObjects)
             : base(context, httpGitObjects)
         {
             this.context = context;

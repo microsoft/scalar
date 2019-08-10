@@ -1,4 +1,4 @@
-﻿using GVFS.Tests.Should;
+﻿using Scalar.Tests.Should;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Threading;
 
-namespace GVFS.FunctionalTests.Tools
+namespace Scalar.FunctionalTests.Tools
 {
-    public static class GVFSServiceProcess
+    public static class ScalarServiceProcess
     {
         private static readonly string ServiceNameArgument = "--servicename=" + TestServiceName;
 
@@ -19,19 +19,19 @@ namespace GVFS.FunctionalTests.Tools
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    // Service name is used in the lookup of GVFS.Service communication pipes
+                    // Service name is used in the lookup of Scalar.Service communication pipes
                     // by clients for IPC. Custom pipe names can be specified as command line
-                    // args to the Service during its startup. On the Mac, GVFS.Service started
+                    // args to the Service during its startup. On the Mac, Scalar.Service started
                     // for testing is the same instance as the one that is installed by the
                     // Mac installer. Also it is not as easy as in Windows to pass command line
-                    // args (that are specific to testing) to GVFS.Service (Service on Mac is a
+                    // args (that are specific to testing) to Scalar.Service (Service on Mac is a
                     // Launch agent and needs its args to be specified in its launchd.plist
-                    // file). So on Mac - during tests GVFS.Service is started without any
+                    // file). So on Mac - during tests Scalar.Service is started without any
                     // customized pipe name for testing.
-                    return "GVFS.Service";
+                    return "Scalar.Service";
                 }
 
-                return "Test.GVFS.Service";
+                return "Test.Scalar.Service";
             }
         }
 
@@ -71,7 +71,7 @@ namespace GVFS.FunctionalTests.Tools
             RunScCommand("delete", TestServiceName);
 
             // Make sure to delete any test service data state
-            string serviceData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "GVFS", TestServiceName);
+            string serviceData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Scalar", TestServiceName);
             DirectoryInfo serviceDataDir = new DirectoryInfo(serviceData);
             if (serviceDataDir.Exists)
             {
@@ -127,24 +127,24 @@ namespace GVFS.FunctionalTests.Tools
 
         private static string GetPathToService()
         {
-            if (GVFSTestConfig.TestGVFSOnPath)
+            if (ScalarTestConfig.TestScalarOnPath)
             {
-                ProcessResult result = ProcessHelper.Run("where", Properties.Settings.Default.PathToGVFSService);
-                result.ExitCode.ShouldEqual(0, $"{nameof(GetPathToService)}: where returned {result.ExitCode} when looking for {Properties.Settings.Default.PathToGVFSService}");
+                ProcessResult result = ProcessHelper.Run("where", Properties.Settings.Default.PathToScalarService);
+                result.ExitCode.ShouldEqual(0, $"{nameof(GetPathToService)}: where returned {result.ExitCode} when looking for {Properties.Settings.Default.PathToScalarService}");
 
                 string firstPath =
                     string.IsNullOrWhiteSpace(result.Output)
                     ? null
                     : result.Output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
 
-                firstPath.ShouldNotBeNull($"{nameof(GetPathToService)}: Failed to find {Properties.Settings.Default.PathToGVFSService}");
+                firstPath.ShouldNotBeNull($"{nameof(GetPathToService)}: Failed to find {Properties.Settings.Default.PathToScalarService}");
                 return firstPath;
             }
             else
             {
                 return Path.Combine(
                     Properties.Settings.Default.CurrentDirectory,
-                    Properties.Settings.Default.PathToGVFSService);
+                    Properties.Settings.Default.PathToScalarService);
             }
         }
     }

@@ -1,11 +1,11 @@
-﻿using GVFS.Common.FileSystem;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public class FileBasedDictionary<TKey, TValue> : FileBasedCollection
     {

@@ -1,8 +1,8 @@
-﻿using GVFS.Service;
-using GVFS.Service.Handlers;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.FileSystem;
+﻿using Scalar.Service;
+using Scalar.Service.Handlers;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -11,7 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace GVFS.UnitTests.Service
+namespace Scalar.UnitTests.Service
 {
     [TestFixture]
     public class RepoRegistryTests

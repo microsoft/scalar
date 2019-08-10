@@ -1,17 +1,17 @@
-﻿using GVFS.FunctionalTests.Tools;
+﻿using Scalar.FunctionalTests.Tools;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
+namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {
     public class TestsWithMultiEnlistment
     {
-        private List<GVFSFunctionalTestEnlistment> enlistmentsToDelete = new List<GVFSFunctionalTestEnlistment>();
+        private List<ScalarFunctionalTestEnlistment> enlistmentsToDelete = new List<ScalarFunctionalTestEnlistment>();
 
         [TearDown]
         public void DeleteEnlistments()
         {
-            foreach (GVFSFunctionalTestEnlistment enlistment in this.enlistmentsToDelete)
+            foreach (ScalarFunctionalTestEnlistment enlistment in this.enlistmentsToDelete)
             {
                 enlistment.UnmountAndDeleteAll();
             }
@@ -28,13 +28,13 @@ namespace GVFS.FunctionalTests.Tests.MultiEnlistmentTests
         {
         }
 
-        protected GVFSFunctionalTestEnlistment CreateNewEnlistment(
+        protected ScalarFunctionalTestEnlistment CreateNewEnlistment(
             string localCacheRoot = null,
             string branch = null,
             bool skipPrefetch = false)
         {
-            GVFSFunctionalTestEnlistment output = GVFSFunctionalTestEnlistment.CloneAndMount(
-                GVFSTestConfig.PathToGVFS,
+            ScalarFunctionalTestEnlistment output = ScalarFunctionalTestEnlistment.CloneAndMount(
+                ScalarTestConfig.PathToScalar,
                 branch,
                 localCacheRoot,
                 skipPrefetch);

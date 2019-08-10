@@ -2,13 +2,13 @@
 using System.IO;
 using System.Linq;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public static class Paths
     {
         public static string GetGitEnlistmentRoot(string directory)
         {
-            return GetRoot(directory, GVFSConstants.DotGit.Root);
+            return GetRoot(directory, ScalarConstants.DotGit.Root);
         }
 
         public static string GetRoot(string startingDirectory, string rootName)
@@ -29,17 +29,17 @@ namespace GVFS.Common
             {
                 if (dirInfo.Exists)
                 {
-                    DirectoryInfo[] dotGVFSDirs = new DirectoryInfo[0];
+                    DirectoryInfo[] dotScalarDirs = new DirectoryInfo[0];
 
                     try
                     {
-                        dotGVFSDirs = dirInfo.GetDirectories(rootName);
+                        dotScalarDirs = dirInfo.GetDirectories(rootName);
                     }
                     catch (IOException)
                     {
                     }
 
-                    if (dotGVFSDirs.Count() == 1)
+                    if (dotScalarDirs.Count() == 1)
                     {
                         return dirInfo.FullName;
                     }
@@ -53,7 +53,7 @@ namespace GVFS.Common
 
         public static string ConvertPathToGitFormat(string path)
         {
-            return path.Replace(Path.DirectorySeparatorChar, GVFSConstants.GitPathSeparator);
+            return path.Replace(Path.DirectorySeparatorChar, ScalarConstants.GitPathSeparator);
         }
     }
 }

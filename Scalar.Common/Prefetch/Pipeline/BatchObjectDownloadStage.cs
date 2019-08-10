@@ -1,8 +1,8 @@
-﻿using GVFS.Common.Git;
-using GVFS.Common.Http;
-using GVFS.Common.NetworkStreams;
-using GVFS.Common.Prefetch.Pipeline.Data;
-using GVFS.Common.Tracing;
+﻿using Scalar.Common.Git;
+using Scalar.Common.Http;
+using Scalar.Common.NetworkStreams;
+using Scalar.Common.Prefetch.Pipeline.Data;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace GVFS.Common.Prefetch.Pipeline
+namespace Scalar.Common.Prefetch.Pipeline
 {
     /// <summary>
     /// Takes in blocks of object shas, downloads object shas as a pack or loose object, outputs pack locations (if applicable).

@@ -1,4 +1,4 @@
-﻿namespace GVFS.FunctionalTests
+﻿namespace Scalar.FunctionalTests
 {
     public static class Categories
     {
@@ -20,9 +20,9 @@
             public const string NeedsStatusCache = "NeedsStatusCache";
 
             // Tests that require Config to be built
-            public const string NeedsGVFSConfig = "NeedsConfig";
+            public const string NeedsScalarConfig = "NeedsConfig";
 
-            // Tests that require VFS Service
+            // Tests that require Scalar Service
             public const string NeedsServiceVerb = "NeedsServiceVerb";
 
             // Requires both functional and test fixes

@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace GVFS.Common
+namespace Scalar.Common
 {
     public class ConcurrentHashSet<T> : IEnumerable<T>
     {

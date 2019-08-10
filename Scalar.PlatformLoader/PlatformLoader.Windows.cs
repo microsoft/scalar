@@ -1,13 +1,13 @@
-using GVFS.Common;
-using GVFS.Platform.Windows;
+using Scalar.Common;
+using Scalar.Platform.Windows;
 
-namespace GVFS.PlatformLoader
+namespace Scalar.PlatformLoader
 {
-    public static class GVFSPlatformLoader
+    public static class ScalarPlatformLoader
     {
         public static void Initialize()
         {
-            GVFSPlatform.Register(new WindowsPlatform());
+            ScalarPlatform.Register(new WindowsPlatform());
             return;
         }
     }

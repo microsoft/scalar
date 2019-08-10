@@ -1,9 +1,9 @@
 ﻿using System;
-using GVFS.Common.Tracing;
+using Scalar.Common.Tracing;
 using Moq;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests.Tracing
+namespace Scalar.UnitTests.Tracing
 {
     [TestFixture]
     public class EventListenerTests

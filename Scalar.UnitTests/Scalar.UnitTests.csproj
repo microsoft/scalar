@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\GVFS.Build\GVFS.cs.props" />
+  <Import Project="..\Scalar.Build\Scalar.cs.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -11,14 +11,14 @@
 
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <RootNamespace>GVFS.UnitTests</RootNamespace>
-    <AssemblyName>GVFS.UnitTests</AssemblyName>
+    <RootNamespace>Scalar.UnitTests</RootNamespace>
+    <AssemblyName>Scalar.UnitTests</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Version>$(GVFSVersion)</Version>
+    <Version>$(ScalarVersion)</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -50,10 +50,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GVFS.Common\GVFS.Common.csproj" />
-    <ProjectReference Include="..\GVFS.Platform.Mac\GVFS.Platform.Mac.csproj" />
-    <ProjectReference Include="..\GVFS.Service\GVFS.Service.Mac.csproj" />
-    <ProjectReference Include="..\GVFS.Tests\GVFS.Tests.csproj" />
-    <ProjectReference Include="..\GVFS.Upgrader\GVFS.Upgrader.csproj" />
+    <ProjectReference Include="..\Scalar.Common\Scalar.Common.csproj" />
+    <ProjectReference Include="..\Scalar.Platform.Mac\Scalar.Platform.Mac.csproj" />
+    <ProjectReference Include="..\Scalar.Service\Scalar.Service.Mac.csproj" />
+    <ProjectReference Include="..\Scalar.Tests\Scalar.Tests.csproj" />
+    <ProjectReference Include="..\Scalar.Upgrader\Scalar.Upgrader.csproj" />
   </ItemGroup>
 </Project>

@@ -1,8 +1,8 @@
-﻿using GVFS.Common;
-using GVFS.UnitTests.Mock.Common;
+﻿using Scalar.Common;
+using Scalar.UnitTests.Mock.Common;
 using NUnit.Framework;
 
-namespace GVFS.UnitTests
+namespace Scalar.UnitTests
 {
     [SetUpFixture]
     public class Setup
@@ -10,7 +10,7 @@ namespace GVFS.UnitTests
         [OneTimeSetUp]
         public void SetUp()
         {
-            GVFSPlatform.Register(new MockPlatform());
+            ScalarPlatform.Register(new MockPlatform());
         }
     }
 }

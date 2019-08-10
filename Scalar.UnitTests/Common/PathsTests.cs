@@ -1,9 +1,9 @@
-﻿using GVFS.Common;
-using GVFS.Tests.Should;
+﻿using Scalar.Common;
+using Scalar.Tests.Should;
 using NUnit.Framework;
 using System.Runtime.InteropServices;
 
-namespace GVFS.UnitTests.Common
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class PathsTests

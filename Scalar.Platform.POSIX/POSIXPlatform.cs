@@ -1,6 +1,6 @@
-using GVFS.Common;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,9 +11,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace GVFS.Platform.POSIX
+namespace Scalar.Platform.POSIX
 {
-    public abstract partial class POSIXPlatform : GVFSPlatform
+    public abstract partial class POSIXPlatform : ScalarPlatform
     {
         private const int StdInFileNo = 0;  // STDIN_FILENO  -> standard input file descriptor
         private const int StdOutFileNo = 1; // STDOUT_FILENO -> standard output file descriptor
@@ -21,8 +21,8 @@ namespace GVFS.Platform.POSIX
 
         protected POSIXPlatform() : this(
             underConstruction: new UnderConstructionFlags(
-                supportsGVFSUpgrade: false,
-                supportsGVFSConfig: false,
+                supportsScalarUpgrade: false,
+                supportsScalarConfig: false,
                 supportsNuGetEncryption: false))
         {
         }
@@ -53,7 +53,7 @@ namespace GVFS.Platform.POSIX
             throw new NotImplementedException();
         }
 
-        public override void StartBackgroundVFS4GProcess(ITracer tracer, string programName, string[] args)
+        public override void StartBackgroundScalar4GProcess(ITracer tracer, string programName, string[] args)
         {
             string programArguments = string.Empty;
             try
@@ -70,12 +70,12 @@ namespace GVFS.Platform.POSIX
                 //      string result = process.StandardOutput.ReadToEnd();
                 //      process.WaitForExit();
                 //
-                // That waits on a `gvfs` verb to exit can hang in the WaitForExit() call because the chuild process has inheritied
+                // That waits on a `scalar` verb to exit can hang in the WaitForExit() call because the chuild process has inheritied
                 // standard input/output handle(s), and redirecting those streams before spawing the process appears to be the only
                 // way to ensure they're properly closed.
                 //
                 // Note that this approach requires that the child process know that it needs to redirect its standard input/output to /dev/null and
-                // so this method can only be used with VFS4G processes that are aware they're being launched in the background
+                // so this method can only be used with Scalar4G processes that are aware they're being launched in the background
                 processInfo.RedirectStandardError = true;
                 processInfo.RedirectStandardInput = true;
                 processInfo.RedirectStandardOutput = true;
@@ -164,11 +164,11 @@ namespace GVFS.Platform.POSIX
         {
         }
 
-        public override string GetGVFSServiceNamedPipeName(string serviceName)
+        public override string GetScalarServiceNamedPipeName(string serviceName)
         {
             // Pipes are stored as files on POSIX, use a rooted pipe name
             // in the same location as the service to keep full control of the location of the file
-            return this.GetDataRootForGVFSComponent(serviceName) + ".pipe";
+            return this.GetDataRootForScalarComponent(serviceName) + ".pipe";
         }
 
         public override bool IsConsoleOutputRedirectedToFile()
@@ -205,7 +205,7 @@ namespace GVFS.Platform.POSIX
 
             try
             {
-                localCacheRoot = Path.Combine(homeDirectory, GVFSConstants.DefaultGVFSCacheFolderName);
+                localCacheRoot = Path.Combine(homeDirectory, ScalarConstants.DefaultScalarCacheFolderName);
                 localCacheRootError = null;
                 return true;
             }
@@ -240,16 +240,16 @@ namespace GVFS.Platform.POSIX
         [DllImport("libc", EntryPoint = "dup2", SetLastError = true)]
         private static extern int Dup2(int oldfd, int newfd);
 
-        public abstract class POSIXPlatformConstants : GVFSPlatformConstants
+        public abstract class POSIXPlatformConstants : ScalarPlatformConstants
         {
             public override string ExecutableExtension
             {
                 get { return string.Empty; }
             }
 
-            public override string GVFSExecutableName
+            public override string ScalarExecutableName
             {
-                get { return "gvfs"; }
+                get { return "scalar"; }
             }
 
             public override string ProgramLocaterCommand
@@ -259,7 +259,7 @@ namespace GVFS.Platform.POSIX
 
             public override HashSet<string> UpgradeBlockingProcesses
             {
-                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "GVFS.Mount", "git", "wish" }; }
+                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Scalar.Mount", "git", "wish" }; }
             }
 
             public override bool SupportsUpgradeWhileRunning => true;

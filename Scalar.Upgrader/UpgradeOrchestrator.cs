@@ -1,12 +1,12 @@
-using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
+using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.IO;
 using System.Text;
 
-namespace GVFS.Upgrader
+namespace Scalar.Upgrader
 {
     public abstract class UpgradeOrchestrator
     {
@@ -83,7 +83,7 @@ namespace GVFS.Upgrader
 
             if (this.preRunChecker == null)
             {
-                this.preRunChecker = new InstallerPreRunChecker(this.tracer, GVFSConstants.UpgradeVerbMessages.GVFSUpgradeConfirm);
+                this.preRunChecker = new InstallerPreRunChecker(this.tracer, ScalarConstants.UpgradeVerbMessages.ScalarUpgradeConfirm);
             }
 
             try
@@ -154,7 +154,7 @@ namespace GVFS.Upgrader
                 method,
                 message,
                 this.output,
-                this.output == Console.Out && !GVFSPlatform.Instance.IsConsoleOutputRedirectedToFile(),
+                this.output == Console.Out && !ScalarPlatform.Instance.IsConsoleOutputRedirectedToFile(),
                 null);
         }
 
@@ -162,12 +162,12 @@ namespace GVFS.Upgrader
 
         private JsonTracer CreateTracer()
         {
-            string logFilePath = GVFSEnlistment.GetNewGVFSLogFileName(
+            string logFilePath = ScalarEnlistment.GetNewScalarLogFileName(
                 this.logDirectory,
-                GVFSConstants.LogFileTypes.UpgradeProcess,
+                ScalarConstants.LogFileTypes.UpgradeProcess,
                 this.fileSystem);
 
-            JsonTracer jsonTracer = new JsonTracer(GVFSConstants.GVFSEtwProviderName, "UpgradeProcess");
+            JsonTracer jsonTracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "UpgradeProcess");
 
             jsonTracer.AddLogFileEventListener(
                 logFilePath,
@@ -181,7 +181,7 @@ namespace GVFS.Upgrader
         {
             if (this.upgrader == null)
             {
-                string gitBinPath = GVFSPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+                string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
                 if (string.IsNullOrEmpty(gitBinPath))
                 {
                     errorMessage = $"nameof(this.TryInitialize): Unable to locate git installation. Ensure git is installed and try again.";
@@ -191,7 +191,7 @@ namespace GVFS.Upgrader
                 ICredentialStore credentialStore = new GitProcess(gitBinPath, workingDirectoryRoot: null);
 
                 ProductUpgrader upgrader;
-                if (!ProductUpgrader.TryCreateUpgrader(this.tracer, this.fileSystem, new LocalGVFSConfig(), credentialStore, this.DryRun, this.NoVerify, out upgrader, out errorMessage))
+                if (!ProductUpgrader.TryCreateUpgrader(this.tracer, this.fileSystem, new LocalScalarConfig(), credentialStore, this.DryRun, this.NoVerify, out upgrader, out errorMessage))
                 {
                     return false;
                 }
@@ -208,7 +208,7 @@ namespace GVFS.Upgrader
 
         private bool TryRunUpgrade(out Version newVersion, out string consoleError)
         {
-            Version newGVFSVersion = null;
+            Version newScalarVersion = null;
             string error = null;
 
             if (!this.upgrader.UpgradeAllowed(out error))
@@ -231,14 +231,14 @@ namespace GVFS.Upgrader
                         return false;
                     }
 
-                    if (!this.TryCheckIfUpgradeAvailable(out newGVFSVersion, out error))
+                    if (!this.TryCheckIfUpgradeAvailable(out newScalarVersion, out error))
                     {
                         return false;
                     }
 
                     this.LogInstalledVersionInfo();
 
-                    if (newGVFSVersion != null && !this.TryDownloadUpgrade(newGVFSVersion, out error))
+                    if (newScalarVersion != null && !this.TryDownloadUpgrade(newScalarVersion, out error))
                     {
                         return false;
                     }
@@ -252,7 +252,7 @@ namespace GVFS.Upgrader
                 return false;
             }
 
-            if (newGVFSVersion == null)
+            if (newScalarVersion == null)
             {
                 newVersion = null;
                 consoleError = null;
@@ -262,7 +262,7 @@ namespace GVFS.Upgrader
             if (!this.LaunchInsideSpinner(
                 () =>
                 {
-                    if (!this.preRunChecker.TryUnmountAllGVFSRepos(out error))
+                    if (!this.preRunChecker.TryUnmountAllScalarRepos(out error))
                     {
                         return false;
                     }
@@ -301,7 +301,7 @@ namespace GVFS.Upgrader
                 return false;
             }
 
-            newVersion = newGVFSVersion;
+            newVersion = newScalarVersion;
             consoleError = null;
             return true;
         }
@@ -371,12 +371,12 @@ namespace GVFS.Upgrader
         private void LogInstalledVersionInfo()
         {
             EventMetadata metadata = new EventMetadata();
-            string installedGVFSVersion = ProcessHelper.GetCurrentProcessVersion();
-            metadata.Add(nameof(installedGVFSVersion), installedGVFSVersion);
+            string installedScalarVersion = ProcessHelper.GetCurrentProcessVersion();
+            metadata.Add(nameof(installedScalarVersion), installedScalarVersion);
 
             GitVersion installedGitVersion = null;
             string error = null;
-            string gitPath = GVFSPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+            string gitPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
             if (!string.IsNullOrEmpty(gitPath) && GitProcess.TryGetVersion(gitPath, out installedGitVersion, out error))
             {
                 metadata.Add(nameof(installedGitVersion), installedGitVersion.ToString());

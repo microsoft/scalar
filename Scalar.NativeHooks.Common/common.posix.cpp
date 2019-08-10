@@ -17,11 +17,11 @@ PATH_STRING GetFinalPathName(const PATH_STRING& path)
     return path;
 }
 
-PATH_STRING GetGVFSPipeName(const char *appName)
+PATH_STRING GetScalarPipeName(const char *appName)
 {
-    // The pipe name is built using the path of the GVFS enlistment root.
+    // The pipe name is built using the path of the Scalar enlistment root.
     // Start in the current directory and walk up the directory tree
-    // until we find a folder that contains the ".gvfs" folder
+    // until we find a folder that contains the ".scalar" folder
     
     // TODO 640838: Support paths longer than MAX_PATH
     char enlistmentRoot[MAX_PATH];
@@ -49,24 +49,24 @@ PATH_STRING GetGVFSPipeName(const char *appName)
     }
     enlistmentRoot[enlistmentRootLength] = '\0';
     
-    // Walk up enlistmentRoot looking for a folder named .gvfs
+    // Walk up enlistmentRoot looking for a folder named .scalar
     char* lastslash = enlistmentRoot + enlistmentRootLength - 1;
-    bool gvfsFound = false;
+    bool scalarFound = false;
     while (1)
     {
         *lastslash = '\0';
         DIR* directory = opendir(enlistmentRoot);
         if (directory == nullptr)
         {
-            die(ReturnCode::NotInGVFSEnlistment, "Failed to open directory: %s, error: %d\n", enlistmentRoot, errno);
+            die(ReturnCode::NotInScalarEnlistment, "Failed to open directory: %s, error: %d\n", enlistmentRoot, errno);
         }
         
         dirent* dirEntry = readdir(directory);
-        while (!gvfsFound && dirEntry != nullptr)
+        while (!scalarFound && dirEntry != nullptr)
         {
-            if (dirEntry->d_type == DT_DIR && strcmp(dirEntry->d_name, ".gvfs") == 0)
+            if (dirEntry->d_type == DT_DIR && strcmp(dirEntry->d_name, ".scalar") == 0)
             {
-                gvfsFound = true;
+                scalarFound = true;
             }
             else
             {
@@ -76,14 +76,14 @@ PATH_STRING GetGVFSPipeName(const char *appName)
         
         closedir(directory);
         
-        if (gvfsFound)
+        if (scalarFound)
         {
             break;
         }
         
         if (errno != 0)
         {
-            die(ReturnCode::NotInGVFSEnlistment, "readdir failed in directory: %s, error: %i\n", enlistmentRoot, errno);
+            die(ReturnCode::NotInScalarEnlistment, "readdir failed in directory: %s, error: %i\n", enlistmentRoot, errno);
         }
         
         lastslash--;
@@ -94,7 +94,7 @@ PATH_STRING GetGVFSPipeName(const char *appName)
         
         if (enlistmentRoot == lastslash)
         {
-            die(ReturnCode::NotInGVFSEnlistment, "%s must be run from inside a GVFS enlistment\n", appName);
+            die(ReturnCode::NotInScalarEnlistment, "%s must be run from inside a Scalar enlistment\n", appName);
         }
         
         *(lastslash + 1) = 0;
@@ -102,10 +102,10 @@ PATH_STRING GetGVFSPipeName(const char *appName)
     
     *(lastslash) = 0;
     
-    return PATH_STRING(enlistmentRoot) + "/.gvfs/GVFS_NetCorePipe";
+    return PATH_STRING(enlistmentRoot) + "/.scalar/Scalar_NetCorePipe";
 }
 
-PIPE_HANDLE CreatePipeToGVFS(const PATH_STRING& pipeName)
+PIPE_HANDLE CreatePipeToScalar(const PATH_STRING& pipeName)
 {
     PIPE_HANDLE socket_fd = socket(PF_UNIX, SOCK_STREAM, 0);
     if (socket_fd < 0)

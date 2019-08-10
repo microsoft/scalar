@@ -1,8 +1,8 @@
-﻿using GVFS.FunctionalTests.FileSystemRunners;
-using GVFS.FunctionalTests.Properties;
-using GVFS.FunctionalTests.Should;
-using GVFS.FunctionalTests.Tools;
-using GVFS.Tests.Should;
+﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Properties;
+using Scalar.FunctionalTests.Should;
+using Scalar.FunctionalTests.Tools;
+using Scalar.Tests.Should;
 using Microsoft.Win32.SafeHandles;
 using NUnit.Framework;
 using System;
@@ -10,14 +10,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
+namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
     [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class MountTests : TestsWithEnlistmentPerFixture
     {
-        private const int GVFSGenericError = 3;
+        private const int ScalarGenericError = 3;
         private const uint GenericRead = 2147483648;
         private const uint FileFlagBackupSemantics = 3355443;
         private readonly int fileDeletedBackgroundOperationCode;
@@ -50,33 +50,33 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase]
         public void MountFailsOutsideEnlistment()
         {
-            this.MountShouldFail("is not a valid GVFS enlistment", Path.GetDirectoryName(this.Enlistment.EnlistmentRoot));
+            this.MountShouldFail("is not a valid Scalar enlistment", Path.GetDirectoryName(this.Enlistment.EnlistmentRoot));
         }
 
         [TestCase]
         public void MountCopiesMissingReadObjectHook()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string readObjectPath = this.Enlistment.GetVirtualPathTo(".git", "hooks", "read-object" + Settings.Default.BinaryFileNameExtension);
             readObjectPath.ShouldBeAFile(this.fileSystem);
             this.fileSystem.DeleteFile(readObjectPath);
             readObjectPath.ShouldNotExistOnDisk(this.fileSystem);
-            this.Enlistment.MountGVFS();
+            this.Enlistment.MountScalar();
             readObjectPath.ShouldBeAFile(this.fileSystem);
         }
 
         [TestCase]
         public void MountSetsCoreHooksPath()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             GitProcess.Invoke(this.Enlistment.RepoRoot, "config --unset core.hookspath");
             string.IsNullOrWhiteSpace(
                 GitProcess.Invoke(this.Enlistment.RepoRoot, "config core.hookspath"))
                 .ShouldBeTrue();
 
-            this.Enlistment.MountGVFS();
+            this.Enlistment.MountScalar();
             string expectedHooksPath = Path.Combine(this.Enlistment.RepoRoot, ".git", "hooks");
             expectedHooksPath = GitHelpers.ConvertPathToGitFormat(expectedHooksPath);
 
@@ -89,24 +89,24 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase]
         public void MountChangesMountId()
         {
-            string mountId = GitProcess.Invoke(this.Enlistment.RepoRoot, "config gvfs.mount-id")
+            string mountId = GitProcess.Invoke(this.Enlistment.RepoRoot, "config scalar.mount-id")
                 .Trim('\n');
-            this.Enlistment.UnmountGVFS();
-            this.Enlistment.MountGVFS();
-            GitProcess.Invoke(this.Enlistment.RepoRoot, "config gvfs.mount-id")
+            this.Enlistment.UnmountScalar();
+            this.Enlistment.MountScalar();
+            GitProcess.Invoke(this.Enlistment.RepoRoot, "config scalar.mount-id")
                 .Trim('\n')
-                .ShouldNotEqual(mountId, "gvfs.mount-id should change on every mount");
+                .ShouldNotEqual(mountId, "scalar.mount-id should change on every mount");
         }
 
         [TestCase]
         public void MountFailsWhenNoOnDiskVersion()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             // Get the current disk layout version
             string majorVersion;
             string minorVersion;
-            GVFSHelpers.GetPersistedDiskLayoutVersion(this.Enlistment.DotGVFSRoot, out majorVersion, out minorVersion);
+            ScalarHelpers.GetPersistedDiskLayoutVersion(this.Enlistment.DotScalarRoot, out majorVersion, out minorVersion);
 
             int majorVersionNum;
             int minorVersionNum;
@@ -114,7 +114,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
             int.TryParse(minorVersion.ShouldNotBeNull(), out minorVersionNum).ShouldEqual(true);
 
             // Move the RepoMetadata database to a temp file
-            string versionDatabasePath = Path.Combine(this.Enlistment.DotGVFSRoot, GVFSHelpers.RepoMetadataName);
+            string versionDatabasePath = Path.Combine(this.Enlistment.DotScalarRoot, ScalarHelpers.RepoMetadataName);
             versionDatabasePath.ShouldBeAFile(this.fileSystem);
 
             string tempDatabasePath = versionDatabasePath + "_MountFailsWhenNoOnDiskVersion";
@@ -131,79 +131,79 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
             tempDatabasePath.ShouldNotExistOnDisk(this.fileSystem);
             versionDatabasePath.ShouldBeAFile(this.fileSystem);
 
-            this.Enlistment.MountGVFS();
+            this.Enlistment.MountScalar();
         }
 
         [TestCase]
         public void MountFailsWhenNoLocalCacheRootInRepoMetadata()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string majorVersion;
             string minorVersion;
-            GVFSHelpers.GetPersistedDiskLayoutVersion(this.Enlistment.DotGVFSRoot, out majorVersion, out minorVersion);
+            ScalarHelpers.GetPersistedDiskLayoutVersion(this.Enlistment.DotScalarRoot, out majorVersion, out minorVersion);
             majorVersion.ShouldNotBeNull();
             minorVersion.ShouldNotBeNull();
 
-            string objectsRoot = GVFSHelpers.GetPersistedGitObjectsRoot(this.Enlistment.DotGVFSRoot).ShouldNotBeNull();
+            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(this.Enlistment.DotScalarRoot).ShouldNotBeNull();
 
-            string metadataPath = Path.Combine(this.Enlistment.DotGVFSRoot, GVFSHelpers.RepoMetadataName);
+            string metadataPath = Path.Combine(this.Enlistment.DotScalarRoot, ScalarHelpers.RepoMetadataName);
             string metadataBackupPath = metadataPath + ".backup";
             this.fileSystem.MoveFile(metadataPath, metadataBackupPath);
 
             this.fileSystem.CreateEmptyFile(metadataPath);
-            GVFSHelpers.SaveDiskLayoutVersion(this.Enlistment.DotGVFSRoot, majorVersion, minorVersion);
-            GVFSHelpers.SaveGitObjectsRoot(this.Enlistment.DotGVFSRoot, objectsRoot);
+            ScalarHelpers.SaveDiskLayoutVersion(this.Enlistment.DotScalarRoot, majorVersion, minorVersion);
+            ScalarHelpers.SaveGitObjectsRoot(this.Enlistment.DotScalarRoot, objectsRoot);
 
             this.MountShouldFail("Failed to determine local cache path from repo metadata");
 
             this.fileSystem.DeleteFile(metadataPath);
             this.fileSystem.MoveFile(metadataBackupPath, metadataPath);
 
-            this.Enlistment.MountGVFS();
+            this.Enlistment.MountScalar();
         }
 
         [TestCase]
         public void MountFailsWhenNoGitObjectsRootInRepoMetadata()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string majorVersion;
             string minorVersion;
-            GVFSHelpers.GetPersistedDiskLayoutVersion(this.Enlistment.DotGVFSRoot, out majorVersion, out minorVersion);
+            ScalarHelpers.GetPersistedDiskLayoutVersion(this.Enlistment.DotScalarRoot, out majorVersion, out minorVersion);
             majorVersion.ShouldNotBeNull();
             minorVersion.ShouldNotBeNull();
 
-            string localCacheRoot = GVFSHelpers.GetPersistedLocalCacheRoot(this.Enlistment.DotGVFSRoot).ShouldNotBeNull();
+            string localCacheRoot = ScalarHelpers.GetPersistedLocalCacheRoot(this.Enlistment.DotScalarRoot).ShouldNotBeNull();
 
-            string metadataPath = Path.Combine(this.Enlistment.DotGVFSRoot, GVFSHelpers.RepoMetadataName);
+            string metadataPath = Path.Combine(this.Enlistment.DotScalarRoot, ScalarHelpers.RepoMetadataName);
             string metadataBackupPath = metadataPath + ".backup";
             this.fileSystem.MoveFile(metadataPath, metadataBackupPath);
 
             this.fileSystem.CreateEmptyFile(metadataPath);
-            GVFSHelpers.SaveDiskLayoutVersion(this.Enlistment.DotGVFSRoot, majorVersion, minorVersion);
-            GVFSHelpers.SaveLocalCacheRoot(this.Enlistment.DotGVFSRoot, localCacheRoot);
+            ScalarHelpers.SaveDiskLayoutVersion(this.Enlistment.DotScalarRoot, majorVersion, minorVersion);
+            ScalarHelpers.SaveLocalCacheRoot(this.Enlistment.DotScalarRoot, localCacheRoot);
 
             this.MountShouldFail("Failed to determine git objects root from repo metadata");
 
             this.fileSystem.DeleteFile(metadataPath);
             this.fileSystem.MoveFile(metadataBackupPath, metadataPath);
 
-            this.Enlistment.MountGVFS();
+            this.Enlistment.MountScalar();
         }
 
         [TestCase]
         public void MountRegeneratesAlternatesFileWhenMissingGitObjectsRoot()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
-            string objectsRoot = GVFSHelpers.GetPersistedGitObjectsRoot(this.Enlistment.DotGVFSRoot).ShouldNotBeNull();
+            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(this.Enlistment.DotScalarRoot).ShouldNotBeNull();
 
             string alternatesFilePath = Path.Combine(this.Enlistment.RepoRoot, ".git", "objects", "info", "alternates");
             alternatesFilePath.ShouldBeAFile(this.fileSystem).WithContents(objectsRoot);
             this.fileSystem.WriteAllText(alternatesFilePath, "Z:\\invalidPath");
 
-            this.Enlistment.MountGVFS();
+            this.Enlistment.MountScalar();
 
             alternatesFilePath.ShouldBeAFile(this.fileSystem).WithContents(objectsRoot);
         }
@@ -211,15 +211,15 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase]
         public void MountRegeneratesAlternatesFileWhenMissingFromDisk()
         {
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
-            string objectsRoot = GVFSHelpers.GetPersistedGitObjectsRoot(this.Enlistment.DotGVFSRoot).ShouldNotBeNull();
+            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(this.Enlistment.DotScalarRoot).ShouldNotBeNull();
 
             string alternatesFilePath = Path.Combine(this.Enlistment.RepoRoot, ".git", "objects", "info", "alternates");
             alternatesFilePath.ShouldBeAFile(this.fileSystem).WithContents(objectsRoot);
             this.fileSystem.DeleteFile(alternatesFilePath);
 
-            this.Enlistment.MountGVFS();
+            this.Enlistment.MountScalar();
 
             alternatesFilePath.ShouldBeAFile(this.fileSystem).WithContents(objectsRoot);
         }
@@ -229,9 +229,9 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         {
             string deletedFileEntry = "Test_EPF_WorkingDirectoryTests/1/2/3/4/ReadDeepProjectedFile.cpp";
             string deletedDirEntry = "Test_EPF_WorkingDirectoryTests/1/2/3/4/";
-            GVFSHelpers.ModifiedPathsShouldNotContain(this.Enlistment, this.fileSystem, deletedFileEntry);
-            GVFSHelpers.ModifiedPathsShouldNotContain(this.Enlistment, this.fileSystem, deletedDirEntry);
-            this.Enlistment.UnmountGVFS();
+            ScalarHelpers.ModifiedPathsShouldNotContain(this.Enlistment, this.fileSystem, deletedFileEntry);
+            ScalarHelpers.ModifiedPathsShouldNotContain(this.Enlistment, this.fileSystem, deletedDirEntry);
+            this.Enlistment.UnmountScalar();
 
             // Prime the background queue with delete messages
             string deleteFilePath = Path.Combine("Test_EPF_WorkingDirectoryTests", "1", "2", "3", "4", "ReadDeepProjectedFile.cpp");
@@ -239,37 +239,37 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
             string persistedDeleteFileTask = $"A 1\0{this.fileDeletedBackgroundOperationCode}\0{deleteFilePath}\0";
             string persistedDeleteDirectoryTask = $"A 2\0{this.directoryDeletedBackgroundOperationCode}\0{deleteDirPath}\0";
             this.fileSystem.WriteAllText(
-                Path.Combine(this.Enlistment.EnlistmentRoot, GVFSTestConfig.DotGVFSRoot, "databases", "BackgroundGitOperations.dat"),
+                Path.Combine(this.Enlistment.EnlistmentRoot, ScalarTestConfig.DotScalarRoot, "databases", "BackgroundGitOperations.dat"),
                 $"{persistedDeleteFileTask}\r\n{persistedDeleteDirectoryTask}\r\n");
 
             // Background queue should process the delete messages and modifiedPaths should show the change
-            this.Enlistment.MountGVFS();
+            this.Enlistment.MountScalar();
             this.Enlistment.WaitForBackgroundOperations();
-            GVFSHelpers.ModifiedPathsShouldContain(this.Enlistment, this.fileSystem, deletedFileEntry);
-            GVFSHelpers.ModifiedPathsShouldContain(this.Enlistment, this.fileSystem, deletedDirEntry);
+            ScalarHelpers.ModifiedPathsShouldContain(this.Enlistment, this.fileSystem, deletedFileEntry);
+            ScalarHelpers.ModifiedPathsShouldContain(this.Enlistment, this.fileSystem, deletedDirEntry);
         }
 
         [TestCaseSource(typeof(MountSubfolders), MountSubfolders.MountFolders)]
         public void MountFailsAfterBreakingDowngrade(string mountSubfolder)
         {
             MountSubfolders.EnsureSubfoldersOnDisk(this.Enlistment, this.fileSystem);
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string majorVersion;
             string minorVersion;
-            GVFSHelpers.GetPersistedDiskLayoutVersion(this.Enlistment.DotGVFSRoot, out majorVersion, out minorVersion);
+            ScalarHelpers.GetPersistedDiskLayoutVersion(this.Enlistment.DotScalarRoot, out majorVersion, out minorVersion);
 
             int majorVersionNum;
             int minorVersionNum;
             int.TryParse(majorVersion.ShouldNotBeNull(), out majorVersionNum).ShouldEqual(true);
             int.TryParse(minorVersion.ShouldNotBeNull(), out minorVersionNum).ShouldEqual(true);
 
-            GVFSHelpers.SaveDiskLayoutVersion(this.Enlistment.DotGVFSRoot, (majorVersionNum + 1).ToString(), "0");
+            ScalarHelpers.SaveDiskLayoutVersion(this.Enlistment.DotScalarRoot, (majorVersionNum + 1).ToString(), "0");
 
             this.MountShouldFail("do not allow mounting after downgrade", this.Enlistment.GetVirtualPathTo(mountSubfolder));
 
-            GVFSHelpers.SaveDiskLayoutVersion(this.Enlistment.DotGVFSRoot, majorVersionNum.ToString(), minorVersionNum.ToString());
-            this.Enlistment.MountGVFS();
+            ScalarHelpers.SaveDiskLayoutVersion(this.Enlistment.DotScalarRoot, majorVersionNum.ToString(), minorVersionNum.ToString());
+            this.Enlistment.MountScalar();
         }
 
         [TestCaseSource(typeof(MountSubfolders), MountSubfolders.MountFolders)]
@@ -278,11 +278,11 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
             MountSubfolders.EnsureSubfoldersOnDisk(this.Enlistment, this.fileSystem);
             string headCommitId = GitProcess.Invoke(this.Enlistment.RepoRoot, "rev-parse HEAD");
 
-            this.Enlistment.UnmountGVFS();
+            this.Enlistment.UnmountScalar();
 
             string majorVersion;
             string minorVersion;
-            GVFSHelpers.GetPersistedDiskLayoutVersion(this.Enlistment.DotGVFSRoot, out majorVersion, out minorVersion);
+            ScalarHelpers.GetPersistedDiskLayoutVersion(this.Enlistment.DotScalarRoot, out majorVersion, out minorVersion);
 
             int majorVersionNum;
             int minorVersionNum;
@@ -290,11 +290,11 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
             int.TryParse(minorVersion.ShouldNotBeNull(), out minorVersionNum).ShouldEqual(true);
 
             // 1 will always be below the minumum support version number
-            GVFSHelpers.SaveDiskLayoutVersion(this.Enlistment.DotGVFSRoot, "1", "0");
-            this.MountShouldFail("Breaking change to GVFS disk layout has been made since cloning", this.Enlistment.GetVirtualPathTo(mountSubfolder));
+            ScalarHelpers.SaveDiskLayoutVersion(this.Enlistment.DotScalarRoot, "1", "0");
+            this.MountShouldFail("Breaking change to Scalar disk layout has been made since cloning", this.Enlistment.GetVirtualPathTo(mountSubfolder));
 
-            GVFSHelpers.SaveDiskLayoutVersion(this.Enlistment.DotGVFSRoot, majorVersionNum.ToString(), minorVersionNum.ToString());
-            this.Enlistment.MountGVFS();
+            ScalarHelpers.SaveDiskLayoutVersion(this.Enlistment.DotScalarRoot, majorVersionNum.ToString(), minorVersionNum.ToString());
+            this.Enlistment.MountScalar();
         }
 
         private void MountShouldFail(int expectedExitCode, string expectedErrorMessage, string mountWorkingDirectory = null)
@@ -302,8 +302,8 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
             string enlistmentRoot = this.Enlistment.EnlistmentRoot;
 
             // TODO: 865304 Use app.config instead of --internal* arguments
-            ProcessStartInfo processInfo = new ProcessStartInfo(GVFSTestConfig.PathToGVFS);
-            processInfo.Arguments = "mount " + TestConstants.InternalUseOnlyFlag + " " + GVFSHelpers.GetInternalParameter();
+            ProcessStartInfo processInfo = new ProcessStartInfo(ScalarTestConfig.PathToScalar);
+            processInfo.Arguments = "mount " + TestConstants.InternalUseOnlyFlag + " " + ScalarHelpers.GetInternalParameter();
             processInfo.WindowStyle = ProcessWindowStyle.Hidden;
             processInfo.WorkingDirectory = string.IsNullOrEmpty(mountWorkingDirectory) ? enlistmentRoot : mountWorkingDirectory;
             processInfo.UseShellExecute = false;
@@ -316,7 +316,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 
         private void MountShouldFail(string expectedErrorMessage, string mountWorkingDirectory = null)
         {
-            this.MountShouldFail(GVFSGenericError, expectedErrorMessage, mountWorkingDirectory);
+            this.MountShouldFail(ScalarGenericError, expectedErrorMessage, mountWorkingDirectory);
         }
 
         private class MountSubfolders
@@ -325,7 +325,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
             private static object[] mountFolders =
             {
                 new object[] { string.Empty },
-                new object[] { "GVFS" },
+                new object[] { "Scalar" },
             };
 
             public static object[] Folders
@@ -336,9 +336,9 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
                 }
             }
 
-            public static void EnsureSubfoldersOnDisk(GVFSFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem)
+            public static void EnsureSubfoldersOnDisk(ScalarFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem)
             {
-                // Enumerate the directory to ensure that the folder is on disk after GVFS is unmounted
+                // Enumerate the directory to ensure that the folder is on disk after Scalar is unmounted
                 foreach (object[] folder in Folders)
                 {
                     string folderPath = enlistment.GetVirtualPathTo((string)folder[0]);

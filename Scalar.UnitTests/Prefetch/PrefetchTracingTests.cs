@@ -1,13 +1,13 @@
-﻿using GVFS.Common.Prefetch.Pipeline;
-using GVFS.Common.Prefetch.Pipeline.Data;
-using GVFS.Common.Tracing;
-using GVFS.Tests.Should;
-using GVFS.UnitTests.Mock.Common;
-using GVFS.UnitTests.Mock.Git;
+﻿using Scalar.Common.Prefetch.Pipeline;
+using Scalar.Common.Prefetch.Pipeline.Data;
+using Scalar.Common.Tracing;
+using Scalar.Tests.Should;
+using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.Git;
 using NUnit.Framework;
 using System.Collections.Concurrent;
 
-namespace GVFS.UnitTests.Prefetch
+namespace Scalar.UnitTests.Prefetch
 {
     [TestFixture]
     public class PrefetchTracingTests
@@ -20,7 +20,7 @@ namespace GVFS.UnitTests.Prefetch
         {
             using (ITracer tracer = CreateTracer())
             {
-                MockGVFSEnlistment enlistment = new MockGVFSEnlistment();
+                MockScalarEnlistment enlistment = new MockScalarEnlistment();
                 MockHttpGitObjects httpGitObjects = new MockHttpGitObjects(tracer, enlistment);
                 MockPhysicalGitObjects gitObjects = new MockPhysicalGitObjects(tracer, null, enlistment, httpGitObjects);
 
@@ -45,7 +45,7 @@ namespace GVFS.UnitTests.Prefetch
         {
             using (ITracer tracer = CreateTracer())
             {
-                MockGVFSEnlistment enlistment = new MockGVFSEnlistment();
+                MockScalarEnlistment enlistment = new MockScalarEnlistment();
                 MockHttpGitObjects httpGitObjects = new MockHttpGitObjects(tracer, enlistment);
                 httpGitObjects.AddBlobContent(FakeSha, FakeShaContents);
                 MockPhysicalGitObjects gitObjects = new MockPhysicalGitObjects(tracer, null, enlistment, httpGitObjects);
@@ -73,7 +73,7 @@ namespace GVFS.UnitTests.Prefetch
         {
             using (ITracer tracer = CreateTracer())
             {
-                MockGVFSEnlistment enlistment = new MockGVFSEnlistment();
+                MockScalarEnlistment enlistment = new MockScalarEnlistment();
                 MockPhysicalGitObjects gitObjects = new MockPhysicalGitObjects(tracer, null, enlistment, null);
 
                 BlockingCollection<IndexPackRequest> input = new BlockingCollection<IndexPackRequest>();

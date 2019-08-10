@@ -1,17 +1,17 @@
-﻿using GVFS.Common;
-using GVFS.Common.FileSystem;
-using GVFS.Common.Git;
-using GVFS.Common.Tracing;
-using GVFS.UnitTests.Mock.FileSystem;
-using GVFS.UnitTests.Mock.Git;
+﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
+using Scalar.Common.Git;
+using Scalar.Common.Tracing;
+using Scalar.UnitTests.Mock.FileSystem;
+using Scalar.UnitTests.Mock.Git;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
 
-namespace GVFS.UnitTests.Mock.Common
+namespace Scalar.UnitTests.Mock.Common
 {
-    public class MockPlatform : GVFSPlatform
+    public class MockPlatform : ScalarPlatform
     {
         public MockPlatform() : base(underConstruction: new UnderConstructionFlags())
         {
@@ -27,9 +27,9 @@ namespace GVFS.UnitTests.Mock.Common
 
         public override string Name { get => "Mock"; }
 
-        public override string GVFSConfigPath { get => Path.Combine("mock:", LocalGVFSConfig.FileName); }
+        public override string ScalarConfigPath { get => Path.Combine("mock:", LocalScalarConfig.FileName); }
 
-        public override GVFSPlatformConstants Constants { get; } = new MockPlatformConstants();
+        public override ScalarPlatformConstants Constants { get; } = new MockPlatformConstants();
 
         public HashSet<int> ActiveProcesses { get; } = new HashSet<int>();
 
@@ -45,12 +45,12 @@ namespace GVFS.UnitTests.Mock.Common
 
         public override string GetNamedPipeName(string enlistmentRoot)
         {
-            return "GVFS_Mock_PipeName";
+            return "Scalar_Mock_PipeName";
         }
 
-        public override string GetGVFSServiceNamedPipeName(string serviceName)
+        public override string GetScalarServiceNamedPipeName(string serviceName)
         {
-            return Path.Combine("GVFS_Mock_ServicePipeName", serviceName);
+            return Path.Combine("Scalar_Mock_ServicePipeName", serviceName);
         }
 
         public override NamedPipeServerStream CreatePipeByName(string pipeName)
@@ -73,17 +73,17 @@ namespace GVFS.UnitTests.Mock.Common
             throw new NotSupportedException();
         }
 
-        public override string GetDataRootForGVFS()
+        public override string GetDataRootForScalar()
         {
             // TODO: Update this method to return non existant file path.
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                "GVFS");
+                "Scalar");
         }
 
-        public override string GetDataRootForGVFSComponent(string componentName)
+        public override string GetDataRootForScalarComponent(string componentName)
         {
-            return Path.Combine(this.GetDataRootForGVFS(), componentName);
+            return Path.Combine(this.GetDataRootForScalar(), componentName);
         }
 
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly)
@@ -93,7 +93,7 @@ namespace GVFS.UnitTests.Mock.Common
 
         public override string GetUpgradeProtectedDataDirectory()
         {
-            return this.GetDataRootForGVFSComponent(ProductUpgraderInfo.UpgradeDirectoryName);
+            return this.GetDataRootForScalarComponent(ProductUpgraderInfo.UpgradeDirectoryName);
         }
 
         public override string GetUpgradeLogDirectoryParentDirectory()
@@ -131,7 +131,7 @@ namespace GVFS.UnitTests.Mock.Common
             throw new NotSupportedException();
         }
 
-        public override bool TryGetGVFSEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage)
+        public override bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage)
         {
             throw new NotSupportedException();
         }
@@ -141,7 +141,7 @@ namespace GVFS.UnitTests.Mock.Common
             throw new NotImplementedException();
         }
 
-        public override void StartBackgroundVFS4GProcess(ITracer tracer, string programName, string[] args)
+        public override void StartBackgroundScalar4GProcess(ITracer tracer, string programName, string[] args)
         {
             throw new NotSupportedException();
         }
@@ -170,7 +170,7 @@ namespace GVFS.UnitTests.Mock.Common
             return true;
         }
 
-        public class MockPlatformConstants : GVFSPlatformConstants
+        public class MockPlatformConstants : ScalarPlatformConstants
         {
             public override string ExecutableExtension
             {
@@ -184,27 +184,27 @@ namespace GVFS.UnitTests.Mock.Common
 
             public override string WorkingDirectoryBackingRootPath
             {
-                get { return GVFSConstants.WorkingDirectoryRootName; }
+                get { return ScalarConstants.WorkingDirectoryRootName; }
             }
 
-            public override string DotGVFSRoot
+            public override string DotScalarRoot
             {
-                get { return ".mockvfsforgit"; }
+                get { return ".mockscalar"; }
             }
 
-            public override string GVFSBinDirectoryPath
+            public override string ScalarBinDirectoryPath
             {
-                get { return Path.Combine("MockProgramFiles", this.GVFSBinDirectoryName); }
+                get { return Path.Combine("MockProgramFiles", this.ScalarBinDirectoryName); }
             }
 
-            public override string GVFSBinDirectoryName
+            public override string ScalarBinDirectoryName
             {
-                get { return "MockGVFS"; }
+                get { return "MockScalar"; }
             }
 
-            public override string GVFSExecutableName
+            public override string ScalarExecutableName
             {
-                get { return "MockGVFS" + this.ExecutableExtension; }
+                get { return "MockScalar" + this.ExecutableExtension; }
             }
 
             public override string ProgramLocaterCommand
@@ -214,7 +214,7 @@ namespace GVFS.UnitTests.Mock.Common
 
             public override HashSet<string> UpgradeBlockingProcesses
             {
-                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "GVFS", "GVFS.Mount", "git", "wish", "bash" }; }
+                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Scalar", "Scalar.Mount", "git", "wish", "bash" }; }
             }
 
             public override bool SupportsUpgradeWhileRunning => false;
