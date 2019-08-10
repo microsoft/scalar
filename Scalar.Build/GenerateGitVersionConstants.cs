@@ -29,7 +29,7 @@ namespace Scalar.PreBuild
 
             string installerDirectory = Path.Combine(
                 this.PackagesPath,
-                "GitForWindows.Scalar.Installer." + this.GitPackageVersion,
+                "GitForWindows.GVFS.Installer." + this.GitPackageVersion,
                 "tools");
 
             if (!Directory.Exists(installerDirectory))

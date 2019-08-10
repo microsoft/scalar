@@ -34,7 +34,7 @@ namespace Scalar.FunctionalTests.Properties
             {
                 CurrentDirectory = Path.GetFullPath(Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]));
 
-                RepoToClone = @"https://scalar.visualstudio.com/ci/_git/ForTests";
+                RepoToClone = @"https://gvfs.visualstudio.com/ci/_git/ForTests";
                 Commitish = @"FunctionalTests/20180214";
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

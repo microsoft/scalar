@@ -108,8 +108,8 @@ function Get-GitVersionFromNuGetPackage
     )
 
     # Find the git version number (looking through packages directory)
-    $gitInstallerPath = $NuGetPackagesDir + "/gitformac.scalar.installer/" + $GitPackageVersion + "/tools"
-    $toolsContents = Get-ChildItem -Path ($NuGetPackagesDir + "/gitformac.scalar.installer/" + $GitPackageVersion + "/tools") -Include *.pkg
+    $gitInstallerPath = $NuGetPackagesDir + "/gitformac.gvfs.installer/" + $GitPackageVersion + "/tools"
+    $toolsContents = Get-ChildItem -Path ($NuGetPackagesDir + "/gitformac.gvfs.installer/" + $GitPackageVersion + "/tools") -Include *.pkg
 
     $gitInstallerPkgName = $toolsContents[0].Name
     return $gitInstallerPkgName

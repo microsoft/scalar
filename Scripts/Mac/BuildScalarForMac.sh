@@ -29,7 +29,7 @@ fi
 echo 'Downloading a Scalar-enabled version of Git...'
 $Scalar_SCRIPTDIR/DownloadScalarGit.sh || exit 1
 GITVERSION="$($Scalar_SCRIPTDIR/GetGitVersionNumber.sh)"
-GITPATH="$(find $Scalar_PACKAGESDIR/gitformac.scalar.installer/$GITVERSION -type f -name *.dmg)" || exit 1
+GITPATH="$(find $Scalar_PACKAGESDIR/gitformac.gvfs.installer/$GITVERSION -type f -name *.dmg)" || exit 1
 echo "Downloaded Git $GITVERSION"
 # Now that we have a path containing the version number, generate ScalarConstants.GitVersion.cs
 $Scalar_SCRIPTDIR/GenerateGitVersionConstants.sh "$GITPATH" $BUILDDIR || exit 1

@@ -164,7 +164,7 @@ function CreateScalarDistribution()
 function CreateMetaDistribution()
 {
     GITVERSION="$($Scalar_SCRIPTDIR/GetGitVersionNumber.sh)"
-    GITINSTALLERPKGPATH="$(find $Scalar_PACKAGESDIR/gitformac.scalar.installer/$GITVERSION -type f -name *.pkg)" || exit 1
+    GITINSTALLERPKGPATH="$(find $Scalar_PACKAGESDIR/gitformac.gvfs.installer/$GITVERSION -type f -name *.pkg)" || exit 1
 
     GITPKGNAME="${GITINSTALLERPKGPATH##*/}"
     GITINSTALLERPKGNAME="${GITPKGNAME%.pkg}"

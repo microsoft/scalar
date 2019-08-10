@@ -3,7 +3,7 @@
 
 ; General documentation on how to use InnoSetup scripts: http://www.jrsoftware.org/ishelp/index.php
 
-#define VCRuntimeDir PackagesDir + "\Scalar.VCRuntime.0.2.0-build\lib\x64"
+#define VCRuntimeDir PackagesDir + "\GVFS.VCRuntime.0.2.0-build\lib\x64"
 #define ScalarDir BuildOutputDir + "\Scalar.Windows\bin\" + PlatformAndConfiguration
 #define ScalarCommonDir BuildOutputDir + "\Scalar.Common\bin\" + PlatformAndConfiguration + "\netstandard2.0"
 #define ServiceDir BuildOutputDir + "\Scalar.Service.Windows\bin\" + PlatformAndConfiguration

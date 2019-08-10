@@ -39,8 +39,8 @@ namespace Scalar.PreBuild
   </metadata>
   <files>
     <file src=""{0}"" target=""Scalar"" />
-    <file src=""{1}\GitForWindows.Scalar.Installer.{2}\tools\*"" target=""G4W"" />
-    <file src=""{1}\GitForWindows.Scalar.Portable.{2}\tools\*"" target=""G4W"" />
+    <file src=""{1}\GitForWindows.GVFS.Installer.{2}\tools\*"" target=""G4W"" />
+    <file src=""{1}\GitForWindows.GVFS.Portable.{2}\tools\*"" target=""G4W"" />
   </files>
 </package>",
                     this.ScalarSetupPath,

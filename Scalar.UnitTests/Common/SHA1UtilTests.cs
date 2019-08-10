@@ -8,7 +8,7 @@ namespace Scalar.UnitTests.Common
     [TestFixture]
     public class SHA1UtilTests
     {
-        private const string TestString = "c:\\Repos\\Scalar\\src\\.gittattributes";
+        private const string TestString = "c:\\Repos\\GVFS\\src\\.gittattributes";
         private const string TestResultSha1 = "ced5ad9680c1a05e9100680c2b3432de23bb7d6d";
         private const string TestResultHex = "633a5c5265706f735c475646535c7372635c2e6769747461747472696275746573";
 

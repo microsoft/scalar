@@ -55,18 +55,18 @@ namespace Scalar.Common
 
         public static class MediaTypes
         {
-            public const string PrefetchPackFilesAndIndexesMediaType = "application/x-scalar-timestamped-packfiles-indexes";
+            public const string PrefetchPackFilesAndIndexesMediaType = "application/x-gvfs-timestamped-packfiles-indexes";
             public const string LooseObjectMediaType = "application/x-git-loose-object";
-            public const string CustomLooseObjectsMediaType = "application/x-scalar-loose-objects";
+            public const string CustomLooseObjectsMediaType = "application/x-gvfs-loose-objects";
             public const string PackFileMediaType = "application/x-git-packfile";
         }
 
         public static class Endpoints
         {
-            public const string ScalarConfig = "/scalar/config";
-            public const string ScalarObjects = "/scalar/objects";
-            public const string ScalarPrefetch = "/scalar/prefetch";
-            public const string ScalarSizes = "/scalar/sizes";
+            public const string ScalarConfig = "/gvfs/config";
+            public const string ScalarObjects = "/gvfs/objects";
+            public const string ScalarPrefetch = "/gvfs/prefetch";
+            public const string ScalarSizes = "/gvfs/sizes";
             public const string InfoRefs = "/info/refs?service=git-upload-pack";
         }
 

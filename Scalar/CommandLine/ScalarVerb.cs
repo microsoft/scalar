@@ -334,7 +334,7 @@ namespace Scalar.CommandLine
                 "Querying remote for config",
                 suppressGvfsLogMessage: true))
             {
-                this.ReportErrorAndExit(tracer, "Unable to query /scalar/config" + Environment.NewLine + errorMessage);
+                this.ReportErrorAndExit(tracer, "Unable to query /gvfs/config" + Environment.NewLine + errorMessage);
             }
 
             return serverScalarConfig;
