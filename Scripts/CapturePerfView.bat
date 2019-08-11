@@ -57,7 +57,7 @@ set perfviewstoplog=%perfviewfilename%.end.log.txt
 :: Capture the perfview without requiring any human intervention
 :CapturePerfView
 echo Capture perf view for '%*'...
-perfview start /AcceptEULA /NoGui /NoNGenRundown /Merge /Zip /Providers:*Microsoft.Git.GVFS:@StacksEnabled=true,*Microsoft.Internal.Git.Plugin:@StacksEnabled=true,*Microsoft.OSGENG.Testing.GitMsWrapper:@StacksEnabled=true /kernelEvents=default+FileIOInit /logfile:"%perfviewstartlog%" "%perfviewfilename%" || goto :HandlePerfViewStartError
+perfview start /AcceptEULA /NoGui /NoNGenRundown /Merge /Zip /Providers:*Microsoft.Git.Scalar:@StacksEnabled=true,*Microsoft.Internal.Git.Plugin:@StacksEnabled=true,*Microsoft.OSGENG.Testing.GitMsWrapper:@StacksEnabled=true /kernelEvents=default+FileIOInit /logfile:"%perfviewstartlog%" "%perfviewfilename%" || goto :HandlePerfViewStartError
 echo.
 set STARTTIME=%TIME%
 %*
@@ -67,7 +67,7 @@ CALL :PrintElapsedTime
 
 :: Merge perfview into ZIP file
 echo Merging and compressing perf view...
-perfview stop /AcceptEULA /NoGui /NoNGenRundown /Merge /Zip /Providers:*Microsoft.Git.GVFS:@StacksEnabled=true,*Microsoft.Internal.Git.Plugin:@StacksEnabled=true,*Microsoft.OSGENG.Testing.GitMsWrapper:@StacksEnabled=true /kernelEvents=default+FileIOInit /logfile:"%perfviewstoplog%" || goto :HandlePerfViewStopError
+perfview stop /AcceptEULA /NoGui /NoNGenRundown /Merge /Zip /Providers:*Microsoft.Git.Scalar:@StacksEnabled=true,*Microsoft.Internal.Git.Plugin:@StacksEnabled=true,*Microsoft.OSGENG.Testing.GitMsWrapper:@StacksEnabled=true /kernelEvents=default+FileIOInit /logfile:"%perfviewstoplog%" || goto :HandlePerfViewStopError
 CALL :CheckForFile
 echo PerfView trace can be found in "%perfviewfilename%.etl.zip"
 goto :end

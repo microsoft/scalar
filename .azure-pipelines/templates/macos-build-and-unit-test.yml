@@ -12,8 +12,8 @@ steps:
       certSecureFile: 'PrjFSKextCertExpiresJun6_2020_v2.p12'
       certPwd: '$(kext.certificate.password)'
 
-  - script: Scripts/Mac/BuildGVFSForMac.sh $(configuration)
-    displayName: Build VFSForGit ($(configuration))
+  - script: Scripts/Mac/BuildScalarForMac.sh $(configuration)
+    displayName: Build Scalar ($(configuration))
 
   - task: PublishTestResults@2
     displayName: Publish test results

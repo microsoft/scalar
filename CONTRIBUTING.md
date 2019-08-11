@@ -1,4 +1,4 @@
-# Contributing to VFS for Git
+# Contributing to Scalar
 
 Thank you for taking the time to contribute!
 
@@ -39,17 +39,17 @@ The design review process is as follows:
 
   Cross-platform code is more easily reused.  Reusing code reduces the amount of code that must be written, tested, and maintained.
 
-- *Platform specific code, and only platform specific code, should go in `GVFSPlatform`*
+- *Platform specific code, and only platform specific code, should go in `ScalarPlatform`*
 
-  When platform specific code is required, it should be placed in `GVFSPlatform` or one of the platforms it contains.
+  When platform specific code is required, it should be placed in `ScalarPlatform` or one of the platforms it contains.
 
 ## Tracing and Logging
 
-- *The "Error" logging level is reserved for non-retryable errors that result in I/O failures or the VFS4G process shutting down*
+- *The "Error" logging level is reserved for non-retryable errors that result in I/O failures or the Scalar4G process shutting down*
 
-  The expectation from our customers is that when VFS4G logs an "Error" level message in its log file either:
-    * VFS4G had to shut down unexpectedly
-    * VFS4G encountered an issue severe enough that user-initiated I/O would fail.
+  The expectation from our customers is that when Scalar4G logs an "Error" level message in its log file either:
+    * Scalar4G had to shut down unexpectedly
+    * Scalar4G encountered an issue severe enough that user-initiated I/O would fail.
 
 - *Log full exception stacks*
 
@@ -57,11 +57,11 @@ The design review process is as follows:
   
 - *Do not display full exception stacks to users*
 
-  Exception call stacks are not usually actionable for the user.  Users frequently (sometimes incorrectly) assume that VFS4G has crashed when shown a full stack.  The full stack *should* be included in VFS4G logs, but *should not* be displayed as part of the error message provided to the user.
+  Exception call stacks are not usually actionable for the user.  Users frequently (sometimes incorrectly) assume that Scalar4G has crashed when shown a full stack.  The full stack *should* be included in Scalar4G logs, but *should not* be displayed as part of the error message provided to the user.
 
 - *Include relevant details when logging exceptions*
 
-  Sometimes an exception call stack alone is not enough to root cause failures in VFS4G.  When catching (or throwing) exceptions, log relevant details that will help diagnose the issue.  As a general rule, the closer an exception is caught to where it's thrown, the more relevant details there will be to log.
+  Sometimes an exception call stack alone is not enough to root cause failures in Scalar4G.  When catching (or throwing) exceptions, log relevant details that will help diagnose the issue.  As a general rule, the closer an exception is caught to where it's thrown, the more relevant details there will be to log.
 
   Example:
   ```
@@ -78,9 +78,9 @@ The design review process is as follows:
 
 ## Error Handling
 
-- *Fail fast: An error or exception that risks data loss or corruption should shut down VFS4G immediately*
+- *Fail fast: An error or exception that risks data loss or corruption should shut down Scalar4G immediately*
 
-  Preventing data loss and repository corruption is critical.  If an error or exception occurs that could lead to data loss, it's better to shut down VFS4G than keep the repository mounted and risk corruption.
+  Preventing data loss and repository corruption is critical.  If an error or exception occurs that could lead to data loss, it's better to shut down Scalar4G than keep the repository mounted and risk corruption.
 
 - *Do not catch exceptions that are indicative of a programmer error (e.g. `ArgumentNullException`)*
 
@@ -90,7 +90,7 @@ The design review process is as follows:
 
 - *Do not use exceptions for normal control flow*
 
-  Prefer writing code that does not throw exceptions.  The `TryXXX` pattern, for example, avoids the performance costs that come with using exceptions.  Additionally, VFS4G typically needs to know exactly where errors occur and handle the errors there.  The `TryXXX` pattern helps ensure errors are handled in that fashion.
+  Prefer writing code that does not throw exceptions.  The `TryXXX` pattern, for example, avoids the performance costs that come with using exceptions.  Additionally, Scalar4G typically needs to know exactly where errors occur and handle the errors there.  The `TryXXX` pattern helps ensure errors are handled in that fashion.
 
   Example: Handle errors where they occur (good):
 
@@ -165,42 +165,42 @@ The design review process is as follows:
   Don't tell a user what went wrong.  Help the user fix the problem.
 
   Example:
-  > `"You can only specify --hydrate if the repository is mounted. Run 'gvfs mount' and try again."`
+  > `"You can only specify --hydrate if the repository is mounted. Run 'scalar mount' and try again."`
 
 ## Background Threads
 
 - *Avoid using the thread pool (and avoid using async)*
 
-  `HttpRequestor.SendRequest` makes a [blocking call](https://github.com/Microsoft/VFSForGit/blob/4baa37df6bde2c9a9e1917fc7ce5debd653777c0/GVFS/GVFS.Common/Http/HttpRequestor.cs#L135) to `HttpClient.SendAsync`.  That blocking call consumes a thread from the managed thread pool.  Until that design changes, the rest of VFS4G must avoid using the thread pool unless absolutely necessary.  If the thread pool is required, any long running tasks should be moved to a separate thread managed by VFS4G itself (see [GitMaintenanceQueue](https://github.com/Microsoft/VFSForGit/blob/4baa37df6bde2c9a9e1917fc7ce5debd653777c0/GVFS/GVFS.Common/Maintenance/GitMaintenanceQueue.cs#L19) for an example).
+  `HttpRequestor.SendRequest` makes a [blocking call](https://github.com/Microsoft/Scalar/blob/4baa37df6bde2c9a9e1917fc7ce5debd653777c0/Scalar/Scalar.Common/Http/HttpRequestor.cs#L135) to `HttpClient.SendAsync`.  That blocking call consumes a thread from the managed thread pool.  Until that design changes, the rest of Scalar4G must avoid using the thread pool unless absolutely necessary.  If the thread pool is required, any long running tasks should be moved to a separate thread managed by Scalar4G itself (see [GitMaintenanceQueue](https://github.com/Microsoft/Scalar/blob/4baa37df6bde2c9a9e1917fc7ce5debd653777c0/Scalar/Scalar.Common/Maintenance/GitMaintenanceQueue.cs#L19) for an example).
 
-  Long-running or blocking work scheduled on the managed thread pool can prevent the normal operation of VFS4G.  For example, it could prevent downloading file sizes, loose objects, or file contents in a timely fashion.
+  Long-running or blocking work scheduled on the managed thread pool can prevent the normal operation of Scalar4G.  For example, it could prevent downloading file sizes, loose objects, or file contents in a timely fashion.
 
 - <a id="bgexceptions"></a>*Catch all exceptions on long-running tasks and background threads*
 
-  Wrap all code that runs in the background thread in a top-level `try/catch(Exception)`.  Any exceptions caught by this handler should be logged, and then VFS4G should be forced to terminate with `Environment.Exit`.  It's not safe to allow VFS4G to continue to run after an unhandled exception stops a background thread or long-running task.  Testing has shown that `Environment.Exit` consistently terminates the VFS4G mount process regardless of how background threads are started (e.g. native thread, `new Thread()`, `Task.Factory.StartNew()`).
+  Wrap all code that runs in the background thread in a top-level `try/catch(Exception)`.  Any exceptions caught by this handler should be logged, and then Scalar4G should be forced to terminate with `Environment.Exit`.  It's not safe to allow Scalar4G to continue to run after an unhandled exception stops a background thread or long-running task.  Testing has shown that `Environment.Exit` consistently terminates the Scalar4G mount process regardless of how background threads are started (e.g. native thread, `new Thread()`, `Task.Factory.StartNew()`).
 
-  An example of this pattern can be seen in [`BackgroundFileSystemTaskRunner.ProcessBackgroundTasks`](https://github.com/Microsoft/VFSForGit/blob/4baa37df6bde2c9a9e1917fc7ce5debd653777c0/GVFS/GVFS.Virtualization/Background/BackgroundFileSystemTaskRunner.cs#L233).
+  An example of this pattern can be seen in [`BackgroundFileSystemTaskRunner.ProcessBackgroundTasks`](https://github.com/Microsoft/Scalar/blob/4baa37df6bde2c9a9e1917fc7ce5debd653777c0/Scalar/Scalar.Virtualization/Background/BackgroundFileSystemTaskRunner.cs#L233).
 
 ## Coding Conventions
 
 - *Most C# coding style guidelines are covered by StyleCop*
 
-  Fix any StyleCop issues reported in changed code. When adding new projects to VFS4G, be sure that StyleCop is analyzing them as part of the build.
+  Fix any StyleCop issues reported in changed code. When adding new projects to Scalar4G, be sure that StyleCop is analyzing them as part of the build.
 
 - *Prefer explicit types to interfaces and implicitly typed variables*
 
   Avoid the use of `var` (C#), `dynamic` (C#), and `auto` (C++).  Prefer concrete/explicit types to interfaces (e.g. prefer `List` to `IList`).
 
-  The VFS4G codebase uses this approach because:
+  The Scalar4G codebase uses this approach because:
 
     * Interfaces can hide the performance characteristics of their underlying type.  For example, an `IDictionary` could be a `SortedList` or a `Dictionary` (or several other data types).
     * Interfaces can hide the thread safety (or lack thereof) of their underlying type.  For example, an `IDictionary` could be a `Dictionary` or a `ConcurrentDictionary`.
     * Explicit types make these performance and thread safety characteristics explicit when reviewing code.
-    * VFS4G is not a public API and its components are always shipped together.  Develoepers are free to make API changes to VFS4G's public methods.
+    * Scalar4G is not a public API and its components are always shipped together.  Develoepers are free to make API changes to Scalar4G's public methods.
 
 - *Method names start with a verb (e.g. "GetProjectedFolderEntryData" rather than "ProjectedFolderEntryData")*
 
-  Starting with a verb in the name improves readability and helps ensure consistency with the rest of the VFS4G codebase.
+  Starting with a verb in the name improves readability and helps ensure consistency with the rest of the Scalar4G codebase.
 
 - *Aim to write self-commenting code.  When necessary, comments should give background needed to understand the code.*
 
@@ -221,12 +221,12 @@ The design review process is as follows:
 
   ```
   // Check if enumeration expands directories on the current platform
-  if (GVFSPlatform.Instance.KernelDriver.EnumerationExpandsDirectories)
+  if (ScalarPlatform.Instance.KernelDriver.EnumerationExpandsDirectories)
   ```
 
 - *Add new interfaces when it makes sense for the product, not simply for unit testing*
 
-  When a class needs to be mocked (or have a subset of its behavior mocked), prefer using virtual methods instead of adding a new interface.  VFS4G uses interfaces when multiple implementations of the interface exist in the product code.
+  When a class needs to be mocked (or have a subset of its behavior mocked), prefer using virtual methods instead of adding a new interface.  Scalar4G uses interfaces when multiple implementations of the interface exist in the product code.
 
 - *Check for `null` using the equality (`==`) and inequality (`!=`) operators rather than `is`*
 
@@ -277,9 +277,9 @@ The design review process is as follows:
 
 - *Add new unit and functional tests when making changes*
 
-  Comprehensive tests are essential for maintaining the health and quality of the product.  For more details on writing tests see [Authoring Tests](https://github.com/Microsoft/VFSForGit/blob/master/AuthoringTests.md).
+  Comprehensive tests are essential for maintaining the health and quality of the product.  For more details on writing tests see [Authoring Tests](https://github.com/Microsoft/Scalar/blob/master/AuthoringTests.md).
 
-- *Functional tests are black-box tests and should not build against any VFS4G product code*
+- *Functional tests are black-box tests and should not build against any Scalar4G product code*
 
   Keeping the code separate helps ensure that bugs in the product code do not compromise the integrity of the functional tests.
 

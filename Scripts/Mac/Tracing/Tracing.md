@@ -1,7 +1,7 @@
 # Tracing on macOS
 
 [DTrace](https://en.wikipedia.org/wiki/DTrace) is the main low-level tool for tracing and diagnostics on macOS.
-For diagnosing issues potentially caused by VFS for Git, tracing syscalls to track down errors has proven to be a useful technique on Windows.
+For diagnosing issues potentially caused by Scalar, tracing syscalls to track down errors has proven to be a useful technique on Windows.
 On macOS, the DTrace script `dtruss` which ships with the OS can be used for tracing system calls made by processes.
 However, it has not been updated for newer OS versions for a while, making some of its features unreliable.
 We therefore recommend using our [updated version of the script](./dtruss), and the instructions below assume you are using this version.

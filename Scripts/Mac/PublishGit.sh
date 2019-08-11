@@ -3,7 +3,7 @@
 GITPATH=$1
 INSTALLER=$(basename $GITPATH)
 
-GITPUBLISH=$VFS_OUTPUTDIR/Git
+GITPUBLISH=$Scalar_OUTPUTDIR/Git
 if [[ ! -d $GITPUBLISH ]] ; then
   mkdir $GITPUBLISH
 fi

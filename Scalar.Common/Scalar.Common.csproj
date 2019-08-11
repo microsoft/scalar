@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\Scalar.Build\Scalar.cs.props" />
+  <Import Project="..\Scalar.Build\LibGit2Sharp.NativeBinaries.props" />
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.1;netstandard2.0</TargetFrameworks>
+    <Platforms>x64</Platforms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Version>$(ScalarVersion)</Version>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Version>$(ScalarVersion)</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\BuildOutput\Scalar.Build\ScalarConstants.GitVersion.cs" Link="ScalarConstants.GitVersion.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.278" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="NuGet.Commands" Version="4.9.2" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="NuGet.Protocol" Version="4.9.2" />
+    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="X509Certificates\" />
+  </ItemGroup>
+</Project>

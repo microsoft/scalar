@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\Scalar.Build\Scalar.cs.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <Platforms>x64</Platforms>
+    <!-- see https://github.com/NuGet/Home/issues/4837 for reference to CopyLocalLockFileAssemblies -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <RuntimeIdentifiers>win-x64;osx-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RootNamespace>Scalar.FunctionalTests</RootNamespace>
+    <AssemblyName>Scalar.FunctionalTests</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Version>$(ScalarVersion)</Version>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Version>$(ScalarVersion)</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="2.2.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="NUnitLite" Version="3.12.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Scalar.Tests\Scalar.Tests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.Windows\bin\$(Platform)\$(Configuration)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.Windows\bin\$(Platform)\$(Configuration)\$(Platform)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.Service.Windows\bin\$(Platform)\$(Configuration)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.Mount.Windows\bin\$(Platform)\$(Configuration)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.NativeTests\bin\$(Platform)\$(Configuration)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.Hooks.Windows\bin\$(Platform)\$(Configuration)\**\*.*" />
+    <WindowsBuildOutputs Include="$(BuildOutputDir)\Scalar.FunctionalTests.LockHolder\bin\$(Platform)\$(Configuration)\**\*.*" />
+  </ItemGroup>
+
+  <Target Name="CopyWindowsTestDependencies" AfterTargets="PostBuildEvent" Condition="'$(OS)' == 'Windows_NT'">
+    <Copy SourceFiles="@(WindowsBuildOutputs)" DestinationFolder="$(TargetDir)\%(RecursiveDir)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
+  </Target>
+  
+</Project>

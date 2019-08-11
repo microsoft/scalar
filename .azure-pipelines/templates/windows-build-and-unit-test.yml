@@ -9,8 +9,8 @@ steps:
       & 'C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\x64\sn.exe' -Vr *,31bf3856ad364e35
     displayName: Disable strong name validation for MS delay-signed assemblies
 
-  - script: $(Build.Repository.LocalPath)\Scripts\BuildGVFSForWindows.bat $(configuration) $(majorAndMinorVersion).$(revision)
-    displayName: Run VFSForGit build script ($(configuration))
+  - script: $(Build.Repository.LocalPath)\Scripts\BuildScalarForWindows.bat $(configuration) $(majorAndMinorVersion).$(revision)
+    displayName: Run Scalar build script ($(configuration))
 
   - script: $(Build.Repository.LocalPath)\Scripts\RunUnitTests.bat $(configuration)
     displayName: Run unit tests
