@@ -181,6 +181,7 @@
           Condition="'$(OS)' == 'Windows_NT'">
     <Exec Command="call $(MSBuildThisFileDirectory)..\Scripts\RestorePackages.bat $(Configuration)"
           WorkingDirectory="$(MSBuildThisFileDirectory)../" />
+    <MakeDir Directories="$(BuildOutputDir)"/>
     <Touch Files="$(RestoreTimestampPath)" AlwaysCreate="true" />
   </Target>
 
