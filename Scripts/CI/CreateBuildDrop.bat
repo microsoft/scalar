@@ -20,7 +20,7 @@ mkdir %Scalar_STAGEDIR%\BuildOutput\Scalar.FunctionalTests\bin\x64\%Configuratio
 REM Make a minimal 'test' enlistment to pass along our pipeline.
 copy %Scalar_SCRIPTSDIR%\*.* %Scalar_STAGEDIR%\src\Scripts\ || exit /b 1
 copy %Scalar_OUTPUTDIR%\Scalar.Build\*.* %Scalar_STAGEDIR%\BuildOutput\Scalar.Build
-dotnet publish %Scalar_SRCDIR%\Scalar\Scalar.FunctionalTests\Scalar.FunctionalTests.csproj -p:StyleCopEnabled=False --self-contained --framework netcoreapp2.1 -r win-x64 -c Release -o %Scalar_STAGEDIR%\BuildOutput\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\ || exit /b 1
+dotnet publish %Scalar_SRCDIR%\Scalar.FunctionalTests\Scalar.FunctionalTests.csproj -p:StyleCopEnabled=False --self-contained --framework netcoreapp2.1 -r win-x64 -c Release -o %Scalar_STAGEDIR%\BuildOutput\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\ || exit /b 1
 robocopy %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\ %Scalar_STAGEDIR%\BuildOutput\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\ /E /XC /XN /XO
 IF %ERRORLEVEL% GTR 7 (
   echo "ERROR: robocopy had at least one failure"
