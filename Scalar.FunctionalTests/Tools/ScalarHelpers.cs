@@ -140,51 +140,12 @@ namespace Scalar.FunctionalTests.Tools
             }
         }
 
-        public static void ModifiedPathsContentsShouldEqual(ScalarFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem, string contents)
-        {
-            string modifedPathsContents = GetModifiedPathsContents(enlistment, fileSystem);
-            modifedPathsContents.ShouldEqual(contents);
-        }
-
-        public static void ModifiedPathsShouldContain(ScalarFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem, params string[] gitPaths)
-        {
-            string modifedPathsContents = GetModifiedPathsContents(enlistment, fileSystem);
-            string[] modifedPathLines = modifedPathsContents.Split(new[] { ModifiedPathsNewLine }, StringSplitOptions.None);
-            foreach (string gitPath in gitPaths)
-            {
-                modifedPathLines.ShouldContain(path => path.Equals(ModifedPathsLineAddPrefix + gitPath, StringComparison.OrdinalIgnoreCase));
-            }
-        }
-
-        public static void ModifiedPathsShouldNotContain(ScalarFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem, params string[] gitPaths)
-        {
-            string modifedPathsContents = GetModifiedPathsContents(enlistment, fileSystem);
-            string[] modifedPathLines = modifedPathsContents.Split(new[] { ModifiedPathsNewLine }, StringSplitOptions.None);
-            foreach (string gitPath in gitPaths)
-            {
-                modifedPathLines.ShouldNotContain(
-                    path =>
-                    {
-                        return path.Equals(ModifedPathsLineAddPrefix + gitPath, StringComparison.OrdinalIgnoreCase) ||
-                               path.Equals(ModifedPathsLineDeletePrefix + gitPath, StringComparison.OrdinalIgnoreCase);
-                    });
-            }
-        }
-
         public static string GetInternalParameter(string maintenanceJob = "null", string packfileMaintenanceBatchSize = "null")
         {
             return $"\"{{\\\"ServiceName\\\":\\\"{ScalarServiceProcess.TestServiceName}\\\"," +
                     "\\\"StartedByService\\\":false," +
                     $"\\\"MaintenanceJob\\\":{maintenanceJob}," +
                     $"\\\"PackfileMaintenanceBatchSize\\\":{packfileMaintenanceBatchSize}}}\"";
-        }
-
-        private static string GetModifiedPathsContents(ScalarFunctionalTestEnlistment enlistment, FileSystemRunner fileSystem)
-        {
-            enlistment.WaitForBackgroundOperations();
-            string modifiedPathsDatabase = Path.Combine(enlistment.DotScalarRoot, TestConstants.Databases.ModifiedPaths);
-            modifiedPathsDatabase.ShouldBeAFile(fileSystem);
-            return ScalarHelpers.ReadAllTextFromWriteLockedFile(modifiedPathsDatabase);
         }
 
         private static T RunSqliteCommand<T>(string sqliteDbPath, Func<SqliteCommand, T> runCommand)
