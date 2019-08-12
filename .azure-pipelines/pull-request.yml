@@ -15,7 +15,9 @@ variables:
   configuration: release
 
 jobs:
-  - job: Windows
+  - job: Windows_Build_and_UnitTests
+    variables:
+      platformFriendlyName: Windows
     pool:
       vmImage: vs2017-win2016
     steps:
@@ -38,5 +40,17 @@ jobs:
     dependsOn: macOS_Build_and_UnitTests
     condition: succeeded()
     steps:
-      - checkout: none # Use the drop from Build_macOS job
+      - checkout: none # Use the drop from macOS_Build_and_UnitTests job
       - template: templates/macos-functional-test.yml
+
+  - job: Windows_FunctionalTests
+    timeoutInMinutes: 30
+    variables:
+      platformFriendlyName: Windows
+    pool:
+      vmImage: vs2017-win2016
+    dependsOn: Windows_Build_and_UnitTests
+    condition: succeeded()
+    steps:
+    - checkout: none # We'll get the build drop from Windows_Build_and_UnitTests job
+    - template: templates/windows-functional-test.yml

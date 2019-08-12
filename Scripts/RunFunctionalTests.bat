@@ -32,7 +32,6 @@ where git
 
 :startFunctionalTests
 dotnet %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.FunctionalTests.dll /result:TestResultNetCore.xml %2 %3 %4 %5 || goto :endFunctionalTests
-%Scalar_OUTPUTDIR%\Scalar.FunctionalTests.Windows\bin\x64\%Configuration%\Scalar.FunctionalTests.Windows.exe /result:TestResultNetFramework.xml --windows-only %2 %3 %4 %5 || goto :endFunctionalTests
 
 :endFunctionalTests
 set error=%errorlevel%
