@@ -15,23 +15,23 @@ steps:
   - script: $(Build.Repository.LocalPath)\Scripts\RunUnitTests.bat $(configuration)
     displayName: Run unit tests
 
-  #- task: PublishTestResults@2
-  #  displayName: Publish unit test results
-  #  inputs:
-  #    testRunner: NUnit
-  #    testResultsFiles: "**\\TestResult.xml"
-  #    searchFolder: $(System.DefaultWorkingDirectory)
-  #    testRunTitle: Windows $(configuration) Unit Tests
-  #    publishRunAttachments: true
+  - task: PublishTestResults@2
+    displayName: Publish unit test results
+    inputs:
+      testRunner: NUnit
+      testResultsFiles: "**\\TestResult.xml"
+      searchFolder: $(System.DefaultWorkingDirectory)
+      testRunTitle: Windows $(configuration) Unit Tests
+      publishRunAttachments: true
 
-  #- script: $(Build.Repository.LocalPath)\Scripts\CI\CreateBuildDrop.bat $(configuration) $(Build.ArtifactStagingDirectory)\Tests
-  #  displayName: Create functional test drop.
+  - script: $(Build.Repository.LocalPath)\Scripts\CI\CreateBuildDrop.bat $(configuration) $(Build.ArtifactStagingDirectory)\Tests
+    displayName: Create functional test drop.
 
-  #- task: PublishBuildArtifacts@1
-  #  displayName: Publish functional test drop artifact.
-  #  inputs:
-  #    pathtoPublish: $(Build.ArtifactStagingDirectory)\Tests
-  #    artifactName: "FunctionalTests_$(platformFriendlyName)_$(configuration)"
-  #    parallel: true
-  #    parallelCount: 8
-  #  condition: succeededOrFailed()
+  - task: PublishBuildArtifacts@1
+    displayName: Publish functional test drop artifact.
+    inputs:
+      pathtoPublish: $(Build.ArtifactStagingDirectory)\Tests
+      artifactName: "FunctionalTests_$(platformFriendlyName)_$(configuration)"
+      parallel: true
+      parallelCount: 8
+    condition: succeededOrFailed()

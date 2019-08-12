@@ -114,6 +114,10 @@ namespace Scalar.FunctionalTests
             includeCategories.Clear();
             excludeCategories.Clear();
             excludeCategories.Add(Categories.NeedsUpdatesForNonVirtualizedMode);
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                excludeCategories.Add(Categories.MacOnly);
+            }
 
             ScalarTestConfig.DotScalarRoot = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? ".scalar" : ".scalar";
 
