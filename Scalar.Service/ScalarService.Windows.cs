@@ -249,7 +249,7 @@ namespace Scalar.Service
             Directory.CreateDirectory(this.serviceDataLocation, serviceDataRootSecurity);
             Directory.CreateDirectory(ProductUpgraderInfo.GetUpgradeProtectedDataDirectory(), serviceDataRootSecurity);
 
-            // Ensure the ACLs are set correctly on any files or directories that were already created (e.g. after upgrading Scalar4G)
+            // Ensure the ACLs are set correctly on any files or directories that were already created (e.g. after upgrading Scalar)
             Directory.SetAccessControl(serviceDataRootPath, serviceDataRootSecurity);
 
             // Special rules for the upgrader logs, as non-elevated users need to be be able to write

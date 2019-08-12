@@ -45,13 +45,13 @@ namespace Scalar.Common
         /// This method should only be called by processes whose code we own as the background process must
         /// do some extra work after it starts.
         /// </remarks>
-        public abstract void StartBackgroundScalar4GProcess(ITracer tracer, string programName, string[] args);
+        public abstract void StartBackgroundScalarProcess(ITracer tracer, string programName, string[] args);
 
         /// <summary>
         /// Adjusts the current process for running in the background.
         /// </summary>
         /// <remarks>
-        /// This method should be called after starting by processes launched using <see cref="ScalarPlatform.StartBackgroundScalar4GProcess"/>
+        /// This method should be called after starting by processes launched using <see cref="ScalarPlatform.StartBackgroundScalarProcess"/>
         /// </remarks>
         /// <exception cref="Win32Exception">
         /// Failed to prepare process to run in background.

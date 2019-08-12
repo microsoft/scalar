@@ -82,7 +82,7 @@ namespace Scalar.Mount
         {
             if (this.StartedByVerb)
             {
-                // If this process was started by a verb it means that StartBackgroundScalar4GProcess was used
+                // If this process was started by a verb it means that StartBackgroundScalarProcess was used
                 // and we should be running in the background.  PrepareProcessToRunInBackground will perform
                 // any platform specific preparation required to run as a background process.
                 ScalarPlatform.Instance.PrepareProcessToRunInBackground();

@@ -238,7 +238,7 @@ namespace Scalar.CommandLine
 
             tracer.RelatedInfo($"{nameof(this.TryMount)}: Launching background process('{mountExecutableLocation}') for {enlistment.EnlistmentRoot}");
 
-            ScalarPlatform.Instance.StartBackgroundScalar4GProcess(
+            ScalarPlatform.Instance.StartBackgroundScalarProcess(
                 tracer,
                 mountExecutableLocation,
                 new[]

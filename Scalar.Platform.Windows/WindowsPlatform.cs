@@ -141,7 +141,7 @@ namespace Scalar.Platform.Windows
             return WindowsPlatform.GetDataRootForScalarComponentImplementation(componentName);
         }
 
-        public override void StartBackgroundScalar4GProcess(ITracer tracer, string programName, string[] args)
+        public override void StartBackgroundScalarProcess(ITracer tracer, string programName, string[] args)
         {
             string programArguments = string.Empty;
             try
