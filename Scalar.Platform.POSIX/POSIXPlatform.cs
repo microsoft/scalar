@@ -53,7 +53,7 @@ namespace Scalar.Platform.POSIX
             throw new NotImplementedException();
         }
 
-        public override void StartBackgroundScalar4GProcess(ITracer tracer, string programName, string[] args)
+        public override void StartBackgroundScalarProcess(ITracer tracer, string programName, string[] args)
         {
             string programArguments = string.Empty;
             try
@@ -75,7 +75,7 @@ namespace Scalar.Platform.POSIX
                 // way to ensure they're properly closed.
                 //
                 // Note that this approach requires that the child process know that it needs to redirect its standard input/output to /dev/null and
-                // so this method can only be used with Scalar4G processes that are aware they're being launched in the background
+                // so this method can only be used with Scalar processes that are aware they're being launched in the background
                 processInfo.RedirectStandardError = true;
                 processInfo.RedirectStandardInput = true;
                 processInfo.RedirectStandardOutput = true;

@@ -66,9 +66,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // This test should not use Nuget upgrader because it will usually find an upgrade
             // to download.  The "None" ring config doesn't stop the Nuget upgrader from checking
-            // its feed for updates, and the Scalar4G binaries installed during functional test
+            // its feed for updates, and the Scalar binaries installed during functional test
             // runs typically have a 0.X version number (meaning there will always be a newer
-            // version of Scalar4G available to download from the feed).
+            // version of Scalar available to download from the feed).
             this.ReadNugetConfig(out string feedUrl, out string feedName);
             this.DeleteNugetConfig();
             this.VerifyUpgradeVerbStopsReminder();
