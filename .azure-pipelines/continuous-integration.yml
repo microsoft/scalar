@@ -35,7 +35,7 @@ jobs:
         release:
           configuration: Release
     pool:
-      vmImage: macOS 10.13
+      name: 'Hosted macOS'
     steps:
     - template: templates/macos-build-and-unit-test.yml
 
@@ -58,7 +58,7 @@ jobs:
       platformFriendlyName: macOS
       configuration: Release
     pool:
-     name: MacFunctionalTests
+     name: 'Hosted macOS'
     dependsOn: Build_macOS
     condition: succeeded()
     steps:
