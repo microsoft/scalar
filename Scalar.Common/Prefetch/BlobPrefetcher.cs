@@ -39,18 +39,6 @@ namespace Scalar.Common.Prefetch
             ITracer tracer,
             Enlistment enlistment,
             GitObjectsHttpRequestor objectRequestor,
-            int chunkSize,
-            int searchThreadCount,
-            int downloadThreadCount,
-            int indexThreadCount)
-            : this(tracer, enlistment, objectRequestor, null, null, null, chunkSize, searchThreadCount, downloadThreadCount, indexThreadCount)
-        {
-        }
-
-        public BlobPrefetcher(
-            ITracer tracer,
-            Enlistment enlistment,
-            GitObjectsHttpRequestor objectRequestor,
             List<string> fileList,
             List<string> folderList,
             FileBasedDictionary<string, string> lastPrefetchArgs,
@@ -200,16 +188,6 @@ namespace Scalar.Common.Prefetch
 
                 fileStream.Close();
             }
-        }
-
-        /// <param name="branchOrCommit">A specific branch to filter for, or null for all branches returned from info/refs</param>
-        public virtual void Prefetch(string branchOrCommit, bool isBranch)
-        {
-            int matchedBlobCount;
-            int downloadedBlobCount;
-            int hydratedFileCount;
-
-            this.PrefetchWithStats(branchOrCommit, isBranch, false, out matchedBlobCount, out downloadedBlobCount, out hydratedFileCount);
         }
 
         public void PrefetchWithStats(

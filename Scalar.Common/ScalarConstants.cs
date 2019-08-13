@@ -103,11 +103,7 @@ namespace Scalar.Common
             {
                 public const string Name = "databases";
 
-                public static readonly string BackgroundFileSystemTasks = Path.Combine(Name, "BackgroundGitOperations.dat");
-                public static readonly string PlaceholderList = Path.Combine(Name, "PlaceholderList.dat");
-                public static readonly string ModifiedPaths = Path.Combine(Name, "ModifiedPaths.dat");
                 public static readonly string RepoMetadata = Path.Combine(Name, "RepoMetadata.dat");
-                public static readonly string Scalar = Path.Combine(Name, "Scalar.sqlite");
             }
 
             public static class GitStatusCache
