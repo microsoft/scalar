@@ -6,7 +6,6 @@ using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
@@ -285,7 +284,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             private static object[] mountFolders =
             {
                 new object[] { string.Empty },
-                new object[] { "Scalar" },
+                new object[] { "GVFS" },
             };
 
             public static object[] Folders

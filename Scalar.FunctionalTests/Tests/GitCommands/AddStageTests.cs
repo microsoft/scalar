@@ -47,13 +47,13 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         [TestCase, Order(4)]
         public void AddAllowsPlaceholderCreation()
         {
-            this.CommandAllowsPlaceholderCreation("add", "Scalar", "Scalar", "Program.cs");
+            this.CommandAllowsPlaceholderCreation("add", "GVFS", "GVFS", "Program.cs");
         }
 
         [TestCase, Order(5)]
         public void StageAllowsPlaceholderCreation()
         {
-            this.CommandAllowsPlaceholderCreation("stage", "Scalar", "Scalar", "App.config");
+            this.CommandAllowsPlaceholderCreation("stage", "GVFS", "GVFS", "App.config");
         }
 
         private void CommandAllowsPlaceholderCreation(string command, params string[] fileToReadPathParts)

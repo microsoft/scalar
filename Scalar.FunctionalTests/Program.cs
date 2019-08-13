@@ -111,9 +111,8 @@ namespace Scalar.FunctionalTests
 
             // For now, run all of the tests not flagged as needing to be updated to work
             // with the non-virtualized solution
-            includeCategories.Clear();
-            excludeCategories.Clear();
             excludeCategories.Add(Categories.NeedsUpdatesForNonVirtualizedMode);
+
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 excludeCategories.Add(Categories.MacOnly);

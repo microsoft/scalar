@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
 {
     [TestFixture]
-    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class LooseObjectStepTests : TestsWithEnlistmentPerTestCase
     {
         private const string TempPackFolder = "tempPacks";

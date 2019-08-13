@@ -15,7 +15,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
     {
         private FileSystemRunner fileSystem = new SystemIORunner();
         private ScalarProcess scalarProcess;
-        private string mainSparseFolder = Path.Combine("Scalar", "Scalar");
+        private string mainSparseFolder = Path.Combine("GVFS", "GVFS");
         private string[] allRootDirectories;
         private string[] directoriesInMainFolder;
 
@@ -53,7 +53,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             string[] directories = Directory.GetDirectories(this.Enlistment.RepoRoot);
             directories.Length.ShouldEqual(2);
             directories[0].ShouldEqual(Path.Combine(this.Enlistment.RepoRoot, ".git"));
-            directories[1].ShouldEqual(Path.Combine(this.Enlistment.RepoRoot, "Scalar"));
+            directories[1].ShouldEqual(Path.Combine(this.Enlistment.RepoRoot, "GVFS"));
 
             string folder = this.Enlistment.GetVirtualPathTo(this.mainSparseFolder);
             folder.ShouldBeADirectory(this.fileSystem);
@@ -65,14 +65,14 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             folder = this.Enlistment.GetVirtualPathTo("Scripts");
             folder.ShouldNotExistOnDisk(this.fileSystem);
-            folder = this.Enlistment.GetVirtualPathTo("Scalar", "Scalar.Mount");
+            folder = this.Enlistment.GetVirtualPathTo("GVFS", "GVFS.Mount");
             folder.ShouldNotExistOnDisk(this.fileSystem);
 
-            string secondPath = Path.Combine("Scalar", "Scalar.Common", "Physical");
+            string secondPath = Path.Combine("GVFS", "GVFS.Common", "Physical");
             this.scalarProcess.AddSparseFolders(secondPath);
             folder = this.Enlistment.GetVirtualPathTo(secondPath);
             folder.ShouldBeADirectory(this.fileSystem);
-            file = this.Enlistment.GetVirtualPathTo("Scalar", "Scalar.Common", "Enlistment.cs");
+            file = this.Enlistment.GetVirtualPathTo("GVFS", "GVFS.Common", "Enlistment.cs");
             file.ShouldBeAFile(this.fileSystem);
         }
 
@@ -83,16 +83,16 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             string[][] paths = new[]
             {
                 // AltDirectorySeparatorChar should get converted to DirectorySeparatorChar
-                new[] { string.Join(Path.AltDirectorySeparatorChar.ToString(), "Scalar", "Scalar"), this.mainSparseFolder },
+                new[] { string.Join(Path.AltDirectorySeparatorChar.ToString(), "GVFS", "GVFS"), this.mainSparseFolder },
 
                 // AltDirectorySeparatorChar should get trimmed
-                new[] { $"{Path.AltDirectorySeparatorChar}{string.Join(Path.AltDirectorySeparatorChar.ToString(), "Scalar", "Test")}{Path.AltDirectorySeparatorChar}", Path.Combine("Scalar", "Test") },
+                new[] { $"{Path.AltDirectorySeparatorChar}{string.Join(Path.AltDirectorySeparatorChar.ToString(), "GVFS", "Test")}{Path.AltDirectorySeparatorChar}", Path.Combine("GVFS", "Test") },
 
                 // DirectorySeparatorChar should get trimmed
-                new[] { $"{Path.DirectorySeparatorChar}{Path.Combine("Scalar", "More")}{Path.DirectorySeparatorChar}", Path.Combine("Scalar", "More") },
+                new[] { $"{Path.DirectorySeparatorChar}{Path.Combine("GVFS", "More")}{Path.DirectorySeparatorChar}", Path.Combine("GVFS", "More") },
 
                 // spaces should get trimmed
-                new[] { $" {string.Join(Path.AltDirectorySeparatorChar.ToString(), "Scalar", "Other")} ", Path.Combine("Scalar", "Other") },
+                new[] { $" {string.Join(Path.AltDirectorySeparatorChar.ToString(), "GVFS", "Other")} ", Path.Combine("GVFS", "Other") },
             };
 
             foreach (string[] pathToValidate in paths)
@@ -125,7 +125,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.ValidateFoldersInSparseList(this.mainSparseFolder);
 
             // Add and remove sibling folder to main folder
-            string siblingPath = Path.Combine("Scalar", "FastFetch");
+            string siblingPath = Path.Combine("GVFS", "FastFetch");
             this.scalarProcess.AddSparseFolders(siblingPath);
             string folder = this.Enlistment.GetVirtualPathTo(siblingPath);
             folder.ShouldBeADirectory(this.fileSystem);
@@ -162,13 +162,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.scalarProcess.AddSparseFolders(this.mainSparseFolder);
             this.ValidateFoldersInSparseList(this.mainSparseFolder);
 
-            string newFolderPath = Path.Combine(this.Enlistment.RepoRoot, "Scalar", "Scalar.Common");
+            string newFolderPath = Path.Combine(this.Enlistment.RepoRoot, "GVFS", "GVFS.Common");
             newFolderPath.ShouldNotExistOnDisk(this.fileSystem);
             Directory.CreateDirectory(newFolderPath);
             newFolderPath.ShouldBeADirectory(this.fileSystem);
             string[] fileSystemEntries = Directory.GetFileSystemEntries(newFolderPath);
             fileSystemEntries.Length.ShouldEqual(32);
-            this.ValidateFoldersInSparseList(this.mainSparseFolder, Path.Combine("Scalar", "Scalar.Common"));
+            this.ValidateFoldersInSparseList(this.mainSparseFolder, Path.Combine("GVFS", "GVFS.Common"));
 
             string projectedFolder = Path.Combine(newFolderPath, "Git");
             projectedFolder.ShouldBeADirectory(this.fileSystem);
@@ -186,7 +186,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.scalarProcess.AddSparseFolders(this.mainSparseFolder);
             this.ValidateFoldersInSparseList(this.mainSparseFolder);
 
-            string newFolderPath = Path.Combine(this.Enlistment.RepoRoot, "Scalar", "Scalar.Common");
+            string newFolderPath = Path.Combine(this.Enlistment.RepoRoot, "GVFS", "GVFS.Common");
             newFolderPath.ShouldNotExistOnDisk(this.fileSystem);
             Directory.CreateDirectory(newFolderPath);
             string newFilePath = Path.Combine(newFolderPath, "test.txt");
@@ -195,7 +195,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             newFilePath.ShouldBeAFile(this.fileSystem);
             string[] fileSystemEntries = Directory.GetFileSystemEntries(newFolderPath);
             fileSystemEntries.Length.ShouldEqual(33);
-            this.ValidateFoldersInSparseList(this.mainSparseFolder, Path.Combine("Scalar", "Scalar.Common"));
+            this.ValidateFoldersInSparseList(this.mainSparseFolder, Path.Combine("GVFS", "GVFS.Common"));
 
             string projectedFolder = Path.Combine(newFolderPath, "Git");
             projectedFolder.ShouldBeADirectory(this.fileSystem);
@@ -272,7 +272,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(11)]
         public void DeleteFileAndCommitThenChangingSparseFoldersShouldKeepFolderAndFile()
         {
-            string deletePath = Path.Combine(this.Enlistment.RepoRoot, "Scalar", "Scalar.Tests", "packages.config");
+            string deletePath = Path.Combine(this.Enlistment.RepoRoot, "GVFS", "GVFS.Tests", "packages.config");
             this.fileSystem.DeleteFile(deletePath);
             GitProcess.Invoke(this.Enlistment.RepoRoot, "add .");
             GitProcess.Invoke(this.Enlistment.RepoRoot, "commit -m Test");
@@ -281,7 +281,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.ValidateFoldersInSparseList(this.mainSparseFolder);
 
             // File and folder should no longer be on disk because the file was deleted and the folder deleted becase it was empty
-            string folderPath = Path.Combine(this.Enlistment.RepoRoot, "Scalar", "Scalar.Tests");
+            string folderPath = Path.Combine(this.Enlistment.RepoRoot, "GVFS", "GVFS.Tests");
             folderPath.ShouldNotExistOnDisk(this.fileSystem);
             deletePath.ShouldNotExistOnDisk(this.fileSystem);
 
@@ -294,7 +294,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(12)]
         public void CreateNewFileAndCommitThenRemoveSparseFolderShouldKeepFileAndFolder()
         {
-            string folderToCreateFileIn = Path.Combine("Scalar", "Scalar.Hooks");
+            string folderToCreateFileIn = Path.Combine("GVFS", "GVFS.Hooks");
             this.scalarProcess.AddSparseFolders(this.mainSparseFolder, folderToCreateFileIn);
             this.ValidateFoldersInSparseList(this.mainSparseFolder, folderToCreateFileIn);
 
@@ -321,7 +321,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.ValidateFoldersInSparseList(this.mainSparseFolder);
 
             // Create a file that should already be in the projection but excluded
-            string newFolderPath = Path.Combine(this.Enlistment.RepoRoot, "Scalar", "Scalar.Mount");
+            string newFolderPath = Path.Combine(this.Enlistment.RepoRoot, "GVFS", "GVFS.Mount");
             newFolderPath.ShouldNotExistOnDisk(this.fileSystem);
             Directory.CreateDirectory(newFolderPath);
             string newFilePath = Path.Combine(newFolderPath, "Program.cs");
