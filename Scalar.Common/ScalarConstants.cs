@@ -185,23 +185,12 @@ namespace Scalar.Common
             public static class Refs
             {
                 public static readonly string Root = Path.Combine(DotGit.Root, "refs");
-
-                public static class Heads
-                {
-                    public static readonly string Root = Path.Combine(DotGit.Refs.Root, "heads");
-                    public static readonly string RootFolder = Heads.Root + Path.DirectorySeparatorChar;
-                }
             }
-        }
-
-        public static class InstallationCapabilityFiles
-        {
-            public const string OnDiskVersion16CapableInstallation = "OnDiskVersion16CapableInstallation.dat";
         }
 
         public static class VerbParameters
         {
-                public const string InternalUseOnly = "internal_use_only";
+            public const string InternalUseOnly = "internal_use_only";
 
             public static class Mount
             {

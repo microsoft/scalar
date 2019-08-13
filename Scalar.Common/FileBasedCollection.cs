@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Text;
 using System.Threading;
 
 namespace Scalar.Common
@@ -57,18 +56,6 @@ namespace Scalar.Common
             lock (this.fileLock)
             {
                 this.CloseDataFile();
-            }
-        }
-
-        public void ForceFlush()
-        {
-            if (this.dataFileHandle != null)
-            {
-                FileStream fs = this.dataFileHandle as FileStream;
-                if (fs != null)
-                {
-                    fs.Flush(flushToDisk: true);
-                }
             }
         }
 
@@ -163,52 +150,6 @@ namespace Scalar.Common
         protected string FormatRemoveLine(string line)
         {
             return RemoveEntryPrefix + line;
-        }
-
-        /// <param name="synchronizedAction">An optional callback to be run as soon as the fileLock is taken.</param>
-        protected void WriteAddEntry(string value, Action synchronizedAction = null)
-        {
-            lock (this.fileLock)
-            {
-                string line = this.FormatAddLine(value);
-                if (synchronizedAction != null)
-                {
-                    synchronizedAction();
-                }
-
-                this.WriteToDisk(line);
-            }
-        }
-
-        /// <param name="synchronizedAction">An optional callback to be run as soon as the fileLock is taken.</param>
-        protected void WriteRemoveEntry(string key, Action synchronizedAction = null)
-        {
-            lock (this.fileLock)
-            {
-                string line = this.FormatRemoveLine(key);
-                if (synchronizedAction != null)
-                {
-                    synchronizedAction();
-                }
-
-                this.WriteToDisk(line);
-            }
-        }
-
-        protected void DeleteDataFileIfCondition(Func<bool> condition)
-        {
-            if (!this.collectionAppendsDirectlyToFile)
-            {
-                throw new InvalidOperationException(nameof(this.DeleteDataFileIfCondition) + " requires that collectionAppendsDirectlyToFile be true");
-            }
-
-            lock (this.fileLock)
-            {
-                if (condition())
-                {
-                    this.dataFileHandle.SetLength(0);
-                }
-            }
         }
 
         /// <param name="synchronizedAction">An optional callback to be run as soon as the fileLock is taken</param>
@@ -380,24 +321,6 @@ namespace Scalar.Common
                 {
                     throw lastException;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Writes data as UTF8 to dataFileHandle. fileLock will be acquired.
-        /// </summary>
-        private void WriteToDisk(string value)
-        {
-            if (!this.collectionAppendsDirectlyToFile)
-            {
-                throw new InvalidOperationException(nameof(this.WriteToDisk) + " requires that collectionAppendsDirectlyToFile be true");
-            }
-
-            byte[] bytes = Encoding.UTF8.GetBytes(value + NewLine);
-            lock (this.fileLock)
-            {
-                this.dataFileHandle.Write(bytes, 0, bytes.Length);
-                this.dataFileHandle.Flush();
             }
         }
 

@@ -1,6 +1,4 @@
 using Scalar.Common;
-using Scalar.Common.FileSystem;
-using Scalar.Common.Git;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
@@ -117,91 +115,6 @@ namespace Scalar.DiskLayoutUpgrades
         }
 
         public abstract bool TryUpgrade(ITracer tracer, string enlistmentRoot);
-
-        protected bool TryDeleteFolder(ITracer tracer, string folderName)
-        {
-            try
-            {
-                PhysicalFileSystem fileSystem = new PhysicalFileSystem();
-                fileSystem.DeleteDirectory(folderName);
-            }
-            catch (Exception e)
-            {
-                tracer.RelatedError("Failed to delete folder {0}: {1}", folderName, e.ToString());
-                return true;
-            }
-
-            return true;
-        }
-
-        protected bool TryDeleteFile(ITracer tracer, string fileName)
-        {
-            try
-            {
-                File.Delete(fileName);
-            }
-            catch (Exception e)
-            {
-                tracer.RelatedError("Failed to delete file {0}: {1}", fileName, e.ToString());
-                return true;
-            }
-
-            return true;
-        }
-
-        protected bool TryRenameFolderForDelete(ITracer tracer, string folderName, out string backupFolder)
-        {
-            backupFolder = folderName + ".deleteme";
-
-            tracer.RelatedInfo("Moving " + folderName + " to " + backupFolder);
-
-            try
-            {
-                Directory.Move(folderName, backupFolder);
-            }
-            catch (Exception e)
-            {
-                tracer.RelatedError("Failed to move {0} to {1}: {2}", folderName, backupFolder, e.ToString());
-                return false;
-            }
-
-            return true;
-        }
-
-        protected bool TrySetGitConfig(ITracer tracer, string enlistmentRoot, Dictionary<string, string> configSettings)
-        {
-            ScalarEnlistment enlistment;
-
-            try
-            {
-                enlistment = ScalarEnlistment.CreateFromDirectory(
-                    enlistmentRoot,
-                    ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath(),
-                    authentication: null);
-            }
-            catch (InvalidRepoException e)
-            {
-                EventMetadata metadata = new EventMetadata();
-                metadata.Add("Exception", e.ToString());
-                metadata.Add(nameof(enlistmentRoot), enlistmentRoot);
-                tracer.RelatedError(metadata, $"{nameof(this.TrySetGitConfig)}: Failed to create ScalarEnlistment from directory");
-                return false;
-            }
-
-            GitProcess git = enlistment.CreateGitProcess();
-
-            foreach (string key in configSettings.Keys)
-            {
-                GitProcess.Result result = git.SetInLocalConfig(key, configSettings[key]);
-                if (result.ExitCodeIsFailure)
-                {
-                    tracer.RelatedError("Could not set git config setting {0}. Error: {1}", key, result.Errors);
-                    return false;
-                }
-            }
-
-            return true;
-        }
 
         private static void RegisterUpgrade(DiskLayoutUpgrade upgrade)
         {
