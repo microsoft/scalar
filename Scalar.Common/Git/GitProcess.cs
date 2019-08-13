@@ -102,13 +102,6 @@ namespace Scalar.Common.Git
                 settingName);
         }
 
-        public static ConfigResult GetFromFileConfig(string gitBinPath, string configFile, string settingName)
-        {
-            return new ConfigResult(
-                new GitProcess(gitBinPath, workingDirectoryRoot: null).InvokeGitOutsideEnlistment("config --file " + configFile + " " + settingName),
-                settingName);
-        }
-
         public static bool TryGetVersion(string gitBinPath, out GitVersion gitVersion, out string error)
         {
             GitProcess gitProcess = new GitProcess(gitBinPath, null);
@@ -398,31 +391,6 @@ namespace Scalar.Common.Git
             return new ConfigResult(this.InvokeGitAgainstDotGitFolder("config --local " + settingName), settingName);
         }
 
-        /// <summary>
-        /// Safely gets the config value give a setting name
-        /// </summary>
-        /// <param name="settingName">The name of the config setting</param>
-        /// <param name="forceOutsideEnlistment">
-        /// If false, will run the call from inside the enlistment if the working dir found,
-        /// otherwise it will run it from outside the enlistment.
-        /// </param>
-        /// <param value>The value found for the config setting.</param>
-        /// <returns>True if the config call was successful, false otherwise.</returns>
-        public bool TryGetFromConfig(string settingName, bool forceOutsideEnlistment, out string value, PhysicalFileSystem fileSystem = null)
-        {
-            value = null;
-            try
-            {
-                ConfigResult result = this.GetFromConfig(settingName, forceOutsideEnlistment, fileSystem);
-                return result.TryParseAsString(out value, out string _);
-            }
-            catch
-            {
-            }
-
-            return false;
-        }
-
         public ConfigResult GetOriginUrl()
         {
             return new ConfigResult(this.InvokeGitAgainstDotGitFolder("config --local remote.origin.url"), "remote.origin.url");
@@ -462,16 +430,6 @@ namespace Scalar.Common.Git
             }
 
             return this.InvokeGitInWorkingDirectoryRoot(command, useReadObjectHook: allowObjectDownloads);
-        }
-
-        public Result SerializeStatus(bool allowObjectDownloads, string serializePath)
-        {
-            // specify ignored=matching and --untracked-files=complete
-            // so the status cache can answer status commands run by Visual Studio
-            // or tools with similar requirements.
-            return this.InvokeGitInWorkingDirectoryRoot(
-                string.Format("--no-optional-locks status \"--serialize={0}\" --ignored=matching --untracked-files=complete", serializePath),
-                useReadObjectHook: allowObjectDownloads);
         }
 
         public Result UnpackObjects(Stream packFileStream)
