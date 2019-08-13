@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\Scalar.Build\Scalar.cs.props" />
   <Import Project="..\Scalar.Build\LibGit2Sharp.NativeBinaries.props" />

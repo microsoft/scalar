@@ -266,10 +266,6 @@ namespace Scalar.Mount
                     {
                         response = new NamedPipeMessages.DownloadObject.Response(NamedPipeMessages.DownloadObject.DownloadFailed);
                     }
-
-                    bool isBlob;
-                    this.context.Repository.TryGetIsBlob(objectSha, out isBlob);
-                    this.context.Repository.ScalarLock.Stats.RecordObjectDownload(isBlob, downloadTime.ElapsedMilliseconds);
                 }
             }
 

@@ -22,8 +22,6 @@ namespace Scalar.Common.Git
             this.enlistment = enlistment;
             this.fileSystem = fileSystem;
 
-            this.ScalarLock = new ScalarLock(tracer);
-
             this.libgit2RepoInvoker = new LibGit2RepoInvoker(
                 tracer,
                 repoFactory ?? (() => new LibGit2Repo(this.tracer, this.enlistment.WorkingDirectoryBackingRoot)));
@@ -32,7 +30,6 @@ namespace Scalar.Common.Git
         // For Unit Testing
         protected GitRepo(ITracer tracer)
         {
-            this.ScalarLock = new ScalarLock(tracer);
         }
 
         private enum LooseBlobState
@@ -42,12 +39,6 @@ namespace Scalar.Common.Git
             Exists,
             Corrupt,
             Unknown,
-        }
-
-        public ScalarLock ScalarLock
-        {
-            get;
-            private set;
         }
 
         public void CloseActiveRepo()

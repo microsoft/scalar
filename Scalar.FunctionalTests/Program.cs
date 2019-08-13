@@ -119,7 +119,7 @@ namespace Scalar.FunctionalTests
                 excludeCategories.Add(Categories.MacOnly);
             }
 
-            ScalarTestConfig.DotScalarRoot = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? ".scalar" : ".scalar";
+            ScalarTestConfig.DotScalarRoot = ".scalar";
 
             ScalarTestConfig.RepoToClone =
                 runner.GetCustomArgWithParam("--repo-to-clone")

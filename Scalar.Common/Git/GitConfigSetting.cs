@@ -5,7 +5,6 @@ namespace Scalar.Common.Git
     public class GitConfigSetting
     {
         public const string CoreVirtualizeObjectsName = "core.virtualizeobjects";
-        public const string CoreVirtualFileSystemName = "core.virtualfilesystem";
         public const string CredentialUseHttpPath = "credential.\"https://dev.azure.com\".useHttpPath";
 
         public const string HttpSslCert = "http.sslcert";

@@ -5,7 +5,6 @@ namespace Scalar.Common.NamedPipes
 {
     public class NamedPipeStreamWriter
     {
-        private const byte TerminatorByte = 0x3;
         private const string TerminatorByteString = "\x3";
         private Stream stream;
 
