@@ -6,11 +6,6 @@ namespace Scalar.Common
 {
     public static class Paths
     {
-        public static string GetGitEnlistmentRoot(string directory)
-        {
-            return GetRoot(directory, ScalarConstants.DotGit.Root);
-        }
-
         public static string GetRoot(string startingDirectory, string rootName)
         {
             startingDirectory = startingDirectory.TrimEnd(Path.DirectorySeparatorChar);

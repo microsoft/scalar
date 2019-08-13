@@ -204,16 +204,6 @@ namespace Scalar.Common.Git
                 [DllImport(Git2NativeLibName, EntryPoint = "git_commit_tree_id")]
                 public static extern IntPtr GetTreeId(IntPtr commitHandle);
             }
-
-            public static class Blob
-            {
-                [DllImport(Git2NativeLibName, EntryPoint = "git_blob_rawsize")]
-                [return: MarshalAs(UnmanagedType.U8)]
-                public static extern long GetRawSize(IntPtr objectHandle);
-
-                [DllImport(Git2NativeLibName, EntryPoint = "git_blob_rawcontent")]
-                public static unsafe extern byte* GetRawContent(IntPtr objectHandle);
-            }
         }
     }
 }

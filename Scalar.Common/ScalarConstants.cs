@@ -103,11 +103,7 @@ namespace Scalar.Common
             {
                 public const string Name = "databases";
 
-                public static readonly string BackgroundFileSystemTasks = Path.Combine(Name, "BackgroundGitOperations.dat");
-                public static readonly string PlaceholderList = Path.Combine(Name, "PlaceholderList.dat");
-                public static readonly string ModifiedPaths = Path.Combine(Name, "ModifiedPaths.dat");
                 public static readonly string RepoMetadata = Path.Combine(Name, "RepoMetadata.dat");
-                public static readonly string Scalar = Path.Combine(Name, "Scalar.sqlite");
             }
 
             public static class GitStatusCache
@@ -185,23 +181,12 @@ namespace Scalar.Common
             public static class Refs
             {
                 public static readonly string Root = Path.Combine(DotGit.Root, "refs");
-
-                public static class Heads
-                {
-                    public static readonly string Root = Path.Combine(DotGit.Refs.Root, "heads");
-                    public static readonly string RootFolder = Heads.Root + Path.DirectorySeparatorChar;
-                }
             }
-        }
-
-        public static class InstallationCapabilityFiles
-        {
-            public const string OnDiskVersion16CapableInstallation = "OnDiskVersion16CapableInstallation.dat";
         }
 
         public static class VerbParameters
         {
-                public const string InternalUseOnly = "internal_use_only";
+            public const string InternalUseOnly = "internal_use_only";
 
             public static class Mount
             {

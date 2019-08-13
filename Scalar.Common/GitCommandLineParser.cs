@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 
 namespace Scalar.Common
 {
@@ -33,26 +32,19 @@ namespace Scalar.Common
         [Flags]
         public enum Verbs
         {
-            Other       = 1 << 0,
-            AddOrStage  = 1 << 1,
-            Checkout    = 1 << 2,
-            Commit      = 1 << 3,
-            Move        = 1 << 4,
-            Reset       = 1 << 5,
-            Status      = 1 << 6,
+            Other = 1 << 0,
+            AddOrStage = 1 << 1,
+            Checkout = 1 << 2,
+            Commit = 1 << 3,
+            Move = 1 << 4,
+            Reset = 1 << 5,
+            Status = 1 << 6,
             UpdateIndex = 1 << 7,
         }
 
         public bool IsValidGitCommand
         {
             get { return this.parts != null; }
-        }
-
-        public bool IsResetMixed()
-        {
-            return
-                this.IsResetSoftOrMixed() &&
-                !this.HasArgument("--soft");
         }
 
         public bool IsResetSoftOrMixed()

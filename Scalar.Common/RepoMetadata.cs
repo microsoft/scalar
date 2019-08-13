@@ -33,11 +33,6 @@ namespace Scalar.Common
             }
         }
 
-        public string DataFilePath
-        {
-            get { return this.repoMetadata.DataFilePath; }
-        }
-
         public static bool TryInitialize(ITracer tracer, string dotScalarPath, out string error)
         {
             return TryInitialize(tracer, new PhysicalFileSystem(), dotScalarPath, out error);
@@ -142,36 +137,6 @@ namespace Scalar.Common
                 });
         }
 
-        public void SetProjectionInvalid(bool invalid)
-        {
-            this.SetInvalid(Keys.ProjectionInvalid, invalid);
-        }
-
-        public bool GetProjectionInvalid()
-        {
-            return this.HasEntry(Keys.ProjectionInvalid);
-        }
-
-        public void SetPlaceholdersNeedUpdate(bool needUpdate)
-        {
-            this.SetInvalid(Keys.PlaceholdersNeedUpdate, needUpdate);
-        }
-
-        public bool GetPlaceholdersNeedUpdate()
-        {
-            return this.HasEntry(Keys.PlaceholdersNeedUpdate);
-        }
-
-        public void SetProjectionInvalidAndPlaceholdersNeedUpdate()
-        {
-            this.repoMetadata.SetValuesAndFlush(
-                new[]
-                {
-                    new KeyValuePair<string, string>(Keys.ProjectionInvalid, bool.TrueString),
-                    new KeyValuePair<string, string>(Keys.PlaceholdersNeedUpdate, bool.TrueString)
-                });
-        }
-
         public bool TryGetGitObjectsRoot(out string gitObjectsRoot, out string error)
         {
             gitObjectsRoot = null;
@@ -221,11 +186,6 @@ namespace Scalar.Common
             return true;
         }
 
-        public void SetLocalCacheRoot(string localCacheRoot)
-        {
-            this.repoMetadata.SetValueAndFlush(Keys.LocalCacheRoot, localCacheRoot);
-        }
-
         public bool TryGetBlobSizesRoot(out string blobSizesRoot, out string error)
         {
             blobSizesRoot = null;
@@ -267,36 +227,10 @@ namespace Scalar.Common
             return enlistmentId;
         }
 
-        private void SetInvalid(string keyName, bool invalid)
-        {
-            if (invalid)
-            {
-                this.repoMetadata.SetValueAndFlush(keyName, bool.TrueString);
-            }
-            else
-            {
-                this.repoMetadata.RemoveAndFlush(keyName);
-            }
-        }
-
-        private bool HasEntry(string keyName)
-        {
-            string value;
-            if (this.repoMetadata.TryGetValue(keyName, out value))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
         public static class Keys
         {
-            public const string ProjectionInvalid = "ProjectionInvalid";
-            public const string PlaceholdersInvalid = "PlaceholdersInvalid";
             public const string DiskLayoutMajorVersion = "DiskLayoutVersion";
             public const string DiskLayoutMinorVersion = "DiskLayoutMinorVersion";
-            public const string PlaceholdersNeedUpdate = "PlaceholdersNeedUpdate";
             public const string GitObjectsRoot = "GitObjectsRoot";
             public const string LocalCacheRoot = "LocalCacheRoot";
             public const string BlobSizesRoot = "BlobSizesRoot";
