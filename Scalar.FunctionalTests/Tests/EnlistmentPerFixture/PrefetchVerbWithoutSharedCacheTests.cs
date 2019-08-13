@@ -14,7 +14,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
     [Category(Categories.MacTODO.TestNeedsToLockFile)]
-    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class PrefetchVerbWithoutSharedCacheTests : TestsWithEnlistmentPerFixture
     {
         private const string PrefetchPackPrefix = "prefetch";
