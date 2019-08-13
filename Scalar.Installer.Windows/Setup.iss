@@ -42,7 +42,7 @@ SolidCompression=yes
 MinVersion=10.0.14374
 DisableDirPage=yes
 DisableReadyPage=yes
-SetupIconFile="{#ScalarDir}\GitVirtualFileSystem.ico"
+SetupIconFile="{#ScalarDir}\Images\scalar.ico"
 ArchitecturesInstallIn64BitMode=x64
 ArchitecturesAllowed=x64
 WizardImageStretch=no
@@ -97,7 +97,7 @@ DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\Scalar.Service.UI.exe" 
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\Scalar.Service.UI.exe.config" 
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\Scalar.Service.UI.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\GitVirtualFileSystem.ico"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\scalar.ico"
 
 ; Scalar Files
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\CommandLine.dll"
@@ -105,7 +105,7 @@ DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.Common.dll"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.Platform.Windows.dll"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Newtonsoft.Json.dll"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.exe.config"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\GitVirtualFileSystem.ico"  
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Images\scalar.ico"  
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.exe" 
 
 ; NuGet support DLLs
