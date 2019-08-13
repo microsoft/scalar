@@ -1,4 +1,4 @@
-﻿using Scalar.FunctionalTests.Tools;
+using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System;
 using System.Collections.Generic;

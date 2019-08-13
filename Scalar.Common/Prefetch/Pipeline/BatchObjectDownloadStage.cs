@@ -1,4 +1,4 @@
-﻿using Scalar.Common.Git;
+using Scalar.Common.Git;
 using Scalar.Common.Http;
 using Scalar.Common.NetworkStreams;
 using Scalar.Common.Prefetch.Pipeline.Data;

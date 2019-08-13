@@ -1,4 +1,4 @@
-﻿namespace Scalar.Common.Prefetch.Pipeline.Data
+namespace Scalar.Common.Prefetch.Pipeline.Data
 {
     public class SearchTreeRequest
     {

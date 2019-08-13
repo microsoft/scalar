@@ -1,4 +1,4 @@
-﻿using Scalar.Common;
+using Scalar.Common;
 using Scalar.Common.Git;
 using Scalar.Common.Tracing;
 using System;

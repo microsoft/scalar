@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using NUnit.Framework;
 using Scalar.Service;
 using Scalar.Service.Handlers;

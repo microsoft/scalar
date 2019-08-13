@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Scalar.Common.Git;
 using System;
 using System.IO.Pipes;

@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Scalar.CommandLine;
 using Scalar.Common;
 using Scalar.Tests.Should;

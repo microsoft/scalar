@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Scalar.Common.Git;
 using Scalar.Tests.Should;
 

@@ -1,4 +1,4 @@
-﻿using Scalar.Common.NamedPipes;
+using Scalar.Common.NamedPipes;
 using Scalar.Common.Tracing;
 
 namespace Scalar.Service.Handlers

@@ -1,4 +1,4 @@
-﻿namespace Scalar.Common.Tracing
+namespace Scalar.Common.Tracing
 {
     // The default EventLevel is Verbose, which does not go to log files by default.
     // If you want to log to a file, you need to raise EventLevel to at least Informational

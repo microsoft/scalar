@@ -1,4 +1,4 @@
-﻿namespace Scalar.Tests
+namespace Scalar.Tests
 {
     public class DataSources
     {

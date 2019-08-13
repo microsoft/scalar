@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Scalar.FunctionalTests.Tests.EnlistmentPerTestCase;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;

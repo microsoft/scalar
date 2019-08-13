@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 using Scalar.PlatformLoader;
 using System;
 

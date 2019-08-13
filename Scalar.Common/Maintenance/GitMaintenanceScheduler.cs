@@ -1,4 +1,4 @@
-﻿using Scalar.Common.Git;
+using Scalar.Common.Git;
 using System;
 using System.Collections.Generic;
 using System.Threading;

@@ -1,4 +1,4 @@
-﻿using Scalar.DiskLayoutUpgrades;
+using Scalar.DiskLayoutUpgrades;
 using System;
 
 namespace Scalar.Common

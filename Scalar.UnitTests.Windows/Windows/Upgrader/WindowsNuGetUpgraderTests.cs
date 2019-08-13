@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
 using NUnit.Framework;

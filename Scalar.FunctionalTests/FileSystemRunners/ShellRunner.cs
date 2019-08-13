@@ -1,4 +1,4 @@
-﻿using Scalar.FunctionalTests.Tools;
+using Scalar.FunctionalTests.Tools;
 using System.Diagnostics;
 
 namespace Scalar.FunctionalTests.FileSystemRunners

@@ -1,4 +1,4 @@
-﻿using Scalar.Common.Tracing;
+using Scalar.Common.Tracing;
 using System;
 using System.Security;
 

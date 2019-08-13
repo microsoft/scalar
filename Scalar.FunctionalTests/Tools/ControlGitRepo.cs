@@ -1,4 +1,4 @@
-﻿using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.FileSystemRunners;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;

@@ -1,4 +1,4 @@
-﻿using Scalar.Common.Tracing;
+using Scalar.Common.Tracing;
 
 namespace Scalar.Common.FileSystem
 {

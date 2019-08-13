@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Tracing;
 using System;

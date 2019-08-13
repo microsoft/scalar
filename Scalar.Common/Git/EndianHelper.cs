@@ -1,4 +1,4 @@
-﻿namespace Scalar.Common.Git
+namespace Scalar.Common.Git
 {
     public static class EndianHelper
     {

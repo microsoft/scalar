@@ -1,4 +1,4 @@
-﻿using Scalar.Tests.Should;
+using Scalar.Tests.Should;
 using System.IO;
 
 namespace Scalar.FunctionalTests.FileSystemRunners

@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Tracing;
 using Scalar.Tests.Should;

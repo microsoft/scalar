@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Scalar.Common.Prefetch.Pipeline;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Category;

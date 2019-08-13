@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Maintenance;

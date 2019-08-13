@@ -1,4 +1,4 @@
-﻿using Scalar.Common.FileSystem;
+using Scalar.Common.FileSystem;
 using Scalar.Common.Http;
 using Scalar.Common.NetworkStreams;
 using Scalar.Common.Tracing;

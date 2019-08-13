@@ -1,4 +1,4 @@
-﻿using Scalar.Common;
+using Scalar.Common;
 using Scalar.Common.Git;
 using Scalar.UnitTests.Mock.Git;
 using System.IO;

@@ -1,4 +1,4 @@
-﻿using Scalar.Common;
+using Scalar.Common;
 using Scalar.Common.Tracing;
 using Scalar.PlatformLoader;
 using System;

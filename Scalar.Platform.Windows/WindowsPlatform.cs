@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;

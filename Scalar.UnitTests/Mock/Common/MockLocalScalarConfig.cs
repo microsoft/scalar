@@ -1,4 +1,4 @@
-﻿using Scalar.Common;
+using Scalar.Common;
 using System.Collections.Generic;
 
 namespace Scalar.UnitTests.Mock.Common

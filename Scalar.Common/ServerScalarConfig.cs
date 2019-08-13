@@ -1,4 +1,4 @@
-﻿using Scalar.Common.Http;
+using Scalar.Common.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
