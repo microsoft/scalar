@@ -1,4 +1,4 @@
-﻿using Scalar.Common;
+using Scalar.Common;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;

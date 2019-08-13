@@ -1,4 +1,4 @@
-﻿using Scalar.Common.Tracing;
+using Scalar.Common.Tracing;
 using System.Collections.Generic;
 
 namespace Scalar.UnitTests.Mock.Common.Tracing

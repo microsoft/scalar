@@ -1,4 +1,4 @@
-﻿namespace Scalar.UnitTests.Category
+namespace Scalar.UnitTests.Category
 {
     public static class CategoryConstants
     {

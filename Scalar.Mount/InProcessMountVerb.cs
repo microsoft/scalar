@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 using Scalar.Common;
 using Scalar.Common.Git;
 using Scalar.Common.Http;

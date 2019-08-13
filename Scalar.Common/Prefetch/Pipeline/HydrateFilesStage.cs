@@ -1,4 +1,4 @@
-﻿using Scalar.Common.Prefetch.Git;
+using Scalar.Common.Prefetch.Git;
 using Scalar.Common.Tracing;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

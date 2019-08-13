@@ -1,4 +1,4 @@
-﻿namespace Scalar.Common.Git
+namespace Scalar.Common.Git
 {
     public class RefLogEntry
     {

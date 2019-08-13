@@ -1,4 +1,4 @@
-﻿using Scalar.Common;
+using Scalar.Common;
 using Scalar.Platform.POSIX;
 using System;
 using System.IO;

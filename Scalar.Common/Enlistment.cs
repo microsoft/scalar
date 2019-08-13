@@ -1,4 +1,4 @@
-﻿using Scalar.Common.FileSystem;
+using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using System;
 using System.IO;

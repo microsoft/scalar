@@ -1,4 +1,4 @@
-﻿namespace Scalar.Common
+namespace Scalar.Common
 {
     public class ProcessResult
     {

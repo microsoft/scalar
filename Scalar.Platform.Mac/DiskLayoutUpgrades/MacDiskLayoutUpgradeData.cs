@@ -1,4 +1,4 @@
-﻿using Scalar.Common;
+using Scalar.Common;
 using Scalar.DiskLayoutUpgrades;
 
 namespace Scalar.Platform.Mac

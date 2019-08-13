@@ -1,4 +1,4 @@
-﻿namespace Scalar.FunctionalTests
+namespace Scalar.FunctionalTests
 {
     public static class Categories
     {

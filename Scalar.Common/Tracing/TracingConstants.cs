@@ -1,4 +1,4 @@
-﻿namespace Scalar.Common.Tracing
+namespace Scalar.Common.Tracing
 {
     public static class TracingConstants
     {

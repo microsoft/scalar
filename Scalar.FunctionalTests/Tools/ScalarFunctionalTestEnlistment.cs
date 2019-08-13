@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Should;
 using Scalar.FunctionalTests.Tests;

@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Scalar.Common.NetworkStreams;
 using Scalar.Tests.Should;
 using System;

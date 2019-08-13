@@ -1,4 +1,4 @@
-﻿using Scalar.Common.Http;
+using Scalar.Common.Http;
 
 namespace Scalar.UnitTests.Mock
 {

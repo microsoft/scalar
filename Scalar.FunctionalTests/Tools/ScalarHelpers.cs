@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.Sqlite;
+using Microsoft.Data.Sqlite;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;

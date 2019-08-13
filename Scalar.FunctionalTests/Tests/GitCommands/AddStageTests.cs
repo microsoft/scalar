@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Tools;
 using System.IO;

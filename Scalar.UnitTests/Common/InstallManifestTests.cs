@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Scalar.Common.NuGetUpgrade;
 using Scalar.Tests.Should;

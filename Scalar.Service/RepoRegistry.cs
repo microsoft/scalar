@@ -1,4 +1,4 @@
-﻿using Scalar.Common;
+using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.NamedPipes;
 using Scalar.Common.Tracing;
