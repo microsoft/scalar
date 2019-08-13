@@ -21,12 +21,12 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         private const string UnknownTestName = "Unknown";
         private const string SubFolderToCreate = "level2";
 
-        private static readonly string EditFilePath = Path.Combine("Scalar", "Scalar.Common", "ScalarContext.cs");
-        private static readonly string DeleteFilePath = Path.Combine("Scalar", "Scalar", "Program.cs");
-        private static readonly string RenameFilePathFrom = Path.Combine("Scalar", "Scalar.Common", "Physical", "FileSystem", "FileProperties.cs");
-        private static readonly string RenameFilePathTo = Path.Combine("Scalar", "Scalar.Common", "Physical", "FileSystem", "FileProperties2.cs");
-        private static readonly string RenameFolderPathFrom = Path.Combine("Scalar", "Scalar.Common", "PrefetchPacks");
-        private static readonly string RenameFolderPathTo = Path.Combine("Scalar", "Scalar.Common", "PrefetchPacksRenamed");
+        private static readonly string EditFilePath = Path.Combine("GVFS", "GVFS.Common", "GVFSContext.cs");
+        private static readonly string DeleteFilePath = Path.Combine("GVFS", "GVFS", "Program.cs");
+        private static readonly string RenameFilePathFrom = Path.Combine("GVFS", "GVFS.Common", "Physical", "FileSystem", "FileProperties.cs");
+        private static readonly string RenameFilePathTo = Path.Combine("GVFS", "GVFS.Common", "Physical", "FileSystem", "FileProperties2.cs");
+        private static readonly string RenameFolderPathFrom = Path.Combine("GVFS", "GVFS.Common", "PrefetchPacks");
+        private static readonly string RenameFolderPathTo = Path.Combine("GVFS", "GVFS.Common", "PrefetchPacksRenamed");
 
         public GitCommandsTests(Settings.ValidateWorkingTreeMode validateWorkingTree)
             : base(enlistmentPerTest: false, validateWorkingTree: validateWorkingTree)
@@ -318,7 +318,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         public void AddFileAndCommitOnNewBranchSwitchDeleteFolderAndSwitchBack()
         {
             // 663045 - Confirm that folder can be deleted after adding a file then changing branches
-            string newFileParentFolderPath = Path.Combine("Scalar", "Scalar", "CommandLine");
+            string newFileParentFolderPath = Path.Combine("GVFS", "GVFS", "CommandLine");
             string newFilePath = Path.Combine(newFileParentFolderPath, "testfile.txt");
             string newFileContents = "test contents";
 
@@ -574,7 +574,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         {
             this.ValidateGitCommand("checkout -b tests/functional/AddFileCommitThenDeleteAndCommit_before");
             this.ValidateGitCommand("checkout -b tests/functional/AddFileCommitThenDeleteAndCommit_after");
-            string filePath = Path.Combine("Scalar", "testfile.txt");
+            string filePath = Path.Combine("GVFS", "testfile.txt");
             this.CreateFile("Some new content for the file", filePath);
             this.ValidateGitCommand("status");
             this.ValidateGitCommand("add .");
@@ -593,7 +593,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         public void AddFileCommitThenDeleteAndResetSoft()
         {
             this.ValidateGitCommand("checkout -b tests/functional/AddFileCommitThenDeleteAndResetSoft");
-            string filePath = Path.Combine("Scalar", "testfile.txt");
+            string filePath = Path.Combine("GVFS", "testfile.txt");
             this.CreateFile("Some new content for the file", filePath);
             this.ValidateGitCommand("status");
             this.ValidateGitCommand("add .");
@@ -607,7 +607,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         public void AddFileCommitThenDeleteAndResetMixed()
         {
             this.ValidateGitCommand("checkout -b tests/functional/AddFileCommitThenDeleteAndResetSoft");
-            string filePath = Path.Combine("Scalar", "testfile.txt");
+            string filePath = Path.Combine("GVFS", "testfile.txt");
             this.CreateFile("Some new content for the file", filePath);
             this.ValidateGitCommand("status");
             this.ValidateGitCommand("add .");
