@@ -70,9 +70,9 @@ namespace Scalar.CommandLine
         [Option(
             "sparse",
             Required = false,
-            Default = true,
+            Default = "true",
             HelpText = "When cloning, create a sparse working directory.")]
-        public bool Sparse { get; set; }
+        public string Sparse { get; set; }
 
         protected override string VerbName
         {
@@ -172,6 +172,7 @@ namespace Scalar.CommandLine
                         this.Output.WriteLine("  Cache Server: " + cacheServer);
                         this.Output.WriteLine("  Local Cache:  " + resolvedLocalCacheRoot);
                         this.Output.WriteLine("  Destination:  " + enlistment.EnlistmentRoot);
+                        this.Output.WriteLine("  Sparse:       " + this.Sparse);
 
                         string authErrorMessage;
                         if (!this.TryAuthenticate(tracer, enlistment, out authErrorMessage))
@@ -647,7 +648,7 @@ git %*
                 Path.Combine(repoPath, ScalarConstants.DotGit.PackedRefs),
                 refs.ToPackedRefs());
 
-            if (this.Sparse)
+            if (this.Sparse.Equals("true"))
             {
                 GitProcess.Result sparseCheckoutResult = GitProcess.SparseCheckoutInit(enlistmentToInit);
                 if (sparseCheckoutResult.ExitCodeIsFailure)
