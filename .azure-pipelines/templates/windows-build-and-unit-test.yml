@@ -25,7 +25,7 @@ steps:
       publishRunAttachments: true
 
   - script: $(Build.Repository.LocalPath)\Scripts\CI\CreateBuildDrop.bat $(configuration) $(Build.ArtifactStagingDirectory)\Tests
-    displayName: Create functional test drop.
+    displayName: Create build drop.
 
   - task: PublishBuildArtifacts@1
     displayName: Publish functional test drop artifact.
@@ -35,3 +35,15 @@ steps:
       parallel: true
       parallelCount: 8
     condition: succeededOrFailed()
+
+  - script: $(Build.Repository.LocalPath)\Scripts\CI\CreateInstallerDrop.bat $(configuration) $(Build.ArtifactStagingDirectory)\Installers
+    displayName: Create installer drop
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish installers.
+    inputs:
+      pathToPublish: $(Build.ArtifactStagingDirectory)\Installers
+      artifactName: "Installers_$(platformFriendlyName)_$(configuration)"
+      parallel: true
+      parallelCount: 8
+    condition: and(succeeded(), eq(variables['configuration'], 'Release'))
