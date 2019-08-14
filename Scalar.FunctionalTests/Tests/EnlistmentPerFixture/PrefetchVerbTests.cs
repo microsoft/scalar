@@ -44,26 +44,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.ExpectBlobCount(this.Enlistment.Prefetch("--files *.cs;*.csproj"), 208);
         }
 
-        [TestCase, Order(4)]
-        public void PrefetchByFileExtensionWithHydrate()
-        {
-            int expectedCount = 3;
-            string output = this.Enlistment.Prefetch("--files *.md --hydrate");
-            this.ExpectBlobCount(output, expectedCount);
-            output.ShouldContain("Hydrated files:   " + expectedCount);
-        }
-
-        [TestCase, Order(5)]
-        public void PrefetchByFilesWithHydrateWhoseObjectsAreAlreadyDownloaded()
-        {
-            int expectedCount = 2;
-            string output = this.Enlistment.Prefetch(
-                $"--files {Path.Combine("GVFS", "GVFS", "Program.cs")};{Path.Combine("GVFS", "GVFS.FunctionalTests", "GVFS.FunctionalTests.csproj")} --hydrate");
-            this.ExpectBlobCount(output, expectedCount);
-            output.ShouldContain("Hydrated files:   " + expectedCount);
-            output.ShouldContain("Downloaded:       0");
-        }
-
         [TestCase, Order(6)]
         public void PrefetchFolders()
         {
