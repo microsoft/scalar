@@ -31,7 +31,7 @@ namespace Scalar.FunctionalTests.Tools
         {
             // TODO: consider sparse clone for functional tests
             string args = string.Format(
-                "clone --sparse=false \"{0}\" \"{1}\" --branch \"{2}\" --local-cache-path \"{3}\" {4}",
+                "clone \"{0}\" \"{1}\" --sparse=false --branch \"{2}\" --local-cache-path \"{3}\" {4}",
                 repositorySource,
                 this.enlistmentRoot,
                 branchToCheckout,
