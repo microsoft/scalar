@@ -29,8 +29,9 @@ namespace Scalar.FunctionalTests.Tools
 
         public void Clone(string repositorySource, string branchToCheckout, bool skipPrefetch)
         {
+            // TODO: consider sparse clone for functional tests
             string args = string.Format(
-                "clone \"{0}\" \"{1}\" --branch \"{2}\" --local-cache-path \"{3}\" {4}",
+                "clone --sparse=false \"{0}\" \"{1}\" --branch \"{2}\" --local-cache-path \"{3}\" {4}",
                 repositorySource,
                 this.enlistmentRoot,
                 branchToCheckout,

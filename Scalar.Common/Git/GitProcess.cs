@@ -88,6 +88,11 @@ namespace Scalar.Common.Git
             return new GitProcess(enlistment).InvokeGitOutsideEnlistment("init \"" + enlistment.WorkingDirectoryBackingRoot + "\"");
         }
 
+        public static Result SparseCheckoutInit(Enlistment enlistment)
+        {
+            return new GitProcess(enlistment).InvokeGitInWorkingDirectoryRoot("sparse-checkout init", useReadObjectHook: false);
+        }
+
         public static ConfigResult GetFromGlobalConfig(string gitBinPath, string settingName)
         {
             return new ConfigResult(

@@ -3,10 +3,15 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
+<<<<<<< HEAD
 using Scalar.Common.Prefetch;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
+=======
+using Scalar.Common.Tracing;
+using System;
+>>>>>>> Initial sparse implementation [PR BUILD]
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -67,6 +72,16 @@ namespace Scalar.CommandLine
             HelpText = "Use this option to override the path for the local Scalar cache.")]
         public string LocalCacheRoot { get; set; }
 
+<<<<<<< HEAD
+=======
+        [Option(
+            "sparse",
+            Required = false,
+            Default = true,
+            HelpText = "When cloning, create a sparse working directory.")]
+        public bool Sparse { get; set; }
+
+>>>>>>> Initial sparse implementation [PR BUILD]
         protected override string VerbName
         {
             get { return CloneVerbName; }
@@ -520,6 +535,7 @@ namespace Scalar.CommandLine
                 return new Result(installHooksError);
             }
 
+<<<<<<< HEAD
             // Place block below in an if statement when sparse clone is available.
             {
                 BlobPrefetcher prefetcher = new BlobPrefetcher(
@@ -542,6 +558,8 @@ namespace Scalar.CommandLine
                                 hydratedFileCount: out int _);
             }
 
+=======
+>>>>>>> Initial sparse implementation [PR BUILD]
             GitProcess.Result forceCheckoutResult = git.ForceCheckout(branch);
             if (forceCheckoutResult.ExitCodeIsFailure && forceCheckoutResult.Errors.IndexOf("unable to read tree") > 0)
             {
@@ -639,6 +657,20 @@ git %*
                 Path.Combine(repoPath, ScalarConstants.DotGit.PackedRefs),
                 refs.ToPackedRefs());
 
+<<<<<<< HEAD
+=======
+            if (this.Sparse)
+            {
+                GitProcess.Result sparseCheckoutResult = GitProcess.SparseCheckoutInit(enlistmentToInit);
+                if (sparseCheckoutResult.ExitCodeIsFailure)
+                {
+                    string error = string.Format("Could not init sparse-checkout at to {0}: {1}", repoPath, sparseCheckoutResult.Errors);
+                    tracer.RelatedError(error);
+                    return new Result(error);
+                }
+            }
+
+>>>>>>> Initial sparse implementation [PR BUILD]
             return new Result(true);
         }
 
