@@ -26,7 +26,7 @@ steps:
     condition: succeededOrFailed()
 
   - script: Scripts/Mac/CI/CreateBuildDrop.sh $(configuration) $(Build.ArtifactStagingDirectory)/Tests
-    displayName: Create functional test drop.
+    displayName: Create functional test drop
 
   - task: PublishBuildArtifacts@1
     displayName: Publish functional test drop artifact.
@@ -36,3 +36,15 @@ steps:
       parallel: true
       parallelCount: 8
     condition: succeededOrFailed()
+
+  - script: Scripts/Mac/CI/CreateInstallerDrop.sh $(configuration) $(Build.ArtifactStagingDirectory)/Installers
+    displayName: Create installer drop
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish installers
+    inputs:
+      pathToPublish: $(Build.ArtifactStagingDirectory)/Installers
+      artifactName: "Installers_$(platformFriendlyName)_$(configuration)"
+      parallel: true
+      parallelCount: 8
+    condition: and(succeeded(), eq(variables['configuration'], 'Release'))
