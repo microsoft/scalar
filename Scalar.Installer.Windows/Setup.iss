@@ -22,7 +22,7 @@
 #define FileSystemKey "SYSTEM\CurrentControlSet\Control\FileSystem"
 
 [Setup]
-AppId={{489CA581-F131-4C28-BE04-4FB178933E6D}
+AppId={{82F731CB-1CFC-406D-8D84-8467BF6040C7}
 AppName={#MyAppName}
 AppVersion={#MyAppInstallerVersion}
 VersionInfoVersion={#MyAppInstallerVersion}
