@@ -34,7 +34,7 @@ steps:
       artifactName: "FunctionalTests_$(platformFriendlyName)_$(configuration)"
       parallel: true
       parallelCount: 8
-    condition: succeededOrFailed()
+    condition: and(succeeded(), eq(variables['configuration'], 'Release'))
 
   - script: $(Build.Repository.LocalPath)\Scripts\CI\CreateInstallerDrop.bat $(configuration) $(Build.ArtifactStagingDirectory)\Installers
     displayName: Create installer drop
