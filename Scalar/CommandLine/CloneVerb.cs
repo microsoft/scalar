@@ -3,13 +3,13 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
-using Scalar.Common.NamedPipes;
+using Scalar.Common.Prefetch;
 using Scalar.Common.Tracing;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Scalar.CommandLine
 {
@@ -534,6 +534,28 @@ namespace Scalar.CommandLine
             {
                 tracer.RelatedError(installHooksError);
                 return new Result(installHooksError);
+            }
+
+            // Place block below in an if statement when sparse clone is available.
+            {
+                BlobPrefetcher prefetcher = new BlobPrefetcher(
+                                                    tracer,
+                                                    enlistment,
+                                                    objectRequestor,
+                                                    fileList: new List<string>() { "*" },
+                                                    folderList: null,
+                                                    lastPrefetchArgs: null,
+                                                    chunkSize: 4000,
+                                                    searchThreadCount: Environment.ProcessorCount,
+                                                    downloadThreadCount: Environment.ProcessorCount,
+                                                    indexThreadCount: Environment.ProcessorCount);
+                prefetcher.PrefetchWithStats(
+                                branch,
+                                isBranch: true,
+                                hydrateFilesAfterDownload: false,
+                                matchedBlobCount: out int _,
+                                downloadedBlobCount: out int _,
+                                hydratedFileCount: out int _);
             }
 
             GitProcess.Result forceCheckoutResult = git.ForceCheckout(branch);

@@ -180,8 +180,10 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
             string[] packFiles = Directory.GetFiles(this.TempPackRoot, "pack-*.pack");
             Assert.Greater(packFiles.Length, 0);
 
-            // Pick the first one found
-            string packFile = packFiles[0];
+            List<FileInfo> fileInfos = packFiles.Select(file => new FileInfo(file))
+                                                .ToList();
+            fileInfos.Sort((f1, f2) => (int)(f2.Length - f1.Length));
+            string packFile = fileInfos[0].FullName;
 
             // Send the contents of the packfile to unpack-objects to example the loose objects
             // Note this won't work if the object exists in a pack file which is why we had to move them
