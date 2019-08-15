@@ -12,7 +12,7 @@ steps:
       certSecureFile: 'PrjFSKextCertExpiresJun6_2020_v2.p12'
       certPwd: '$(kext.certificate.password)'
 
-  - script: Scripts/Mac/BuildScalarForMac.sh $(configuration)
+  - script: Scripts/Mac/BuildScalarForMac.sh $(configuration) $(majorAndMinorVersion).$(revision)
     displayName: Build Scalar ($(configuration))
 
   - task: PublishTestResults@2
