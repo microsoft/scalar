@@ -113,7 +113,7 @@ namespace Scalar.CommandLine
                 { "core.autocrlf", "false" },
                 { "core.commitGraph", "true" },
                 { "core.fscache", "true" },
-                { "core.scalar", "true" },
+                { "core.gvfs", "true" },
                 { "core.multiPackIndex", "true" },
                 { "core.preloadIndex", "true" },
                 { "core.safecrlf", "false" },
