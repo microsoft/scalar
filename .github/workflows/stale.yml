@@ -14,7 +14,7 @@ jobs:
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         stale-issue-message: 'Labeling this issue as stale. There has been no activity for 30 days. Remove stale label or comment or this issue will be closed in 7 days.'
-        stale-pr-message: 'Labeling this pull request as stale. There has been no activity for 30 days. Remove stale label or comment or this PR will be closed in 7 days.
+        stale-pr-message: 'Labeling this pull request as stale. There has been no activity for 30 days. Remove stale label or comment or this PR will be closed in 7 days.'
         stale-issue-label: 'no-activity'
         stale-pr-label: 'no-activity'
         days-before-stale: 30
