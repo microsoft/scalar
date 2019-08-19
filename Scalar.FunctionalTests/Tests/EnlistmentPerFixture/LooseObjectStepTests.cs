@@ -7,10 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
+namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
-    public class LooseObjectStepTests : TestsWithEnlistmentPerTestCase
+    public class LooseObjectStepTests : TestsWithEnlistmentPerFixture
     {
         private const string TempPackFolder = "tempPacks";
         private FileSystemRunner fileSystem;
@@ -18,7 +18,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
         // Set forcePerRepoObjectCache to true to avoid any of the tests inadvertently corrupting
         // the cache
         public LooseObjectStepTests()
-            : base(forcePerRepoObjectCache: true)
+            : base(forcePerRepoObjectCache: false)
         {
             this.fileSystem = new SystemIORunner();
         }
@@ -28,6 +28,23 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
         private string TempPackRoot => Path.Combine(this.PackRoot, TempPackFolder);
 
         [TestCase]
+        [Order(1)]
+        public void NoLooseObjectsDoesNothing()
+        {
+            this.DeleteFiles(this.GetLooseObjectFiles());
+
+            this.DeleteFiles(this.GetLooseObjectFiles());
+            this.GetLooseObjectFiles().Count.ShouldEqual(0);
+            int startingPackFileCount = this.CountPackFiles();
+
+            this.Enlistment.LooseObjectStep();
+
+            this.GetLooseObjectFiles().Count.ShouldEqual(0);
+            this.CountPackFiles().ShouldEqual(startingPackFileCount);
+        }
+
+        [TestCase]
+        [Order(2)]
         public void RemoveLooseObjectsInPackFiles()
         {
             this.ClearAllObjects();
@@ -47,6 +64,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
         }
 
         [TestCase]
+        [Order(3)]
         public void PutLooseObjectsInPackFiles()
         {
             this.ClearAllObjects();
@@ -70,19 +88,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
         }
 
         [TestCase]
-        public void NoLooseObjectsDoesNothing()
-        {
-            this.DeleteFiles(this.GetLooseObjectFiles());
-            this.GetLooseObjectFiles().Count.ShouldEqual(0);
-            int startingPackFileCount = this.CountPackFiles();
-
-            this.Enlistment.LooseObjectStep();
-
-            this.GetLooseObjectFiles().Count.ShouldEqual(0);
-            this.CountPackFiles().ShouldEqual(startingPackFileCount);
-        }
-
-        [TestCase]
+        [Order(4)]
         public void CorruptLooseObjectIsDeleted()
         {
             this.ClearAllObjects();
@@ -170,7 +176,15 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
             {
                 string path2 = Path.Combine(this.TempPackRoot, Path.GetFileName(file));
 
-                File.Move(file, path2);
+                if (!File.Exists(path2))
+                {
+                    File.Move(file, path2);
+                }
+                else
+                {
+                    File.SetAttributes(file, FileAttributes.Normal);
+                    File.Delete(file);
+                }
             }
         }
 
