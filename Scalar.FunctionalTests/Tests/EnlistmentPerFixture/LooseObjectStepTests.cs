@@ -2,7 +2,6 @@ using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -132,24 +131,17 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         private void ClearAllObjects()
         {
-            Console.Error.WriteLine("ClearAllObjects: start");
-
             this.Enlistment.UnmountScalar();
-
-            Console.Error.WriteLine("ClearAllObjects: middle");
 
             // Delete/Move any starting loose objects and packfiles
             this.DeleteFiles(this.GetLooseObjectFiles());
             this.MovePackFilesToTemp();
             this.GetLooseObjectFiles().Count.ShouldEqual(0, "incorrect number of loose objects after setup");
             this.CountPackFiles().ShouldEqual(0, "incorrect number of packs after setup");
-            Console.Error.WriteLine("ClearAllObjects: end");
         }
 
         private List<string> GetLooseObjectFiles()
         {
-            Console.Error.WriteLine("GetLooseObjectFiles: start");
-
             List<string> looseObjectFiles = new List<string>();
             foreach (string directory in Directory.GetDirectories(this.GitObjectRoot))
             {
@@ -166,8 +158,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         private void DeleteFiles(List<string> filePaths)
         {
-            Console.Error.WriteLine("DeleteFiles: start");
-
             foreach (string filePath in filePaths)
             {
                 File.Delete(filePath);
@@ -181,8 +171,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         private void MovePackFilesToTemp()
         {
-            Console.Error.WriteLine("MovePackFilesToTemp: start");
-
             string[] files = Directory.GetFiles(this.PackRoot);
             foreach (string file in files)
             {
@@ -194,6 +182,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 }
                 else
                 {
+                    File.SetAttributes(file, FileAttributes.Normal);
                     File.Delete(file);
                 }
             }
@@ -201,8 +190,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         private void ExpandOneTempPack(bool copyPackBackToPackDirectory)
         {
-            Console.Error.WriteLine("ExpandOneTempPack: start");
-
             // Find all pack files
             string[] packFiles = Directory.GetFiles(this.TempPackRoot, "pack-*.pack");
             Assert.Greater(packFiles.Length, 0);
@@ -216,8 +203,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Note this won't work if the object exists in a pack file which is why we had to move them
             using (FileStream packFileStream = File.OpenRead(packFile))
             {
-                Console.Error.WriteLine("ExpandOneTempPack: OpenRead to InvokePorcess");
-
                 string output = GitProcess.InvokeProcess(
                     this.Enlistment.RepoRoot,
                     "unpack-objects",
@@ -227,8 +212,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             if (copyPackBackToPackDirectory)
             {
-                Console.Error.WriteLine("ExpandOneTempPack: copying to pack dir");
-
                 // Copy the pack file back to packs
                 string packFileName = Path.GetFileName(packFile);
                 File.Copy(packFile, Path.Combine(this.PackRoot, packFileName));
