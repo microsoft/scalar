@@ -17,5 +17,5 @@ jobs:
         stale-pr-message: 'Labeling this pull request as stale. There has been no activity for 30 days. Remove stale label or comment or this PR will be closed in 7 days.'
         stale-issue-label: 'no-activity'
         stale-pr-label: 'no-activity'
-        days-before-stale: 720
-        days-before-close: 168
+        days-before-stale: 30
+        days-before-close: 7
