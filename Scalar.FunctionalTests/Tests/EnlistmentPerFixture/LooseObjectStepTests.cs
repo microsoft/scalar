@@ -29,7 +29,23 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         private string TempPackRoot => Path.Combine(this.PackRoot, TempPackFolder);
 
         [TestCase]
-        [Order(3)]
+        [Order(1)]
+        public void NoLooseObjectsDoesNothing()
+        {
+            this.DeleteFiles(this.GetLooseObjectFiles());
+
+            this.DeleteFiles(this.GetLooseObjectFiles());
+            this.GetLooseObjectFiles().Count.ShouldEqual(0);
+            int startingPackFileCount = this.CountPackFiles();
+
+            this.Enlistment.LooseObjectStep();
+
+            this.GetLooseObjectFiles().Count.ShouldEqual(0);
+            this.CountPackFiles().ShouldEqual(startingPackFileCount);
+        }
+
+        [TestCase]
+        [Order(2)]
         public void RemoveLooseObjectsInPackFiles()
         {
             this.ClearAllObjects();
@@ -49,7 +65,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase]
-        [Order(4)]
+        [Order(3)]
         public void PutLooseObjectsInPackFiles()
         {
             this.ClearAllObjects();
@@ -73,21 +89,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase]
-        [Order(2)]
-        public void NoLooseObjectsDoesNothing()
-        {
-            this.DeleteFiles(this.GetLooseObjectFiles());
-            this.GetLooseObjectFiles().Count.ShouldEqual(0);
-            int startingPackFileCount = this.CountPackFiles();
-
-            this.Enlistment.LooseObjectStep();
-
-            this.GetLooseObjectFiles().Count.ShouldEqual(0);
-            this.CountPackFiles().ShouldEqual(startingPackFileCount);
-        }
-
-        [TestCase]
-        [Order(1)]
+        [Order(4)]
         public void CorruptLooseObjectIsDeleted()
         {
             this.ClearAllObjects();
@@ -186,7 +188,14 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             {
                 string path2 = Path.Combine(this.TempPackRoot, Path.GetFileName(file));
 
-                File.Move(file, path2);
+                if (!File.Exists(path2))
+                {
+                    File.Move(file, path2);
+                }
+                else
+                {
+                    File.Delete(file);
+                }
             }
         }
 
