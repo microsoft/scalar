@@ -339,7 +339,27 @@ namespace Scalar.Common.Prefetch.Git
                 return true;
             }
 
-            if (this.folderList.Any(path => blobAdd.TargetPath.StartsWith(path, StringComparison.OrdinalIgnoreCase)))
+            if (this.folderList.Any(
+                folderListPath =>
+                {
+                    bool recursiveMatch = blobAdd.TargetPath.StartsWith(folderListPath, StringComparison.OrdinalIgnoreCase);
+                    if (recursiveMatch)
+                    {
+                        return true;
+                    }
+
+                    int lastBlobPathSeparator = blobAdd.TargetPath.LastIndexOf(Path.DirectorySeparatorChar);
+                    if (lastBlobPathSeparator < 0)
+                    {
+                        // Always include paths in the root directory
+                        return true;
+                    }
+
+                    // If folderListPath starts with the parent folder of blobAdd.TargetPath then blobAdd.TargetPath
+                    // must be an immediate child of one of folderListPath's parents
+                    string blobParent = blobAdd.TargetPath.Substring(0, lastBlobPathSeparator + 1);
+                    return folderListPath.StartsWith(blobParent, StringComparison.OrdinalIgnoreCase);
+                }))
             {
                 return true;
             }
