@@ -67,15 +67,18 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(6)]
         public void PrefetchFolders()
         {
-            this.ExpectBlobCount(this.Enlistment.Prefetch($"--folders {Path.Combine("GVFS", "GVFS")}"), 17);
-            this.ExpectBlobCount(this.Enlistment.Prefetch($"--folders {Path.Combine("GVFS", "GVFS")};{Path.Combine("GVFS", "GVFS.FunctionalTests")}"), 65);
+            this.ExpectBlobCount(this.Enlistment.Prefetch($"--folders {Path.Combine("GVFS", "GVFS")}"), 24);
+            this.ExpectBlobCount(this.Enlistment.Prefetch($"--folders {Path.Combine("GVFS", "GVFS", "CommandLine")}"), 23);
+            this.ExpectBlobCount(this.Enlistment.Prefetch($"--folders {Path.Combine("GVFS", "GVFS")};{Path.Combine("GVFS", "GVFS.FunctionalTests")}"), 72);
         }
 
         [TestCase, Order(7)]
-        public void PrefetchIsAllowedToDoNothing()
+        public void PrefetchNonExistentFilesAndFolders()
         {
             this.ExpectBlobCount(this.Enlistment.Prefetch("--files nonexistent.txt"), 0);
-            this.ExpectBlobCount(this.Enlistment.Prefetch("--folders nonexistent_folder"), 0);
+
+            // Whenever folder(s) are specified, all files in the root will match
+            this.ExpectBlobCount(this.Enlistment.Prefetch("--folders nonexistent_folder"), 7);
         }
 
         [TestCase, Order(8)]
@@ -93,7 +96,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                     "GVFS/"
                 });
 
-            this.ExpectBlobCount(this.Enlistment.Prefetch("--folders-list \"" + tempFilePath + "\""), 279);
+            this.ExpectBlobCount(this.Enlistment.Prefetch("--folders-list \"" + tempFilePath + "\""), 286);
             File.Delete(tempFilePath);
         }
 
@@ -186,7 +189,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                     "GVFS/"
                 });
 
-            this.ExpectBlobCount(this.Enlistment.Prefetch("--stdin-folders-list", standardInput: input), 279);
+            this.ExpectBlobCount(this.Enlistment.Prefetch("--stdin-folders-list", standardInput: input), 286);
         }
 
         public void PrefetchPathsWithLsTreeTypeInPath()
