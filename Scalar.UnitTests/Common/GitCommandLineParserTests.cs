@@ -62,29 +62,6 @@ namespace Scalar.UnitTests.Common
         }
 
         [TestCase]
-        public void IsCheckoutWithFilePathsTests()
-        {
-            new GitCommandLineParser("gits checkout branch -- file").IsCheckoutWithFilePaths().ShouldEqual(false);
-
-            new GitCommandLineParser("git checkout branch -- file").IsCheckoutWithFilePaths().ShouldEqual(true);
-            new GitCommandLineParser("git checkout branch -- file1 file2").IsCheckoutWithFilePaths().ShouldEqual(true);
-            new GitCommandLineParser("git checkout HEAD -- file").IsCheckoutWithFilePaths().ShouldEqual(true);
-
-            new GitCommandLineParser("git checkout HEAD file").IsCheckoutWithFilePaths().ShouldEqual(true);
-            new GitCommandLineParser("git checkout HEAD file1 file2").IsCheckoutWithFilePaths().ShouldEqual(true);
-
-            new GitCommandLineParser("git checkout branch file").IsCheckoutWithFilePaths().ShouldEqual(false);
-            new GitCommandLineParser("git checkout branch").IsCheckoutWithFilePaths().ShouldEqual(false);
-            new GitCommandLineParser("git checkout HEAD").IsCheckoutWithFilePaths().ShouldEqual(false);
-
-            new GitCommandLineParser("git checkout -b topic").IsCheckoutWithFilePaths().ShouldEqual(false);
-
-            new GitCommandLineParser("git checkout -b topic --").IsCheckoutWithFilePaths().ShouldEqual(false);
-            new GitCommandLineParser("git checkout HEAD --").IsCheckoutWithFilePaths().ShouldEqual(false);
-            new GitCommandLineParser("git checkout HEAD -- ").IsCheckoutWithFilePaths().ShouldEqual(false);
-        }
-
-        [TestCase]
         public void IsSerializedStatusTests()
         {
             new GitCommandLineParser("git status --serialized=some/file").IsSerializedStatus().ShouldEqual(true);
