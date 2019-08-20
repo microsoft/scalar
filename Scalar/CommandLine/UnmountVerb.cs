@@ -51,7 +51,7 @@ namespace Scalar.CommandLine
                 this.ReportErrorAndExit(errorMessage);
             }
 
-            if (!this.Unattended && !this.SkipUnregister && ScalarPlatform.Instance.UnderConstruction.SupportsScalarService)
+            if (!this.Unattended && !this.SkipUnregister)
             {
                 if (!this.ShowStatusWhileRunning(
                     () => { return this.UnregisterRepo(root, out errorMessage); },
