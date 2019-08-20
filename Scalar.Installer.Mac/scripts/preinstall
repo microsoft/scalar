@@ -1,1 +1,8 @@
 #!/bin/bash
+
+SCALARBINPATH="/usr/local/scalar/scalar"
+if [ -f "${SCALARBINPATH}" ]; then
+    unmountCmd="${SCALARBINPATH} service --unmount-all"
+    echo $unmountCmd
+    eval $unmountCmd || exit 1
+fi
