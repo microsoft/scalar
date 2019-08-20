@@ -62,44 +62,6 @@ namespace Scalar.Common
                 this.HasArgumentPrefix("--serialize");
         }
 
-        /// <summary>
-        /// This method currently just makes a best effort to detect file paths. Only use this method for optional optimizations
-        /// related to file paths. Do NOT use this method if you require a reliable answer.
-        /// </summary>
-        /// <returns>True if file paths were detected, otherwise false</returns>
-        public bool IsCheckoutWithFilePaths()
-        {
-            if (this.IsVerb(Verbs.Checkout))
-            {
-                int numArguments = this.parts.Length - ArgumentsOffset;
-
-                // The simplest way to know that we're dealing with file paths is if there are any arguments after a --
-                // e.g. git checkout branchName -- fileName
-                int dashDashIndex;
-                if (this.HasAnyArgument(arg => arg == "--", out dashDashIndex) &&
-                    numArguments > dashDashIndex + 1)
-                {
-                    return true;
-                }
-
-                // We also special case one usage with HEAD, as long as there are no other arguments with - or -- that might
-                // result in behavior we haven't tested.
-                // e.g. git checkout HEAD fileName
-                if (numArguments >= 2 &&
-                    !this.HasAnyArgument(arg => arg.StartsWith("-")) &&
-                    this.HasArgumentAtIndex(ScalarConstants.DotGit.HeadName, argumentIndex: 0))
-                {
-                    return true;
-                }
-
-                // Note: we have definitely missed some cases of file paths, e.g.:
-                //    git checkout branchName fileName (detecting this reliably requires more complicated parsing)
-                //    git checkout --patch (we currently have no need to optimize this scenario)
-            }
-
-            return false;
-        }
-
         public bool IsVerb(Verbs verbs)
         {
             if (!this.IsValidGitCommand)
