@@ -888,7 +888,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
             this.ValidateGitCommand("checkout " + this.ControlGitRepo.Commitish);
             this.ValidateGitCommand("checkout -b tests/functional/ChangeBranchesAndCherryPickIntoAnotherBranch_2");
-            this.RunGitCommand("cherry-pick DeleteForCherryPick");
+            this.RunGitCommand("cherry-pick -q DeleteForCherryPick");
         }
 
         [TestCase]
@@ -911,7 +911,8 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             this.ValidateGitCommand("add .");
             this.RunGitCommand("commit -m \"Edit for ChangeBranchAndMergeRebaseOnAnotherBranch first branch\"");
 
-            this.RunGitCommand("rebase --merge tests/functional/ChangeBranchAndMergeRebaseOnAnotherBranch_1");
+            this.RunGitCommand("rebase --merge tests/functional/ChangeBranchAndMergeRebaseOnAnotherBranch_1", ignoreErrors: true);
+            this.ValidateGitCommand("rev-parse HEAD^{{tree}}");
         }
 
         [TestCase]
@@ -934,7 +935,8 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             this.ValidateGitCommand("add .");
             this.RunGitCommand("commit -m \"Edit for ChangeBranchAndRebaseOnAnotherBranch first branch\"");
 
-            this.ValidateGitCommand("rebase tests/functional/ChangeBranchAndRebaseOnAnotherBranch_1");
+            this.RunGitCommand("rebase tests/functional/ChangeBranchAndRebaseOnAnotherBranch_1", ignoreErrors: true);
+            this.ValidateGitCommand("rev-parse HEAD^{{tree}}");
         }
 
         [TestCase]
