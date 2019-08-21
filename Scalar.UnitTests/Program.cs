@@ -11,6 +11,7 @@ namespace Scalar.UnitTests
         public static void Main(string[] args)
         {
             NUnitRunner runner = new NUnitRunner(args);
+            runner.AddGlobalSetupIfNeeded("Scalar.UnitTests.Setup");
 
             List<string> excludeCategories = new List<string>();
 
