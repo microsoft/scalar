@@ -142,6 +142,103 @@ namespace Scalar.UnitTests.Prefetch
             diffBackwards.HasFailures.ShouldEqual(true);
         }
 
+        [TestCase]
+        public void GenerateRecursiveAndParentPathSets()
+        {
+            char dir = Path.DirectorySeparatorChar;
+            List<string> folderList = new List<string>();
+            CheckGenerateRecursiveAndParentPathSets(
+                folderList,
+                expectedParentFolders: new HashSet<string>(),
+                expectedMaxFolderPathDepth: 0);
+
+            folderList = new List<string> { $"A{dir}" };
+            CheckGenerateRecursiveAndParentPathSets(
+                folderList,
+                expectedParentFolders: new HashSet<string>(),
+                expectedMaxFolderPathDepth: 1);
+
+            folderList = new List<string> { $"A{dir}", $"A{dir}B{dir}" };
+            CheckGenerateRecursiveAndParentPathSets(
+                folderList,
+                expectedParentFolders: new HashSet<string> { $"A{dir}" },
+                expectedMaxFolderPathDepth: 2);
+
+            folderList = new List<string> { $"A{dir}", $"A{dir}B{dir}", $"C{dir}" };
+            CheckGenerateRecursiveAndParentPathSets(
+                folderList,
+                expectedParentFolders: new HashSet<string> { $"A{dir}" },
+                expectedMaxFolderPathDepth: 2);
+
+            folderList = new List<string> { $"A{dir}", $"A{dir}B{dir}", $"C{dir}", $"G{dir}H{dir}I{dir}J{dir}" };
+            CheckGenerateRecursiveAndParentPathSets(
+                folderList,
+                expectedParentFolders: new HashSet<string> { $"A{dir}", $"G{dir}", $"G{dir}H{dir}", $"G{dir}H{dir}I{dir}" },
+                expectedMaxFolderPathDepth: 4);
+        }
+
+        [TestCase]
+        public void PathMatchesFoldersReturnsFalseWithNoFoldersList()
+        {
+            MockTracer tracer = new MockTracer();
+            DiffHelper diffHelper = new DiffHelper(tracer, new MockScalarEnlistment(), fileList: new List<string>(), folderList: new List<string>(), includeSymLinks: false);
+
+            diffHelper.PathMatchesFolders("a.txt").ShouldBeFalse("Paths (even in root) should not match if there is no folders list");
+        }
+
+        [TestCase]
+        public void PathMatchesFoldersTests()
+        {
+            char dir = Path.DirectorySeparatorChar;
+            List<string> folderList = new List<string>
+            {
+                $"A{dir}",
+                $"a{dir}b{dir}",
+                $"C{dir}",
+                $"G{dir}H{dir}I{dir}J{dir}"
+            };
+
+            MockTracer tracer = new MockTracer();
+            DiffHelper diffHelper = new DiffHelper(tracer, new MockScalarEnlistment(), fileList: new List<string>(), folderList: folderList, includeSymLinks: false);
+
+            diffHelper.PathMatchesFolders("a").ShouldBeTrue("Paths in the root should always be included");
+            diffHelper.PathMatchesFolders("C.txt").ShouldBeTrue("Paths in the root should always be included");
+
+            diffHelper.PathMatchesFolders($"A{dir}D{dir}foo.txt").ShouldBeTrue("Descendants of folders in the list should be included");
+            diffHelper.PathMatchesFolders($"A{dir}D{dir}E{dir}foo.txt").ShouldBeTrue("Descendants of folders in the list should be included");
+            diffHelper.PathMatchesFolders($"a{dir}d{dir}e{dir}FOO.txt").ShouldBeTrue("Descendants of folders in the list should be included");
+            diffHelper.PathMatchesFolders($"C{dir}bar.txt").ShouldBeTrue("Descendants of folders in the list should be included");
+
+            diffHelper.PathMatchesFolders($"G{dir}foo.txt").ShouldBeTrue("Immediate children of intermediate folders in the list should be included");
+            diffHelper.PathMatchesFolders($"G{dir}H{dir}foo.txt").ShouldBeTrue("Immediate children of intermediate folders in the list should be included");
+            diffHelper.PathMatchesFolders($"G{dir}H{dir}I{dir}foo.txt").ShouldBeTrue("Immediate children of intermediate folders in the list should be included");
+            diffHelper.PathMatchesFolders($"g{dir}h{dir}i{dir}foo.txt").ShouldBeTrue("Immediate children of intermediate folders in the list should be included");
+
+            // Paths that are not children/descendants should not match
+            diffHelper.PathMatchesFolders($"B{dir}foo.txt").ShouldBeFalse("Files that are not children/descendants should not be included");
+            diffHelper.PathMatchesFolders($"B{dir}D{dir}baz.txt").ShouldBeFalse("Files that are not children/descendants should not be included");
+
+            // Paths that are not descendants (and not immediate children) of intermediate folders should not match
+            diffHelper.PathMatchesFolders($"G{dir}H{dir}Z{dir}foo.txt").ShouldBeFalse("Files that are not children/descendants should not be included");
+            diffHelper.PathMatchesFolders($"G{dir}H{dir}I{dir}Z{dir}foo.txt").ShouldBeFalse("Files that are not children/descendants should not be included");
+        }
+
+        private static void CheckGenerateRecursiveAndParentPathSets(
+            IEnumerable<string> folderList,
+            HashSet<string> expectedParentFolders,
+            int expectedMaxFolderPathDepth)
+        {
+            HashSet<string> parentFolders;
+            HashSet<string> recursiveParents;
+            int maxRecursiveDepth;
+
+            HashSet<string> expectedRecursiveFolders = new HashSet<string>(folderList);
+            DiffHelper.GenerateRecursiveAndParentPathSets(folderList, out parentFolders, out recursiveParents, out maxRecursiveDepth);
+            parentFolders.ShouldMatchInOrder(expectedParentFolders);
+            recursiveParents.ShouldMatchInOrder(expectedRecursiveFolders);
+            maxRecursiveDepth.ShouldEqual(expectedMaxFolderPathDepth);
+        }
+
         private static string GetDataPath(string fileName)
         {
             string workingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);

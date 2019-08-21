@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Scalar.Common.Prefetch.Git
 {
@@ -15,7 +16,17 @@ namespace Scalar.Common.Prefetch.Git
         private ITracer tracer;
         private HashSet<string> exactFileList;
         private List<string> patternList;
-        private List<string> folderList;
+
+        // The maximum depth of any path provided in 'fileList'
+        private int maxIncludedFolderPathDepth;
+
+        // All paths provided in 'fileList', these are treated as recusive
+        private HashSet<string> includedRecursiveFolders;
+
+        // The parents of all folders 'fileList'.  Immediate children of these
+        // folders are also included when folders are specified.
+        private HashSet<string> includedFolderParents;
+
         private HashSet<string> filesAdded = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private HashSet<DiffTreeResult> stagedDirectoryOperations = new HashSet<DiffTreeResult>(new DiffTreeByNameComparer());
@@ -34,7 +45,13 @@ namespace Scalar.Common.Prefetch.Git
             this.tracer = tracer;
             this.exactFileList = new HashSet<string>(fileList.Where(x => !x.StartsWith("*")), StringComparer.OrdinalIgnoreCase);
             this.patternList = fileList.Where(x => x.StartsWith("*")).ToList();
-            this.folderList = new List<string>(folderList);
+
+            GenerateRecursiveAndParentPathSets(
+                folderList,
+                out this.includedFolderParents,
+                out this.includedRecursiveFolders,
+                out this.maxIncludedFolderPathDepth);
+
             this.enlistment = enlistment;
             this.git = git;
             this.ShouldIncludeSymLinks = includeSymLinks;
@@ -77,6 +94,42 @@ namespace Scalar.Common.Prefetch.Git
         /// Returns true if the whole tree was updated
         /// </summary>
         public bool UpdatedWholeTree { get; internal set; } = false;
+
+        // public for unit tests
+        public static void GenerateRecursiveAndParentPathSets(
+            IEnumerable<string> folderList,
+            out HashSet<string> parentFolders,
+            out HashSet<string> recursiveFolders,
+            out int maxFolderPathDepth)
+        {
+            // Every path in folderList is a recursive path
+            recursiveFolders = new HashSet<string>(folderList, StringComparer.OrdinalIgnoreCase);
+
+            // Build a hash set that contains all of the parents of the paths in folderList
+            maxFolderPathDepth = 0;
+            parentFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            StringBuilder parentPaths = new StringBuilder(capacity: ScalarConstants.MaxPath);
+            foreach (string folderPath in folderList)
+            {
+                string[] pathParts = folderPath.Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (pathParts.Length > maxFolderPathDepth)
+                {
+                    maxFolderPathDepth = pathParts.Length;
+                }
+
+                // Check 'pathParts.Length - 1' because the full folder path is already included in recursiveFolders.
+                // There is no need to add it to parentFolders as well.
+                for (int pathIndex = 0; pathIndex < pathParts.Length - 1; ++pathIndex)
+                {
+                    parentPaths.Append(pathParts[pathIndex]);
+                    parentPaths.Append(Path.DirectorySeparatorChar);
+                    parentFolders.Add(parentPaths.ToString());
+                }
+
+                parentPaths.Clear();
+            }
+        }
 
         public void PerformDiff(string targetCommitSha)
         {
@@ -162,6 +215,69 @@ namespace Scalar.Common.Prefetch.Git
 
                 this.FlushStagedQueues();
             }
+        }
+
+        // public for unit testing
+        /// <summary>
+        /// Return true if the specific file path should be included in the cone specified
+        /// by the folderList that was provided when constructing the DiffHelper.
+        /// </summary>
+        /// <param name="filePath">Path to a file to compare against the folder list</param>
+        /// <returns>true if the file path is included in the folders list and false otherwise</returns>
+        public bool PathMatchesFolders(string filePath)
+        {
+            if (this.maxIncludedFolderPathDepth == 0)
+            {
+                // At least one folder must be specified to for any paths to match the list
+                return false;
+            }
+
+            int lastBlobPathSeparator = filePath.LastIndexOf(Path.DirectorySeparatorChar);
+            if (lastBlobPathSeparator < 0)
+            {
+                // Always include paths in the root directory
+                return true;
+            }
+
+            string parentPath = filePath.Substring(0, lastBlobPathSeparator + 1);
+            if (this.includedFolderParents.Contains(parentPath))
+            {
+                return true;
+            }
+
+            // Check ancestors of filePath against the recursive set of folders
+            // maxIncludedFolderPathDepth stores the maximum depth of folders in includedRecursiveFolders
+            // so that we can avoid checking folders too deep to be in the set
+            //
+            // Example:
+            //
+            //     includedRecursiveFolders -> { "A\", "D\E\F\" }
+            //     maxIncludedFolderPathDepth -> 3
+            //
+            //
+            // When checking if the ancestors of "G\H\I\J\K\L\m.txt" are in includedRecursiveFolders
+            // there is no need to check beyond "G\H\I\" because includedRecursiveFolders does
+            // not contains any paths more the 3 levels deep.
+            int pathSeparatorIndex = 0;
+            for (int i = 0; i < this.maxIncludedFolderPathDepth; ++i)
+            {
+                pathSeparatorIndex = filePath.IndexOf(Path.DirectorySeparatorChar, startIndex: pathSeparatorIndex);
+                if (pathSeparatorIndex < 0)
+                {
+                    // We've tested every ancestor folder of filePath and not found a match
+                    return false;
+                }
+
+                string ancestorPath = filePath.Substring(0, pathSeparatorIndex + 1);
+                if (this.includedRecursiveFolders.Contains(ancestorPath))
+                {
+                    return true;
+                }
+
+                ++pathSeparatorIndex;
+            }
+
+            return false;
         }
 
         private void FlushStagedQueues()
@@ -328,7 +444,7 @@ namespace Scalar.Common.Prefetch.Git
 
             if (this.exactFileList.Count == 0 &&
                 this.patternList.Count == 0 &&
-                this.folderList.Count == 0)
+                this.maxIncludedFolderPathDepth == 0)
             {
                 return true;
             }
@@ -339,12 +455,7 @@ namespace Scalar.Common.Prefetch.Git
                 return true;
             }
 
-            if (this.folderList.Any(path => blobAdd.TargetPath.StartsWith(path, StringComparison.OrdinalIgnoreCase)))
-            {
-                return true;
-            }
-
-            return false;
+            return this.PathMatchesFolders(blobAdd.TargetPath);
         }
 
         private void EnqueueFileDeleteOperation(ITracer activity, string targetPath)
