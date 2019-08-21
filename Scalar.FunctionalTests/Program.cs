@@ -15,6 +15,7 @@ namespace Scalar.FunctionalTests
         {
             Properties.Settings.Default.Initialize();
             NUnitRunner runner = new NUnitRunner(args);
+            runner.AddGlobalSetupIfNeeded("Scalar.FunctionalTests.GlobalSetup");
 
             if (runner.HasCustomArg("--no-shared-scalar-cache"))
             {
