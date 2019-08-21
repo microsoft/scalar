@@ -55,13 +55,6 @@ namespace Scalar.CommandLine
         public bool SingleBranch { get; set; }
 
         [Option(
-            "no-mount",
-            Required = false,
-            Default = false,
-            HelpText = "Use this option to only clone, but not mount the repo")]
-        public bool NoMount { get; set; }
-
-        [Option(
             "no-prefetch",
             Required = false,
             Default = false,
@@ -137,7 +130,6 @@ namespace Scalar.CommandLine
                                 { "Branch", this.Branch },
                                 { "LocalCacheRoot", this.LocalCacheRoot },
                                 { "SingleBranch", this.SingleBranch },
-                                { "NoMount", this.NoMount },
                                 { "NoPrefetch", this.NoPrefetch },
                                 { "Unattended", this.Unattended },
                                 { "IsElevated", ScalarPlatform.Instance.IsElevated() },
@@ -223,23 +215,15 @@ namespace Scalar.CommandLine
                         }
                     }
 
-                    if (this.NoMount)
-                    {
-                        this.Output.WriteLine("\r\nIn order to mount, first cd to within your enlistment, then call: ");
-                        this.Output.WriteLine("scalar mount");
-                    }
-                    else
-                    {
-                        this.Execute<MountVerb>(
-                            enlistment,
-                            verb =>
-                            {
-                                verb.SkipMountedCheck = true;
-                                verb.SkipVersionCheck = true;
-                                verb.ResolvedCacheServer = cacheServer;
-                                verb.DownloadedScalarConfig = serverScalarConfig;
-                            });
-                    }
+                    this.Execute<MountVerb>(
+                        enlistment,
+                        verb =>
+                        {
+                            verb.SkipMountedCheck = true;
+                            verb.SkipVersionCheck = true;
+                            verb.ResolvedCacheServer = cacheServer;
+                            verb.DownloadedScalarConfig = serverScalarConfig;
+                        });
 
                     GitProcess git = new GitProcess(enlistment);
                     git.ForceCheckoutAllFiles();

@@ -57,7 +57,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             string newEnlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
 
             ProcessStartInfo processInfo = new ProcessStartInfo(ScalarTestConfig.PathToScalar);
-            processInfo.Arguments = $"clone {Properties.Settings.Default.RepoToClone} {newEnlistmentRoot} --no-mount --no-prefetch";
+            processInfo.Arguments = $"clone {Properties.Settings.Default.RepoToClone} {newEnlistmentRoot} --no-prefetch";
             processInfo.WindowStyle = ProcessWindowStyle.Hidden;
             processInfo.CreateNoWindow = true;
             processInfo.UseShellExecute = false;
