@@ -185,19 +185,16 @@ namespace Scalar.Common
             public UnderConstructionFlags(
                 bool supportsScalarUpgrade = true,
                 bool supportsScalarConfig = true,
-                bool supportsNuGetEncryption = true,
-                bool supportsScalarService = false)
+                bool supportsNuGetEncryption = true)
             {
                 this.SupportsScalarUpgrade = supportsScalarUpgrade;
                 this.SupportsScalarConfig = supportsScalarConfig;
                 this.SupportsNuGetEncryption = supportsNuGetEncryption;
-                this.SupportsScalarService = supportsScalarService;
             }
 
             public bool SupportsScalarUpgrade { get; }
             public bool SupportsScalarConfig { get; }
             public bool SupportsNuGetEncryption { get; }
-            public bool SupportsScalarService { get; }
         }
     }
 }

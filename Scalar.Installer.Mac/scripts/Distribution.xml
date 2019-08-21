@@ -19,7 +19,7 @@
     GIT_PKG_REF_PLACEHOLDER
     <installation-check script="InstallationCheck()"/>
     <script>
-        function InstallationCheck(prefix) 
+        function InstallationCheck(prefix)
         {
             var blockingProcesses = GetBlockingProcesses();
             if (blockingProcesses.length > 0)
@@ -28,24 +28,24 @@
                 my.result.type = 'Fatal';
                 return false;
             }
-            
+
             return true;
         }
-        
+
         function GetBlockingProcesses()
         {
-            var watchList = [ "Scalar.Mount", "git", "gitk", "Wish" ];
+            var watchList = [ "git", "gitk", "Wish" ];
             var blockingProcesses = new Array();
             for (var process of watchList)
             {
                 var isRunningCmd = "ps -Ac -o command | grep -w '" + process + "'";
                 var status = system.run("/bin/bash", "-c", isRunningCmd);
-                if (status == 0) 
+                if (status == 0)
                 {
                     blockingProcesses.push(process);
                 }
             }
-            
+
             return blockingProcesses;
         }
     </script>

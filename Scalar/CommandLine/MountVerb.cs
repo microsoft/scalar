@@ -173,7 +173,7 @@ namespace Scalar.CommandLine
                     this.ReportErrorAndExit(tracer, errorMessage);
                 }
 
-                if (!this.Unattended && ScalarPlatform.Instance.UnderConstruction.SupportsScalarService)
+                if (!this.Unattended)
                 {
                     tracer.RelatedInfo($"{nameof(this.Execute)}: Registering for automount");
 
