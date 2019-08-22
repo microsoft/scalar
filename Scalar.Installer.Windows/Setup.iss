@@ -19,7 +19,6 @@
 #define MyAppURL "https://github.com/microsoft/Scalar"
 #define MyAppExeName "Scalar.exe"
 #define EnvironmentKey "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
-#define FileSystemKey "SYSTEM\CurrentControlSet\Control\FileSystem"
 
 [Setup]
 AppId={{82F731CB-1CFC-406D-8D84-8467BF6040C7}
@@ -140,10 +139,6 @@ Root: HKLM; Subkey: "{#EnvironmentKey}"; \
     ValueType: expandsz; ValueName: "PATH"; ValueData: "{olddata};{app}"; \
     Check: NeedsAddPath(ExpandConstant('{app}'))
 
-Root: HKLM; Subkey: "{#FileSystemKey}"; \
-    ValueType: dword; ValueName: "NtfsEnableDetailedCleanupResults"; ValueData: "1"; \
-    Check: IsWindows10VersionPriorToCreatorsUpdate
-
 [Code]
 var
   ExitCode: Integer;
@@ -162,14 +157,6 @@ begin
   // look for the path with leading and trailing semicolon
   // Pos() returns 0 if not found    
   Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
-end;
-
-function IsWindows10VersionPriorToCreatorsUpdate(): Boolean;
-var
-  Version: TWindowsVersion;
-begin
-  GetWindowsVersionEx(Version);
-  Result := (Version.Major = 10) and (Version.Minor = 0) and (Version.Build < 15063);
 end;
 
 procedure RemovePath(Path: string);
@@ -256,18 +243,6 @@ begin
     end;
 end;
 
-procedure WriteOnDiskVersion16CapableFile();
-var
-  FilePath: string;
-begin
-  FilePath := ExpandConstant('{app}\OnDiskVersion16CapableInstallation.dat');
-  if not FileExists(FilePath) then
-    begin
-      Log('WriteOnDiskVersion16CapableFile: Writing file ' + FilePath);
-      SaveStringToFile(FilePath, '', False);
-    end
-end;
-
 procedure InstallScalarService();
 var
   ResultCode: integer;
@@ -292,7 +267,6 @@ begin
           end;
       end;
 
-    WriteOnDiskVersion16CapableFile();
   finally
     WizardForm.StatusLabel.Caption := StatusText;
     WizardForm.ProgressGauge.Style := npbstNormal;
@@ -301,35 +275,6 @@ begin
   if InstallSuccessful = False then
     begin
       RaiseException('Fatal: An error occured while installing Scalar.Service.');
-    end;
-end;
-
-function DeleteFileIfItExists(FilePath: string) : Boolean;
-begin
-  Result := False;
-  if FileExists(FilePath) then
-    begin
-      Log('DeleteFileIfItExists: Removing ' + FilePath);
-      if DeleteFile(FilePath) then
-        begin
-          if not FileExists(FilePath) then
-            begin
-              Result := True;
-            end
-          else
-            begin
-              Log('DeleteFileIfItExists: File still exists after deleting: ' + FilePath);
-            end;
-        end
-      else
-        begin
-          Log('DeleteFileIfItExists: Failed to delete ' + FilePath);
-        end;
-    end
-  else
-    begin
-      Log('DeleteFileIfItExists: File does not exist: ' + FilePath);
-      Result := True;
     end;
 end;
 
@@ -430,7 +375,7 @@ begin
     end;
 end;
 
-function EnsureGvfsNotRunning(): Boolean;
+function EnsureScalarNotRunning(): Boolean;
 var
   MsgBoxResult: integer;
 begin
@@ -451,96 +396,13 @@ begin
   Result := True;
 end;
 
-type
-  UpgradeRing = (urUnconfigured, urNone, urFast, urSlow);
-
-function GetConfiguredUpgradeRing(): UpgradeRing;
-var
-  ResultCode: integer;
-  ResultString: ansiString;
-begin
-  Result := urUnconfigured;
-  if ExecWithResult('scalar.exe', 'config upgrade.ring', '', SW_HIDE, ewWaitUntilTerminated, ResultCode, ResultString) then begin
-    if ResultCode = 0 then begin
-      ResultString := AnsiLowercase(Trim(ResultString));
-      Log('GetConfiguredUpgradeRing: upgrade.ring is ' + ResultString);
-      if CompareText(ResultString, 'none') = 0 then begin
-        Result := urNone;
-      end else if CompareText(ResultString, 'fast') = 0 then begin
-        Result := urFast;
-      end else if CompareText(ResultString, 'slow') = 0 then begin
-        Result := urSlow;
-      end else begin
-        Log('GetConfiguredUpgradeRing: Unknown upgrade ring: ' + ResultString);
-      end;
-    end else begin
-      Log('GetConfiguredUpgradeRing: Call to scalar config upgrade.ring failed with ' + SysErrorMessage(ResultCode));
-    end;
-  end else begin
-    Log('GetConfiguredUpgradeRing: Call to scalar config upgrade.ring failed with ' + SysErrorMessage(ResultCode));
-  end;
-end;
-
-function IsConfigured(ConfigKey: String): Boolean;
-var
-  ResultCode: integer;
-  ResultString: ansiString;
-begin
-  Result := False
-  if ExecWithResult('scalar.exe', Format('config %s', [ConfigKey]), '', SW_HIDE, ewWaitUntilTerminated, ResultCode, ResultString) then begin
-    ResultString := AnsiLowercase(Trim(ResultString));
-    Log(Format('IsConfigured(%s): value is %s', [ConfigKey, ResultString]));
-    Result := Length(ResultString) > 1
-  end
-end;
-
-procedure SetIfNotConfigured(ConfigKey: String; ConfigValue: String);
-var
-  ResultCode: integer;
-  ResultString: ansiString;
-begin
-  if IsConfigured(ConfigKey) = False then begin
-    if ExecWithResult('scalar.exe', Format('config %s %s', [ConfigKey, ConfigValue]), '', SW_HIDE, ewWaitUntilTerminated, ResultCode, ResultString) then begin
-      Log(Format('SetIfNotConfigured: Set %s to %s', [ConfigKey, ConfigValue]));
-    end else begin
-      Log(Format('SetIfNotConfigured: Failed to set %s with %s', [ConfigKey, SysErrorMessage(ResultCode)]));
-    end;
-  end else begin
-    Log(Format('SetIfNotConfigured: %s is configured, not overwriting', [ConfigKey]));
-  end;
-end;
-
-procedure SetNuGetFeedIfNecessary();
-var
-  ConfiguredRing: UpgradeRing;
-  RingName: String;
-  TargetFeed: String;
-  FeedPackageName: String;
-begin
-  ConfiguredRing := GetConfiguredUpgradeRing();
-  if ConfiguredRing = urFast then begin
-    RingName := 'Fast';
-  end else if (ConfiguredRing = urSlow) or (ConfiguredRing = urNone) then begin
-    RingName := 'Slow';
-  end else begin
-    Log('SetNuGetFeedIfNecessary: No upgrade ring configured. Not configuring NuGet feed.')
-    exit;
-  end;
-
-  TargetFeed := Format('https://pkgs.dev.azure.com/microsoft/_packaging/Scalar-%s/nuget/v3/index.json', [RingName]);
-  FeedPackageName := 'Microsoft.VfsForGitEnvironment';
-
-  SetIfNotConfigured('upgrade.feedurl', TargetFeed);
-  SetIfNotConfigured('upgrade.feedpackagename', FeedPackageName);
-end;
-
 // Below are EVENT FUNCTIONS -> The main entry points of InnoSetup into the code region 
 // Documentation : http://www.jrsoftware.org/ishelp/index.php?topic=scriptevents
 
 function InitializeUninstall(): Boolean;
 begin
   UnmountRepos();
-  Result := EnsureGvfsNotRunning();
+  Result := EnsureScalarNotRunning();
 end;
 
 // Called just after "install" phase, before "post install"
@@ -591,7 +453,6 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   NeedsRestart := False;
   Result := '';
-  SetNuGetFeedIfNecessary();
   if ConfirmUnmountAll() then
     begin
       if ExpandConstant('{param:REMOUNTREPOS|true}') = 'true' then
@@ -599,7 +460,7 @@ begin
           UnmountRepos();
         end
     end;
-  if not EnsureGvfsNotRunning() then
+  if not EnsureScalarNotRunning() then
     begin
       Abort();
     end;
