@@ -68,11 +68,11 @@ namespace Scalar.CommandLine
         public string LocalCacheRoot { get; set; }
 
         [Option(
-            "sparse",
+            "full-clone",
             Required = false,
-            Default = "true",
-            HelpText = "When cloning, create a sparse working directory.")]
-        public string Sparse { get; set; }
+            Default = false,
+            HelpText = "When cloning, create full working directory.")]
+        public bool FullClone { get; set; }
 
         protected override string VerbName
         {
@@ -137,7 +137,7 @@ namespace Scalar.CommandLine
                                 { "Branch", this.Branch },
                                 { "LocalCacheRoot", this.LocalCacheRoot },
                                 { "SingleBranch", this.SingleBranch },
-                                { "Sparse", this.Sparse },
+                                { "FullClone", this.FullClone },
                                 { "NoPrefetch", this.NoPrefetch },
                                 { "Unattended", this.Unattended },
                                 { "IsElevated", ScalarPlatform.Instance.IsElevated() },
@@ -172,7 +172,7 @@ namespace Scalar.CommandLine
                         this.Output.WriteLine("  Cache Server: " + cacheServer);
                         this.Output.WriteLine("  Local Cache:  " + resolvedLocalCacheRoot);
                         this.Output.WriteLine("  Destination:  " + enlistment.EnlistmentRoot);
-                        this.Output.WriteLine("  Sparse:       " + this.Sparse);
+                        this.Output.WriteLine("  FullClone:     " + this.FullClone);
 
                         string authErrorMessage;
                         if (!this.TryAuthenticate(tracer, enlistment, out authErrorMessage))
@@ -529,7 +529,7 @@ namespace Scalar.CommandLine
                 return new Result(installHooksError);
             }
 
-            // Place block below in an if statement when sparse clone is available.
+            if (this.FullClone)
             {
                 BlobPrefetcher prefetcher = new BlobPrefetcher(
                                                     tracer,
@@ -648,7 +648,7 @@ git %*
                 Path.Combine(repoPath, ScalarConstants.DotGit.PackedRefs),
                 refs.ToPackedRefs());
 
-            if (this.Sparse.Equals("true"))
+            if (!this.FullClone)
             {
                 GitProcess.Result sparseCheckoutResult = GitProcess.SparseCheckoutInit(enlistmentToInit);
                 if (sparseCheckoutResult.ExitCodeIsFailure)
