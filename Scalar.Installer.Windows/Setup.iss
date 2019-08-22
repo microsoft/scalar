@@ -291,35 +291,6 @@ begin
     end;
 end;
 
-function DeleteFileIfItExists(FilePath: string) : Boolean;
-begin
-  Result := False;
-  if FileExists(FilePath) then
-    begin
-      Log('DeleteFileIfItExists: Removing ' + FilePath);
-      if DeleteFile(FilePath) then
-        begin
-          if not FileExists(FilePath) then
-            begin
-              Result := True;
-            end
-          else
-            begin
-              Log('DeleteFileIfItExists: File still exists after deleting: ' + FilePath);
-            end;
-        end
-      else
-        begin
-          Log('DeleteFileIfItExists: Failed to delete ' + FilePath);
-        end;
-    end
-  else
-    begin
-      Log('DeleteFileIfItExists: File does not exist: ' + FilePath);
-      Result := True;
-    end;
-end;
-
 function IsScalarRunning(): Boolean;
 var
   ResultCode: integer;
