@@ -256,18 +256,6 @@ begin
     end;
 end;
 
-procedure WriteOnDiskVersion16CapableFile();
-var
-  FilePath: string;
-begin
-  FilePath := ExpandConstant('{app}\OnDiskVersion16CapableInstallation.dat');
-  if not FileExists(FilePath) then
-    begin
-      Log('WriteOnDiskVersion16CapableFile: Writing file ' + FilePath);
-      SaveStringToFile(FilePath, '', False);
-    end
-end;
-
 procedure InstallScalarService();
 var
   ResultCode: integer;
@@ -292,7 +280,6 @@ begin
           end;
       end;
 
-    WriteOnDiskVersion16CapableFile();
   finally
     WizardForm.StatusLabel.Caption := StatusText;
     WizardForm.ProgressGauge.Style := npbstNormal;
