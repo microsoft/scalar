@@ -67,6 +67,13 @@ namespace Scalar.CommandLine
             HelpText = "Use this option to override the path for the local Scalar cache.")]
         public string LocalCacheRoot { get; set; }
 
+        [Option(
+            "full-clone",
+            Required = false,
+            Default = false,
+            HelpText = "When cloning, create full working directory.")]
+        public bool FullClone { get; set; }
+
         protected override string VerbName
         {
             get { return CloneVerbName; }
@@ -130,6 +137,7 @@ namespace Scalar.CommandLine
                                 { "Branch", this.Branch },
                                 { "LocalCacheRoot", this.LocalCacheRoot },
                                 { "SingleBranch", this.SingleBranch },
+                                { "FullClone", this.FullClone },
                                 { "NoPrefetch", this.NoPrefetch },
                                 { "Unattended", this.Unattended },
                                 { "IsElevated", ScalarPlatform.Instance.IsElevated() },
@@ -164,6 +172,7 @@ namespace Scalar.CommandLine
                         this.Output.WriteLine("  Cache Server: " + cacheServer);
                         this.Output.WriteLine("  Local Cache:  " + resolvedLocalCacheRoot);
                         this.Output.WriteLine("  Destination:  " + enlistment.EnlistmentRoot);
+                        this.Output.WriteLine("  FullClone:     " + this.FullClone);
 
                         string authErrorMessage;
                         if (!this.TryAuthenticate(tracer, enlistment, out authErrorMessage))
@@ -520,7 +529,7 @@ namespace Scalar.CommandLine
                 return new Result(installHooksError);
             }
 
-            // Place block below in an if statement when sparse clone is available.
+            if (this.FullClone)
             {
                 BlobPrefetcher prefetcher = new BlobPrefetcher(
                                                     tracer,
@@ -638,6 +647,17 @@ git %*
             File.WriteAllText(
                 Path.Combine(repoPath, ScalarConstants.DotGit.PackedRefs),
                 refs.ToPackedRefs());
+
+            if (!this.FullClone)
+            {
+                GitProcess.Result sparseCheckoutResult = GitProcess.SparseCheckoutInit(enlistmentToInit);
+                if (sparseCheckoutResult.ExitCodeIsFailure)
+                {
+                    string error = string.Format("Could not init sparse-checkout at to {0}: {1}", repoPath, sparseCheckoutResult.Errors);
+                    tracer.RelatedError(error);
+                    return new Result(error);
+                }
+            }
 
             return new Result(true);
         }

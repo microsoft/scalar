@@ -45,26 +45,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase, Order(4)]
-        public void PrefetchByFileExtensionWithHydrate()
-        {
-            int expectedCount = 3;
-            string output = this.Enlistment.Prefetch("--files *.md --hydrate");
-            this.ExpectBlobCount(output, expectedCount);
-            output.ShouldContain("Hydrated files:   " + expectedCount);
-        }
-
-        [TestCase, Order(5)]
-        public void PrefetchByFilesWithHydrateWhoseObjectsAreAlreadyDownloaded()
-        {
-            int expectedCount = 2;
-            string output = this.Enlistment.Prefetch(
-                $"--files {Path.Combine("GVFS", "GVFS", "Program.cs")};{Path.Combine("GVFS", "GVFS.FunctionalTests", "GVFS.FunctionalTests.csproj")} --hydrate");
-            this.ExpectBlobCount(output, expectedCount);
-            output.ShouldContain("Hydrated files:   " + expectedCount);
-            output.ShouldContain("Downloaded:       0");
-        }
-
-        [TestCase, Order(6)]
         public void PrefetchFolders()
         {
             this.ExpectBlobCount(this.Enlistment.Prefetch($"--folders {Path.Combine("GVFS", "GVFS")}"), 24);
@@ -72,7 +52,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.ExpectBlobCount(this.Enlistment.Prefetch($"--folders {Path.Combine("GVFS", "GVFS")};{Path.Combine("GVFS", "GVFS.FunctionalTests")}"), 72);
         }
 
-        [TestCase, Order(7)]
+        [TestCase, Order(5)]
         public void PrefetchNonExistentFilesAndFolders()
         {
             this.ExpectBlobCount(this.Enlistment.Prefetch("--files nonexistent.txt"), 0);
@@ -100,14 +80,14 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             File.Delete(tempFilePath);
         }
 
-        [TestCase, Order(9)]
+        [TestCase, Order(6)]
         public void PrefetchAll()
         {
             this.ExpectBlobCount(this.Enlistment.Prefetch("--files *"), 494);
             this.ExpectBlobCount(this.Enlistment.Prefetch($"--folders {Path.DirectorySeparatorChar}"), 494);
         }
 
-        [TestCase, Order(10)]
+        [TestCase, Order(7)]
         public void NoopPrefetch()
         {
             this.ExpectBlobCount(this.Enlistment.Prefetch("--files *"), 494);
@@ -116,7 +96,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         // TODO(#1219): Handle that lock files are not deleted on Mac, they are simply unlocked
-        [TestCase, Order(11)]
+        [TestCase, Order(8)]
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
         public void PrefetchCleansUpStalePrefetchLock()
         {
@@ -139,7 +119,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             prefetchCommitsLockFile.ShouldNotExistOnDisk(this.fileSystem);
         }
 
-        [TestCase, Order(12)]
+        [TestCase, Order(9)]
         public void PrefetchFilesFromFileListFile()
         {
             string tempFilePath = Path.Combine(Path.GetTempPath(), "temp.file");
@@ -161,7 +141,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             }
         }
 
-        [TestCase, Order(13)]
+        [TestCase, Order(10)]
         public void PrefetchFilesFromFileListStdIn()
         {
             string input = string.Join(
@@ -175,7 +155,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.ExpectBlobCount(this.Enlistment.Prefetch("--stdin-files-list", standardInput: input), 2);
         }
 
-        [TestCase, Order(14)]
+        [TestCase, Order(11)]
         public void PrefetchFolderListFromStdin()
         {
             string input = string.Join(
