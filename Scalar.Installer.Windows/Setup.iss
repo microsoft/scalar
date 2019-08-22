@@ -430,7 +430,7 @@ begin
     end;
 end;
 
-function EnsureGvfsNotRunning(): Boolean;
+function EnsureScalarNotRunning(): Boolean;
 var
   MsgBoxResult: integer;
 begin
@@ -540,7 +540,7 @@ end;
 function InitializeUninstall(): Boolean;
 begin
   UnmountRepos();
-  Result := EnsureGvfsNotRunning();
+  Result := EnsureScalarNotRunning();
 end;
 
 // Called just after "install" phase, before "post install"
@@ -599,7 +599,7 @@ begin
           UnmountRepos();
         end
     end;
-  if not EnsureGvfsNotRunning() then
+  if not EnsureScalarNotRunning() then
     begin
       Abort();
     end;
