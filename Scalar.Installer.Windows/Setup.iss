@@ -19,7 +19,6 @@
 #define MyAppURL "https://github.com/microsoft/Scalar"
 #define MyAppExeName "Scalar.exe"
 #define EnvironmentKey "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
-#define FileSystemKey "SYSTEM\CurrentControlSet\Control\FileSystem"
 
 [Setup]
 AppId={{82F731CB-1CFC-406D-8D84-8467BF6040C7}
@@ -140,10 +139,6 @@ Root: HKLM; Subkey: "{#EnvironmentKey}"; \
     ValueType: expandsz; ValueName: "PATH"; ValueData: "{olddata};{app}"; \
     Check: NeedsAddPath(ExpandConstant('{app}'))
 
-Root: HKLM; Subkey: "{#FileSystemKey}"; \
-    ValueType: dword; ValueName: "NtfsEnableDetailedCleanupResults"; ValueData: "1"; \
-    Check: IsWindows10VersionPriorToCreatorsUpdate
-
 [Code]
 var
   ExitCode: Integer;
@@ -162,14 +157,6 @@ begin
   // look for the path with leading and trailing semicolon
   // Pos() returns 0 if not found    
   Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
-end;
-
-function IsWindows10VersionPriorToCreatorsUpdate(): Boolean;
-var
-  Version: TWindowsVersion;
-begin
-  GetWindowsVersionEx(Version);
-  Result := (Version.Major = 10) and (Version.Minor = 0) and (Version.Build < 15063);
 end;
 
 procedure RemovePath(Path: string);
