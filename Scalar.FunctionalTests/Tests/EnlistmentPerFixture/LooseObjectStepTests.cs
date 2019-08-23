@@ -18,7 +18,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         // Set forcePerRepoObjectCache to true to avoid any of the tests inadvertently corrupting
         // the cache
         public LooseObjectStepTests()
-            : base(forcePerRepoObjectCache: false)
+            : base(forcePerRepoObjectCache: true, skipPrefetchDuringClone: false)
         {
             this.fileSystem = new SystemIORunner();
         }
@@ -31,6 +31,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [Order(1)]
         public void NoLooseObjectsDoesNothing()
         {
+            this.Enlistment.UnmountScalar();
             this.DeleteFiles(this.GetLooseObjectFiles());
 
             this.DeleteFiles(this.GetLooseObjectFiles());

@@ -88,7 +88,7 @@ namespace Scalar.FunctionalTests.Tools
         {
             string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
             string localCache = ScalarFunctionalTestEnlistment.GetRepoSpecificLocalCacheRoot(enlistmentRoot);
-            return CloneAndMount(pathToGvfs, enlistmentRoot, null, localCache, skipPrefetch);
+            return CloneAndMount(pathToGvfs, enlistmentRoot, null, localCacheRoot: localCache, skipPrefetch: skipPrefetch);
         }
 
         public static ScalarFunctionalTestEnlistment CloneAndMount(

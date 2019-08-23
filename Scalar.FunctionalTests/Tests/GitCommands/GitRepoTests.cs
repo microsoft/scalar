@@ -55,8 +55,8 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             "GVFlt_MoveFolderTest",
             "GVFlt_MultiThreadTest",
             "GVFlt_SetLinkTest",
-            "GVFS/GVFS",
-            "GVFS/GVFS.Common",
+            Path.Combine("GVFS", "GVFS"),
+            Path.Combine("GVFS", "GVFS.Common"),
             GitCommandsTests.TopLevelFolderToCreate,
             "ResetTwice_OnlyDeletes_Test",
             "ResetTwice_OnlyEdits_Test",
@@ -144,7 +144,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
                 ScalarProcess scalar = new ScalarProcess(this.Enlistment);
                 scalar.Prefetch("--stdin-folders-list", failOnError: true, standardInput: input.ToString());
-                this.RunGitCommand("sparse-checkout add", standardInput: input.ToString());
+                this.RunGitCommand("sparse-checkout add", standardInput: input.ToString().Replace(Path.DirectorySeparatorChar, '/'));
                 this.pathPrefixes = PathPrefixesForSparseMode;
             }
 
