@@ -34,17 +34,16 @@ namespace Scalar.FunctionalTests
             HashSet<string> includeCategories = new HashSet<string>();
             HashSet<string> excludeCategories = new HashSet<string>();
 
+            // Run all GitRepoTests with sparse mode
+            ScalarTestConfig.GitRepoTestsValidateWorkTree =
+                new object[]
+                {
+                        new object[] { Settings.ValidateWorkingTreeMode.SparseMode },
+                };
+
             if (runner.HasCustomArg("--full-suite"))
             {
                 Console.WriteLine("Running the full suite of tests");
-
-                List<object[]> modes = new List<object[]>();
-                foreach (Settings.ValidateWorkingTreeMode mode in Enum.GetValues(typeof(Settings.ValidateWorkingTreeMode)))
-                {
-                    modes.Add(new object[] { mode });
-                }
-
-                ScalarTestConfig.GitRepoTestsValidateWorkTree = modes.ToArray();
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
@@ -57,22 +56,6 @@ namespace Scalar.FunctionalTests
             }
             else
             {
-                Settings.ValidateWorkingTreeMode validateMode = Settings.ValidateWorkingTreeMode.Full;
-
-                if (runner.HasCustomArg("--sparse-mode"))
-                {
-                    validateMode = Settings.ValidateWorkingTreeMode.SparseMode;
-
-                    // Only test the git commands in sparse mode for splitting out tests in builds
-                    includeCategories.Add(Categories.GitCommands);
-                }
-
-                ScalarTestConfig.GitRepoTestsValidateWorkTree =
-                    new object[]
-                    {
-                        new object[] { validateMode },
-                    };
-
                 if (runner.HasCustomArg("--extra-only"))
                 {
                     Console.WriteLine("Running only the tests marked as ExtraCoverage");

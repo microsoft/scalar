@@ -5,7 +5,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]
-    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class CherryPickConflictTests : GitRepoTests
     {
         public CherryPickConflictTests(Settings.ValidateWorkingTreeMode validateWorkingTree)

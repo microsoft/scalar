@@ -56,49 +56,6 @@ namespace Scalar.FunctionalTests.Tools
             return this.IsEnlistmentMounted();
         }
 
-        public string AddSparseFolders(params string[] folders)
-        {
-            return this.SparseCommand(addFolders: true, shouldSucceed: true, folders: folders);
-        }
-
-        public string AddSparseFolders(bool shouldSucceed, params string[] folders)
-        {
-            return this.SparseCommand(addFolders: true, shouldSucceed: shouldSucceed, folders: folders);
-        }
-
-        public string RemoveSparseFolders(params string[] folders)
-        {
-            return this.SparseCommand(addFolders: false, shouldSucceed: true, folders: folders);
-        }
-
-        public string RemoveSparseFolders(bool shouldSucceed, params string[] folders)
-        {
-            return this.SparseCommand(addFolders: false, shouldSucceed: shouldSucceed, folders: folders);
-        }
-
-        public string SparseCommand(bool addFolders, bool shouldSucceed, params string[] folders)
-        {
-            string action = addFolders ? "-a" : "-r";
-            string folderList = string.Join(";", folders);
-            if (folderList.Contains(" "))
-            {
-                folderList = $"\"{folderList}\"";
-            }
-
-            return this.CallScalar($"sparse {this.enlistmentRoot} {action} {folderList}", expectedExitCode: shouldSucceed ? SuccessExitCode : ExitCodeShouldNotBeZero);
-        }
-
-        public string[] GetSparseFolders()
-        {
-            string output = this.CallScalar($"sparse {this.enlistmentRoot} -l");
-            if (output.StartsWith("No folders in sparse list."))
-            {
-                return new string[0];
-            }
-
-            return output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-        }
-
         public string Prefetch(string args, bool failOnError, string standardInput = null)
         {
             return this.CallScalar("prefetch \"" + this.enlistmentRoot + "\" " + args, failOnError ? SuccessExitCode : DoNotCheckExitCode, standardInput: standardInput);

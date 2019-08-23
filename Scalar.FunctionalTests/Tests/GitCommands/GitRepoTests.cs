@@ -6,6 +6,7 @@ using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Scalar.FunctionalTests.Tests.GitCommands
 {
@@ -134,7 +135,16 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
             if (this.validateWorkingTree == Settings.ValidateWorkingTreeMode.SparseMode)
             {
-                new ScalarProcess(this.Enlistment).AddSparseFolders(SparseModeFolders);
+                StringBuilder input = new StringBuilder(capacity: PathPrefixesForSparseMode.Sum(s => s.Length + 1));
+
+                foreach (string s in PathPrefixesForSparseMode)
+                {
+                    input.Append($"{s}\n");
+                }
+
+                ScalarProcess scalar = new ScalarProcess(this.Enlistment);
+                scalar.Prefetch("--stdin-folders-list", failOnError: true, standardInput: input.ToString());
+                this.RunGitCommand("sparse-checkout add", standardInput: input.ToString());
                 this.pathPrefixes = PathPrefixesForSparseMode;
             }
 
@@ -239,21 +249,50 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
          *    are cases when git will delete these files during a merge outputting that it removed them
          *    which the Scalar repo did not have to remove so the message is missing that output.
          */
-        protected void RunGitCommand(string command, bool ignoreErrors = false, bool checkStatus = true)
+        protected void RunGitCommand(string command, bool ignoreErrors = false, bool checkStatus = true, string standardInput = null)
         {
             string controlRepoRoot = this.ControlGitRepo.RootPath;
             string scalarRepoRoot = this.Enlistment.RepoRoot;
 
-            ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command);
-            ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command);
-            if (!ignoreErrors)
-            {
-                GitHelpers.ErrorsShouldMatch(command, expectedResult, actualResult);
-            }
+            Stream inputStream1 = null;
+            Stream inputStream2 = null;
 
-            if (command != "status" && checkStatus)
+            try
             {
-                this.ValidateGitCommand("status");
+                if (standardInput != null)
+                {
+                    inputStream1 = new MemoryStream();
+                    inputStream2 = new MemoryStream();
+
+                    using (StreamWriter writer = new StreamWriter(inputStream1, Encoding.Default, bufferSize: 4096, leaveOpen: true))
+                    {
+                        writer.Write(standardInput);
+                        inputStream1.Position = 0;
+                    }
+
+                    using (StreamWriter writer = new StreamWriter(inputStream2, Encoding.Default, bufferSize: 4096, leaveOpen: true))
+                    {
+                        writer.Write(standardInput);
+                        inputStream2.Position = 0;
+                    }
+                }
+
+                ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command, inputStream: inputStream1);
+                ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command, inputStream: inputStream2);
+                if (!ignoreErrors)
+                {
+                    GitHelpers.ErrorsShouldMatch(command, expectedResult, actualResult);
+                }
+
+                if (command != "status" && checkStatus)
+                {
+                    this.ValidateGitCommand("status");
+                }
+            }
+            finally
+            {
+                inputStream1?.Dispose();
+                inputStream2?.Dispose();
             }
         }
 
