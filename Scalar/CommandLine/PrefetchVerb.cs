@@ -27,6 +27,8 @@ namespace Scalar.CommandLine
         private static readonly int DownloadThreadCount = Environment.ProcessorCount;
         private static readonly int IndexThreadCount = Environment.ProcessorCount;
 
+        private List<string> parsedFoldersList;
+
         [Option(
             "files",
             Required = false,
@@ -94,6 +96,11 @@ namespace Scalar.CommandLine
         public bool SkipVersionCheck { get; set; }
         public CacheServerInfo ResolvedCacheServer { get; set; }
         public ServerScalarConfig ServerScalarConfig { get; set; }
+
+        public List<string> ParsedFoldersList
+        {
+            get { return this.parsedFoldersList; }
+        }
 
         protected override string VerbName
         {
@@ -164,12 +171,11 @@ namespace Scalar.CommandLine
                     {
                         string headCommitId;
                         List<string> filesList;
-                        List<string> foldersList;
                         FileBasedDictionary<string, string> lastPrefetchArgs;
 
-                        this.LoadBlobPrefetchArgs(tracer, enlistment, out headCommitId, out filesList, out foldersList, out lastPrefetchArgs);
+                        this.LoadBlobPrefetchArgs(tracer, enlistment, out headCommitId, out filesList, out this.parsedFoldersList, out lastPrefetchArgs);
 
-                        if (BlobPrefetcher.IsNoopPrefetch(tracer, lastPrefetchArgs, headCommitId, filesList, foldersList, this.HydrateFiles))
+                        if (BlobPrefetcher.IsNoopPrefetch(tracer, lastPrefetchArgs, headCommitId, filesList, this.parsedFoldersList, this.HydrateFiles))
                         {
                             Console.WriteLine("All requested files are already available. Nothing new to prefetch.");
                         }
@@ -183,7 +189,7 @@ namespace Scalar.CommandLine
                                 cacheServerUrl,
                                 out objectRequestor,
                                 out cacheServer);
-                            this.PrefetchBlobs(tracer, enlistment, headCommitId, filesList, foldersList, lastPrefetchArgs, objectRequestor, cacheServer);
+                            this.PrefetchBlobs(tracer, enlistment, headCommitId, filesList, this.parsedFoldersList, lastPrefetchArgs, objectRequestor, cacheServer);
                         }
                     }
                 }

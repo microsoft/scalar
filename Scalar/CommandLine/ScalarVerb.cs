@@ -199,7 +199,8 @@ namespace Scalar.CommandLine
 
         protected ReturnCode Execute<TVerb>(
             ScalarEnlistment enlistment,
-            Action<TVerb> configureVerb = null)
+            Action<TVerb> configureVerb = null,
+            Action<TVerb> postExecuteVerb = null)
             where TVerb : ScalarVerb.ForExistingEnlistment, new()
         {
             TVerb verb = new TVerb();
@@ -218,6 +219,11 @@ namespace Scalar.CommandLine
             }
             catch (VerbAbortedException)
             {
+            }
+
+            if (postExecuteVerb != null)
+            {
+                postExecuteVerb(verb);
             }
 
             return verb.ReturnCode;
