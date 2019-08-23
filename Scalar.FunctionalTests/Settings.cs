@@ -23,9 +23,6 @@ namespace Scalar.FunctionalTests.Properties
             public static string Commitish { get; set; }
             public static string ControlGitRepoRoot { get; set; }
             public static string EnlistmentRoot { get; set; }
-            public static string FastFetchBaseRoot { get; set; }
-            public static string FastFetchRoot { get; set; }
-            public static string FastFetchControl { get; set; }
             public static string PathToGit { get; set; }
             public static string PathToScalarService { get; set; }
             public static string BinaryFileNameExtension { get; set; }
@@ -45,9 +42,6 @@ namespace Scalar.FunctionalTests.Properties
                     PathToBash = @"C:\Program Files\Git\bin\bash.exe";
 
                     ControlGitRepoRoot = @"C:\Repos\ScalarFunctionalTests\ControlRepo";
-                    FastFetchBaseRoot = @"C:\Repos\ScalarFunctionalTests\FastFetch";
-                    FastFetchRoot = Path.Combine(FastFetchBaseRoot, "test");
-                    FastFetchControl = Path.Combine(FastFetchBaseRoot, "control");
                     PathToScalarService = @"Scalar.Service.exe";
                     BinaryFileNameExtension = ".exe";
                 }
@@ -58,9 +52,6 @@ namespace Scalar.FunctionalTests.Properties
                         "Scalar.FT");
                     EnlistmentRoot = Path.Combine(root, "test");
                     ControlGitRepoRoot = Path.Combine(root, "control");
-                    FastFetchBaseRoot = Path.Combine(root, "FastFetch");
-                    FastFetchRoot = Path.Combine(FastFetchBaseRoot, "test");
-                    FastFetchControl = Path.Combine(FastFetchBaseRoot, "control");
                     PathToScalar = "scalar";
                     PathToGit = "/usr/local/bin/git";
                     PathToBash = "/bin/bash";

@@ -60,9 +60,6 @@ namespace Scalar.FunctionalTests.Should
 
         public class FileAdapter
         {
-            private const int MaxWaitMS = 2000;
-            private const int ThreadSleepMS = 100;
-
             private FileSystemRunner runner;
 
             public FileAdapter(string path, FileSystemRunner runner)
