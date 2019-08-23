@@ -17,14 +17,16 @@ namespace Scalar.FunctionalTests.Tools
         private const int SleepMSWaitingForStatusCheck = 100;
         private const int DefaultMaxWaitMSForStatusCheck = 5000;
         private static readonly string ZeroBackgroundOperations = "Background operations: 0" + Environment.NewLine;
+        private readonly bool fullClone;
 
         private ScalarProcess scalarProcess;
 
-        private ScalarFunctionalTestEnlistment(string pathToScalar, string enlistmentRoot, string repoUrl, string commitish, string localCacheRoot = null)
+        private ScalarFunctionalTestEnlistment(string pathToScalar, string enlistmentRoot, string repoUrl, string commitish, string localCacheRoot = null, bool fullClone = true)
         {
             this.EnlistmentRoot = enlistmentRoot;
             this.RepoUrl = repoUrl;
             this.Commitish = commitish;
+            this.fullClone = fullClone;
 
             if (localCacheRoot == null)
             {
@@ -93,10 +95,11 @@ namespace Scalar.FunctionalTests.Tools
             string pathToGvfs,
             string commitish = null,
             string localCacheRoot = null,
-            bool skipPrefetch = false)
+            bool skipPrefetch = false,
+            bool fullClone = true)
         {
             string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
-            return CloneAndMount(pathToGvfs, enlistmentRoot, commitish, localCacheRoot, skipPrefetch);
+            return CloneAndMount(pathToGvfs, enlistmentRoot, commitish, localCacheRoot, skipPrefetch, fullClone);
         }
 
         public static ScalarFunctionalTestEnlistment CloneAndMountEnlistmentWithSpacesInPath(string pathToGvfs, string commitish = null)
@@ -157,7 +160,7 @@ namespace Scalar.FunctionalTests.Tools
 
         public void CloneAndMount(bool skipPrefetch)
         {
-            this.scalarProcess.Clone(this.RepoUrl, this.Commitish, skipPrefetch);
+            this.scalarProcess.Clone(this.RepoUrl, this.Commitish, skipPrefetch, fullClone: this.fullClone);
 
             GitProcess.Invoke(this.RepoRoot, "checkout " + this.Commitish);
             GitProcess.Invoke(this.RepoRoot, "branch --unset-upstream");
@@ -281,14 +284,15 @@ namespace Scalar.FunctionalTests.Tools
                 objectHash.Substring(2));
         }
 
-        private static ScalarFunctionalTestEnlistment CloneAndMount(string pathToGvfs, string enlistmentRoot, string commitish, string localCacheRoot, bool skipPrefetch = false)
+        private static ScalarFunctionalTestEnlistment CloneAndMount(string pathToGvfs, string enlistmentRoot, string commitish, string localCacheRoot, bool skipPrefetch = false, bool fullClone = true)
         {
             ScalarFunctionalTestEnlistment enlistment = new ScalarFunctionalTestEnlistment(
                 pathToGvfs,
                 enlistmentRoot ?? GetUniqueEnlistmentRoot(),
                 ScalarTestConfig.RepoToClone,
                 commitish ?? Properties.Settings.Default.Commitish,
-                localCacheRoot ?? ScalarTestConfig.LocalCacheRoot);
+                localCacheRoot ?? ScalarTestConfig.LocalCacheRoot,
+                fullClone);
 
             try
             {

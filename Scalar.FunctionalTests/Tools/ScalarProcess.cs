@@ -1,5 +1,4 @@
 using Scalar.Tests.Should;
-using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -27,13 +26,14 @@ namespace Scalar.FunctionalTests.Tools
             this.localCacheRoot = localCacheRoot;
         }
 
-        public void Clone(string repositorySource, string branchToCheckout, bool skipPrefetch)
+        public void Clone(string repositorySource, string branchToCheckout, bool skipPrefetch, bool fullClone = true)
         {
             // TODO: consider sparse clone for functional tests
             string args = string.Format(
-                "clone \"{0}\" \"{1}\" --full-clone --branch \"{2}\" --local-cache-path \"{3}\" {4}",
+                "clone \"{0}\" \"{1}\" {2} --branch \"{3}\" --local-cache-path \"{4}\" {5}",
                 repositorySource,
                 this.enlistmentRoot,
+                fullClone ? "--full-clone" : string.Empty,
                 branchToCheckout,
                 this.localCacheRoot,
                 skipPrefetch ? "--no-prefetch" : string.Empty);

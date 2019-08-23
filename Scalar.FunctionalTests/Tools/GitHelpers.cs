@@ -81,9 +81,9 @@ namespace Scalar.FunctionalTests.Tools
             Dictionary<string, string> environmentVariables = null,
             bool removeWaitingMessages = true,
             bool removeUpgradeMessages = true,
-            Stream inputStream = null)
+            string input = null)
         {
-            ProcessResult result = GitProcess.InvokeProcess(scalarRepoRoot, command, environmentVariables, inputStream);
+            ProcessResult result = GitProcess.InvokeProcess(scalarRepoRoot, command, input, environmentVariables);
             string errors = result.Errors;
 
             if (!string.IsNullOrEmpty(errors) && (removeWaitingMessages || removeUpgradeMessages))

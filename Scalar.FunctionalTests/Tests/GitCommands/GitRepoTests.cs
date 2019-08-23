@@ -209,7 +209,10 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
         protected void CreateEnlistment(string commitish = null)
         {
-            this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMount(ScalarTestConfig.PathToScalar, commitish: commitish);
+            this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMount(
+                                                                ScalarTestConfig.PathToScalar,
+                                                                commitish: commitish,
+                                                                fullClone: this.validateWorkingTree != Settings.ValidateWorkingTreeMode.SparseMode);
             GitProcess.Invoke(this.Enlistment.RepoRoot, "config advice.statusUoption false");
             this.ControlGitRepo = ControlGitRepo.Create(commitish);
             this.ControlGitRepo.Initialize();
@@ -254,45 +257,17 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             string controlRepoRoot = this.ControlGitRepo.RootPath;
             string scalarRepoRoot = this.Enlistment.RepoRoot;
 
-            Stream inputStream1 = null;
-            Stream inputStream2 = null;
+            ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command, standardInput);
+            ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command, input: standardInput);
 
-            try
+            if (!ignoreErrors)
             {
-                if (standardInput != null)
-                {
-                    inputStream1 = new MemoryStream();
-                    inputStream2 = new MemoryStream();
-
-                    using (StreamWriter writer = new StreamWriter(inputStream1, Encoding.Default, bufferSize: 4096, leaveOpen: true))
-                    {
-                        writer.Write(standardInput);
-                        inputStream1.Position = 0;
-                    }
-
-                    using (StreamWriter writer = new StreamWriter(inputStream2, Encoding.Default, bufferSize: 4096, leaveOpen: true))
-                    {
-                        writer.Write(standardInput);
-                        inputStream2.Position = 0;
-                    }
-                }
-
-                ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command, inputStream: inputStream1);
-                ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command, inputStream: inputStream2);
-                if (!ignoreErrors)
-                {
-                    GitHelpers.ErrorsShouldMatch(command, expectedResult, actualResult);
-                }
-
-                if (command != "status" && checkStatus)
-                {
-                    this.ValidateGitCommand("status");
-                }
+                GitHelpers.ErrorsShouldMatch(command, expectedResult, actualResult);
             }
-            finally
+
+            if (command != "status" && checkStatus)
             {
-                inputStream1?.Dispose();
-                inputStream2?.Dispose();
+                this.ValidateGitCommand("status");
             }
         }
 

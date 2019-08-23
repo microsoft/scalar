@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace Scalar.FunctionalTests.Tools
 {
@@ -9,6 +10,26 @@ namespace Scalar.FunctionalTests.Tools
         public static string Invoke(string executionWorkingDirectory, string command)
         {
             return InvokeProcess(executionWorkingDirectory, command).Output;
+        }
+
+        public static ProcessResult InvokeProcess(string executionWorkingDirectory, string command, string inputData, Dictionary<string, string> environmentVariables = null)
+        {
+            if (inputData == null)
+            {
+                return InvokeProcess(executionWorkingDirectory, command, environmentVariables);
+            }
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                using (StreamWriter writer = new StreamWriter(stream, Encoding.Default, bufferSize: 4096, leaveOpen: true))
+                {
+                    writer.Write(inputData);
+                }
+
+                stream.Position = 0;
+
+                return InvokeProcess(executionWorkingDirectory, command, environmentVariables, stream);
+            }
         }
 
         public static ProcessResult InvokeProcess(string executionWorkingDirectory, string command, Dictionary<string, string> environmentVariables = null, Stream inputStream = null)
