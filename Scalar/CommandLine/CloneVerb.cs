@@ -171,6 +171,7 @@ namespace Scalar.CommandLine
 
             if (!cloneResult.Success)
             {
+                this.tracer.RelatedError($"Error while creating enlistment: {cloneResult.ErrorMessage}");
                 return cloneResult;
             }
 
