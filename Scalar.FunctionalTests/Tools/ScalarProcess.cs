@@ -1,6 +1,8 @@
 using Scalar.Tests.Should;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace Scalar.FunctionalTests.Tools
 {
@@ -59,6 +61,18 @@ namespace Scalar.FunctionalTests.Tools
         public string Prefetch(string args, bool failOnError, string standardInput = null)
         {
             return this.CallScalar("prefetch \"" + this.enlistmentRoot + "\" " + args, failOnError ? SuccessExitCode : DoNotCheckExitCode, standardInput: standardInput);
+        }
+
+        public string SparseAdd(IEnumerable<string> folders)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (string folder in folders)
+            {
+                sb.Append($"{folder.Replace(Path.DirectorySeparatorChar, '/').Trim('/')}\n");
+            }
+
+            return this.CallScalar("sparse --add-stdin \"" + this.enlistmentRoot + "\" ", SuccessExitCode, standardInput: sb.ToString());
         }
 
         public void Repair(bool confirm)

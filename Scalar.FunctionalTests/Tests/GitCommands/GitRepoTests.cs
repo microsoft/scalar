@@ -132,9 +132,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             if (this.validateWorkingTree == Settings.ValidateWorkingTreeMode.SparseMode)
             {
                 ScalarProcess scalar = new ScalarProcess(this.Enlistment);
-                string replacedInput = input.ToString().Replace(Path.DirectorySeparatorChar, '/');
-                scalar.Prefetch("--stdin-folders-list", failOnError: true, standardInput: input.ToString());
-                this.RunGitCommand("sparse-checkout add", standardInput: replacedInput);
+                scalar.SparseAdd(SparseModeFolders);
 
                 // The WithDeepStructure method requires trailing directory separators
                 this.pathPrefixes = SparseModeFolders;

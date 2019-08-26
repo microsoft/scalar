@@ -117,7 +117,7 @@ namespace Scalar.CommandLine
                 { "core.multiPackIndex", "true" },
                 { "core.preloadIndex", "true" },
                 { "core.safecrlf", "false" },
-                { "core.untrackedCache", "true" },
+                { "core.untrackedCache", "false" },
                 { "core.repositoryformatversion", "0" },
                 { "core.filemode", ScalarPlatform.Instance.FileSystem.SupportsFileMode ? "true" : "false" },
                 { GitConfigSetting.CoreVirtualizeObjectsName, "true" },
