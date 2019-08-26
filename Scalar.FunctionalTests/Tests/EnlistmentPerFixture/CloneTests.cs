@@ -48,6 +48,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         [TestCase]
         [Category(Categories.MacOnly)]
+        [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
         public void CloneWithDefaultLocalCacheLocation()
         {
             FileSystemRunner fileSystem = FileSystemRunner.DefaultRunner;
@@ -57,11 +58,15 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             string newEnlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
 
             ProcessStartInfo processInfo = new ProcessStartInfo(ScalarTestConfig.PathToScalar);
+
+            // Needs update for non-virtualized mode: this used to have --no-mount to avoid an issue
+            // with registering the mount with the service.
             processInfo.Arguments = $"clone {Properties.Settings.Default.RepoToClone} {newEnlistmentRoot} --no-prefetch";
             processInfo.WindowStyle = ProcessWindowStyle.Hidden;
             processInfo.CreateNoWindow = true;
             processInfo.UseShellExecute = false;
             processInfo.RedirectStandardOutput = true;
+            processInfo.WorkingDirectory = Properties.Settings.Default.EnlistmentRoot;
 
             ProcessResult result = ProcessHelper.Run(processInfo);
             result.ExitCode.ShouldEqual(0, result.Errors);
