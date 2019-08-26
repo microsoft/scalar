@@ -4,6 +4,7 @@ using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Should;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -71,9 +72,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             "TrailingSlashTests",
         };
 
-        // Add directory separator for matching paths since they should be directories
-        private static readonly string[] PathPrefixesForSparseMode = SparseModeFolders.Select(x => x + Path.DirectorySeparatorChar).ToArray();
-
         private bool enlistmentPerTest;
         private Settings.ValidateWorkingTreeMode validateWorkingTree;
 
@@ -135,17 +133,20 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
             if (this.validateWorkingTree == Settings.ValidateWorkingTreeMode.SparseMode)
             {
-                StringBuilder input = new StringBuilder(capacity: PathPrefixesForSparseMode.Sum(s => s.Length + 1));
+                StringBuilder input = new StringBuilder(capacity: SparseModeFolders.Sum(s => s.Length + 1));
 
-                foreach (string s in PathPrefixesForSparseMode)
+                foreach (string s in SparseModeFolders)
                 {
                     input.Append($"{s}\n");
                 }
 
                 ScalarProcess scalar = new ScalarProcess(this.Enlistment);
+                string replacedInput = input.ToString().Replace(Path.DirectorySeparatorChar, '/');
                 scalar.Prefetch("--stdin-folders-list", failOnError: true, standardInput: input.ToString());
-                this.RunGitCommand("sparse-checkout add", standardInput: input.ToString().Replace(Path.DirectorySeparatorChar, '/'));
-                this.pathPrefixes = PathPrefixesForSparseMode;
+                this.RunGitCommand("sparse-checkout add", standardInput: replacedInput);
+
+                // The WithDeepStructure method requires trailing directory separators
+                this.pathPrefixes = SparseModeFolders.Select(x => x + Path.DirectorySeparatorChar).ToArray();
             }
 
             this.ValidateGitCommand("checkout " + this.ControlGitRepo.Commitish);
