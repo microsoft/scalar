@@ -257,9 +257,18 @@ namespace Scalar.FunctionalTests.Should
                 }
 
                 string localPath = info.FullName.Substring(repoRoot.Length + 1);
-                int parentLength = info.FullName.LastIndexOf(System.IO.Path.DirectorySeparatorChar);
+                int parentLength = localPath.LastIndexOf(System.IO.Path.DirectorySeparatorChar);
 
-                string parentPath = parentLength > 0 ? info.FullName.Substring(0, parentLength + 1) : null;
+                string parentPath = null;
+
+                if ((info.Attributes & FileAttributes.Directory) == FileAttributes.Directory)
+                {
+                    parentPath = localPath;
+                }
+                else if (parentLength > 0)
+                {
+                    parentPath = localPath.Substring(0, parentLength + 1);
+                }
 
                 if (localPath.Equals(".git", StringComparison.OrdinalIgnoreCase))
                 {
@@ -268,7 +277,7 @@ namespace Scalar.FunctionalTests.Should
                     return true;
                 }
 
-                if (!localPath.Contains(System.IO.Path.DirectorySeparatorChar) &&
+                if (parentPath == null &&
                     (info.Attributes & FileAttributes.Directory) != FileAttributes.Directory)
                 {
                     // If it is a file in the root folder, then include it.
@@ -305,6 +314,7 @@ namespace Scalar.FunctionalTests.Should
                 IEnumerable<FileSystemInfo> actualEntries = new DirectoryInfo(actualPath).EnumerateFileSystemInfos("*", SearchOption.AllDirectories);
 
                 string dotGitFolder = System.IO.Path.DirectorySeparatorChar + TestConstants.DotGit.Root + System.IO.Path.DirectorySeparatorChar;
+
                 IEnumerator<FileSystemInfo> expectedEnumerator = expectedEntries
                     .Where(x => !x.FullName.Contains(dotGitFolder))
                     .OrderBy(x => x.FullName)
