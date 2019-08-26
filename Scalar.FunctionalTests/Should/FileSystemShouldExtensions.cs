@@ -257,6 +257,9 @@ namespace Scalar.FunctionalTests.Should
                 }
 
                 string localPath = info.FullName.Substring(repoRoot.Length + 1);
+                int parentLength = info.FullName.LastIndexOf(System.IO.Path.DirectorySeparatorChar);
+
+                string parentPath = parentLength > 0 ? info.FullName.Substring(0, parentLength + 1) : null;
 
                 if (localPath.Equals(".git", StringComparison.OrdinalIgnoreCase))
                 {
@@ -274,15 +277,15 @@ namespace Scalar.FunctionalTests.Should
 
                 foreach (string prefixDir in prefixes)
                 {
-                    if (localPath.StartsWith(prefixDir, StringComparison.OrdinalIgnoreCase))
+                    if (localPath.Equals(prefixDir, StringComparison.OrdinalIgnoreCase) ||
+                        localPath.StartsWith(prefixDir + System.IO.Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
                     {
                         return true;
                     }
 
-                    if (prefixDir.StartsWith(localPath, StringComparison.OrdinalIgnoreCase) &&
-                        Directory.Exists(info.FullName))
+                    if (parentPath != null && prefixDir.StartsWith(parentPath, StringComparison.OrdinalIgnoreCase))
                     {
-                        // For example: localPath = "Scalar" and prefix is "Scalar\\Scalar".
+                        // For example: localPath = "Scalar\\file.txt", parentPath="Scalar\\" and prefix is "Scalar\\Scalar".
                         return true;
                     }
                 }

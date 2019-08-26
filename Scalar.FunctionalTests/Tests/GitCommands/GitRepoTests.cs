@@ -4,10 +4,8 @@ using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Should;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
-using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Scalar.FunctionalTests.Tests.GitCommands
 {
@@ -133,20 +131,13 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
             if (this.validateWorkingTree == Settings.ValidateWorkingTreeMode.SparseMode)
             {
-                StringBuilder input = new StringBuilder(capacity: SparseModeFolders.Sum(s => s.Length + 1));
-
-                foreach (string s in SparseModeFolders)
-                {
-                    input.Append($"{s}\n");
-                }
-
                 ScalarProcess scalar = new ScalarProcess(this.Enlistment);
                 string replacedInput = input.ToString().Replace(Path.DirectorySeparatorChar, '/');
                 scalar.Prefetch("--stdin-folders-list", failOnError: true, standardInput: input.ToString());
                 this.RunGitCommand("sparse-checkout add", standardInput: replacedInput);
 
                 // The WithDeepStructure method requires trailing directory separators
-                this.pathPrefixes = SparseModeFolders.Select(x => x + Path.DirectorySeparatorChar).ToArray();
+                this.pathPrefixes = SparseModeFolders;
             }
 
             this.ValidateGitCommand("checkout " + this.ControlGitRepo.Commitish);
