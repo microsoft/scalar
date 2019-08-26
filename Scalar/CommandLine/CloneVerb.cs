@@ -125,25 +125,29 @@ namespace Scalar.CommandLine
             this.CheckNotInsideExistingRepo(normalizedEnlistmentRootPath);
             this.BlockEmptyCacheServerUrl(this.CacheServerUrl);
 
+            Result cloneResult = new Result(false);
+
             try
             {
-                Result cloneResult = new Result(false);
-
                 using (this.tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "ScalarClone"))
                 {
                     cloneResult = this.TryCreateEnlistment(fullEnlistmentRootPathParameter, normalizedEnlistmentRootPath, out this.enlistment);
-                    if (cloneResult.Success)
+
+                    if (!cloneResult.Success)
                     {
-                        this.tracer.AddLogFileEventListener(
-                            ScalarEnlistment.GetNewScalarLogFileName(this.enlistment.ScalarLogsRoot, ScalarConstants.LogFileTypes.Clone),
-                            EventLevel.Informational,
-                            Keywords.Any);
-                        this.tracer.WriteStartEvent(
-                            this.enlistment.EnlistmentRoot,
-                            this.enlistment.RepoUrl,
-                            this.CacheServerUrl,
-                            new EventMetadata
-                            {
+                        goto done;
+                    }
+
+                    this.tracer.AddLogFileEventListener(
+                        ScalarEnlistment.GetNewScalarLogFileName(this.enlistment.ScalarLogsRoot, ScalarConstants.LogFileTypes.Clone),
+                        EventLevel.Informational,
+                        Keywords.Any);
+                    this.tracer.WriteStartEvent(
+                        this.enlistment.EnlistmentRoot,
+                        this.enlistment.RepoUrl,
+                        this.CacheServerUrl,
+                        new EventMetadata
+                        {
                                 { "Branch", this.Branch },
                                 { "LocalCacheRoot", this.LocalCacheRoot },
                                 { "SingleBranch", this.SingleBranch },
@@ -155,110 +159,103 @@ namespace Scalar.CommandLine
                                 { "ProcessID", Process.GetCurrentProcess().Id },
                                 { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
                                 { nameof(fullEnlistmentRootPathParameter), fullEnlistmentRootPathParameter },
-                            });
-
-                        this.cacheServerResolver = new CacheServerResolver(this.tracer, this.enlistment);
-                        this.cacheServer = this.cacheServerResolver.ParseUrlOrFriendlyName(this.CacheServerUrl);
-
-                        string resolvedLocalCacheRoot;
-                        if (string.IsNullOrWhiteSpace(this.LocalCacheRoot))
-                        {
-                            string localCacheRootError;
-                            if (!LocalCacheResolver.TryGetDefaultLocalCacheRoot(this.enlistment, out resolvedLocalCacheRoot, out localCacheRootError))
-                            {
-                                this.ReportErrorAndExit(
-                                    this.tracer,
-                                    $"Failed to determine the default location for the local Scalar cache: `{localCacheRootError}`");
-                            }
-                        }
-                        else
-                        {
-                            resolvedLocalCacheRoot = Path.GetFullPath(this.LocalCacheRoot);
-                        }
-
-                        this.Output.WriteLine("Clone parameters:");
-                        this.Output.WriteLine("  Repo URL:     " + this.enlistment.RepoUrl);
-                        this.Output.WriteLine("  Branch:       " + (string.IsNullOrWhiteSpace(this.Branch) ? "Default" : this.Branch));
-                        this.Output.WriteLine("  Cache Server: " + this.cacheServer);
-                        this.Output.WriteLine("  Local Cache:  " + resolvedLocalCacheRoot);
-                        this.Output.WriteLine("  Destination:  " + this.enlistment.EnlistmentRoot);
-                        this.Output.WriteLine("  FullClone:     " + this.FullClone);
-
-                        string authErrorMessage;
-                        if (!this.TryAuthenticate(this.tracer, this.enlistment, out authErrorMessage))
-                        {
-                            this.ReportErrorAndExit(this.tracer, "Cannot clone because authentication failed: " + authErrorMessage);
-                        }
-
-                        this.retryConfig = this.GetRetryConfig(this.tracer, this.enlistment, TimeSpan.FromMinutes(RetryConfig.FetchAndCloneTimeoutMinutes));
-                        this.serverScalarConfig = this.QueryScalarConfig(this.tracer, this.enlistment, this.retryConfig);
-
-                        this.cacheServer = this.ResolveCacheServer(this.tracer, this.cacheServer, this.cacheServerResolver, this.serverScalarConfig);
-
-                        this.ValidateClientVersions(this.tracer, this.enlistment, this.serverScalarConfig, showWarnings: true);
-
-                        using (this.objectRequestor = new GitObjectsHttpRequestor(this.tracer, this.enlistment, this.cacheServer, this.retryConfig))
-                        {
-                            cloneResult = this.SetUpScalarDirectory(resolvedLocalCacheRoot);
-
-                            if (!cloneResult.Success)
-                            {
-                                this.tracer.RelatedError(cloneResult.ErrorMessage);
-                                exitCode = 1;
-                                goto done;
-                            }
-
-                            this.ShowStatusWhileRunning(
-                            () =>
-                            {
-                                cloneResult = this.CreateClone();
-                                return cloneResult.Success;
-                            },
-                            "Cloning",
-                            normalizedEnlistmentRootPath);
-                        }
-                    }
-
-                    if (!cloneResult.Success)
-                    {
-                        this.tracer.RelatedError(cloneResult.ErrorMessage);
-                        this.Output.WriteLine("\r\nCannot clone @ {0}", fullEnlistmentRootPathParameter);
-                        this.Output.WriteLine("Error: {0}", cloneResult.ErrorMessage);
-                        exitCode = (int)ReturnCode.GenericError;
-                        goto done;
-                    }
-
-                    if (!this.NoPrefetch)
-                    {
-                        ReturnCode result = this.Execute<PrefetchVerb>(
-                            this.enlistment,
-                            verb =>
-                            {
-                                verb.Commits = true;
-                                verb.SkipVersionCheck = true;
-                                verb.ResolvedCacheServer = this.cacheServer;
-                                verb.ServerScalarConfig = this.serverScalarConfig;
-                            });
-
-                        if (result != ReturnCode.Success)
-                        {
-                            this.Output.WriteLine("\r\nError during prefetch @ {0}", fullEnlistmentRootPathParameter);
-                            exitCode = (int)result;
-                        }
-                    }
-
-                    this.Execute<MountVerb>(
-                       this.enlistment,
-                        verb =>
-                        {
-                            verb.SkipMountedCheck = true;
-                            verb.SkipVersionCheck = true;
-                            verb.ResolvedCacheServer = this.cacheServer;
-                            verb.DownloadedScalarConfig = this.serverScalarConfig;
                         });
 
-                    GitProcess git = new GitProcess(this.enlistment);
-                    git.ForceCheckoutAllFiles();
+                    this.cacheServerResolver = new CacheServerResolver(this.tracer, this.enlistment);
+                    this.cacheServer = this.cacheServerResolver.ParseUrlOrFriendlyName(this.CacheServerUrl);
+
+                    string resolvedLocalCacheRoot;
+                    if (string.IsNullOrWhiteSpace(this.LocalCacheRoot))
+                    {
+                        if (!LocalCacheResolver.TryGetDefaultLocalCacheRoot(this.enlistment, out resolvedLocalCacheRoot, out string localCacheRootError))
+                        {
+                            this.ReportErrorAndExit(
+                                this.tracer,
+                                $"Failed to determine the default location for the local Scalar cache: `{localCacheRootError}`");
+                        }
+                    }
+                    else
+                    {
+                        resolvedLocalCacheRoot = Path.GetFullPath(this.LocalCacheRoot);
+                    }
+
+                    this.Output.WriteLine("Clone parameters:");
+                    this.Output.WriteLine("  Repo URL:     " + this.enlistment.RepoUrl);
+                    this.Output.WriteLine("  Branch:       " + (string.IsNullOrWhiteSpace(this.Branch) ? "Default" : this.Branch));
+                    this.Output.WriteLine("  Cache Server: " + this.cacheServer);
+                    this.Output.WriteLine("  Local Cache:  " + resolvedLocalCacheRoot);
+                    this.Output.WriteLine("  Destination:  " + this.enlistment.EnlistmentRoot);
+                    this.Output.WriteLine("  FullClone:     " + this.FullClone);
+
+                    string authErrorMessage;
+                    if (!this.TryAuthenticate(this.tracer, this.enlistment, out authErrorMessage))
+                    {
+                        this.ReportErrorAndExit(this.tracer, "Cannot clone because authentication failed: " + authErrorMessage);
+                    }
+
+                    this.retryConfig = this.GetRetryConfig(this.tracer, this.enlistment, TimeSpan.FromMinutes(RetryConfig.FetchAndCloneTimeoutMinutes));
+                    this.serverScalarConfig = this.QueryScalarConfig(this.tracer, this.enlistment, this.retryConfig);
+
+                    this.cacheServer = this.ResolveCacheServer(this.tracer, this.cacheServer, this.cacheServerResolver, this.serverScalarConfig);
+
+                    this.ValidateClientVersions(this.tracer, this.enlistment, this.serverScalarConfig, showWarnings: true);
+
+                    using (this.objectRequestor = new GitObjectsHttpRequestor(this.tracer, this.enlistment, this.cacheServer, this.retryConfig))
+                    {
+                        cloneResult = this.SetUpScalarDirectory(resolvedLocalCacheRoot);
+
+                        if (!cloneResult.Success)
+                        {
+                            this.tracer.RelatedError(cloneResult.ErrorMessage);
+                            goto done;
+                        }
+
+                        this.ShowStatusWhileRunning(
+                        () =>
+                        {
+                            cloneResult = this.CreateClone();
+                            return cloneResult.Success;
+                        },
+                        "Cloning",
+                        normalizedEnlistmentRootPath);
+
+                        if (!cloneResult.Success)
+                        {
+                            this.tracer.RelatedError(cloneResult.ErrorMessage);
+                            goto done;
+                        }
+
+                        if (!this.NoPrefetch)
+                        {
+                            ReturnCode result = this.Execute<PrefetchVerb>(
+                                this.enlistment,
+                                verb =>
+                                {
+                                    verb.Commits = true;
+                                    verb.SkipVersionCheck = true;
+                                    verb.ResolvedCacheServer = this.cacheServer;
+                                    verb.ServerScalarConfig = this.serverScalarConfig;
+                                });
+
+                            if (result != ReturnCode.Success)
+                            {
+                                this.Output.WriteLine("\r\nError during prefetch @ {0}", fullEnlistmentRootPathParameter);
+                                goto done;
+                            }
+                        }
+
+                        this.Execute<MountVerb>(
+                           this.enlistment,
+                            verb =>
+                            {
+                                verb.SkipMountedCheck = true;
+                                verb.SkipVersionCheck = true;
+                                verb.ResolvedCacheServer = this.cacheServer;
+                                verb.DownloadedScalarConfig = this.serverScalarConfig;
+                            });
+
+                        cloneResult = this.CheckoutRepo();
+                    }
                 }
             }
             catch (AggregateException e)
@@ -281,6 +278,15 @@ namespace Scalar.CommandLine
             }
 
         done:
+
+            if (!cloneResult.Success)
+            {
+                this.tracer.RelatedError(cloneResult.ErrorMessage);
+                this.Output.WriteLine("\r\nCannot clone @ {0}", fullEnlistmentRootPathParameter);
+                this.Output.WriteLine("Error: {0}", cloneResult.ErrorMessage);
+                exitCode = (int)ReturnCode.GenericError;
+            }
+
             Environment.Exit(exitCode);
         }
 
@@ -524,53 +530,6 @@ namespace Scalar.CommandLine
                 return new Result(installHooksError);
             }
 
-            if (this.FullClone)
-            {
-                BlobPrefetcher prefetcher = new BlobPrefetcher(
-                                                    this.tracer,
-                                                    this.enlistment,
-                                                    this.objectRequestor,
-                                                    fileList: new List<string>() { "*" },
-                                                    folderList: null,
-                                                    lastPrefetchArgs: null,
-                                                    chunkSize: 4000,
-                                                    searchThreadCount: Environment.ProcessorCount,
-                                                    downloadThreadCount: Environment.ProcessorCount,
-                                                    indexThreadCount: Environment.ProcessorCount);
-                prefetcher.PrefetchWithStats(
-                                this.Branch,
-                                isBranch: true,
-                                hydrateFilesAfterDownload: false,
-                                matchedBlobCount: out int _,
-                                downloadedBlobCount: out int _,
-                                hydratedFileCount: out int _);
-            }
-
-            GitProcess.Result forceCheckoutResult = this.git.ForceCheckout(this.Branch);
-            if (forceCheckoutResult.ExitCodeIsFailure && forceCheckoutResult.Errors.IndexOf("unable to read tree") > 0)
-            {
-                // It is possible to have the above TryDownloadCommit() fail because we
-                // already have the commit and root tree we intend to check out, but
-                // don't have a tree further down the working directory. If we fail
-                // checkout here, its' because we don't have these trees and the
-                // read-object hook is not available yet. Force downloading the commit
-                // again and retry the checkout.
-
-                if (!this.TryDownloadCommit(
-                    this.refs.GetTipCommitId(this.Branch),
-                    this.enlistment,
-                    this.objectRequestor,
-                    this.gitObjects,
-                    this.gitRepo,
-                    out errorMessage,
-                    checkLocalObjectCache: false))
-                {
-                    return new Result(errorMessage);
-                }
-
-                forceCheckoutResult = this.git.ForceCheckout(this.Branch);
-            }
-
             if (!RepoMetadata.TryInitialize(this.tracer, this.enlistment.DotScalarRoot, out errorMessage))
             {
                 this.tracer.RelatedError(errorMessage);
@@ -626,6 +585,61 @@ namespace Scalar.CommandLine
                     string error = string.Format("Could not init sparse-checkout at to {0}: {1}", repoPath, sparseCheckoutResult.Errors);
                     this.tracer.RelatedError(error);
                     return new Result(error);
+                }
+            }
+
+            return new Result(true);
+        }
+
+        private Result CheckoutRepo()
+        {
+            if (this.FullClone)
+            {
+                BlobPrefetcher prefetcher = new BlobPrefetcher(
+                                                    this.tracer,
+                                                    this.enlistment,
+                                                    this.objectRequestor,
+                                                    fileList: new List<string>() { "*" },
+                                                    folderList: null,
+                                                    lastPrefetchArgs: null,
+                                                    chunkSize: 4000,
+                                                    searchThreadCount: Environment.ProcessorCount,
+                                                    downloadThreadCount: Environment.ProcessorCount,
+                                                    indexThreadCount: Environment.ProcessorCount);
+                prefetcher.PrefetchWithStats(
+                                this.Branch,
+                                isBranch: true,
+                                hydrateFilesAfterDownload: false,
+                                matchedBlobCount: out int _,
+                                downloadedBlobCount: out int _,
+                                hydratedFileCount: out int _);
+            }
+
+            GitProcess.Result forceCheckoutResult = this.git.ForceCheckout(this.Branch);
+            if (forceCheckoutResult.ExitCodeIsFailure && forceCheckoutResult.Errors.IndexOf("unable to read tree") > 0)
+            {
+                // It is possible to have the above TryDownloadCommit() fail because we
+                // already have the commit and root tree we intend to check out, but
+                // don't have a tree further down the working directory. If we fail
+                // checkout here, its' because we don't have these trees and the
+                // read-object hook is not available yet. Force downloading the commit
+                // again and retry the checkout.
+
+                if (!this.TryDownloadCommit(
+                    this.refs.GetTipCommitId(this.Branch),
+                    this.enlistment,
+                    this.objectRequestor,
+                    this.gitObjects,
+                    this.gitRepo,
+                    out string errorMessage,
+                    checkLocalObjectCache: false))
+                {
+                    return new Result(errorMessage);
+                }
+
+                if (this.git.ForceCheckout(this.Branch).ExitCodeIsFailure)
+                {
+                    return new Result("Failed to checkout repo");
                 }
             }
 
