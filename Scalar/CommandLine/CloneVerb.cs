@@ -621,32 +621,9 @@ namespace Scalar.CommandLine
                                 hydratedFileCount: out int _);
             }
 
-            GitProcess.Result forceCheckoutResult = this.git.ForceCheckout(this.Branch);
-            if (forceCheckoutResult.ExitCodeIsFailure && forceCheckoutResult.Errors.IndexOf("unable to read tree") > 0)
+            if (this.git.ForceCheckout(this.Branch).ExitCodeIsFailure)
             {
-                // It is possible to have the above TryDownloadCommit() fail because we
-                // already have the commit and root tree we intend to check out, but
-                // don't have a tree further down the working directory. If we fail
-                // checkout here, its' because we don't have these trees and the
-                // read-object hook is not available yet. Force downloading the commit
-                // again and retry the checkout.
-
-                if (!this.TryDownloadCommit(
-                    this.refs.GetTipCommitId(this.Branch),
-                    this.enlistment,
-                    this.objectRequestor,
-                    this.gitObjects,
-                    this.gitRepo,
-                    out string errorMessage,
-                    checkLocalObjectCache: false))
-                {
-                    return new Result(errorMessage);
-                }
-
-                if (this.git.ForceCheckout(this.Branch).ExitCodeIsFailure)
-                {
-                    return new Result("Failed to checkout repo");
-                }
+                return new Result("Failed to checkout repo");
             }
 
             return new Result(true);
