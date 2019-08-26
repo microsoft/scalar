@@ -197,24 +197,37 @@ namespace Scalar.CommandLine
 
                         this.ValidateClientVersions(this.tracer, this.enlistment, this.serverScalarConfig, showWarnings: true);
 
-                        this.ShowStatusWhileRunning(
+                        using (this.objectRequestor = new GitObjectsHttpRequestor(this.tracer, this.enlistment, this.cacheServer, this.retryConfig))
+                        {
+                            cloneResult = this.SetUpScalarDirectory(resolvedLocalCacheRoot);
+
+                            if (!cloneResult.Success)
+                            {
+                                this.tracer.RelatedError(cloneResult.ErrorMessage);
+                                exitCode = 1;
+                                goto done;
+                            }
+
+                            this.ShowStatusWhileRunning(
                             () =>
                             {
-                                cloneResult = this.TryClone(resolvedLocalCacheRoot);
+                                cloneResult = this.CreateClone();
                                 return cloneResult.Success;
                             },
                             "Cloning",
                             normalizedEnlistmentRootPath);
+                        }
                     }
 
                     if (!cloneResult.Success)
                     {
                         this.tracer.RelatedError(cloneResult.ErrorMessage);
+                        this.Output.WriteLine("\r\nCannot clone @ {0}", fullEnlistmentRootPathParameter);
+                        this.Output.WriteLine("Error: {0}", cloneResult.ErrorMessage);
+                        exitCode = (int)ReturnCode.GenericError;
+                        goto done;
                     }
-                }
 
-                if (cloneResult.Success)
-                {
                     if (!this.NoPrefetch)
                     {
                         ReturnCode result = this.Execute<PrefetchVerb>(
@@ -247,12 +260,6 @@ namespace Scalar.CommandLine
                     GitProcess git = new GitProcess(this.enlistment);
                     git.ForceCheckoutAllFiles();
                 }
-                else
-                {
-                    this.Output.WriteLine("\r\nCannot clone @ {0}", fullEnlistmentRootPathParameter);
-                    this.Output.WriteLine("Error: {0}", cloneResult.ErrorMessage);
-                    exitCode = (int)ReturnCode.GenericError;
-                }
             }
             catch (AggregateException e)
             {
@@ -273,6 +280,7 @@ namespace Scalar.CommandLine
                 this.ReportErrorAndExit("Cannot clone @ {0}: {1}", fullEnlistmentRootPathParameter, e.ToString());
             }
 
+        done:
             Environment.Exit(exitCode);
         }
 
@@ -317,65 +325,62 @@ namespace Scalar.CommandLine
             return new Result(true);
         }
 
-        private Result TryClone(string resolvedLocalCacheRoot)
+        private Result SetUpScalarDirectory(string resolvedLocalCacheRoot)
         {
-            using (this.objectRequestor = new GitObjectsHttpRequestor(this.tracer, this.enlistment, this.cacheServer, this.retryConfig))
+            this.refs = this.objectRequestor.QueryInfoRefs(this.SingleBranch ? this.Branch : null);
+
+            if (this.refs == null)
             {
-                this.refs = this.objectRequestor.QueryInfoRefs(this.SingleBranch ? this.Branch : null);
+                return new Result("Could not query info/refs from: " + Uri.EscapeUriString(this.enlistment.RepoUrl));
+            }
 
-                if (this.refs == null)
+            if (this.Branch == null)
+            {
+                this.Branch = this.refs.GetDefaultBranch();
+
+                EventMetadata metadata = new EventMetadata();
+                metadata.Add("Branch", this.Branch);
+                this.tracer.RelatedEvent(EventLevel.Informational, "CloneDefaultRemoteBranch", metadata);
+            }
+            else
+            {
+                if (!this.refs.HasBranch(this.Branch))
                 {
-                    return new Result("Could not query info/refs from: " + Uri.EscapeUriString(this.enlistment.RepoUrl));
-                }
-
-                if (this.Branch == null)
-                {
-                    this.Branch = this.refs.GetDefaultBranch();
-
                     EventMetadata metadata = new EventMetadata();
                     metadata.Add("Branch", this.Branch);
-                    this.tracer.RelatedEvent(EventLevel.Informational, "CloneDefaultRemoteBranch", metadata);
+                    this.tracer.RelatedEvent(EventLevel.Warning, "CloneBranchDoesNotExist", metadata);
+
+                    string errorMessage = string.Format("Remote branch {0} not found in upstream origin", this.Branch);
+                    return new Result(errorMessage);
                 }
-                else
-                {
-                    if (!this.refs.HasBranch(this.Branch))
-                    {
-                        EventMetadata metadata = new EventMetadata();
-                        metadata.Add("Branch", this.Branch);
-                        this.tracer.RelatedEvent(EventLevel.Warning, "CloneBranchDoesNotExist", metadata);
-
-                        string errorMessage = string.Format("Remote branch {0} not found in upstream origin", this.Branch);
-                        return new Result(errorMessage);
-                    }
-                }
-
-                if (!this.enlistment.TryCreateEnlistmentFolders())
-                {
-                    string error = "Could not create enlistment directory";
-                    this.tracer.RelatedError(error);
-                    return new Result(error);
-                }
-
-                if (!ScalarPlatform.Instance.FileSystem.IsFileSystemSupported(this.enlistment.EnlistmentRoot, out string fsError))
-                {
-                    string error = $"FileSystem unsupported: {fsError}";
-                    this.tracer.RelatedError(error);
-                    return new Result(error);
-                }
-
-                string localCacheError;
-                if (!this.TryDetermineLocalCacheAndInitializePaths(resolvedLocalCacheRoot, out localCacheError))
-                {
-                    this.tracer.RelatedError(localCacheError);
-                    return new Result(localCacheError);
-                }
-
-                Directory.CreateDirectory(this.enlistment.GitObjectsRoot);
-                Directory.CreateDirectory(this.enlistment.GitPackRoot);
-                Directory.CreateDirectory(this.enlistment.BlobSizesRoot);
-
-                return this.CreateClone();
             }
+
+            if (!this.enlistment.TryCreateEnlistmentFolders())
+            {
+                string error = "Could not create enlistment directory";
+                this.tracer.RelatedError(error);
+                return new Result(error);
+            }
+
+            if (!ScalarPlatform.Instance.FileSystem.IsFileSystemSupported(this.enlistment.EnlistmentRoot, out string fsError))
+            {
+                string error = $"FileSystem unsupported: {fsError}";
+                this.tracer.RelatedError(error);
+                return new Result(error);
+            }
+
+            string localCacheError;
+            if (!this.TryDetermineLocalCacheAndInitializePaths(resolvedLocalCacheRoot, out localCacheError))
+            {
+                this.tracer.RelatedError(localCacheError);
+                return new Result(localCacheError);
+            }
+
+            Directory.CreateDirectory(this.enlistment.GitObjectsRoot);
+            Directory.CreateDirectory(this.enlistment.GitPackRoot);
+            Directory.CreateDirectory(this.enlistment.BlobSizesRoot);
+
+            return new Result(true);
         }
 
         private string GetCloneRoot(out string fullEnlistmentRootPathParameter)
