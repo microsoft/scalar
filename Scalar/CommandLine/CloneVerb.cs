@@ -129,25 +129,60 @@ namespace Scalar.CommandLine
 
             try
             {
-                using (this.tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "ScalarClone"))
+                cloneResult = this.DoClone(fullEnlistmentRootPathParameter, normalizedEnlistmentRootPath);
+            }
+            catch (AggregateException e)
+            {
+                this.Output.WriteLine("Cannot clone @ {0}:", fullEnlistmentRootPathParameter);
+                foreach (Exception ex in e.Flatten().InnerExceptions)
                 {
-                    cloneResult = this.TryCreateEnlistment(fullEnlistmentRootPathParameter, normalizedEnlistmentRootPath, out this.enlistment);
+                    this.Output.WriteLine("Exception: {0}", ex.ToString());
+                }
 
-                    if (!cloneResult.Success)
+                cloneResult = new Result(false);
+            }
+            catch (VerbAbortedException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                this.ReportErrorAndExit("Cannot clone @ {0}: {1}", fullEnlistmentRootPathParameter, e.ToString());
+            }
+
+            if (!cloneResult.Success)
+            {
+                this.tracer.RelatedError(cloneResult.ErrorMessage);
+                this.Output.WriteLine("\r\nCannot clone @ {0}", fullEnlistmentRootPathParameter);
+                this.Output.WriteLine("Error: {0}", cloneResult.ErrorMessage);
+                exitCode = (int)ReturnCode.GenericError;
+            }
+
+            Environment.Exit(exitCode);
+        }
+
+        private Result DoClone(string fullEnlistmentRootPathParameter, string normalizedEnlistmentRootPath)
+        {
+            Result cloneResult = null;
+            using (this.tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "ScalarClone"))
+            {
+                cloneResult = this.TryCreateEnlistment(fullEnlistmentRootPathParameter, normalizedEnlistmentRootPath, out this.enlistment);
+
+                if (!cloneResult.Success)
+                {
+                    return cloneResult;
+                }
+
+                this.tracer.AddLogFileEventListener(
+                    ScalarEnlistment.GetNewScalarLogFileName(this.enlistment.ScalarLogsRoot, ScalarConstants.LogFileTypes.Clone),
+                    EventLevel.Informational,
+                    Keywords.Any);
+                this.tracer.WriteStartEvent(
+                    this.enlistment.EnlistmentRoot,
+                    this.enlistment.RepoUrl,
+                    this.CacheServerUrl,
+                    new EventMetadata
                     {
-                        goto done;
-                    }
-
-                    this.tracer.AddLogFileEventListener(
-                        ScalarEnlistment.GetNewScalarLogFileName(this.enlistment.ScalarLogsRoot, ScalarConstants.LogFileTypes.Clone),
-                        EventLevel.Informational,
-                        Keywords.Any);
-                    this.tracer.WriteStartEvent(
-                        this.enlistment.EnlistmentRoot,
-                        this.enlistment.RepoUrl,
-                        this.CacheServerUrl,
-                        new EventMetadata
-                        {
                                 { "Branch", this.Branch },
                                 { "LocalCacheRoot", this.LocalCacheRoot },
                                 { "SingleBranch", this.SingleBranch },
@@ -159,135 +194,106 @@ namespace Scalar.CommandLine
                                 { "ProcessID", Process.GetCurrentProcess().Id },
                                 { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
                                 { nameof(fullEnlistmentRootPathParameter), fullEnlistmentRootPathParameter },
-                        });
+                    });
 
-                    this.cacheServerResolver = new CacheServerResolver(this.tracer, this.enlistment);
-                    this.cacheServer = this.cacheServerResolver.ParseUrlOrFriendlyName(this.CacheServerUrl);
+                this.cacheServerResolver = new CacheServerResolver(this.tracer, this.enlistment);
+                this.cacheServer = this.cacheServerResolver.ParseUrlOrFriendlyName(this.CacheServerUrl);
 
-                    string resolvedLocalCacheRoot;
-                    if (string.IsNullOrWhiteSpace(this.LocalCacheRoot))
+                string resolvedLocalCacheRoot;
+                if (string.IsNullOrWhiteSpace(this.LocalCacheRoot))
+                {
+                    if (!LocalCacheResolver.TryGetDefaultLocalCacheRoot(this.enlistment, out resolvedLocalCacheRoot, out string localCacheRootError))
                     {
-                        if (!LocalCacheResolver.TryGetDefaultLocalCacheRoot(this.enlistment, out resolvedLocalCacheRoot, out string localCacheRootError))
-                        {
-                            this.ReportErrorAndExit(
-                                this.tracer,
-                                $"Failed to determine the default location for the local Scalar cache: `{localCacheRootError}`");
-                        }
+                        this.ReportErrorAndExit(
+                            this.tracer,
+                            $"Failed to determine the default location for the local Scalar cache: `{localCacheRootError}`");
                     }
-                    else
+                }
+                else
+                {
+                    resolvedLocalCacheRoot = Path.GetFullPath(this.LocalCacheRoot);
+                }
+
+                this.Output.WriteLine("Clone parameters:");
+                this.Output.WriteLine("  Repo URL:     " + this.enlistment.RepoUrl);
+                this.Output.WriteLine("  Branch:       " + (string.IsNullOrWhiteSpace(this.Branch) ? "Default" : this.Branch));
+                this.Output.WriteLine("  Cache Server: " + this.cacheServer);
+                this.Output.WriteLine("  Local Cache:  " + resolvedLocalCacheRoot);
+                this.Output.WriteLine("  Destination:  " + this.enlistment.EnlistmentRoot);
+                this.Output.WriteLine("  FullClone:     " + this.FullClone);
+
+                string authErrorMessage;
+                if (!this.TryAuthenticate(this.tracer, this.enlistment, out authErrorMessage))
+                {
+                    this.ReportErrorAndExit(this.tracer, "Cannot clone because authentication failed: " + authErrorMessage);
+                }
+
+                this.retryConfig = this.GetRetryConfig(this.tracer, this.enlistment, TimeSpan.FromMinutes(RetryConfig.FetchAndCloneTimeoutMinutes));
+                this.serverScalarConfig = this.QueryScalarConfig(this.tracer, this.enlistment, this.retryConfig);
+
+                this.cacheServer = this.ResolveCacheServer(this.tracer, this.cacheServer, this.cacheServerResolver, this.serverScalarConfig);
+
+                this.ValidateClientVersions(this.tracer, this.enlistment, this.serverScalarConfig, showWarnings: true);
+
+                using (this.objectRequestor = new GitObjectsHttpRequestor(this.tracer, this.enlistment, this.cacheServer, this.retryConfig))
+                {
+                    cloneResult = this.SetUpScalarDirectory(resolvedLocalCacheRoot);
+
+                    if (!cloneResult.Success)
                     {
-                        resolvedLocalCacheRoot = Path.GetFullPath(this.LocalCacheRoot);
+                        this.tracer.RelatedError(cloneResult.ErrorMessage);
+                        return cloneResult;
                     }
 
-                    this.Output.WriteLine("Clone parameters:");
-                    this.Output.WriteLine("  Repo URL:     " + this.enlistment.RepoUrl);
-                    this.Output.WriteLine("  Branch:       " + (string.IsNullOrWhiteSpace(this.Branch) ? "Default" : this.Branch));
-                    this.Output.WriteLine("  Cache Server: " + this.cacheServer);
-                    this.Output.WriteLine("  Local Cache:  " + resolvedLocalCacheRoot);
-                    this.Output.WriteLine("  Destination:  " + this.enlistment.EnlistmentRoot);
-                    this.Output.WriteLine("  FullClone:     " + this.FullClone);
-
-                    string authErrorMessage;
-                    if (!this.TryAuthenticate(this.tracer, this.enlistment, out authErrorMessage))
+                    this.ShowStatusWhileRunning(
+                    () =>
                     {
-                        this.ReportErrorAndExit(this.tracer, "Cannot clone because authentication failed: " + authErrorMessage);
+                        cloneResult = this.CreateClone();
+                        return cloneResult.Success;
+                    },
+                    "Cloning",
+                    normalizedEnlistmentRootPath);
+
+                    if (!cloneResult.Success)
+                    {
+                        this.tracer.RelatedError(cloneResult.ErrorMessage);
+                        return cloneResult;
                     }
 
-                    this.retryConfig = this.GetRetryConfig(this.tracer, this.enlistment, TimeSpan.FromMinutes(RetryConfig.FetchAndCloneTimeoutMinutes));
-                    this.serverScalarConfig = this.QueryScalarConfig(this.tracer, this.enlistment, this.retryConfig);
-
-                    this.cacheServer = this.ResolveCacheServer(this.tracer, this.cacheServer, this.cacheServerResolver, this.serverScalarConfig);
-
-                    this.ValidateClientVersions(this.tracer, this.enlistment, this.serverScalarConfig, showWarnings: true);
-
-                    using (this.objectRequestor = new GitObjectsHttpRequestor(this.tracer, this.enlistment, this.cacheServer, this.retryConfig))
+                    if (!this.NoPrefetch)
                     {
-                        cloneResult = this.SetUpScalarDirectory(resolvedLocalCacheRoot);
-
-                        if (!cloneResult.Success)
-                        {
-                            this.tracer.RelatedError(cloneResult.ErrorMessage);
-                            goto done;
-                        }
-
-                        this.ShowStatusWhileRunning(
-                        () =>
-                        {
-                            cloneResult = this.CreateClone();
-                            return cloneResult.Success;
-                        },
-                        "Cloning",
-                        normalizedEnlistmentRootPath);
-
-                        if (!cloneResult.Success)
-                        {
-                            this.tracer.RelatedError(cloneResult.ErrorMessage);
-                            goto done;
-                        }
-
-                        if (!this.NoPrefetch)
-                        {
-                            ReturnCode result = this.Execute<PrefetchVerb>(
-                                this.enlistment,
-                                verb =>
-                                {
-                                    verb.Commits = true;
-                                    verb.SkipVersionCheck = true;
-                                    verb.ResolvedCacheServer = this.cacheServer;
-                                    verb.ServerScalarConfig = this.serverScalarConfig;
-                                });
-
-                            if (result != ReturnCode.Success)
-                            {
-                                this.Output.WriteLine("\r\nError during prefetch @ {0}", fullEnlistmentRootPathParameter);
-                                goto done;
-                            }
-                        }
-
-                        this.Execute<MountVerb>(
-                           this.enlistment,
+                        ReturnCode result = this.Execute<PrefetchVerb>(
+                            this.enlistment,
                             verb =>
                             {
-                                verb.SkipMountedCheck = true;
+                                verb.Commits = true;
                                 verb.SkipVersionCheck = true;
                                 verb.ResolvedCacheServer = this.cacheServer;
-                                verb.DownloadedScalarConfig = this.serverScalarConfig;
+                                verb.ServerScalarConfig = this.serverScalarConfig;
                             });
 
-                        cloneResult = this.CheckoutRepo();
+                        if (result != ReturnCode.Success)
+                        {
+                            this.Output.WriteLine("\r\nError during prefetch @ {0}", fullEnlistmentRootPathParameter);
+                            return cloneResult;
+                        }
                     }
+
+                    this.Execute<MountVerb>(
+                       this.enlistment,
+                        verb =>
+                        {
+                            verb.SkipMountedCheck = true;
+                            verb.SkipVersionCheck = true;
+                            verb.ResolvedCacheServer = this.cacheServer;
+                            verb.DownloadedScalarConfig = this.serverScalarConfig;
+                        });
+
+                    cloneResult = this.CheckoutRepo();
                 }
             }
-            catch (AggregateException e)
-            {
-                this.Output.WriteLine("Cannot clone @ {0}:", fullEnlistmentRootPathParameter);
-                foreach (Exception ex in e.Flatten().InnerExceptions)
-                {
-                    this.Output.WriteLine("Exception: {0}", ex.ToString());
-                }
 
-                exitCode = (int)ReturnCode.GenericError;
-            }
-            catch (VerbAbortedException)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                this.ReportErrorAndExit("Cannot clone @ {0}: {1}", fullEnlistmentRootPathParameter, e.ToString());
-            }
-
-        done:
-
-            if (!cloneResult.Success)
-            {
-                this.tracer.RelatedError(cloneResult.ErrorMessage);
-                this.Output.WriteLine("\r\nCannot clone @ {0}", fullEnlistmentRootPathParameter);
-                this.Output.WriteLine("Error: {0}", cloneResult.ErrorMessage);
-                exitCode = (int)ReturnCode.GenericError;
-            }
-
-            Environment.Exit(exitCode);
+            return cloneResult;
         }
 
         private Result TryCreateEnlistment(
