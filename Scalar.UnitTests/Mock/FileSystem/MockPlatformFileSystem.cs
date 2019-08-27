@@ -8,6 +8,8 @@ namespace Scalar.UnitTests.Mock.FileSystem
     {
         public bool SupportsFileMode { get; } = true;
 
+        public bool SupportsUntrackedCache { get; } = true;
+
         public void FlushFileBuffers(string path)
         {
             throw new NotSupportedException();
