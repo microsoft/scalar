@@ -60,9 +60,6 @@ namespace Scalar.FunctionalTests.Should
 
         public class FileAdapter
         {
-            private const int MaxWaitMS = 2000;
-            private const int ThreadSleepMS = 100;
-
             private FileSystemRunner runner;
 
             public FileAdapter(string path, FileSystemRunner runner)
@@ -260,6 +257,18 @@ namespace Scalar.FunctionalTests.Should
                 }
 
                 string localPath = info.FullName.Substring(repoRoot.Length + 1);
+                int parentLength = localPath.LastIndexOf(System.IO.Path.DirectorySeparatorChar);
+
+                string parentPath = null;
+
+                if ((info.Attributes & FileAttributes.Directory) == FileAttributes.Directory)
+                {
+                    parentPath = localPath;
+                }
+                else if (parentLength > 0)
+                {
+                    parentPath = localPath.Substring(0, parentLength + 1);
+                }
 
                 if (localPath.Equals(".git", StringComparison.OrdinalIgnoreCase))
                 {
@@ -268,7 +277,7 @@ namespace Scalar.FunctionalTests.Should
                     return true;
                 }
 
-                if (!localPath.Contains(System.IO.Path.DirectorySeparatorChar) &&
+                if (parentPath == null &&
                     (info.Attributes & FileAttributes.Directory) != FileAttributes.Directory)
                 {
                     // If it is a file in the root folder, then include it.
@@ -277,15 +286,15 @@ namespace Scalar.FunctionalTests.Should
 
                 foreach (string prefixDir in prefixes)
                 {
-                    if (localPath.StartsWith(prefixDir, StringComparison.OrdinalIgnoreCase))
+                    if (localPath.Equals(prefixDir, StringComparison.OrdinalIgnoreCase) ||
+                        localPath.StartsWith(prefixDir + System.IO.Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
                     {
                         return true;
                     }
 
-                    if (prefixDir.StartsWith(localPath, StringComparison.OrdinalIgnoreCase) &&
-                        Directory.Exists(info.FullName))
+                    if (parentPath != null && prefixDir.StartsWith(parentPath, StringComparison.OrdinalIgnoreCase))
                     {
-                        // For example: localPath = "Scalar" and prefix is "Scalar\\Scalar".
+                        // For example: localPath = "Scalar\\file.txt", parentPath="Scalar\\" and prefix is "Scalar\\Scalar".
                         return true;
                     }
                 }
@@ -305,6 +314,7 @@ namespace Scalar.FunctionalTests.Should
                 IEnumerable<FileSystemInfo> actualEntries = new DirectoryInfo(actualPath).EnumerateFileSystemInfos("*", SearchOption.AllDirectories);
 
                 string dotGitFolder = System.IO.Path.DirectorySeparatorChar + TestConstants.DotGit.Root + System.IO.Path.DirectorySeparatorChar;
+
                 IEnumerator<FileSystemInfo> expectedEnumerator = expectedEntries
                     .Where(x => !x.FullName.Contains(dotGitFolder))
                     .OrderBy(x => x.FullName)

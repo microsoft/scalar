@@ -70,9 +70,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             "TrailingSlashTests",
         };
 
-        // Add directory separator for matching paths since they should be directories
-        private static readonly string[] PathPrefixesForSparseMode = SparseModeFolders.Select(x => x + Path.DirectorySeparatorChar).ToArray();
-
         private bool enlistmentPerTest;
         private Settings.ValidateWorkingTreeMode validateWorkingTree;
 
@@ -134,8 +131,9 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
             if (this.validateWorkingTree == Settings.ValidateWorkingTreeMode.SparseMode)
             {
-                new ScalarProcess(this.Enlistment).AddSparseFolders(SparseModeFolders);
-                this.pathPrefixes = PathPrefixesForSparseMode;
+                ScalarProcess scalar = new ScalarProcess(this.Enlistment);
+                scalar.SparseAdd(SparseModeFolders);
+                this.pathPrefixes = SparseModeFolders;
             }
 
             this.ValidateGitCommand("checkout " + this.ControlGitRepo.Commitish);
@@ -199,7 +197,10 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
         protected void CreateEnlistment(string commitish = null)
         {
-            this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMount(ScalarTestConfig.PathToScalar, commitish: commitish);
+            this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMount(
+                                                                ScalarTestConfig.PathToScalar,
+                                                                commitish: commitish,
+                                                                fullClone: this.validateWorkingTree != Settings.ValidateWorkingTreeMode.SparseMode);
             GitProcess.Invoke(this.Enlistment.RepoRoot, "config advice.statusUoption false");
             this.ControlGitRepo = ControlGitRepo.Create(commitish);
             this.ControlGitRepo.Initialize();
@@ -239,13 +240,14 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
          *    are cases when git will delete these files during a merge outputting that it removed them
          *    which the Scalar repo did not have to remove so the message is missing that output.
          */
-        protected void RunGitCommand(string command, bool ignoreErrors = false, bool checkStatus = true)
+        protected void RunGitCommand(string command, bool ignoreErrors = false, bool checkStatus = true, string standardInput = null)
         {
             string controlRepoRoot = this.ControlGitRepo.RootPath;
             string scalarRepoRoot = this.Enlistment.RepoRoot;
 
-            ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command);
-            ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command);
+            ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command, standardInput);
+            ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command, input: standardInput);
+
             if (!ignoreErrors)
             {
                 GitHelpers.ErrorsShouldMatch(command, expectedResult, actualResult);

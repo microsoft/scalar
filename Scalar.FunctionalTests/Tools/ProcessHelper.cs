@@ -60,6 +60,7 @@ namespace Scalar.FunctionalTests.Tools
             if (inputStream != null)
             {
                 inputStream.CopyTo(executingProcess.StandardInput.BaseStream);
+                executingProcess.StandardInput.BaseStream.Close();
             }
 
             if (executingProcess.StartInfo.RedirectStandardError)

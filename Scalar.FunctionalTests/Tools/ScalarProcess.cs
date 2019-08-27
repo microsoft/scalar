@@ -1,7 +1,8 @@
 using Scalar.Tests.Should;
-using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace Scalar.FunctionalTests.Tools
 {
@@ -27,13 +28,14 @@ namespace Scalar.FunctionalTests.Tools
             this.localCacheRoot = localCacheRoot;
         }
 
-        public void Clone(string repositorySource, string branchToCheckout, bool skipPrefetch)
+        public void Clone(string repositorySource, string branchToCheckout, bool skipPrefetch, bool fullClone = true)
         {
             // TODO: consider sparse clone for functional tests
             string args = string.Format(
-                "clone \"{0}\" \"{1}\" --full-clone --branch \"{2}\" --local-cache-path \"{3}\" {4}",
+                "clone \"{0}\" \"{1}\" {2} --branch \"{3}\" --local-cache-path \"{4}\" {5}",
                 repositorySource,
                 this.enlistmentRoot,
+                fullClone ? "--full-clone" : string.Empty,
                 branchToCheckout,
                 this.localCacheRoot,
                 skipPrefetch ? "--no-prefetch" : string.Empty);
@@ -56,52 +58,23 @@ namespace Scalar.FunctionalTests.Tools
             return this.IsEnlistmentMounted();
         }
 
-        public string AddSparseFolders(params string[] folders)
-        {
-            return this.SparseCommand(addFolders: true, shouldSucceed: true, folders: folders);
-        }
-
-        public string AddSparseFolders(bool shouldSucceed, params string[] folders)
-        {
-            return this.SparseCommand(addFolders: true, shouldSucceed: shouldSucceed, folders: folders);
-        }
-
-        public string RemoveSparseFolders(params string[] folders)
-        {
-            return this.SparseCommand(addFolders: false, shouldSucceed: true, folders: folders);
-        }
-
-        public string RemoveSparseFolders(bool shouldSucceed, params string[] folders)
-        {
-            return this.SparseCommand(addFolders: false, shouldSucceed: shouldSucceed, folders: folders);
-        }
-
-        public string SparseCommand(bool addFolders, bool shouldSucceed, params string[] folders)
-        {
-            string action = addFolders ? "-a" : "-r";
-            string folderList = string.Join(";", folders);
-            if (folderList.Contains(" "))
-            {
-                folderList = $"\"{folderList}\"";
-            }
-
-            return this.CallScalar($"sparse {this.enlistmentRoot} {action} {folderList}", expectedExitCode: shouldSucceed ? SuccessExitCode : ExitCodeShouldNotBeZero);
-        }
-
-        public string[] GetSparseFolders()
-        {
-            string output = this.CallScalar($"sparse {this.enlistmentRoot} -l");
-            if (output.StartsWith("No folders in sparse list."))
-            {
-                return new string[0];
-            }
-
-            return output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-        }
-
         public string Prefetch(string args, bool failOnError, string standardInput = null)
         {
             return this.CallScalar("prefetch \"" + this.enlistmentRoot + "\" " + args, failOnError ? SuccessExitCode : DoNotCheckExitCode, standardInput: standardInput);
+        }
+
+        public string SparseAdd(IEnumerable<string> folders)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (string folder in folders)
+            {
+                sb.Append(folder.Replace(Path.DirectorySeparatorChar, TestConstants.GitPathSeparator)
+                                .Trim(TestConstants.GitPathSeparator));
+                sb.Append("\n");
+            }
+
+            return this.CallScalar("sparse --add-stdin \"" + this.enlistmentRoot + "\" ", SuccessExitCode, standardInput: sb.ToString());
         }
 
         public void Repair(bool confirm)

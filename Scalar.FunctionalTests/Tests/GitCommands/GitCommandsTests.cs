@@ -11,7 +11,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]
-    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class GitCommandsTests : GitRepoTests
     {
         public const string TopLevelFolderToCreate = "level1";

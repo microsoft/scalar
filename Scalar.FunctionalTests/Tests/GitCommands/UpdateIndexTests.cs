@@ -6,7 +6,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 {
     [TestFixtureSource(typeof(GitRepoTests), nameof(GitRepoTests.ValidateWorkingTree))]
     [Category(Categories.GitCommands)]
-    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class UpdateIndexTests : GitRepoTests
     {
         public UpdateIndexTests(Settings.ValidateWorkingTreeMode validateWorkingTree)
