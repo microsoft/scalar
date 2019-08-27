@@ -5,6 +5,7 @@ namespace Scalar.Common.FileSystem
     public interface IPlatformFileSystem
     {
         bool SupportsFileMode { get; }
+        bool SupportsUntrackedCache { get; }
         void FlushFileBuffers(string path);
         void MoveAndOverwriteFile(string sourceFileName, string destinationFilename);
         bool TryGetNormalizedPath(string path, out string normalizedPath, out string errorMessage);
