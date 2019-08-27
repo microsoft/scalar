@@ -17,6 +17,4 @@ mkdir -p $BUILDDROP_ROOT
 $Scalar_SCRIPTDIR/CreateScalarDistribution.sh $CONFIGURATION
 
 # Copy to the build drop, retaining directory structure.
-cp $Scalar_OUTPUTDIR/Git/*.dmg $BUILDDROP_ROOT
-cp $Scalar_OUTPUTDIR/Scalar.Installer.Mac/bin/x64/$CONFIGURATION/netcoreapp2.1/osx-x64/*.pkg $BUILDDROP_ROOT
 cp -Rf $Scalar_OUTPUTDIR/Scalar.Distribution $BUILDDROP_ROOT
