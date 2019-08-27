@@ -143,11 +143,7 @@ namespace Scalar.CommandLine
 
                     cloneResult = new Result(false);
                 }
-                catch (VerbAbortedException)
-                {
-                    throw;
-                }
-                catch (Exception e)
+                catch (Exception e) when (!(e is VerbAbortedException))
                 {
                     this.ReportErrorAndExit("Cannot clone @ {0}: {1}", fullEnlistmentRootPathParameter, e.ToString());
                 }
@@ -155,7 +151,8 @@ namespace Scalar.CommandLine
                 if (!cloneResult.Success)
                 {
                     this.tracer.RelatedError(cloneResult.ErrorMessage);
-                    this.Output.WriteLine("\r\nCannot clone @ {0}", fullEnlistmentRootPathParameter);
+                    this.Output.WriteLine();
+                    this.Output.WriteLine("Cannot clone @ {0}", fullEnlistmentRootPathParameter);
                     this.Output.WriteLine("Error: {0}", cloneResult.ErrorMessage);
                     exitCode = (int)ReturnCode.GenericError;
                 }
