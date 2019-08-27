@@ -133,8 +133,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             {
                 ScalarProcess scalar = new ScalarProcess(this.Enlistment);
                 scalar.SparseAdd(SparseModeFolders);
-
-                // The WithDeepStructure method requires trailing directory separators
                 this.pathPrefixes = SparseModeFolders;
             }
 

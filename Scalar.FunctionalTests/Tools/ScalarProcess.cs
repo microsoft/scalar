@@ -69,7 +69,9 @@ namespace Scalar.FunctionalTests.Tools
 
             foreach (string folder in folders)
             {
-                sb.Append($"{folder.Replace(Path.DirectorySeparatorChar, '/').Trim('/')}\n");
+                sb.Append(folder.Replace(Path.DirectorySeparatorChar, TestConstants.GitPathSeparator)
+                                .Trim(TestConstants.GitPathSeparator));
+                sb.Append("\n");
             }
 
             return this.CallScalar("sparse --add-stdin \"" + this.enlistmentRoot + "\" ", SuccessExitCode, standardInput: sb.ToString());

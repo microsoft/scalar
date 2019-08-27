@@ -236,7 +236,7 @@ namespace Scalar.CommandLine
 
             using (this.objectRequestor = new GitObjectsHttpRequestor(this.tracer, this.enlistment, this.cacheServer, this.retryConfig))
             {
-                cloneResult = this.SetUpScalarDirectory(resolvedLocalCacheRoot);
+                cloneResult = this.CreateScalarDirctories(resolvedLocalCacheRoot);
 
                 if (!cloneResult.Success)
                 {
@@ -335,7 +335,7 @@ namespace Scalar.CommandLine
             return new Result(true);
         }
 
-        private Result SetUpScalarDirectory(string resolvedLocalCacheRoot)
+        private Result CreateScalarDirctories(string resolvedLocalCacheRoot)
         {
             this.refs = this.objectRequestor.QueryInfoRefs(this.SingleBranch ? this.Branch : null);
 
@@ -617,6 +617,11 @@ namespace Scalar.CommandLine
                                 matchedBlobCount: out int _,
                                 downloadedBlobCount: out int _,
                                 hydratedFileCount: out int _);
+
+                if (prefetcher.HasFailures)
+                {
+                    return new Result("Failures while prefetching blobs");
+                }
             }
 
             if (this.git.ForceCheckout(this.Branch).ExitCodeIsFailure)
