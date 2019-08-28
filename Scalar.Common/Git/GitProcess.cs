@@ -413,7 +413,7 @@ namespace Scalar.Common.Git
 
         public Result ForceCheckout(string target)
         {
-            return this.InvokeGitInWorkingDirectoryRoot("checkout -f " + target, useReadObjectHook: false);
+            return this.InvokeGitInWorkingDirectoryRoot("checkout -f " + target, useReadObjectHook: true);
         }
 
         public Result ForceCheckoutAllFiles()
