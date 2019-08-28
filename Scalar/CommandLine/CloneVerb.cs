@@ -624,8 +624,13 @@ namespace Scalar.CommandLine
                 }
             }
 
-            if (this.git.ForceCheckout(this.Branch).ExitCodeIsFailure)
+            GitProcess.Result result = this.git.ForceCheckout(this.Branch);
+            if (result.ExitCodeIsFailure)
             {
+                EventMetadata metadata = new EventMetadata();
+                metadata["git-output"] = result.Output;
+                metadata["git-errors"] = result.Errors;
+                this.tracer.RelatedError(metadata, "Failed to checkout repo");
                 return new Result("Failed to checkout repo");
             }
 
