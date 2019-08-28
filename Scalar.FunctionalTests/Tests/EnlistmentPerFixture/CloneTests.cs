@@ -47,6 +47,24 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase]
+        public void SparseCloneWithNoPrefetchSucceeds()
+        {
+            ScalarFunctionalTestEnlistment enlistment = null;
+
+            try
+            {
+                enlistment = ScalarFunctionalTestEnlistment.CloneAndMountWithPerRepoCache(ScalarTestConfig.PathToScalar, skipPrefetch: true);
+
+                ProcessResult result = GitProcess.InvokeProcess(enlistment.RepoRoot, "status");
+                result.ExitCode.ShouldEqual(0, result.Errors);
+            }
+            finally
+            {
+                enlistment?.UnmountAndDeleteAll();
+            }
+        }
+
+        [TestCase]
         [Category(Categories.MacOnly)]
         [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
         public void CloneWithDefaultLocalCacheLocation()
