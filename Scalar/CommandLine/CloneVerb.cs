@@ -278,6 +278,8 @@ namespace Scalar.CommandLine
                     }
                 }
 
+                this.ConfigureWatchmanIntegration();
+
                 this.Execute<MountVerb>(
                    this.enlistment,
                     verb =>
@@ -292,6 +294,47 @@ namespace Scalar.CommandLine
             }
 
             return cloneResult;
+        }
+
+        private void ConfigureWatchmanIntegration()
+        {
+            string watchmanLocation = ProcessHelper.GetProgramLocation(ScalarPlatform.Instance.Constants.ProgramLocaterCommand, "watchman");
+            this.Output.Write("Configuring Watchman...");
+            if (string.IsNullOrEmpty(watchmanLocation))
+            {
+                this.Output.WriteLine("Skipping: Watchman not installed.");
+                this.tracer.RelatedWarning("Watchman is not installed - skipping Watchman configuration.");
+                return;
+            }
+
+            try
+            {
+                string fsMonitorWatchmanSampleHookPath = Path.Combine(
+                    this.enlistment.WorkingDirectoryBackingRoot,
+                    ScalarConstants.DotGit.Hooks.FsMonitorWatchmanSamplePath);
+
+                string queryWatchmanPath = Path.Combine(
+                    this.enlistment.WorkingDirectoryBackingRoot,
+                    ScalarConstants.DotGit.Hooks.QueryWatchmanPath);
+
+                this.fileSystem.CopyFile(
+                    fsMonitorWatchmanSampleHookPath,
+                    queryWatchmanPath,
+                    overwrite: false);
+
+                this.git.SetInLocalConfig("core.fsmonitor", ".git/hooks/query-watchman");
+
+                // Complete the Configuring Watchman progress line...
+                this.Output.WriteLine("Succeeded.");
+                this.tracer.RelatedWarning("Watchman configured!");
+            }
+            catch (IOException ex)
+            {
+                this.Output.WriteLine("Failed: Check clone logs for details.");
+                EventMetadata metadata = new EventMetadata();
+                metadata.Add("Exception", ex.ToString());
+                this.tracer.RelatedError(metadata, $"Failed to configure Watchman integration: {ex.Message}");
+            }
         }
 
         private Result TryCreateEnlistment(
