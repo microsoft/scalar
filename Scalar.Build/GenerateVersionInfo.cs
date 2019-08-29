@@ -39,10 +39,10 @@ namespace Scalar.PreBuild
                 this.VersionHeader,
                 string.Format(
 @"
-#define GVFS_FILE_VERSION {0}
-#define GVFS_FILE_VERSION_STRING ""{1}""
-#define GVFS_PRODUCT_VERSION {0}
-#define GVFS_PRODUCT_VERSION_STRING ""{1}""
+#define SCALAR_FILE_VERSION {0}
+#define SCALAR_FILE_VERSION_STRING ""{1}""
+#define SCALAR_PRODUCT_VERSION {0}
+#define SCALAR_PRODUCT_VERSION_STRING ""{1}""
 ",
                     commaDelimetedVersion,
                     this.Version));
