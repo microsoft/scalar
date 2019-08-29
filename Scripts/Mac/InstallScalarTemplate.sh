@@ -80,6 +80,15 @@ echo "=============================="
 echo "Installing GCM Core"
 sudo /usr/sbin/installer -pkg "$SCALAR_DISTRIBUTION_ROOT/GCM/$GCM_CORE_INSTALLER_PKG" -target /
 
+# Configure GCM
+# GCM Core installer does not current configure itself properly in all scenarios
+# Configure it here to ensure it is configured correctly
+echo ""
+echo "=============================="
+echo "Configuring Git to use GCM"
+sudo /usr/local/bin/git config --system credential.helper /usr/local/share/gcm-core/git-credential-manager
+sudo /usr/local/bin/git config --system credential.dev.azure.com.usehttppath true
+
 # Install Scalar
 echo ""
 echo "=============================="
