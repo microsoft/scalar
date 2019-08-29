@@ -80,4 +80,4 @@ cp -Rf "$SCALAR_INSTALLER_PKG_SRC_PATH" "$DISTRIBUTION_DIR/Scalar/$SCALAR_INSTAL
 /usr/bin/sed -e "s|##GIT_INSTALLER_PKG_PLACEHOLDER##|$GIT_INSTALLER_PKG|g" "$SCALAR_SCRIPT_DIR/InstallScalarTemplate.sh" > "$DISTRIBUTION_DIR/InstallScalar.sh"
 /usr/bin/sed -i.bak "s|##GCM_CORE_INSTALLER_PKG_PLACEHOLDER##|$GCM_INSTALLER_PKG|g" "$DISTRIBUTION_DIR/InstallScalar.sh"
 /usr/bin/sed -i.bak "s|##SCALAR_INSTALLER_PKG_PLACEHOLDER##|$SCALAR_INSTALLER_PKG|g" "$DISTRIBUTION_DIR/InstallScalar.sh"
-chmod +x "$DISTRIBUTION_DIR/InstallScalar.sh"
+/bin/chmod +x "$DISTRIBUTION_DIR/InstallScalar.sh"

@@ -115,7 +115,7 @@ if [ -f "$SCALAR_DISTRIBUTION_ROOT/Scripts/PostInstall.sh" ]; then
     echo ""
     echo "=============================="
     echo "Running post install script"
-    sudo bin/bash "$SCALAR_DISTRIBUTION_ROOT/Scripts/PostInstall.sh"
+    sudo /bin/bash "$SCALAR_DISTRIBUTION_ROOT/Scripts/PostInstall.sh"
 fi
 
 # Installation Complete!
