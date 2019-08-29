@@ -1,19 +1,25 @@
 #!/bin/sh
 # ---------------------------------------------------------
-# Scalar_Install.sh
+# ScalarInstall.sh
 #
 # Description: Main logic for installing Scalar and supporting
 #              Components. Before this script can be run, the
-#	       necessary versions must be configured via
-#	       environment variables.
+#	       necessary version configuration variables below
+#              must be set.
 # ---------------------------------------------------------
 
 set -e
 
+GIT_INSTALLER_PKG="##GIT_INSTALLER_PKG_PLACEHOLDER##"
+GCM_CORE_INSTALLER_PKG="##GCM_CORE_INSTALLER_PKG_PLACEHOLDER##"
+SCALAR_INSTALLER_PKG="##SCALAR_INSTALLER_PKG_PLACEHOLDER##"
+
+SCRIPTDIR="$(dirname ${BASH_SOURCE[0]})"
+
 ## Argument 1 is the directory containing the sources for installation
 ## Assume it is the current directory.
 SCALAR_DISTRIBUTION_ROOT=$1
-SCALAR_DISTRIBUTION_ROOT=${SCALAR_DISTRIBUTION_ROOT:-"./"}
+SCALAR_DISTRIBUTION_ROOT=${SCALAR_DISTRIBUTION_ROOT:-"$SCRIPTDIR"}
 
 echo ""
 echo "Welcome - running Scalar installation script"

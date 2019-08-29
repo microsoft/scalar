@@ -75,15 +75,9 @@ cp -Rf "$GIT_INSTALLER_PKG_SRC_PATH" "$DISTRIBUTION_DIR/Git/$GIT_INSTALLER_PKG"
 # Copy Scalar
 cp -Rf "$SCALAR_INSTALLER_PKG_SRC_PATH" "$DISTRIBUTION_DIR/Scalar/$SCALAR_INSTALLER_PKG"
 
-# Write out installer driver
-# ScalarInstallHelper.sh is the script with the main logic to perform the installation.
-# InstallScalar.sh is the entry point to run the installation that will set the necessary
-# environment variables and then call ScalarInstallHelper.sh to perform the actual installation.
-echo "export GIT_INSTALLER_PKG=\"$GIT_INSTALLER_PKG\"" >> $DISTRIBUTION_DIR/InstallScalar.sh
-echo "export GCM_CORE_INSTALLER_PKG=\"$GCM_INSTALLER_PKG\"" >> $DISTRIBUTION_DIR/InstallScalar.sh
-echo "export SCALAR_INSTALLER_PKG=\"$SCALAR_INSTALLER_PKG\"" >> $DISTRIBUTION_DIR/InstallScalar.sh
+# Write out Scalar Installation Script
 
-echo "/bin/bash ./ScalarInstallHelper.sh" >> $DISTRIBUTION_DIR/InstallScalar.sh
+/usr/bin/sed -e "s|##GIT_INSTALLER_PKG_PLACEHOLDER##|$GIT_INSTALLER_PKG|g" "$SCALAR_SCRIPT_DIR/InstallScalarTemplate.sh" > "$DISTRIBUTION_DIR/InstallScalar.sh"
+/usr/bin/sed -i.bak "s|##GCM_CORE_INSTALLER_PKG_PLACEHOLDER##|$GCM_INSTALLER_PKG|g" "$DISTRIBUTION_DIR/InstallScalar.sh"
+/usr/bin/sed -i.bak "s|##SCALAR_INSTALLER_PKG_PLACEHOLDER##|$SCALAR_INSTALLER_PKG|g" "$DISTRIBUTION_DIR/InstallScalar.sh"
 chmod +x "$DISTRIBUTION_DIR/InstallScalar.sh"
-
-cp "$SCALAR_SCRIPT_DIR/ScalarInstallHelper.sh" "$DISTRIBUTION_DIR"
