@@ -66,19 +66,19 @@ fi
 echo ""
 echo "=============================="
 echo "Installing Git for Mac for Scalar"
-sudo /usr/sbin/installer -pkg $SCALAR_DISTRIBUTION_ROOT/Git/$GIT_INSTALLER_PKG -target /
+sudo /usr/sbin/installer -pkg "$SCALAR_DISTRIBUTION_ROOT/Git/$GIT_INSTALLER_PKG" -target /
 
 # Install GCM Core
 echo ""
 echo "=============================="
 echo "Installing GCM Core"
-sudo /usr/sbin/installer -pkg $SCALAR_DISTRIBUTION_ROOT/GCM/$GCM_CORE_INSTALLER_PKG -target /
+sudo /usr/sbin/installer -pkg "$SCALAR_DISTRIBUTION_ROOT/GCM/$GCM_CORE_INSTALLER_PKG" -target /
 
 # Install Scalar
 echo ""
 echo "=============================="
 echo "Installing Scalar"
-sudo /usr/sbin/installer -pkg $SCALAR_DISTRIBUTION_ROOT/Scalar/$SCALAR_INSTALLER_PKG -target /
+sudo /usr/sbin/installer -pkg "$SCALAR_DISTRIBUTION_ROOT/Scalar/$SCALAR_INSTALLER_PKG" -target /
 
 echo ""
 echo "=============================="
@@ -92,7 +92,7 @@ if [ ! -z "$OPTIONAL_INSTALLER_PKG" ]; then
     echo ""
     echo "=============================="
     echo "Installing Optional Install Package"
-    sudo /usr/sbin/installer -pkg $SCALAR_DISTRIBUTION_ROOT/Optional/$OPTIONAL_INSTALLER_PKG -target /
+    sudo /usr/sbin/installer -pkg "$SCALAR_DISTRIBUTION_ROOT/Optional/$OPTIONAL_INSTALLER_PKG" -target /
 fi
 
 # Run the post install script (if any)
@@ -100,7 +100,7 @@ if [ -f "$SCALAR_DISTRIBUTION_ROOT/Scripts/PostInstall.sh" ]; then
     echo ""
     echo "=============================="
     echo "Running post install script"
-    sudo bin/bash $SCALAR_DISTRIBUTION_ROOT/Scripts/PostInstall.sh
+    sudo bin/bash "$SCALAR_DISTRIBUTION_ROOT/Scripts/PostInstall.sh"
 fi
 
 # Installation Complete!
