@@ -1,19 +1,25 @@
 #!/bin/sh
 # ---------------------------------------------------------
-# Scalar_Install.sh
+# ScalarInstall.sh
 #
 # Description: Main logic for installing Scalar and supporting
 #              Components. Before this script can be run, the
-#	       necessary versions must be configured via
-#	       environment variables.
+#	       necessary version configuration variables below
+#              must be set.
 # ---------------------------------------------------------
 
 set -e
 
+GIT_INSTALLER_PKG="##GIT_INSTALLER_PKG_PLACEHOLDER##"
+GCM_CORE_INSTALLER_PKG="##GCM_CORE_INSTALLER_PKG_PLACEHOLDER##"
+SCALAR_INSTALLER_PKG="##SCALAR_INSTALLER_PKG_PLACEHOLDER##"
+
+SCRIPTDIR="$(dirname ${BASH_SOURCE[0]})"
+
 ## Argument 1 is the directory containing the sources for installation
 ## Assume it is the current directory.
 SCALAR_DISTRIBUTION_ROOT=$1
-SCALAR_DISTRIBUTION_ROOT=${SCALAR_DISTRIBUTION_ROOT:-"./"}
+SCALAR_DISTRIBUTION_ROOT=${SCALAR_DISTRIBUTION_ROOT:-"$SCRIPTDIR"}
 
 echo ""
 echo "Welcome - running Scalar installation script"
@@ -66,19 +72,28 @@ fi
 echo ""
 echo "=============================="
 echo "Installing Git for Mac for Scalar"
-sudo /usr/sbin/installer -pkg $SCALAR_DISTRIBUTION_ROOT/Git/$GIT_INSTALLER_PKG -target /
+sudo /usr/sbin/installer -pkg "$SCALAR_DISTRIBUTION_ROOT/Git/$GIT_INSTALLER_PKG" -target /
 
 # Install GCM Core
 echo ""
 echo "=============================="
 echo "Installing GCM Core"
-sudo /usr/sbin/installer -pkg $SCALAR_DISTRIBUTION_ROOT/GCM/$GCM_CORE_INSTALLER_PKG -target /
+sudo /usr/sbin/installer -pkg "$SCALAR_DISTRIBUTION_ROOT/GCM/$GCM_CORE_INSTALLER_PKG" -target /
+
+# Configure GCM
+# GCM Core installer does not current configure itself properly in all scenarios
+# Configure it here to ensure it is configured correctly
+echo ""
+echo "=============================="
+echo "Configuring Git to use GCM"
+sudo /usr/local/bin/git config --system credential.helper /usr/local/share/gcm-core/git-credential-manager
+sudo /usr/local/bin/git config --system credential.dev.azure.com.usehttppath true
 
 # Install Scalar
 echo ""
 echo "=============================="
 echo "Installing Scalar"
-sudo /usr/sbin/installer -pkg $SCALAR_DISTRIBUTION_ROOT/Scalar/$SCALAR_INSTALLER_PKG -target /
+sudo /usr/sbin/installer -pkg "$SCALAR_DISTRIBUTION_ROOT/Scalar/$SCALAR_INSTALLER_PKG" -target /
 
 echo ""
 echo "=============================="
@@ -92,7 +107,7 @@ if [ ! -z "$OPTIONAL_INSTALLER_PKG" ]; then
     echo ""
     echo "=============================="
     echo "Installing Optional Install Package"
-    sudo /usr/sbin/installer -pkg $SCALAR_DISTRIBUTION_ROOT/Optional/$OPTIONAL_INSTALLER_PKG -target /
+    sudo /usr/sbin/installer -pkg "$SCALAR_DISTRIBUTION_ROOT/Optional/$OPTIONAL_INSTALLER_PKG" -target /
 fi
 
 # Run the post install script (if any)
@@ -100,7 +115,7 @@ if [ -f "$SCALAR_DISTRIBUTION_ROOT/Scripts/PostInstall.sh" ]; then
     echo ""
     echo "=============================="
     echo "Running post install script"
-    sudo bin/bash $SCALAR_DISTRIBUTION_ROOT/Scripts/PostInstall.sh
+    sudo /bin/bash "$SCALAR_DISTRIBUTION_ROOT/Scripts/PostInstall.sh"
 fi
 
 # Installation Complete!
