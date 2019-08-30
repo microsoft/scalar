@@ -1,6 +1,6 @@
 trigger:
   - master
-  - releases/shipped
+  - releases/*
 
 pr:
   - master
