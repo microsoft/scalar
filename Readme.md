@@ -16,6 +16,16 @@ also assists in setting up sparse enlistments.
 * [Trying Scalar](#trying-scalar)
 * [License](#license)
 
+### Installing on macOS
+
+To install Scalar on macOS, [download the .zip from the releases page](https://github.com/microsoft/scalar/releases).
+Extract the `Scalar.Distribution` folder, `cd` into it, and run `./InstallScalar.sh` in a Terminal window.
+The script may prompt for your password as it installs the following components:
+
+* [Git](https://github.com/microsoft/git) (with custom patches)
+* [Git Credential Manager Core](https://github.com/microsoft/Git-Credential-Manager-Core)
+* Scalar
+
 ### Quick Start
 
 If you want to get a feel for an initial workflow with a test project, here
