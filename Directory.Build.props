@@ -4,6 +4,6 @@
   This file should not be parsed when building with .NET Framework.
   See https://github.com/Microsoft/msbuild/issues/1603#issuecomment-283104367 for more info .-->
   <PropertyGroup>
-    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)\..\..\BuildOutput\$(MSBuildProjectName)\obj</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)\..\BuildOutput\$(MSBuildProjectName)\obj</BaseIntermediateOutputPath>
   </PropertyGroup>
 </Project>
