@@ -68,6 +68,8 @@ namespace Scalar.CommandLine
             // the upload pack so that extraneous objects don't get downloaded.
             FetchSkipReachabilityAndUploadPack = 1 << 4,
 
+            // 1 << 5 has been deprecated
+
             // GVFS_BLOCK_FILTERS_AND_EOL_CONVERSIONS
             // With a virtual file system we only know the file size before any
             // CRLF or smudge/clean filters processing is done on the client.
@@ -152,7 +154,6 @@ namespace Scalar.CommandLine
                 GitCoreGVFSFlags.SkipShaOnIndex |
                 GitCoreGVFSFlags.BlockCommands |
                 GitCoreGVFSFlags.MissingOk |
-                GitCoreGVFSFlags.NoDeleteOutsideSparseCheckout |
                 GitCoreGVFSFlags.FetchSkipReachabilityAndUploadPack)
                 .ToString();
 
