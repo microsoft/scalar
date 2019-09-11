@@ -151,7 +151,6 @@ namespace Scalar.CommandLine
             expectedHooksPath = Paths.ConvertPathToGitFormat(expectedHooksPath);
 
             string coreGVFSFlags = Convert.ToInt32(
-                GitCoreGVFSFlags.SkipShaOnIndex |
                 GitCoreGVFSFlags.BlockCommands |
                 GitCoreGVFSFlags.MissingOk |
                 GitCoreGVFSFlags.FetchSkipReachabilityAndUploadPack)
