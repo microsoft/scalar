@@ -29,11 +29,11 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
             string newScalarSubFolderName = "scalar";
             string newScalarSubFolderPath = Path.Combine(parentFolderName, newScalarSubFolderName);
 
-            this.Enlistment.GetVirtualPathTo(oldScalarSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(oldScalarSubFolderName);
+            this.Enlistment.GetSourcePath(oldScalarSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(oldScalarSubFolderName);
 
-            this.fileSystem.MoveFile(this.Enlistment.GetVirtualPathTo(oldScalarSubFolderPath), this.Enlistment.GetVirtualPathTo(newScalarSubFolderPath));
+            this.fileSystem.MoveFile(this.Enlistment.GetSourcePath(oldScalarSubFolderPath), this.Enlistment.GetSourcePath(newScalarSubFolderPath));
 
-            this.Enlistment.GetVirtualPathTo(newScalarSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newScalarSubFolderName);
+            this.Enlistment.GetSourcePath(newScalarSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newScalarSubFolderName);
 
             // Projected folder with a physical folder
             string oldTestsSubFolderName = "Scalar.FunctionalTests";
@@ -43,34 +43,34 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
 
             string fileToAdd = "NewFile.txt";
             string fileToAddContent = "This is new file text.";
-            string fileToAddPath = this.Enlistment.GetVirtualPathTo(Path.Combine(oldTestsSubFolderPath, fileToAdd));
+            string fileToAddPath = this.Enlistment.GetSourcePath(Path.Combine(oldTestsSubFolderPath, fileToAdd));
             this.fileSystem.WriteAllText(fileToAddPath, fileToAddContent);
 
-            this.Enlistment.GetVirtualPathTo(oldTestsSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(oldTestsSubFolderName);
+            this.Enlistment.GetSourcePath(oldTestsSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(oldTestsSubFolderName);
 
-            this.fileSystem.MoveFile(this.Enlistment.GetVirtualPathTo(oldTestsSubFolderPath), this.Enlistment.GetVirtualPathTo(newTestsSubFolderPath));
+            this.fileSystem.MoveFile(this.Enlistment.GetSourcePath(oldTestsSubFolderPath), this.Enlistment.GetSourcePath(newTestsSubFolderPath));
 
-            this.Enlistment.GetVirtualPathTo(newTestsSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newTestsSubFolderName);
+            this.Enlistment.GetSourcePath(newTestsSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newTestsSubFolderName);
 
             // Remount
             this.Enlistment.UnmountScalar();
             this.Enlistment.MountScalar();
 
-            this.Enlistment.GetVirtualPathTo(newScalarSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newScalarSubFolderName);
-            this.Enlistment.GetVirtualPathTo(newTestsSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newTestsSubFolderName);
-            this.Enlistment.GetVirtualPathTo(Path.Combine(newTestsSubFolderPath, fileToAdd)).ShouldBeAFile(this.fileSystem).WithContents().ShouldEqual(fileToAddContent);
+            this.Enlistment.GetSourcePath(newScalarSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newScalarSubFolderName);
+            this.Enlistment.GetSourcePath(newTestsSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(newTestsSubFolderName);
+            this.Enlistment.GetSourcePath(Path.Combine(newTestsSubFolderPath, fileToAdd)).ShouldBeAFile(this.fileSystem).WithContents().ShouldEqual(fileToAddContent);
 
             // Rename each folder again
             string finalScalarSubFolderName = "gvFS";
             string finalScalarSubFolderPath = Path.Combine(parentFolderName, finalScalarSubFolderName);
-            this.fileSystem.MoveFile(this.Enlistment.GetVirtualPathTo(newScalarSubFolderPath), this.Enlistment.GetVirtualPathTo(finalScalarSubFolderPath));
-            this.Enlistment.GetVirtualPathTo(finalScalarSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(finalScalarSubFolderName);
+            this.fileSystem.MoveFile(this.Enlistment.GetSourcePath(newScalarSubFolderPath), this.Enlistment.GetSourcePath(finalScalarSubFolderPath));
+            this.Enlistment.GetSourcePath(finalScalarSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(finalScalarSubFolderName);
 
             string finalTestsSubFolderName = "scalar.FunctionalTESTS";
             string finalTestsSubFolderPath = Path.Combine(parentFolderName, finalTestsSubFolderName);
-            this.fileSystem.MoveFile(this.Enlistment.GetVirtualPathTo(newTestsSubFolderPath), this.Enlistment.GetVirtualPathTo(finalTestsSubFolderPath));
-            this.Enlistment.GetVirtualPathTo(finalTestsSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(finalTestsSubFolderName);
-            this.Enlistment.GetVirtualPathTo(Path.Combine(finalTestsSubFolderPath, fileToAdd)).ShouldBeAFile(this.fileSystem).WithContents().ShouldEqual(fileToAddContent);
+            this.fileSystem.MoveFile(this.Enlistment.GetSourcePath(newTestsSubFolderPath), this.Enlistment.GetSourcePath(finalTestsSubFolderPath));
+            this.Enlistment.GetSourcePath(finalTestsSubFolderPath).ShouldBeADirectory(this.fileSystem).WithCaseMatchingName(finalTestsSubFolderName);
+            this.Enlistment.GetSourcePath(Path.Combine(finalTestsSubFolderPath, fileToAdd)).ShouldBeAFile(this.fileSystem).WithContents().ShouldEqual(fileToAddContent);
         }
     }
 }

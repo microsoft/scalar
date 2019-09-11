@@ -28,7 +28,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCaseSource(typeof(MountSubfolders), MountSubfolders.MountFolders)]
         public void SecondMountAttemptFails(string mountSubfolder)
         {
-            this.MountShouldFail(0, "already mounted", this.Enlistment.GetVirtualPathTo(mountSubfolder));
+            this.MountShouldFail(0, "already mounted", this.Enlistment.GetSourcePath(mountSubfolder));
         }
 
         [TestCase]
@@ -42,7 +42,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             this.Enlistment.UnmountScalar();
 
-            string readObjectPath = this.Enlistment.GetVirtualPathTo(".git", "hooks", "read-object" + Settings.Default.BinaryFileNameExtension);
+            string readObjectPath = this.Enlistment.GetSourcePath(".git", "hooks", "read-object" + Settings.Default.BinaryFileNameExtension);
             readObjectPath.ShouldBeAFile(this.fileSystem);
             this.fileSystem.DeleteFile(readObjectPath);
             readObjectPath.ShouldNotExistOnDisk(this.fileSystem);
@@ -225,7 +225,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             ScalarHelpers.SaveDiskLayoutVersion(this.Enlistment.DotScalarRoot, (majorVersionNum + 1).ToString(), "0");
 
-            this.MountShouldFail("do not allow mounting after downgrade", this.Enlistment.GetVirtualPathTo(mountSubfolder));
+            this.MountShouldFail("do not allow mounting after downgrade", this.Enlistment.GetSourcePath(mountSubfolder));
 
             ScalarHelpers.SaveDiskLayoutVersion(this.Enlistment.DotScalarRoot, majorVersionNum.ToString(), minorVersionNum.ToString());
             this.Enlistment.MountScalar();
@@ -250,7 +250,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // 1 will always be below the minumum support version number
             ScalarHelpers.SaveDiskLayoutVersion(this.Enlistment.DotScalarRoot, "1", "0");
-            this.MountShouldFail("Breaking change to Scalar disk layout has been made since cloning", this.Enlistment.GetVirtualPathTo(mountSubfolder));
+            this.MountShouldFail("Breaking change to Scalar disk layout has been made since cloning", this.Enlistment.GetSourcePath(mountSubfolder));
 
             ScalarHelpers.SaveDiskLayoutVersion(this.Enlistment.DotScalarRoot, majorVersionNum.ToString(), minorVersionNum.ToString());
             this.Enlistment.MountScalar();
@@ -300,7 +300,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 // Enumerate the directory to ensure that the folder is on disk after Scalar is unmounted
                 foreach (object[] folder in Folders)
                 {
-                    string folderPath = enlistment.GetVirtualPathTo((string)folder[0]);
+                    string folderPath = enlistment.GetSourcePath((string)folder[0]);
                     folderPath.ShouldBeADirectory(fileSystem).WithItems();
                 }
             }

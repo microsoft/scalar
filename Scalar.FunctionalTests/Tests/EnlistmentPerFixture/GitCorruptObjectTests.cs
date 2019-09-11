@@ -77,7 +77,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         private void RunGitDiffWithCorruptObject(Action<string> corruptObject)
         {
             string fileName = "Protocol.md";
-            string filePath = this.Enlistment.GetVirtualPathTo(fileName);
+            string filePath = this.Enlistment.GetSourcePath(fileName);
             string fileContents = filePath.ShouldBeAFile(this.fileSystem).WithContents();
             string newFileContents = "RunGitDiffWithCorruptObject";
             this.fileSystem.WriteAllText(filePath, newFileContents);
@@ -95,7 +95,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         private void RunGitCatFileWithCorruptObject(Action<string> corruptObject)
         {
             string fileName = "Readme.md";
-            string filePath = this.Enlistment.GetVirtualPathTo(fileName);
+            string filePath = this.Enlistment.GetSourcePath(fileName);
             string fileContents = filePath.ShouldBeAFile(this.fileSystem).WithContents();
 
             string sha;
@@ -110,7 +110,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         private void RunGitResetHardWithCorruptObject(Action<string> corruptObject)
         {
             string fileName = "Readme.md";
-            string filePath = this.Enlistment.GetVirtualPathTo(fileName);
+            string filePath = this.Enlistment.GetSourcePath(fileName);
             string fileContents = filePath.ShouldBeAFile(this.fileSystem).WithContents();
             string newFileContents = "RunGitDiffWithCorruptObject";
             this.fileSystem.WriteAllText(filePath, newFileContents);
@@ -127,7 +127,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         private void RunGitCheckoutOnFileWithCorruptObject(Action<string> corruptObject)
         {
             string fileName = "Readme.md";
-            string filePath = this.Enlistment.GetVirtualPathTo(fileName);
+            string filePath = this.Enlistment.GetSourcePath(fileName);
             string fileContents = filePath.ShouldBeAFile(this.fileSystem).WithContents();
             string newFileContents = "RunGitDiffWithCorruptObject";
             this.fileSystem.WriteAllText(filePath, newFileContents);
