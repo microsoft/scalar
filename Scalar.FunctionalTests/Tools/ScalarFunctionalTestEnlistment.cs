@@ -263,14 +263,14 @@ namespace Scalar.FunctionalTests.Tools
             this.DeleteEnlistment();
         }
 
-        public string GetVirtualPathTo(string path)
+        public string GetSourcePath(string path)
         {
             // Replace '/' with Path.DirectorySeparatorChar to ensure that any
             // Git paths are converted to system paths
             return Path.Combine(this.RepoRoot, path.Replace('/', Path.DirectorySeparatorChar));
         }
 
-        public string GetVirtualPathTo(params string[] pathParts)
+        public string GetSourcePath(params string[] pathParts)
         {
             return Path.Combine(this.RepoRoot, Path.Combine(pathParts));
         }

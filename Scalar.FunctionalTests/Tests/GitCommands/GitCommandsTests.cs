@@ -1021,7 +1021,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             this.ControlGitRepo.Fetch("FunctionalTests/20170202_RenameTestMergeSource");
 
             this.ValidateGitCommand("checkout FunctionalTests/20170202_RenameTestMergeTarget");
-            this.FileSystem.ReadAllText(this.Enlistment.GetVirtualPathTo("Test_EPF_GitCommandsTestOnlyFileFolder", "file.txt"));
+            this.FileSystem.ReadAllText(this.Enlistment.GetSourcePath("Test_EPF_GitCommandsTestOnlyFileFolder", "file.txt"));
             this.ValidateGitCommand("merge origin/FunctionalTests/20170202_RenameTestMergeSource");
         }
 

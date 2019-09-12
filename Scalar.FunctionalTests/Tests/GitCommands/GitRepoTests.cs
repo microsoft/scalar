@@ -529,7 +529,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
             // file.txt is a folder with a file named file.txt to test checking out branches
             // that have folders with the same name as files
-            this.FileSystem.EnumerateDirectory(this.Enlistment.GetVirtualPathTo("file.txt"));
+            this.FileSystem.EnumerateDirectory(this.Enlistment.GetSourcePath("file.txt"));
             this.ValidateFileDirectoryTest(command, commandBranch);
         }
 

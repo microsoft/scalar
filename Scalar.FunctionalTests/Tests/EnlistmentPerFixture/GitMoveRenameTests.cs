@@ -34,7 +34,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         public void GitStatusAfterNewFile()
         {
             string filename = "new.cs";
-            string filePath = this.Enlistment.GetVirtualPathTo(filename);
+            string filePath = this.Enlistment.GetSourcePath(filename);
 
             filePath.ShouldNotExistOnDisk(this.fileSystem);
             this.fileSystem.WriteAllText(filePath, this.testFileContents);
@@ -58,8 +58,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.EnsureTestFileExists(oldFilename);
 
             string newFilename = "New.cs";
-            string newFilePath = this.Enlistment.GetVirtualPathTo(newFilename);
-            this.fileSystem.MoveFile(this.Enlistment.GetVirtualPathTo(oldFilename), newFilePath);
+            string newFilePath = this.Enlistment.GetSourcePath(newFilename);
+            this.fileSystem.MoveFile(this.Enlistment.GetSourcePath(oldFilename), newFilePath);
 
             GitHelpers.CheckGitCommandAgainstScalarRepo(
                 this.Enlistment.RepoRoot,
@@ -78,8 +78,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.EnsureTestFileExists(oldFilename);
 
             string newFilename = "test.cs";
-            string newFilePath = this.Enlistment.GetVirtualPathTo(newFilename);
-            this.fileSystem.MoveFile(this.Enlistment.GetVirtualPathTo(oldFilename), newFilePath);
+            string newFilePath = this.Enlistment.GetSourcePath(newFilename);
+            this.fileSystem.MoveFile(this.Enlistment.GetSourcePath(oldFilename), newFilePath);
 
             GitHelpers.CheckGitCommandAgainstScalarRepo(
                 this.Enlistment.RepoRoot,
@@ -93,7 +93,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         public void GitStatusAndObjectAfterGitAdd()
         {
             string existingFilename = "test.cs";
-            this.Enlistment.GetVirtualPathTo(existingFilename).ShouldBeAFile(this.fileSystem);
+            this.Enlistment.GetSourcePath(existingFilename).ShouldBeAFile(this.fileSystem);
 
             GitHelpers.CheckGitCommandAgainstScalarRepo(
                 this.Enlistment.RepoRoot,
@@ -128,7 +128,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         public void GitStatusAfterUnstage()
         {
             string existingFilename = "test.cs";
-            this.Enlistment.GetVirtualPathTo(existingFilename).ShouldBeAFile(this.fileSystem);
+            this.Enlistment.GetSourcePath(existingFilename).ShouldBeAFile(this.fileSystem);
 
             GitHelpers.CheckGitCommandAgainstScalarRepo(
                 this.Enlistment.RepoRoot,
@@ -148,8 +148,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             string existingFilename = "test.cs";
             this.EnsureTestFileExists(existingFilename);
-            this.fileSystem.DeleteFile(this.Enlistment.GetVirtualPathTo(existingFilename));
-            this.Enlistment.GetVirtualPathTo(existingFilename).ShouldNotExistOnDisk(this.fileSystem);
+            this.fileSystem.DeleteFile(this.Enlistment.GetSourcePath(existingFilename));
+            this.Enlistment.GetSourcePath(existingFilename).ShouldNotExistOnDisk(this.fileSystem);
 
             GitHelpers.CheckGitCommandAgainstScalarRepo(
                 this.Enlistment.RepoRoot,
@@ -190,7 +190,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             filePath.ShouldBeAFile(this.fileSystem).WithContents(this.testFileContents);
 
             string renamedFileName = Path.Combine("GVFlt_MoveFileTest", "GitStatusAfterRenameFileIntoRepo.cs");
-            string renamedFilePath = this.Enlistment.GetVirtualPathTo(renamedFileName);
+            string renamedFilePath = this.Enlistment.GetSourcePath(renamedFileName);
             this.fileSystem.MoveFile(filePath, renamedFilePath);
             filePath.ShouldNotExistOnDisk(this.fileSystem);
             renamedFilePath.ShouldBeAFile(this.fileSystem);
@@ -210,8 +210,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // Move the test file to this.Enlistment.EnlistmentRoot as it's outside of src
             // and is cleaned up when the functional tests run
-            this.fileSystem.MoveFile(this.Enlistment.GetVirtualPathTo(existingFilename), Path.Combine(this.Enlistment.EnlistmentRoot, "Program.cs"));
-            this.Enlistment.GetVirtualPathTo(existingFilename).ShouldNotExistOnDisk(this.fileSystem);
+            this.fileSystem.MoveFile(this.Enlistment.GetSourcePath(existingFilename), Path.Combine(this.Enlistment.EnlistmentRoot, "Program.cs"));
+            this.Enlistment.GetSourcePath(existingFilename).ShouldNotExistOnDisk(this.fileSystem);
 
             ProcessResult result = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "status");
             result.Output.ShouldContain("On branch " + Properties.Settings.Default.Commitish);
@@ -235,7 +235,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem.WriteAllText(filePath, this.testFileContents);
             filePath.ShouldBeAFile(this.fileSystem).WithContents(this.testFileContents);
 
-            this.fileSystem.MoveDirectory(folderPath, this.Enlistment.GetVirtualPathTo(folderName));
+            this.fileSystem.MoveDirectory(folderPath, this.Enlistment.GetSourcePath(folderName));
 
             GitHelpers.CheckGitCommandAgainstScalarRepo(
                 this.Enlistment.RepoRoot,
@@ -248,13 +248,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         private void EnsureTestFileExists(string relativePath)
         {
-            string filePath = this.Enlistment.GetVirtualPathTo(relativePath);
+            string filePath = this.Enlistment.GetSourcePath(relativePath);
             if (!this.fileSystem.FileExists(filePath))
             {
                 this.fileSystem.WriteAllText(filePath, this.testFileContents);
             }
 
-            this.Enlistment.GetVirtualPathTo(relativePath).ShouldBeAFile(this.fileSystem);
+            this.Enlistment.GetSourcePath(relativePath).ShouldBeAFile(this.fileSystem);
         }
     }
 }
