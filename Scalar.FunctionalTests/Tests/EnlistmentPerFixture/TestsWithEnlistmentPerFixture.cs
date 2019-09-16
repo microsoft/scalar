@@ -8,11 +8,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
     {
         private readonly bool forcePerRepoObjectCache;
         private readonly bool skipPrefetchDuringClone;
+        private readonly bool fullClone;
 
-        public TestsWithEnlistmentPerFixture(bool forcePerRepoObjectCache = false, bool skipPrefetchDuringClone = false)
+        public TestsWithEnlistmentPerFixture(bool forcePerRepoObjectCache = false, bool skipPrefetchDuringClone = false, bool fullClone = true)
         {
             this.forcePerRepoObjectCache = forcePerRepoObjectCache;
             this.skipPrefetchDuringClone = skipPrefetchDuringClone;
+            this.fullClone = fullClone;
         }
 
         public ScalarFunctionalTestEnlistment Enlistment
@@ -29,7 +31,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             }
             else
             {
-                this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMount(ScalarTestConfig.PathToScalar);
+                this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMount(ScalarTestConfig.PathToScalar, fullClone: this.fullClone);
             }
         }
 
