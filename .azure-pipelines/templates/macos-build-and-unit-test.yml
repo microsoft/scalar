@@ -5,6 +5,12 @@ steps:
     inputs:
       packageType: sdk
       version: '2.1.301'
+      
+  - task: InstallAppleCertificate@2	
+    displayName: 'Install Apple certificate'	
+    inputs:	
+      certSecureFile: 'PrjFSKextCertExpiresJun6_2020_v2.p12'	
+      certPwd: '$(kext.certificate.password)'	
 
   - script: Scripts/Mac/BuildScalarForMac.sh $(configuration) $(majorAndMinorVersion).$(revision)
     displayName: Build Scalar ($(configuration))
