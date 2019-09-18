@@ -63,7 +63,7 @@ namespace Scalar.FunctionalTests.Tools
             return this.CallScalar("prefetch \"" + this.enlistmentRoot + "\" " + args, failOnError ? SuccessExitCode : DoNotCheckExitCode, standardInput: standardInput);
         }
 
-        public string SparseAdd(IEnumerable<string> folders)
+        public string SparseSet(IEnumerable<string> folders)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -74,7 +74,7 @@ namespace Scalar.FunctionalTests.Tools
                 sb.Append("\n");
             }
 
-            return this.CallScalar("sparse --add-stdin \"" + this.enlistmentRoot + "\" ", SuccessExitCode, standardInput: sb.ToString());
+            return this.CallScalar("sparse --set-stdin \"" + this.enlistmentRoot + "\" ", SuccessExitCode, standardInput: sb.ToString());
         }
 
         public void Repair(bool confirm)

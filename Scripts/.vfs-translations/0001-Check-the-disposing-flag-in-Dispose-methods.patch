@@ -1,0 +1,106 @@
+From 26da1a7d917b21ded1c1160c0f3f0551f04f39b4 Mon Sep 17 00:00:00 2001
+From: Kevin Willford <kewillf@microsoft.com>
+Date: Wed, 4 Sep 2019 10:13:21 -0600
+Subject: [PATCH] Check the disposing flag in Dispose methods
+
+When implementing Dispose the disposing flag needs to be checked so that
+objects that may have already been disposed of through gc will not be used
+and cause a ObjectDisposedException.
+---
+ GVFS/GVFS.Common/GVFSContext.cs                 |  1 +
+ GVFS/GVFS.Common/Git/HashingStream.cs           | 17 ++++++++++-------
+ GVFS/GVFS.Service/GVFSService.Windows.cs        | 13 ++++++++-----
+ .../BackgroundFileSystemTaskRunner.cs           |  9 ++++++---
+ 4 files changed, 25 insertions(+), 15 deletions(-)
+
+diff --git a/GVFS/GVFS.Common/GVFSContext.cs b/GVFS/GVFS.Common/GVFSContext.cs
+index 67636d6f..3e79d7d2 100644
+--- a/GVFS/GVFS.Common/GVFSContext.cs
++++ b/GVFS/GVFS.Common/GVFSContext.cs
+@@ -28,6 +28,7 @@ namespace GVFS.Common
+         public void Dispose()
+         {
+             this.Dispose(true);
++            GC.SuppressFinalize(this);
+         }
+ 
+         protected virtual void Dispose(bool disposing)
+diff --git a/GVFS/GVFS.Common/Git/HashingStream.cs b/GVFS/GVFS.Common/Git/HashingStream.cs
+index d99c933a..c0630362 100644
+--- a/GVFS/GVFS.Common/Git/HashingStream.cs
++++ b/GVFS/GVFS.Common/Git/HashingStream.cs
+@@ -108,15 +108,18 @@ namespace GVFS.Common.Git
+ 
+         protected override void Dispose(bool disposing)
+         {
+-            if (this.hash != null)
++            if (disposing)
+             {
+-                this.hash.Dispose();
+-            }
++                if (this.hash != null)
++                {
++                    this.hash.Dispose();
++                }
+ 
+-            if (this.stream != null)
+-            {
+-                this.stream.Dispose();
+-                this.stream = null;
++                if (this.stream != null)
++                {
++                    this.stream.Dispose();
++                    this.stream = null;
++                }
+             }
+ 
+             base.Dispose(disposing);
+diff --git a/GVFS/GVFS.Service/GVFSService.Windows.cs b/GVFS/GVFS.Service/GVFSService.Windows.cs
+index 35668df2..f8368235 100644
+--- a/GVFS/GVFS.Service/GVFSService.Windows.cs
++++ b/GVFS/GVFS.Service/GVFSService.Windows.cs
+@@ -211,12 +211,15 @@ namespace GVFS.Service
+ 
+         protected override void Dispose(bool disposing)
+         {
+-            this.StopRunning();
+-
+-            if (this.tracer != null)
++            if (disposing)
+             {
+-                this.tracer.Dispose();
+-                this.tracer = null;
++                this.StopRunning();
++
++                if (this.tracer != null)
++                {
++                    this.tracer.Dispose();
++                    this.tracer = null;
++                }
+             }
+ 
+             base.Dispose(disposing);
+diff --git a/GVFS/GVFS.Virtualization/Background/BackgroundFileSystemTaskRunner.cs b/GVFS/GVFS.Virtualization/Background/BackgroundFileSystemTaskRunner.cs
+index 0507910d..0b6be899 100644
+--- a/GVFS/GVFS.Virtualization/Background/BackgroundFileSystemTaskRunner.cs
++++ b/GVFS/GVFS.Virtualization/Background/BackgroundFileSystemTaskRunner.cs
+@@ -124,10 +124,13 @@ namespace GVFS.Virtualization.Background
+ 
+         protected void Dispose(bool disposing)
+         {
+-            if (this.backgroundThread != null)
++            if (disposing)
+             {
+-                this.backgroundThread.Dispose();
+-                this.backgroundThread = null;
++                if (this.backgroundThread != null)
++                {
++                    this.backgroundThread.Dispose();
++                    this.backgroundThread = null;
++                }
+             }
+         }
+ 
+-- 
+2.22.0.vfs.1.1.29.g8a00515
+
