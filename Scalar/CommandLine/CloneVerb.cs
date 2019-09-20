@@ -75,6 +75,7 @@ namespace Scalar.CommandLine
             HelpText = "Use this option to not prefetch commits after clone")]
         public bool NoPrefetch { get; set; }
 
+        // By default this is "Drive\.scalarCache"
         [Option(
             "local-cache-path",
             Required = false,
@@ -431,7 +432,6 @@ namespace Scalar.CommandLine
 
             Directory.CreateDirectory(this.enlistment.GitObjectsRoot);
             Directory.CreateDirectory(this.enlistment.GitPackRoot);
-            Directory.CreateDirectory(this.enlistment.BlobSizesRoot);
 
             return new Result(true);
         }

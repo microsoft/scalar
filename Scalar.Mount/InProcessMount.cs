@@ -75,12 +75,6 @@ namespace Scalar.Mount
                 this.FailMountAndExit("Failed to determine local cache path from repo metadata: " + error);
             }
 
-            string blobSizesRoot;
-            if (!RepoMetadata.Instance.TryGetBlobSizesRoot(out blobSizesRoot, out error))
-            {
-                this.FailMountAndExit("Failed to determine blob sizes root from repo metadata: " + error);
-            }
-
             this.tracer.RelatedEvent(
                 EventLevel.Informational,
                 "CachePathsLoaded",
@@ -88,10 +82,9 @@ namespace Scalar.Mount
                 {
                     { "gitObjectsRoot", gitObjectsRoot },
                     { "localCacheRoot", localCacheRoot },
-                    { "blobSizesRoot", blobSizesRoot },
                 });
 
-            this.enlistment.InitializeCachePaths(localCacheRoot, gitObjectsRoot, blobSizesRoot);
+            this.enlistment.InitializeCachePaths(localCacheRoot, gitObjectsRoot);
 
             using (NamedPipeServer pipeServer = this.StartNamedPipe())
             {

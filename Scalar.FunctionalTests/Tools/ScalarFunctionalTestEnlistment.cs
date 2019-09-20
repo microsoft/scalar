@@ -144,7 +144,7 @@ namespace Scalar.FunctionalTests.Tools
             objectRootFolder.ShouldNotBeNull();
             objectRootFolder.Length.ShouldBeAtLeast(1, $"Invalid object root folder: {objectRootFolder} for {this.RepoUrl} mapping file content: {mappingFileContents}");
 
-            return Path.Combine(this.LocalCacheRoot, objectRootFolder, "gitObjects");
+            return Path.Combine(this.LocalCacheRoot, objectRootFolder);
         }
 
         public string GetPackRoot(FileSystemRunner fileSystem)

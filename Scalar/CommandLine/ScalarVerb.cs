@@ -837,18 +837,7 @@ You can specify a URL, a name of a configured cache server, or the special names
 
                 // Note: localCacheRoot is allowed to be empty, this can occur when upgrading from disk layout version 11 to 12
 
-                string blobSizesRoot;
-                if (!RepoMetadata.Instance.TryGetBlobSizesRoot(out blobSizesRoot, out error))
-                {
-                    this.ReportErrorAndExit(tracer, "Failed to determine blob sizes root from repo metadata: " + error);
-                }
-
-                if (string.IsNullOrWhiteSpace(blobSizesRoot))
-                {
-                    this.ReportErrorAndExit(tracer, "Invalid blob sizes root (empty or whitespace)");
-                }
-
-                enlistment.InitializeCachePaths(localCacheRoot, gitObjectsRoot, blobSizesRoot);
+                enlistment.InitializeCachePaths(localCacheRoot, gitObjectsRoot);
             }
 
             private void EnsureLocalCacheIsHealthy(
@@ -976,10 +965,9 @@ You can specify a URL, a name of a configured cache server, or the special names
                     tracer.RelatedEvent(EventLevel.Informational, "ScalarVerb_EnsureLocalCacheIsHealthy_InitializePathsFromKey", metadata);
                     enlistment.InitializeCachePathsFromKey(enlistment.LocalCacheRoot, localCacheKey);
 
-                    tracer.RelatedInfo($"{nameof(this.EnsureLocalCacheIsHealthy)}: Creating GitObjectsRoot ({enlistment.GitObjectsRoot}), GitPackRoot ({enlistment.GitPackRoot}), and BlobSizesRoot ({enlistment.BlobSizesRoot})");
+                    tracer.RelatedInfo($"{nameof(this.EnsureLocalCacheIsHealthy)}: Creating GitObjectsRoot ({enlistment.GitObjectsRoot}), and GitPackRoot ({enlistment.GitPackRoot})");
                     try
                     {
-                        Directory.CreateDirectory(enlistment.GitObjectsRoot);
                         Directory.CreateDirectory(enlistment.GitPackRoot);
                     }
                     catch (Exception e)
@@ -989,7 +977,6 @@ You can specify a URL, a name of a configured cache server, or the special names
                         exceptionMetadata.Add("enlistment.LocalCacheRoot", enlistment.LocalCacheRoot);
                         exceptionMetadata.Add("enlistment.GitObjectsRoot", enlistment.GitObjectsRoot);
                         exceptionMetadata.Add("enlistment.GitPackRoot", enlistment.GitPackRoot);
-                        exceptionMetadata.Add("enlistment.BlobSizesRoot", enlistment.BlobSizesRoot);
                         tracer.RelatedError(exceptionMetadata, $"{nameof(this.InitializeLocalCacheAndObjectsPaths)}: Exception while trying to create objects, pack, and sizes folders");
 
                         this.ReportErrorAndExit(tracer, "Failed to create objects, pack, and sizes folders");
@@ -1003,30 +990,6 @@ You can specify a URL, a name of a configured cache server, or the special names
 
                     tracer.RelatedInfo($"{nameof(this.EnsureLocalCacheIsHealthy)}: Saving git objects root ({enlistment.GitObjectsRoot}) in repo metadata");
                     RepoMetadata.Instance.SetGitObjectsRoot(enlistment.GitObjectsRoot);
-
-                    tracer.RelatedInfo($"{nameof(this.EnsureLocalCacheIsHealthy)}: Saving blob sizes root ({enlistment.BlobSizesRoot}) in repo metadata");
-                    RepoMetadata.Instance.SetBlobSizesRoot(enlistment.BlobSizesRoot);
-                }
-
-                // Validate that the BlobSizesRoot folder is on disk.
-                // Note that if a user performed an action that resulted in the entire .scalarcache being deleted, the code above
-                // for validating GitObjectsRoot will have already taken care of generating a new key and setting a new enlistment.BlobSizesRoot path
-                if (!Directory.Exists(enlistment.BlobSizesRoot))
-                {
-                    tracer.RelatedInfo($"{nameof(this.EnsureLocalCacheIsHealthy)}: BlobSizesRoot ({enlistment.BlobSizesRoot}) not found, re-creating");
-                    try
-                    {
-                        Directory.CreateDirectory(enlistment.BlobSizesRoot);
-                    }
-                    catch (Exception e)
-                    {
-                        EventMetadata exceptionMetadata = new EventMetadata();
-                        exceptionMetadata.Add("Exception", e.ToString());
-                        exceptionMetadata.Add("enlistment.BlobSizesRoot", enlistment.BlobSizesRoot);
-                        tracer.RelatedError(exceptionMetadata, $"{nameof(this.InitializeLocalCacheAndObjectsPaths)}: Exception while trying to create blob sizes folder");
-
-                        this.ReportErrorAndExit(tracer, "Failed to create blob sizes folder");
-                    }
                 }
             }
 
