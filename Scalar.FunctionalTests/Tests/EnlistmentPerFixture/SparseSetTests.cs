@@ -13,7 +13,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
     [Category(Categories.GitCommands)]
     public class SparseSetTests : TestsWithEnlistmentPerFixture
     {
-        private const string SetFailureMessage = "Failed to set folders to sparse-checkout";
+        private const string SetFailureMessage = "Failed to run 'git sparse-checkout set'";
 
         private const string FolderDotGit = ".git";
         private const string FolderDeleteFileTests = "DeleteFileTests";

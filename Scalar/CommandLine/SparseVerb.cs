@@ -2,6 +2,7 @@
 using Scalar.Common;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
+using Scalar.Common.Prefetch;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,6 @@ Folders need to be relative to the repo's root directory.")
     public class SparseVerb : ScalarVerb.ForExistingEnlistment
     {
         private const string SparseVerbName = "sparse";
-        private const string FolderListSeparator = ";";
 
         [Option(
             's',
@@ -68,36 +68,24 @@ Folders need to be relative to the repo's root directory.")
                         this.ReportErrorAndExit(tracer, "You must specify folders to set with --set or --set-stdin");
                     }
 
-                    List<string> foldersToSet = null;
+                    List<string> foldersToSet = new List<string>();
 
-                    // Pre-fetch the blobs for the folders that will be added and
-                    // rely on PrefetchVerb for parsing the the list of folders
-                    ReturnCode result = this.Execute<PrefetchVerb>(
-                            enlistment,
-                            verb =>
-                            {
-                                verb.Commits = false;
-                                verb.ResolvedCacheServer = cacheServer;
-                                verb.SkipVersionCheck = false;
-                                verb.Files = string.Empty;
-                                verb.Folders = this.FoldersToSet;
-                                verb.FoldersFromStdIn = this.SetFromStdIn;
-                            },
-                            verb =>
-                            {
-                                foldersToSet = verb.ParsedFoldersList;
-                            });
-
-                    if (result != ReturnCode.Success)
+                    if (!BlobPrefetcher.TryLoadFolderList(
+                                            enlistment,
+                                            this.FoldersToSet,
+                                            folderListFile: null,
+                                            folderListOutput: foldersToSet,
+                                            readListFromStdIn: this.SetFromStdIn,
+                                            error: out string error))
                     {
-                        this.ReportErrorAndExit(tracer, "\r\nError during prefetch @ {0}", enlistment.EnlistmentRoot);
+                        this.ReportErrorAndExit(tracer, "Failed to parse input folders");
                     }
 
                     this.SparseCheckoutSet(tracer, enlistment, foldersToSet);
                 }
                 catch (Exception e)
                 {
-                    this.ReportErrorAndExit(tracer, "Failed to set folders to sparse-checkout {0}", e.Message);
+                    this.ReportErrorAndExit(tracer, "Failed to set folders to sparse-checkout {0}\n{1}", e.Message, e.StackTrace);
                 }
             }
         }
@@ -109,7 +97,7 @@ Folders need to be relative to the repo's root directory.")
 
             if (sparseResult.ExitCodeIsFailure)
             {
-                this.WriteMessage(tracer, $"Failed to set folders to sparse-checkout: {sparseResult.Errors}");
+                this.WriteMessage(tracer, $"Failed to run 'git sparse-checkout set': {sparseResult.Errors}");
             }
         }
 
