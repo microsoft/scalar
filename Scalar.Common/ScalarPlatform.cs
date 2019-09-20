@@ -164,11 +164,6 @@ namespace Scalar.Common
             /// </summary>
             public abstract HashSet<string> UpgradeBlockingProcesses { get; }
 
-            public string ScalarReadObjectHookExecutableName
-            {
-                get { return "Scalar.ReadObjectHook" + this.ExecutableExtension; }
-            }
-
             public string MountExecutableName
             {
                 get { return "Scalar.Mount" + this.ExecutableExtension; }

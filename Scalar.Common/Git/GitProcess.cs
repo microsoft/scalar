@@ -588,7 +588,7 @@ namespace Scalar.Common.Git
             return this.InvokeGitAgainstDotGitFolder($"-c pack.threads=1 multi-pack-index repack --object-dir=\"{gitObjectDirectory}\" --batch-size={batchSize}");
         }
 
-        public Process GetGitProcess(string command, string workingDirectory, string dotGitDirectory, bool useReadObjectHook, bool redirectStandardError, string gitObjectsDirectory)
+        public Process GetGitProcess(string command, string workingDirectory, string dotGitDirectory, bool fetchMissingObjects, bool redirectStandardError, string gitObjectsDirectory)
         {
             ProcessStartInfo processInfo = new ProcessStartInfo(this.gitBinPath);
             processInfo.WorkingDirectory = workingDirectory;
@@ -632,9 +632,9 @@ namespace Scalar.Common.Git
                 processInfo.EnvironmentVariables["GIT_OBJECT_DIRECTORY"] = gitObjectsDirectory;
             }
 
-            if (!useReadObjectHook)
+            if (!fetchMissingObjects)
             {
-                command = "-c " + GitConfigSetting.CoreVirtualizeObjectsName + "=false " + command;
+                command = "-c " + "core.usegvfshelper=false " + command;
             }
 
             if (!string.IsNullOrEmpty(dotGitDirectory))
@@ -670,7 +670,13 @@ namespace Scalar.Common.Git
                 // From https://msdn.microsoft.com/en-us/library/system.diagnostics.process.standardoutput.aspx
                 // To avoid deadlocks, use asynchronous read operations on at least one of the streams.
                 // Do not perform a synchronous read to the end of both redirected streams.
-                using (this.executingProcess = this.GetGitProcess(command, workingDirectory, dotGitDirectory, useReadObjectHook, redirectStandardError: true, gitObjectsDirectory: gitObjectsDirectory))
+                using (this.executingProcess = this.GetGitProcess(
+                                                        command,
+                                                        workingDirectory,
+                                                        dotGitDirectory,
+                                                        fetchMissingObjects: useReadObjectHook,
+                                                        redirectStandardError: true,
+                                                        gitObjectsDirectory: gitObjectsDirectory))
                 {
                     StringBuilder output = new StringBuilder();
                     StringBuilder errors = new StringBuilder();

@@ -54,9 +54,6 @@ echo 'Restoring packages...'
 dotnet restore $Scalar_SRCDIR/Scalar.sln /p:Configuration=$CONFIGURATION.Mac --packages $Scalar_PACKAGESDIR /warnasmessage:MSB4011 || exit 1
 dotnet build $Scalar_SRCDIR/Scalar.sln --runtime osx-x64 --framework netcoreapp2.1 --configuration $CONFIGURATION.Mac /maxcpucount:1 /warnasmessage:MSB4011 || exit 1
 
-NATIVEDIR=$Scalar_SRCDIR/Scalar.Native.Mac
-xcodebuild -configuration $CONFIGURATION -workspace $NATIVEDIR/Scalar.Native.Mac.xcworkspace build -scheme Scalar.Native.Mac -derivedDataPath $Scalar_OUTPUTDIR/Scalar.Native.Mac || exit 1
-
 USERNOTIFICATIONDIR=$Scalar_SRCDIR/Scalar.Notifications/Scalar.Mac
 USERNOTIFICATIONPROJECT="$USERNOTIFICATIONDIR/Scalar.xcodeproj"
 USERNOTIFICATIONSCHEME="Scalar"
@@ -75,9 +72,6 @@ xcodebuild -configuration $CONFIGURATION -project "$USERNOTIFICATIONPROJECT" tes
 if [ ! -d $Scalar_PUBLISHDIR ]; then
   mkdir $Scalar_PUBLISHDIR || exit 1
 fi
-
-echo 'Copying native binaries to Publish directory...'
-cp $Scalar_OUTPUTDIR/Scalar.Native.Mac/Build/Products/$CONFIGURATION/Scalar.ReadObjectHook $Scalar_PUBLISHDIR || exit 1
 
 # Publish after native build, so installer package can include the native binaries.
 dotnet publish $Scalar_SRCDIR/Scalar.sln /p:Configuration=$CONFIGURATION.Mac /p:Platform=x64 --runtime osx-x64 --framework netcoreapp2.1 --self-contained --output $Scalar_PUBLISHDIR /maxcpucount:1 /warnasmessage:MSB4011 || exit 1

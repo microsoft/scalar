@@ -38,19 +38,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase]
-        public void MountCopiesMissingReadObjectHook()
-        {
-            this.Enlistment.UnmountScalar();
-
-            string readObjectPath = this.Enlistment.GetSourcePath(".git", "hooks", "read-object" + Settings.Default.BinaryFileNameExtension);
-            readObjectPath.ShouldBeAFile(this.fileSystem);
-            this.fileSystem.DeleteFile(readObjectPath);
-            readObjectPath.ShouldNotExistOnDisk(this.fileSystem);
-            this.Enlistment.MountScalar();
-            readObjectPath.ShouldBeAFile(this.fileSystem);
-        }
-
-        [TestCase]
         public void MountSetsCoreHooksPath()
         {
             this.Enlistment.UnmountScalar();

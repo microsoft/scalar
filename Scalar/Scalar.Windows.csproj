@@ -160,9 +160,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(BuildOutputDir)\Scalar.ReadObjectHook.Windows\bin\$(Platform)\$(Configuration)\Scalar.ReadObjectHook.* $(TargetDir)</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
