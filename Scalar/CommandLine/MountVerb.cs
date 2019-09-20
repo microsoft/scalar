@@ -87,11 +87,6 @@ namespace Scalar.CommandLine
                 GitRepo gitRepo = new GitRepo(tracer, enlistment, fileSystem);
                 ScalarContext context = new ScalarContext(tracer, fileSystem, gitRepo, enlistment);
 
-                if (!HooksInstaller.InstallHooks(context, out errorMessage))
-                {
-                    this.ReportErrorAndExit("Error installing hooks: " + errorMessage);
-                }
-
                 CacheServerInfo cacheServer = this.ResolvedCacheServer ?? CacheServerResolver.GetCacheServerFromConfig(enlistment);
 
                 tracer.AddLogFileEventListener(

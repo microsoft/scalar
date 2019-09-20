@@ -570,13 +570,6 @@ namespace Scalar.CommandLine
                 return new Result(errorMessage);
             }
 
-            string installHooksError;
-            if (!HooksInstaller.InstallHooks(this.context, out installHooksError))
-            {
-                this.tracer.RelatedError(installHooksError);
-                return new Result(installHooksError);
-            }
-
             if (!RepoMetadata.TryInitialize(this.tracer, this.enlistment.DotScalarRoot, out errorMessage))
             {
                 this.tracer.RelatedError(errorMessage);

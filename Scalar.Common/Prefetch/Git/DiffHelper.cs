@@ -217,7 +217,6 @@ namespace Scalar.Common.Prefetch.Git
             }
         }
 
-        // public for unit testing
         /// <summary>
         /// Return true if the specific file path should be included in the cone specified
         /// by the folderList that was provided when constructing the DiffHelper.
