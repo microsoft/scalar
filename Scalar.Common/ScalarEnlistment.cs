@@ -11,10 +11,6 @@ namespace Scalar.Common
 {
     public partial class ScalarEnlistment : Enlistment
     {
-        public const string BlobSizesCacheName = "blobSizes";
-
-        private const string GitObjectCacheName = "gitObjects";
-
         private string gitVersion;
         private string scalarVersion;
 
@@ -54,8 +50,6 @@ namespace Scalar.Common
         public string ScalarLogsRoot { get; }
 
         public string LocalCacheRoot { get; private set; }
-
-        public string BlobSizesRoot { get; private set; }
 
         public override string GitObjectsRoot { get; protected set; }
         public override string LocalObjectsRoot { get; protected set; }
@@ -189,16 +183,14 @@ namespace Scalar.Common
         {
             this.InitializeCachePaths(
                 localCacheRoot,
-                Path.Combine(localCacheRoot, localCacheKey, GitObjectCacheName),
-                Path.Combine(localCacheRoot, localCacheKey, BlobSizesCacheName));
+                Path.Combine(localCacheRoot, localCacheKey));
         }
 
-        public void InitializeCachePaths(string localCacheRoot, string gitObjectsRoot, string blobSizesRoot)
+        public void InitializeCachePaths(string localCacheRoot, string gitObjectsRoot)
         {
             this.LocalCacheRoot = localCacheRoot;
             this.GitObjectsRoot = gitObjectsRoot;
             this.GitPackRoot = Path.Combine(this.GitObjectsRoot, ScalarConstants.DotGit.Objects.Pack.Name);
-            this.BlobSizesRoot = blobSizesRoot;
         }
 
         public bool TryCreateEnlistmentFolders()

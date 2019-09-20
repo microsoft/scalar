@@ -132,7 +132,6 @@ namespace Scalar.Common
                     new KeyValuePair<string, string>(Keys.DiskLayoutMinorVersion, ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMinorVersion.ToString()),
                     new KeyValuePair<string, string>(Keys.GitObjectsRoot, enlistment.GitObjectsRoot),
                     new KeyValuePair<string, string>(Keys.LocalCacheRoot, enlistment.LocalCacheRoot),
-                    new KeyValuePair<string, string>(Keys.BlobSizesRoot, enlistment.BlobSizesRoot),
                     new KeyValuePair<string, string>(Keys.EnlistmentId, CreateNewEnlistmentId(tracer)),
                 });
         }
@@ -186,33 +185,6 @@ namespace Scalar.Common
             return true;
         }
 
-        public bool TryGetBlobSizesRoot(out string blobSizesRoot, out string error)
-        {
-            blobSizesRoot = null;
-
-            try
-            {
-                if (!this.repoMetadata.TryGetValue(Keys.BlobSizesRoot, out blobSizesRoot))
-                {
-                    error = "Blob sizes root not found";
-                    return false;
-                }
-            }
-            catch (FileBasedCollectionException ex)
-            {
-                error = ex.Message;
-                return false;
-            }
-
-            error = null;
-            return true;
-        }
-
-        public void SetBlobSizesRoot(string blobSizesRoot)
-        {
-            this.repoMetadata.SetValueAndFlush(Keys.BlobSizesRoot, blobSizesRoot);
-        }
-
         public void SetEntry(string keyName, string valueName)
         {
             this.repoMetadata.SetValueAndFlush(keyName, valueName);
@@ -233,7 +205,6 @@ namespace Scalar.Common
             public const string DiskLayoutMinorVersion = "DiskLayoutMinorVersion";
             public const string GitObjectsRoot = "GitObjectsRoot";
             public const string LocalCacheRoot = "LocalCacheRoot";
-            public const string BlobSizesRoot = "BlobSizesRoot";
             public const string EnlistmentId = "EnlistmentId";
         }
     }
