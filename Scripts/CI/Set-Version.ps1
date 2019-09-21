@@ -31,6 +31,7 @@ if ($SourceBranch -match $ReleaseBranch) {
     $Minor = $Matches["Month"]
     $Revision = $Matches["Milestone"]
     Set-BuildNumber "Release-$Major.$Minor.$Revision.$SourceBranchCounter"
+    Set-PipelineVariable "SignBuild" 1
 } elseif ($SourceBranch -match $PullRequest) {
     $Major = 10
     $Minor = 20

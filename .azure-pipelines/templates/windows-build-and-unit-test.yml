@@ -4,10 +4,11 @@ steps:
     displayName: Delete previous build outputs
     continueOnError: true
 
-  - powershell: |
-      & 'C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\sn.exe' -Vr *,31bf3856ad364e35
-      & 'C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\x64\sn.exe' -Vr *,31bf3856ad364e35
-    displayName: Disable strong name validation for MS delay-signed assemblies
+  - task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@2
+    displayName: 'Install signing plugin'
+    inputs:
+      signType: 'test'
+    condition: and(succeeded(), eq(variables['SignBuild'], '1'))
 
   - script: $(Build.Repository.LocalPath)\Scripts\BuildScalarForWindows.bat $(configuration) $(majorAndMinorVersion).$(revision)
     displayName: Run Scalar build script ($(configuration))

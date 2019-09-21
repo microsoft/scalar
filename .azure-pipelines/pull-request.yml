@@ -25,7 +25,7 @@ jobs:
     pool:
       vmImage: vs2017-win2016
     steps:
-    - powershell: $(Build.Repository.LocalPath)/Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
+    - pwsh: $(Build.Repository.LocalPath)/Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
       displayName: "Compute product version"
     - template: templates/windows-build-and-unit-test.yml
 
@@ -42,7 +42,7 @@ jobs:
     pool:
       name: 'Hosted macOS'
     steps:
-    - powershell: $(Build.Repository.LocalPath)/Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
+    - pwsh: $(Build.Repository.LocalPath)/Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
       displayName: "Compute product version"
     - template: templates/macos-build-and-unit-test.yml
 
