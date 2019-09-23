@@ -97,7 +97,7 @@ Folders need to be relative to the repo's root directory.")
                 }
                 catch (Exception e)
                 {
-                    this.ReportErrorAndExit(tracer, "Failed to add folders to sparse-checkout {0}", e.Message);
+                    this.ReportErrorAndExit(tracer, "Failed to set folders to sparse-checkout {0}", e.Message);
                 }
             }
         }
@@ -109,7 +109,7 @@ Folders need to be relative to the repo's root directory.")
 
             if (sparseResult.ExitCodeIsFailure)
             {
-                this.WriteMessage(tracer, $"Failed to add folders to sparse-checkout: {sparseResult.Errors}");
+                this.WriteMessage(tracer, $"Failed to set folders to sparse-checkout: {sparseResult.Errors}");
             }
         }
 

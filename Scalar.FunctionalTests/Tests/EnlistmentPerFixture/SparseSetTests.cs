@@ -13,7 +13,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
     [Category(Categories.GitCommands)]
     public class SparseSetTests : TestsWithEnlistmentPerFixture
     {
-        private const string SetFailureMessage = "Failed to add folders to sparse-checkout";
+        private const string SetFailureMessage = "Failed to set folders to sparse-checkout";
 
         private const string FolderDotGit = ".git";
         private const string FolderDeleteFileTests = "DeleteFileTests";
@@ -85,7 +85,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(3)]
         public void SparseSetRemoveAFolder()
         {
-            // Add GitCommands/DeleteFileTests, Verify the only directory added to GitCommands is DeleteFileTests
             ScalarProcess scalar = new ScalarProcess(this.Enlistment);
             this.currentFolderList.Remove(FolderFileNameEncoding).ShouldBeTrue("failed to remove folder from list");
 
@@ -139,17 +138,17 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(5)]
         public void SparseSetFileAlreadyExists()
         {
-            // Create a Folder that exists in the repo, with a file that also exists.  This should make the 'add' fail.
-            // Verify that deleting the conflicting file and then reperforming the add causes all directories to show up.
+            // Create a Folder that exists in the repo, with a file that also exists.  This should make the 'set' fail.
+            // Verify that deleting the conflicting file and then reperforming the 'set' causes all directories to show up.
             string folderEnumerateDirectory = this.Enlistment.GetSourcePath(FolderEnumerateAndReadTestFiles);
             string existingFile = Path.Combine(folderEnumerateDirectory, "_a");
             this.fileSystem.CreateDirectory(folderEnumerateDirectory);
             this.fileSystem.CreateEmptyFile(existingFile);
 
-            // Contents before add
+            // Contents before 'set'
             this.VerifyContentsForSparseSetFileAlreadyExists();
 
-            // If a file already exists that would conflict with a sparse checkout, the add should fail
+            // If a file already exists that would conflict with a sparse checkout, the 'set' should fail
             ScalarProcess scalar = new ScalarProcess(this.Enlistment);
             this.currentFolderList.Add(FolderEnumerateAndReadTestFiles);
             string result = scalar.SparseSet(this.currentFolderList);
@@ -158,7 +157,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Contents should be unchanged after failure
             this.VerifyContentsForSparseSetFileAlreadyExists();
 
-            // After deleting the conflicting file you should be able to add
+            // After deleting the conflicting file you should be able to 'set'
             this.fileSystem.DeleteFile(existingFile);
             result = scalar.SparseSet(this.currentFolderList);
             result.ShouldNotContain(true, SetFailureMessage);
@@ -237,7 +236,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             this.VerifyContentsSparseSetWithOneFolderConflict();
 
-            // One folder conflict should fail the entire add
+            // One folder conflict should fail the entire 'set'
             ScalarProcess scalar = new ScalarProcess(this.Enlistment);
             this.currentFolderList.Add(FolderTest_MoveRenameFileTests);
             this.currentFolderList.Add(FolderTest_MoveRenameFileTests2);
@@ -251,7 +250,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             GitProcess.Invoke(this.Enlistment.RepoRoot, "checkout -b new_branch");
 
             // Attempt to go back to previous branch
-            // This will fail because of previous failed add
+            // This will fail because of previous failed 'set'
             ProcessResult checkoutResult = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "checkout " + this.Enlistment.Commitish);
             checkoutResult.Errors.ShouldContain("error: The following working tree files would be overwritten by sparse checkout update:\r\n\tTest_EPF_MoveRenameFileTests_2/RunUnitTests.bat\r\n\r\nAborting\r\n");
 
@@ -280,9 +279,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(8)]
         public void AddWhileInMergeConflict()
         {
-            // Attempt to add while you have a cherry-pick merge conflict.  It will say it failed.
+            // Attempt to 'set' while you have a cherry-pick merge conflict.  It will say it failed.
             // Abort the cherry-pick, switch branches, and switch back. Now the folders will be fully populated.
-            // The correct behavior should be that if the 'add' fails the folders should not be added to sparse
+            // The correct behavior should be that if the 'set' fails the folders should not be added to sparse
             string conflictFilename = "conflict";
             string fileToConflict = this.Enlistment.GetSourcePath(conflictFilename);
 
