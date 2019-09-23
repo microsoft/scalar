@@ -14,109 +14,42 @@ using XmlDocument = Windows.Data.Xml.Dom.XmlDocument;
 
 namespace Scalar.Service.UI
 {
-    public class ScalarServiceUI
+    public static class Program
     {
-        private const string ServiceAppId = "Scalar";
-
-        private readonly ITracer tracer;
-
-        public ScalarServiceUI(ITracer tracer)
-        {
-            this.tracer = tracer;
-        }
-
         public static void Main(string[] args)
         {
             ScalarPlatformLoader.Initialize();
 
-            using (JsonTracer tracer = new JsonTracer("Microsoft.Git.Scalar.Service.UI", "Service.UI"))
+            using (JsonTracer tracer = new JsonTracer("Microsoft.Git.GVFS.Service.UI", "Service.UI"))
             {
-                string logLocation = Path.Combine(
-                    Environment.GetEnvironmentVariable("LocalAppData"),
-                    ScalarConstants.Service.UIName,
-                    "serviceUI.log");
+                string error;
+                string serviceUILogDirectory = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.Service.UIName);
+                if (!ScalarPlatform.Instance.FileSystem.TryCreateDirectoryWithAdminAndUserModifyPermissions(serviceUILogDirectory, out error))
+                {
+                    EventMetadata metadata = new EventMetadata();
+                    metadata.Add(nameof(serviceUILogDirectory), serviceUILogDirectory);
+                    metadata.Add(nameof(error), error);
+                    tracer.RelatedWarning(
+                        metadata,
+                        "Failed to create service UI logs directory",
+                        Keywords.Telemetry);
+                }
+                else
+                {
+                    string logFilePath = ScalarEnlistment.GetNewScalarLogFileName(
+                        serviceUILogDirectory,
+                        ScalarConstants.LogFileTypes.ServiceUI,
+                        logId: Environment.UserName);
 
-                tracer.AddLogFileEventListener(logLocation, EventLevel.Informational, Keywords.Any);
-                ScalarServiceUI process = new ScalarServiceUI(tracer);
+                    tracer.AddLogFileEventListener(logFilePath, EventLevel.Informational, Keywords.Any);
+                }
+
+                WinToastNotifier winToastNotifier = new WinToastNotifier(tracer);
+                ScalarToastRequestHandler toastRequestHandler = new ScalarToastRequestHandler(winToastNotifier, tracer);
+                GVFSServiceUI process = new GVFSServiceUI(tracer, toastRequestHandler);
+
                 process.Start(args);
             }
-        }
-
-        private void Start(string[] args)
-        {
-            using (ITracer activity = this.tracer.StartActivity("Start", EventLevel.Informational))
-            using (NamedPipeServer server = NamedPipeServer.StartNewServer(ScalarConstants.Service.UIName, this.tracer, this.HandleRequest))
-            {
-                ServiceController controller = new ServiceController(ScalarConstants.Service.ServiceName);
-                try
-                {
-                    controller.WaitForStatus(ServiceControllerStatus.Stopped);
-                }
-                catch (InvalidOperationException)
-                {
-                    // Service might not exist anymore -- that's ok, just exit
-                }
-
-                this.tracer.RelatedInfo("{0} stop detected -- exiting UI.", ScalarConstants.Service.ServiceName);
-            }
-        }
-
-        private void HandleRequest(ITracer tracer, string request, NamedPipeServer.Connection connection)
-        {
-            try
-            {
-                NamedPipeMessages.Message message = NamedPipeMessages.Message.FromString(request);
-                switch (message.Header)
-                {
-                    case NamedPipeMessages.Notification.Request.Header:
-                        NamedPipeMessages.Notification.Request toastRequest = NamedPipeMessages.Notification.Request.FromMessage(message);
-                        if (toastRequest != null)
-                        {
-                            using (ITracer activity = this.tracer.StartActivity("SendToast", EventLevel.Informational))
-                            {
-                                this.ShowToast(activity, toastRequest);
-                            }
-                        }
-
-                        break;
-                }
-            }
-            catch (Exception e)
-            {
-                this.tracer.RelatedError("Unhandled exception: {0}", e.ToString());
-            }
-        }
-
-        private void ShowToast(ITracer tracer, NamedPipeMessages.Notification.Request request)
-        {
-            ToastData toastData = new ToastData();
-            toastData.Visual = new VisualData();
-
-            BindingData binding = new BindingData();
-            toastData.Visual.Binding = binding;
-
-            binding.Template = "ToastGeneric";
-            binding.Items = new XmlList<BindingItem>();
-            binding.Items.Add(new BindingItem.TextData(request.Title));
-            binding.Items.AddRange(request.Message.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(t => new BindingItem.TextData(t)));
-
-            XmlDocument toastXml = new XmlDocument();
-            using (StringWriter stringWriter = new StringWriter())
-            using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings { OmitXmlDeclaration = true }))
-            {
-                XmlSerializer serializer = new XmlSerializer(toastData.GetType());
-                XmlSerializerNamespaces namespaces = new XmlSerializerNamespaces();
-                namespaces.Add(string.Empty, string.Empty);
-
-                serializer.Serialize(xmlWriter, toastData, namespaces);
-
-                toastXml.LoadXml(stringWriter.ToString());
-            }
-
-            ToastNotification toastNotification = new ToastNotification(toastXml);
-
-            ToastNotifier toastNotifier = ToastNotificationManager.CreateToastNotifier(ServiceAppId);
-            toastNotifier.Show(toastNotification);
         }
     }
 }
