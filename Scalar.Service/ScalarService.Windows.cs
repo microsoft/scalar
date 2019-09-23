@@ -5,6 +5,7 @@ using Scalar.Common.Tracing;
 using Scalar.Platform.Windows;
 using Scalar.Service.Handlers;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
@@ -26,13 +27,15 @@ namespace Scalar.Service
         private RepoRegistry repoRegistry;
         private ProductUpgradeTimer productUpgradeTimer;
         private RequestHandler requestHandler;
+        private INotificationHandler notificationHandler;
 
         public ScalarService(JsonTracer tracer)
         {
             this.tracer = tracer;
             this.serviceName = ScalarConstants.Service.ServiceName;
             this.CanHandleSessionChangeEvent = true;
-            this.productUpgradeTimer = new ProductUpgradeTimer(tracer);
+            this.notificationHandler = new NotificationHandler(tracer);
+            this.productUpgradeTimer = new ProductUpgradeTimer(tracer, this.notificationHandler);
         }
 
         public void Run()
@@ -48,7 +51,7 @@ namespace Scalar.Service
                     new PhysicalFileSystem(),
                     this.serviceDataLocation,
                     new ScalarMountProcess(this.tracer),
-                    new NotificationHandler(this.tracer));
+                    this.notificationHandler);
                 this.repoRegistry.Upgrade();
                 this.requestHandler = new RequestHandler(this.tracer, EtwArea, this.repoRegistry);
 
@@ -124,6 +127,9 @@ namespace Scalar.Service
                     if (changeDescription.Reason == SessionChangeReason.SessionLogon)
                     {
                         this.tracer.RelatedInfo("SessionLogon detected, sessionId: {0}", changeDescription.SessionId);
+
+                        this.LaunchServiceUIIfNotRunning(changeDescription.SessionId);
+
                         using (ITracer activity = this.tracer.StartActivity("LogonAutomount", EventLevel.Informational))
                         {
                             this.repoRegistry.AutoMountRepos(
@@ -253,23 +259,24 @@ namespace Scalar.Service
             Directory.SetAccessControl(serviceDataRootPath, serviceDataRootSecurity);
 
             // Special rules for the upgrader logs, as non-elevated users need to be be able to write
-            this.CreateAndConfigureUpgradeLogDirectory();
+            this.CreateAndConfigureLogDirectory(ProductUpgraderInfo.GetLogDirectoryPath());
+            this.CreateAndConfigureLogDirectory(ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.Service.UIName));
         }
 
-        private void CreateAndConfigureUpgradeLogDirectory()
+        private void CreateAndConfigureLogDirectory(string path)
         {
             string upgradeLogsPath = ProductUpgraderInfo.GetLogDirectoryPath();
 
             string error;
-            if (!ScalarPlatform.Instance.FileSystem.TryCreateDirectoryWithAdminAndUserModifyPermissions(upgradeLogsPath, out error))
+            if (!ScalarPlatform.Instance.FileSystem.TryCreateDirectoryWithAdminAndUserModifyPermissions(path, out error))
             {
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add("Area", EtwArea);
-                metadata.Add(nameof(upgradeLogsPath), upgradeLogsPath);
+                metadata.Add(nameof(path), path);
                 metadata.Add(nameof(error), error);
                 this.tracer.RelatedWarning(
                     metadata,
-                    $"{nameof(this.CreateAndConfigureUpgradeLogDirectory)}: Failed to create upgrade logs directory",
+                    $"{nameof(this.CreateAndConfigureLogDirectory)}: Failed to create upgrade logs directory",
                     Keywords.Telemetry);
             }
         }
@@ -297,6 +304,52 @@ namespace Scalar.Service
             WindowsFileSystem.AddAdminAccessRulesToDirectorySecurity(serviceDataRootSecurity);
 
             return serviceDataRootSecurity;
+        }
+
+        private void LaunchServiceUIIfNotRunning(int sessionId)
+        {
+            NamedPipeClient client;
+            using (client = new NamedPipeClient(ScalarConstants.Service.UIName))
+            {
+                if (!client.Connect())
+                {
+                    this.tracer.RelatedError($"Could not connect with {ScalarConstants.Service.UIName}. Attempting to relaunch.");
+
+                    this.TerminateExistingProcess(ScalarConstants.Service.UIName, sessionId);
+
+                    CurrentUser currentUser = new CurrentUser(this.tracer, sessionId);
+                    if (!currentUser.RunAs(
+                        Configuration.Instance.ScalarServiceUILocation,
+                        string.Empty))
+                    {
+                        this.tracer.RelatedError("Could not start " + ScalarConstants.Service.UIName);
+                    }
+                    else
+                    {
+                        this.tracer.RelatedInfo($"Successfully launched {ScalarConstants.Service.UIName}. ");
+                    }
+                }
+            }
+        }
+
+        private void TerminateExistingProcess(string processName, int sessionId)
+        {
+            try
+            {
+                foreach (Process process in Process.GetProcessesByName(processName))
+                {
+                    if (process.SessionId == sessionId)
+                    {
+                        this.tracer.RelatedInfo($"{nameof(this.TerminateExistingProcess)}- Stopping {processName}, in session {sessionId}.");
+
+                        process.Kill();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                this.tracer.RelatedError("Could not find and kill existing instances of {0}: {1}", processName, ex.Message);
+            }
         }
     }
 }

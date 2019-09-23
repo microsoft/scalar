@@ -1,4 +1,3 @@
-using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.NamedPipes;
 using Scalar.Common.Tracing;
@@ -176,6 +175,15 @@ namespace Scalar.Service
             using (ITracer activity = this.tracer.StartActivity("AutoMount", EventLevel.Informational))
             {
                 List<RepoRegistration> activeRepos = this.GetActiveReposForUser(userId);
+                if (activeRepos.Count > 0)
+                {
+                    this.SendNotification(
+                    sessionId,
+                    NamedPipeMessages.Notification.Request.Identifier.AutomountStart,
+                    enlistment: null,
+                    enlistmentCount: activeRepos.Count);
+                }
+
                 foreach (RepoRegistration repo in activeRepos)
                 {
                     // TODO #1089: We need to respect the elevation level of the original mount
@@ -328,7 +336,7 @@ namespace Scalar.Service
             request.Enlistment = enlistment;
             request.EnlistmentCount = enlistmentCount;
 
-            this.notificationHandler.SendNotification(sessionId, request);
+            this.notificationHandler.SendNotification(request);
         }
 
         private void WriteRegistry(Dictionary<string, RepoRegistration> registry)
