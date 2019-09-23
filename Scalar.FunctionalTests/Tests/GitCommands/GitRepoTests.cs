@@ -132,7 +132,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             if (this.validateWorkingTree == Settings.ValidateWorkingTreeMode.SparseMode)
             {
                 ScalarProcess scalar = new ScalarProcess(this.Enlistment);
-                scalar.SparseAdd(SparseModeFolders);
+                scalar.SparseSet(SparseModeFolders);
                 this.pathPrefixes = SparseModeFolders;
             }
 

@@ -421,14 +421,14 @@ namespace Scalar.Common.Git
             return this.InvokeGitInWorkingDirectoryRoot("checkout HEAD -- .", useReadObjectHook: true);
         }
 
-        public Result SparseCheckout(List<string> foldersToAdd)
+        public Result SparseCheckoutSet(List<string> foldersToSet)
         {
             return this.InvokeGitInWorkingDirectoryRoot(
-                $"sparse-checkout add",
+                $"sparse-checkout set --stdin",
                 useReadObjectHook: true,
                 writeStdIn: writer =>
                 {
-                    foreach (string path in foldersToAdd)
+                    foreach (string path in foldersToSet)
                     {
                         string normalizedPath = path.Replace(Path.DirectorySeparatorChar, ScalarConstants.GitPathSeparator).TrimEnd(ScalarConstants.GitPathSeparator);
                         writer.Write(normalizedPath + "\n");

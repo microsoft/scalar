@@ -1,8 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using Scalar.FunctionalTests.FileSystemRunners;
-using Scalar.FunctionalTests.Should;
 using Scalar.Tests.Should;
 using System;
 using System.Collections.Generic;

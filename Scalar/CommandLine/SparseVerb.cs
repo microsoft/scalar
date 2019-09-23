@@ -20,19 +20,19 @@ Folders need to be relative to the repo's root directory.")
         private const string FolderListSeparator = ";";
 
         [Option(
-            'a',
-            "add",
+            's',
+            "set",
             Required = false,
             Default = "",
             HelpText = "A semicolon-delimited list of repo root relative folders to include in the sparse-checkout. Wildcards are not supported.")]
-        public string FoldersToAdd { get; set; }
+        public string FoldersToSet { get; set; }
 
         [Option(
-            "add-stdin",
+            "set-stdin",
             Required = false,
             Default = false,
             HelpText = "Specify this flag to load folder list from stdin. Folders must be line-delimited and wildcards are not supported.")]
-        public bool AddFromStdIn { get; set; }
+        public bool SetFromStdIn { get; set; }
 
         protected override string VerbName => SparseVerbName;
 
@@ -59,16 +59,16 @@ Folders need to be relative to the repo's root directory.")
                                 { "NamedPipeName", enlistment.NamedPipeName },
                                 { "ProcessID", Process.GetCurrentProcess().Id },
                                 { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
-                                { nameof(this.FoldersToAdd), this.FoldersToAdd },
-                                { nameof(this.AddFromStdIn), this.AddFromStdIn },
+                                { nameof(this.FoldersToSet), this.FoldersToSet },
+                                { nameof(this.SetFromStdIn), this.SetFromStdIn },
                             });
 
-                    if (!this.AddFromStdIn && string.IsNullOrWhiteSpace(this.FoldersToAdd))
+                    if (!this.SetFromStdIn && string.IsNullOrWhiteSpace(this.FoldersToSet))
                     {
-                        this.ReportErrorAndExit(tracer, "You must specify folders to add with --add or --add-stdin");
+                        this.ReportErrorAndExit(tracer, "You must specify folders to set with --set or --set-stdin");
                     }
 
-                    List<string> foldersToAdd = null;
+                    List<string> foldersToSet = null;
 
                     // Pre-fetch the blobs for the folders that will be added and
                     // rely on PrefetchVerb for parsing the the list of folders
@@ -80,12 +80,12 @@ Folders need to be relative to the repo's root directory.")
                                 verb.ResolvedCacheServer = cacheServer;
                                 verb.SkipVersionCheck = false;
                                 verb.Files = string.Empty;
-                                verb.Folders = this.FoldersToAdd;
-                                verb.FoldersFromStdIn = this.AddFromStdIn;
+                                verb.Folders = this.FoldersToSet;
+                                verb.FoldersFromStdIn = this.SetFromStdIn;
                             },
                             verb =>
                             {
-                                foldersToAdd = verb.ParsedFoldersList;
+                                foldersToSet = verb.ParsedFoldersList;
                             });
 
                     if (result != ReturnCode.Success)
@@ -93,23 +93,23 @@ Folders need to be relative to the repo's root directory.")
                         this.ReportErrorAndExit(tracer, "\r\nError during prefetch @ {0}", enlistment.EnlistmentRoot);
                     }
 
-                    this.SparseCheckoutAdd(tracer, enlistment, foldersToAdd);
+                    this.SparseCheckoutSet(tracer, enlistment, foldersToSet);
                 }
                 catch (Exception e)
                 {
-                    this.ReportErrorAndExit(tracer, "Failed to add folders to sparse-checkout {0}", e.Message);
+                    this.ReportErrorAndExit(tracer, "Failed to set folders to sparse-checkout {0}", e.Message);
                 }
             }
         }
 
-        private void SparseCheckoutAdd(ITracer tracer, ScalarEnlistment enlistment, List<string> foldersToAdd)
+        private void SparseCheckoutSet(ITracer tracer, ScalarEnlistment enlistment, List<string> foldersToSet)
         {
             GitProcess git = new GitProcess(enlistment);
-            GitProcess.Result sparseResult = git.SparseCheckout(foldersToAdd);
+            GitProcess.Result sparseResult = git.SparseCheckoutSet(foldersToSet);
 
             if (sparseResult.ExitCodeIsFailure)
             {
-                this.WriteMessage(tracer, $"Failed to add folders to sparse-checkout: {sparseResult.Errors}");
+                this.WriteMessage(tracer, $"Failed to set folders to sparse-checkout: {sparseResult.Errors}");
             }
         }
 
