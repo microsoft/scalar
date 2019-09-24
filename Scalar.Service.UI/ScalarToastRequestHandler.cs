@@ -8,24 +8,24 @@ namespace Scalar.Service.UI
 {
     public class ScalarToastRequestHandler
     {
-        private const string VFSForGitAutomountStartTitle= "Scalar Automount";
-        private const string VFSForGitAutomountStartMessageFormat = "Attempting to mount {0} Scalar {1}";
-        private const string VFSForGitMultipleRepos = "repos";
-        private const string VFSForGitSingleRepo = "repo";
+        private const string ScalarAutomountStartTitle= "Scalar Automount";
+        private const string ScalarAutomountStartMessageFormat = "Attempting to mount {0} Scalar {1}";
+        private const string ScalarMultipleRepos = "repos";
+        private const string ScalarSingleRepo = "repo";
 
-        private const string VFSForGitAutomountSuccessTitle = "Scalar Automount";
-        private const string VFSForGitAutomountSuccessMessageFormat = "The following Scalar repo is now mounted: {0}{1}";
+        private const string ScalarAutomountSuccessTitle = "Scalar Automount";
+        private const string ScalarAutomountSuccessMessageFormat = "The following Scalar repo is now mounted: {0}{1}";
 
-        private const string VFSForGitAutomountErrorTitle = "Scalar Automount";
-        private const string VFSForGitAutomountErrorMessageFormat = "The following Scalar repo failed to mount: {0}{1}";
-        private const string VFSForGitAutomountButtonTitle = "Retry";
+        private const string ScalarAutomountErrorTitle = "Scalar Automount";
+        private const string ScalarAutomountErrorMessageFormat = "The following Scalar repo failed to mount: {0}{1}";
+        private const string ScalarAutomountButtonTitle = "Retry";
 
-        private const string VFSForGitUpgradeTitleFormat = "New version {0} is available";
-        private const string VFSForGitUpgradeMessage = "Upgrade will unmount and remount scalar repos, ensure you are at a stopping point. When ready, click Upgrade button to run upgrade.";
-        private const string VFSForGitUpgradeButtonTitle = "Upgrade";
+        private const string ScalarUpgradeTitleFormat = "New version {0} is available";
+        private const string ScalarUpgradeMessage = "Upgrade will unmount and remount scalar repos, ensure you are at a stopping point. When ready, click Upgrade button to run upgrade.";
+        private const string ScalarUpgradeButtonTitle = "Upgrade";
 
-        private const string VFSForGitRemountActionPrefix = "scalar mount";
-        private const string VFSForGitUpgradeActionPrefix = "scalar upgrade --confirm";
+        private const string ScalarRemountActionPrefix = "scalar mount";
+        private const string ScalarUpgradeActionPrefix = "scalar upgrade --confirm";
 
         private readonly ITracer tracer;
         private readonly IToastNotifier toastNotifier;
@@ -48,16 +48,16 @@ namespace Scalar.Service.UI
             switch (request.Id)
             {
                 case NamedPipeMessages.Notification.Request.Identifier.AutomountStart:
-                    string reposSuffix = request.EnlistmentCount <= 1 ? VFSForGitSingleRepo : VFSForGitMultipleRepos;
-                    title = VFSForGitAutomountStartTitle;
-                    message = string.Format(VFSForGitAutomountStartMessageFormat, request.EnlistmentCount, reposSuffix);
+                    string reposSuffix = request.EnlistmentCount <= 1 ? ScalarSingleRepo : ScalarMultipleRepos;
+                    title = ScalarAutomountStartTitle;
+                    message = string.Format(ScalarAutomountStartMessageFormat, request.EnlistmentCount, reposSuffix);
                     break;
 
                 case NamedPipeMessages.Notification.Request.Identifier.MountSuccess:
                     if (this.TryValidatePath(request.Enlistment, out path, this.tracer))
                     {
-                        title = VFSForGitAutomountSuccessTitle;
-                        message = string.Format(VFSForGitAutomountSuccessMessageFormat, Environment.NewLine, path);
+                        title = ScalarAutomountSuccessTitle;
+                        message = string.Format(ScalarAutomountSuccessMessageFormat, Environment.NewLine, path);
                     }
 
                     break;
@@ -65,19 +65,19 @@ namespace Scalar.Service.UI
                 case NamedPipeMessages.Notification.Request.Identifier.MountFailure:
                     if (this.TryValidatePath(request.Enlistment, out path, this.tracer))
                     {
-                        title = VFSForGitAutomountErrorTitle;
-                        message = string.Format(VFSForGitAutomountErrorMessageFormat, Environment.NewLine, path);
-                        buttonTitle = VFSForGitAutomountButtonTitle;
-                        args = $"{VFSForGitRemountActionPrefix} {path}";
+                        title = ScalarAutomountErrorTitle;
+                        message = string.Format(ScalarAutomountErrorMessageFormat, Environment.NewLine, path);
+                        buttonTitle = ScalarAutomountButtonTitle;
+                        args = $"{ScalarRemountActionPrefix} {path}";
                     }
 
                     break;
 
                 case NamedPipeMessages.Notification.Request.Identifier.UpgradeAvailable:
-                    title = string.Format(VFSForGitUpgradeTitleFormat, request.NewVersion);
-                    message = string.Format(VFSForGitUpgradeMessage);
-                    buttonTitle = VFSForGitUpgradeButtonTitle;
-                    args = $"{VFSForGitUpgradeActionPrefix}";
+                    title = string.Format(ScalarUpgradeTitleFormat, request.NewVersion);
+                    message = string.Format(ScalarUpgradeMessage);
+                    buttonTitle = ScalarUpgradeButtonTitle;
+                    args = $"{ScalarUpgradeActionPrefix}";
                     break;
             }
 
@@ -100,15 +100,15 @@ namespace Scalar.Service.UI
                 string gvfsCmd = null;
                 bool elevate = false;
 
-                if (args.StartsWith(VFSForGitUpgradeActionPrefix))
+                if (args.StartsWith(ScalarUpgradeActionPrefix))
                 {
                     this.tracer.RelatedInfo($"scalar upgrade action.");
                     gvfsCmd = "scalar upgrade --confirm";
                     elevate = true;
                 }
-                else if (args.StartsWith(VFSForGitRemountActionPrefix))
+                else if (args.StartsWith(ScalarRemountActionPrefix))
                 {
-                    string path = args.Substring(VFSForGitRemountActionPrefix.Length, args.Length - VFSForGitRemountActionPrefix.Length);
+                    string path = args.Substring(ScalarRemountActionPrefix.Length, args.Length - ScalarRemountActionPrefix.Length);
                     if (this.TryValidatePath(path, out string enlistment, activity))
                     {
                         this.tracer.RelatedInfo($"scalar mount action {enlistment}.");
