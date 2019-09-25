@@ -21,15 +21,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         }
 
         [TestCase]
-        public void RebaseConflictWithPrefetch()
-        {
-            this.ValidateGitCommand("checkout " + GitRepoTests.ConflictTargetBranch);
-            this.Enlistment.Prefetch("--files * --hydrate");
-            this.RunGitCommand("rebase " + GitRepoTests.ConflictSourceBranch);
-            this.FilesShouldMatchAfterConflict();
-        }
-
-        [TestCase]
         public void RebaseConflictWithFileReads()
         {
             this.ValidateGitCommand("checkout " + GitRepoTests.ConflictTargetBranch);

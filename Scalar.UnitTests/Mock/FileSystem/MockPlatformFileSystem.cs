@@ -32,11 +32,6 @@ namespace Scalar.UnitTests.Mock.FileSystem
             return true;
         }
 
-        public bool HydrateFile(string fileName, byte[] buffer)
-        {
-            throw new NotSupportedException();
-        }
-
         public bool IsExecutable(string fileName)
         {
             throw new NotSupportedException();

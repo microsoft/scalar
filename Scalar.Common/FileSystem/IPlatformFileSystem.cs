@@ -10,7 +10,6 @@ namespace Scalar.Common.FileSystem
         void MoveAndOverwriteFile(string sourceFileName, string destinationFilename);
         bool TryGetNormalizedPath(string path, out string normalizedPath, out string errorMessage);
         void ChangeMode(string path, ushort mode);
-        bool HydrateFile(string fileName, byte[] buffer);
         bool IsExecutable(string filePath);
         bool IsSocket(string filePath);
         bool TryCreateDirectoryWithAdminAndUserModifyPermissions(string directoryPath, out string error);

@@ -72,13 +72,6 @@ namespace Scalar.CommandLine
         public string FilesListFile { get; set; }
 
         [Option(
-            "hydrate",
-            Required = false,
-            Default = false,
-            HelpText = "Specify this flag to also hydrate files in the working directory.")]
-        public bool HydrateFiles { get; set; }
-
-        [Option(
             'c',
             "commits",
             Required = false,
@@ -137,7 +130,6 @@ namespace Scalar.CommandLine
                     metadata.Add("FoldersListFile", this.FoldersListFile);
                     metadata.Add("FilesFromStdIn", this.FilesFromStdIn);
                     metadata.Add("FoldersFromStdIn", this.FoldersFromStdIn);
-                    metadata.Add("HydrateFiles", this.HydrateFiles);
                     tracer.RelatedEvent(EventLevel.Informational, "PerformPrefetch", metadata);
 
                     if (this.Commits)
@@ -150,11 +142,6 @@ namespace Scalar.CommandLine
                             this.FoldersFromStdIn)
                         {
                             this.ReportErrorAndExit(tracer, "You cannot prefetch commits and blobs at the same time.");
-                        }
-
-                        if (this.HydrateFiles)
-                        {
-                            this.ReportErrorAndExit(tracer, "You can only specify --hydrate with --files or --folders");
                         }
 
                         GitObjectsHttpRequestor objectRequestor;
@@ -175,7 +162,7 @@ namespace Scalar.CommandLine
 
                         this.LoadBlobPrefetchArgs(tracer, enlistment, out headCommitId, out filesList, out this.parsedFoldersList, out lastPrefetchArgs);
 
-                        if (BlobPrefetcher.IsNoopPrefetch(tracer, lastPrefetchArgs, headCommitId, filesList, this.parsedFoldersList, this.HydrateFiles))
+                        if (BlobPrefetcher.IsNoopPrefetch(tracer, lastPrefetchArgs, headCommitId, filesList, this.parsedFoldersList))
                         {
                             Console.WriteLine("All requested files are already available. Nothing new to prefetch.");
                         }
@@ -369,17 +356,8 @@ namespace Scalar.CommandLine
                 this.ReportErrorAndExit(tracer, "Did you mean to fetch all blobs? If so, specify `--files '*'` to confirm.");
             }
 
-            if (this.HydrateFiles)
-            {
-                if (!this.CheckIsMounted(verbose: true))
-                {
-                    this.ReportErrorAndExit("You can only specify --hydrate if the repo is mounted. Run 'scalar mount' and try again.");
-                }
-            }
-
             int matchedBlobCount = 0;
             int downloadedBlobCount = 0;
-            int hydratedFileCount = 0;
 
             Func<bool> doPrefetch =
                 () =>
@@ -389,10 +367,8 @@ namespace Scalar.CommandLine
                         blobPrefetcher.PrefetchWithStats(
                             headCommitId,
                             isBranch: false,
-                            hydrateFilesAfterDownload: this.HydrateFiles,
                             matchedBlobCount: out matchedBlobCount,
-                            downloadedBlobCount: out downloadedBlobCount,
-                            hydratedFileCount: out hydratedFileCount);
+                            downloadedBlobCount: out downloadedBlobCount);
                         return !blobPrefetcher.HasFailures;
                     }
                     catch (BlobPrefetcher.FetchException e)
@@ -408,11 +384,7 @@ namespace Scalar.CommandLine
             }
             else
             {
-                string message =
-                    this.HydrateFiles
-                    ? "Fetching blobs and hydrating files "
-                    : "Fetching blobs ";
-                this.ShowStatusWhileRunning(doPrefetch, message + this.GetCacheServerDisplay(cacheServer, enlistment.RepoUrl));
+                this.ShowStatusWhileRunning(doPrefetch, "Fetching blobs " + this.GetCacheServerDisplay(cacheServer, enlistment.RepoUrl));
             }
 
             if (blobPrefetcher.HasFailures)
@@ -426,10 +398,6 @@ namespace Scalar.CommandLine
                 Console.WriteLine("  Matched blobs:    " + matchedBlobCount);
                 Console.WriteLine("  Already cached:   " + (matchedBlobCount - downloadedBlobCount));
                 Console.WriteLine("  Downloaded:       " + downloadedBlobCount);
-                if (this.HydrateFiles)
-                {
-                    Console.WriteLine("  Hydrated files:   " + hydratedFileCount);
-                }
             }
         }
 

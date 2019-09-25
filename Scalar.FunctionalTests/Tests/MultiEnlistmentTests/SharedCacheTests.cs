@@ -4,7 +4,6 @@ using Scalar.FunctionalTests.Should;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -103,8 +102,8 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
             ScalarFunctionalTestEnlistment enlistment3 = null;
 
-            Task task1 = Task.Run(() => this.HydrateEntireRepo(enlistment1));
-            Task task2 = Task.Run(() => this.HydrateEntireRepo(enlistment2));
+            Task task1 = Task.Run(() => this.LoadBlobsViaGit(enlistment1));
+            Task task2 = Task.Run(() => this.LoadBlobsViaGit(enlistment2));
             Task task3 = Task.Run(() => enlistment3 = this.CloneAndMountEnlistment());
 
             task1.Wait();
@@ -142,8 +141,8 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
             enlistment1.MountScalar();
 
-            Task task1 = Task.Run(() => this.HydrateRootFolder(enlistment1));
-            Task task2 = Task.Run(() => this.HydrateRootFolder(enlistment2));
+            Task task1 = Task.Run(() => this.LoadBlobsViaGit(enlistment1));
+            Task task2 = Task.Run(() => this.LoadBlobsViaGit(enlistment2));
             task1.Wait();
             task2.Wait();
             task1.Exception.ShouldBeNull();
@@ -166,7 +165,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
             Task task1 = Task.Run(() =>
             {
-                this.HydrateEntireRepo(enlistment1);
+                this.LoadBlobsViaGit(enlistment1);
             });
 
             while (!task1.IsCompleted)
@@ -303,25 +302,10 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             alternatesFileContents.ShouldEqual(objectsRoot);
         }
 
-        private void HydrateRootFolder(ScalarFunctionalTestEnlistment enlistment)
+        private void LoadBlobsViaGit(ScalarFunctionalTestEnlistment enlistment)
         {
-            List<string> allFiles = Directory.EnumerateFiles(enlistment.RepoRoot, "*", SearchOption.TopDirectoryOnly).ToList();
-            for (int i = 0; i < allFiles.Count; ++i)
-            {
-                File.ReadAllText(allFiles[i]);
-            }
-        }
-
-        private void HydrateEntireRepo(ScalarFunctionalTestEnlistment enlistment)
-        {
-            List<string> allFiles = Directory.EnumerateFiles(enlistment.RepoRoot, "*", SearchOption.AllDirectories).ToList();
-            for (int i = 0; i < allFiles.Count; ++i)
-            {
-                if (!allFiles[i].StartsWith(enlistment.RepoRoot + "\\.git\\", StringComparison.OrdinalIgnoreCase))
-                {
-                    File.ReadAllText(allFiles[i]);
-                }
-            }
+            ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment.RepoRoot, "rev-list --all --objects");
+            result.ExitCode.ShouldEqual(0);
         }
     }
 }

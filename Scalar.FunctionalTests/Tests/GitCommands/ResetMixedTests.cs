@@ -22,15 +22,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         }
 
         [TestCase]
-        public void ResetMixedAfterPrefetch()
-        {
-            this.ValidateGitCommand("checkout " + GitRepoTests.ConflictTargetBranch);
-            this.Enlistment.Prefetch("--files * --hydrate");
-            this.ValidateGitCommand("reset --mixed HEAD~1");
-            this.FilesShouldMatchCheckoutOfTargetBranch();
-        }
-
-        [TestCase]
         public void ResetMixedAndCheckoutNewBranch()
         {
             this.ValidateGitCommand("checkout " + GitRepoTests.ConflictTargetBranch);

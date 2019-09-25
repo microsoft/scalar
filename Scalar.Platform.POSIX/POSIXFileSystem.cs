@@ -2,7 +2,6 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Tracing;
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
 
 namespace Scalar.Platform.POSIX
@@ -49,8 +48,6 @@ namespace Scalar.Platform.POSIX
         {
             return POSIXFileSystem.TryGetNormalizedPathImplementation(path, out normalizedPath, out errorMessage);
         }
-
-        public abstract bool HydrateFile(string fileName, byte[] buffer);
 
         public abstract bool IsExecutable(string fileName);
 
