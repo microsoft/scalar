@@ -161,7 +161,8 @@ namespace Scalar.Common.NamedPipes
                 {
                     AutomountStart,
                     MountSuccess,
-                    MountFailure
+                    MountFailure,
+                    UpgradeAvailable
                 }
 
                 public Identifier Id { get; set; }
@@ -173,6 +174,8 @@ namespace Scalar.Common.NamedPipes
                 public string Enlistment { get; set; }
 
                 public int EnlistmentCount { get; set; }
+
+                public string NewVersion { get; set; }
 
                 public static Request FromMessage(Message message)
                 {

@@ -18,6 +18,7 @@
 #define MyAppPublisherURL "http://www.microsoft.com"
 #define MyAppURL "https://github.com/microsoft/Scalar"
 #define MyAppExeName "Scalar.exe"
+#define ServiceUIName "Scalar"
 #define EnvironmentKey "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
 
 [Setup]
@@ -97,6 +98,7 @@ DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\Scalar.Service.U
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\Scalar.Service.UI.exe.config" 
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\Scalar.Service.UI.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\scalar.ico"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\System.Runtime.dll"
 
 ; Scalar Files
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\CommandLine.dll"
@@ -128,6 +130,9 @@ DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\System.IO.Compressi
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceDir}\Scalar.Service.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceDir}\Scalar.Service.exe.config"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceDir}\Scalar.Service.exe"; AfterInstall: InstallScalarService
+
+[Icons]
+Name: "{commonstartmenu}\{#ServiceUIName}"; Filename: "{app}\Scalar.Service.UI.exe"; AppUserModelID: "Scalar"
 
 [UninstallDelete]
 ; Deletes the entire installation directory, including files and subdirectories
@@ -275,6 +280,34 @@ begin
   if InstallSuccessful = False then
     begin
       RaiseException('Fatal: An error occured while installing Scalar.Service.');
+    end;
+end;
+
+procedure StartScalarServiceUI();
+var
+  ResultCode: integer;
+begin
+  if ExecAsOriginalUser(ExpandConstant('{app}\Scalar.Service.UI.exe'), '', '', SW_HIDE, ewNoWait, ResultCode) then
+    begin
+      Log('StartGVFSServiceUI: Successfully launched Scalar.Service.UI');
+    end
+  else
+    begin
+      Log('StartGVFSServiceUI: Failed to launch Scalar.Service.UI');
+    end;
+end;
+
+procedure StopScalarServiceUI();
+var
+  ResultCode: integer;
+begin
+  if Exec('powershell.exe', '-NoProfile "Stop-Process -Name Scalar.Service.UI"', '', SW_HIDE, ewNoWait, ResultCode) then
+    begin
+      Log('StopGVFSServiceUI: Successfully stopped Scalar.Service.UI');
+    end
+  else
+    begin
+      RaiseException('Fatal: Could not stop process: Scalar.Service.UI');
     end;
 end;
 
@@ -427,6 +460,7 @@ begin
       begin
         if ExpandConstant('{param:REMOUNTREPOS|true}') = 'true' then
           begin
+            StartScalarServiceUI();
             MountRepos();
           end
       end;
@@ -443,6 +477,7 @@ begin
   case CurStep of
     usUninstall:
       begin
+        StopScalarServiceUI();
         UninstallService('Scalar.Service', False);
         RemovePath(ExpandConstant('{app}'));
       end;
@@ -465,4 +500,5 @@ begin
       Abort();
     end;
   StopService('Scalar.Service');
+  StopScalarServiceUI();
 end;

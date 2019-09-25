@@ -1,7 +1,9 @@
 using Scalar.Common;
 using Scalar.Common.FileSystem;
+using Scalar.Common.NamedPipes;
 using Scalar.Common.NuGetUpgrade;
 using Scalar.Common.Tracing;
+using Scalar.Service.Handlers;
 using Scalar.Upgrader;
 using System;
 using System.IO;
@@ -15,10 +17,12 @@ namespace Scalar.Service
         private JsonTracer tracer;
         private PhysicalFileSystem fileSystem;
         private Timer timer;
+        private INotificationHandler notificationHandler;
 
-        public ProductUpgradeTimer(JsonTracer tracer)
+        public ProductUpgradeTimer(JsonTracer tracer, INotificationHandler notificationHandler)
         {
             this.tracer = tracer;
+            this.notificationHandler = notificationHandler;
             this.fileSystem = new PhysicalFileSystem();
         }
 
@@ -26,7 +30,10 @@ namespace Scalar.Service
         {
             if (!ScalarEnlistment.IsUnattended(this.tracer))
             {
-                TimeSpan startTime = TimeSpan.Zero;
+                // Adding 60 seconds wait time here. This gives VFSForGit installer/upgrader
+                // sufficient enough time to launch GVFS.Service.UI that is needed to display
+                // Upgrade available toaster.
+                TimeSpan startTime = TimeSpan.FromSeconds(60);
 
                 this.tracer.RelatedInfo("Starting auto upgrade checks.");
                 this.timer = new Timer(
@@ -210,6 +217,8 @@ namespace Scalar.Service
                     }
 
                     info.RecordHighestAvailableVersion(highestAvailableVersion: newerVersion);
+
+                    this.DisplayUpgradeAvailableToast(newerVersion.ToString());
                 }
                 catch (Exception ex) when (
                     ex is IOException ||
@@ -245,6 +254,15 @@ namespace Scalar.Service
             tracer.RelatedInfo(logMessage);
 
             return true;
+        }
+
+        private void DisplayUpgradeAvailableToast(string version)
+        {
+            NamedPipeMessages.Notification.Request request = new NamedPipeMessages.Notification.Request();
+            request.Id = NamedPipeMessages.Notification.Request.Identifier.UpgradeAvailable;
+            request.NewVersion = version;
+
+            this.notificationHandler.SendNotification(request);
         }
     }
 }

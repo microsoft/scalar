@@ -165,7 +165,8 @@ namespace Scalar.Upgrader
             string logFilePath = ScalarEnlistment.GetNewScalarLogFileName(
                 this.logDirectory,
                 ScalarConstants.LogFileTypes.UpgradeProcess,
-                this.fileSystem);
+                logId: null,
+                fileSystem: this.fileSystem);
 
             JsonTracer jsonTracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "UpgradeProcess");
 

@@ -109,6 +109,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Windows\ServiceUI\ScalarToastRequestHandlerTests.cs" />
     <Compile Include="Windows\Upgrader\WindowsNuGetUpgraderTests.cs" />
     <Compile Include="Windows\Mock\MockProcessLauncher.cs" />
     <Compile Include="Windows\Upgrader\UpgradeVerbTests.cs" />
@@ -137,6 +138,10 @@
     <ProjectReference Include="..\Scalar.Platform.Windows\Scalar.Platform.Windows.csproj">
       <Project>{4ce404e7-d3fc-471c-993c-64615861ea63}</Project>
       <Name>Scalar.Platform.Windows</Name>
+    </ProjectReference>
+	<ProjectReference Include="..\Scalar.Service.UI\Scalar.Service.UI.csproj">
+      <Project>{93b403fd-dafb-46c5-9636-b122792a548a}</Project>
+      <Name>Scalar.Service.UI</Name>
     </ProjectReference>
     <ProjectReference Include="..\Scalar.Service\Scalar.Service.Mac.csproj">
       <Project>{03769a07-f216-456b-886b-e07caf6c5e81}</Project>

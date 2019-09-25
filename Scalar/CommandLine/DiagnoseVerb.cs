@@ -117,6 +117,13 @@ namespace Scalar.CommandLine
                             this.ServiceName,
                             copySubFolders: true);
 
+                        // service ui
+                        this.CopyAllFiles(
+                            ScalarPlatform.Instance.GetDataRootForScalar(),
+                            archiveFolderPath,
+                            ScalarConstants.Service.UIName,
+                            copySubFolders: true);
+
                         if (ScalarPlatform.Instance.UnderConstruction.SupportsScalarUpgrade)
                         {
                             // upgrader

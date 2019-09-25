@@ -89,6 +89,7 @@ namespace Scalar.Common
             public const string Prefetch = "prefetch";
             public const string Repair = "repair";
             public const string Service = "service";
+            public const string ServiceUI = "service_ui";
             public const string Sparse = "sparse";
             public const string UpgradeVerb = UpgradePrefix + "_verb";
             public const string UpgradeProcess = UpgradePrefix + "_process";

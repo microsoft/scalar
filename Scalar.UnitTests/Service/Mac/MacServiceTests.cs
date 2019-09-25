@@ -1,7 +1,9 @@
 using Moq;
 using NUnit.Framework;
 using Scalar.Common;
+using Scalar.Common.NamedPipes;
 using Scalar.Service;
+using Scalar.Service.Handlers;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.FileSystem;
 using System.IO;
@@ -51,7 +53,11 @@ namespace Scalar.UnitTests.Service.Mac
         public void RepoRegistryMountsOnlyRegisteredRepos()
         {
             Mock<IRepoMounter> repoMounterMock = new Mock<IRepoMounter>(MockBehavior.Strict);
+            Mock<INotificationHandler> notificationHandlerMock = new Mock<INotificationHandler>(MockBehavior.Strict);
+
             repoMounterMock.Setup(mp => mp.MountRepository(ExpectedActiveRepoPath, ExpectedActiveUserId)).Returns(true);
+            notificationHandlerMock.Setup(nh => nh.SendNotification(
+                It.Is<NamedPipeMessages.Notification.Request>(rq => rq.Id == NamedPipeMessages.Notification.Request.Identifier.AutomountStart)));
 
             this.CreateTestRepos(ServiceDataLocation);
 
@@ -60,11 +66,12 @@ namespace Scalar.UnitTests.Service.Mac
                 this.fileSystem,
                 ServiceDataLocation,
                 repoMounterMock.Object,
-                null);
+                notificationHandlerMock.Object);
 
             repoRegistry.AutoMountRepos(ExpectedActiveUserId.ToString(), ExpectedSessionId);
 
             repoMounterMock.VerifyAll();
+            notificationHandlerMock.VerifyAll();
         }
 
         [TestCase]

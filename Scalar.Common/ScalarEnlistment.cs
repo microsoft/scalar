@@ -97,6 +97,7 @@ namespace Scalar.Common
         public static string GetNewScalarLogFileName(
             string logsRoot,
             string logFileType,
+            string logId = null,
             PhysicalFileSystem fileSystem = null)
         {
             return Enlistment.GetNewLogFileName(
