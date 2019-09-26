@@ -136,38 +136,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
-        public void DeleteCacheDuringDownloads()
-        {
-            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
-
-            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment1.DotScalarRoot).ShouldNotBeNull();
-            objectsRoot.ShouldBeADirectory(this.fileSystem);
-
-            Task task1 = Task.Run(() =>
-            {
-                this.LoadBlobsViaGit(enlistment1);
-            });
-
-            while (!task1.IsCompleted)
-            {
-                try
-                {
-                    // Delete objectsRoot rather than this.localCachePath as the blob sizes database cannot be deleted while Scalar is mounted
-                    RepositoryHelpers.DeleteTestDirectory(objectsRoot);
-                    Thread.Sleep(100);
-                }
-                catch (IOException)
-                {
-                    // Hydration may have handles into the cache, so failing this delete is expected.
-                }
-            }
-
-            task1.Exception.ShouldBeNull();
-
-            enlistment1.Status().ShouldContain("Mount status: Ready");
-        }
-
-        [TestCase]
         public void DownloadingACommitWithoutTreesDoesntBreakNextClone()
         {
             ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
