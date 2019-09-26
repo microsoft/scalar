@@ -6,6 +6,7 @@ using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Scalar.FunctionalTests.Tests.GitCommands
 {
@@ -131,8 +132,16 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
             if (this.validateWorkingTree == Settings.ValidateWorkingTreeMode.SparseMode)
             {
-                ScalarProcess scalar = new ScalarProcess(this.Enlistment);
-                scalar.SparseSet(SparseModeFolders);
+                StringBuilder sb = new StringBuilder();
+
+                foreach (string folder in SparseModeFolders)
+                {
+                    sb.Append(folder.Replace(Path.DirectorySeparatorChar, TestConstants.GitPathSeparator)
+                                    .Trim(TestConstants.GitPathSeparator));
+                    sb.Append("\n");
+                }
+
+                GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "sparse-checkout set --stdin", sb.ToString());
                 this.pathPrefixes = SparseModeFolders;
             }
 
