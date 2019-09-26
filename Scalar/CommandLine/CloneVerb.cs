@@ -656,10 +656,8 @@ namespace Scalar.CommandLine
                 prefetcher.PrefetchWithStats(
                                 this.Branch,
                                 isBranch: true,
-                                hydrateFilesAfterDownload: false,
                                 matchedBlobCount: out int _,
-                                downloadedBlobCount: out int _,
-                                hydratedFileCount: out int _);
+                                downloadedBlobCount: out int _);
 
                 if (prefetcher.HasFailures)
                 {

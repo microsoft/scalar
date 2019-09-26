@@ -119,20 +119,17 @@ namespace Scalar.Common.Prefetch
             FileBasedDictionary<string, string> lastPrefetchArgs,
             string commitId,
             List<string> files,
-            List<string> folders,
-            bool hydrateFilesAfterDownload)
+            List<string> folders)
         {
             if (lastPrefetchArgs != null &&
                 lastPrefetchArgs.TryGetValue(PrefetchArgs.CommitId, out string lastCommitId) &&
                 lastPrefetchArgs.TryGetValue(PrefetchArgs.Files, out string lastFilesString) &&
-                lastPrefetchArgs.TryGetValue(PrefetchArgs.Folders, out string lastFoldersString) &&
-                lastPrefetchArgs.TryGetValue(PrefetchArgs.Hydrate, out string lastHydrateString))
+                lastPrefetchArgs.TryGetValue(PrefetchArgs.Folders, out string lastFoldersString))
             {
                 string newFilesString = JsonConvert.SerializeObject(files);
                 string newFoldersString = JsonConvert.SerializeObject(folders);
                 bool isNoop =
                     commitId == lastCommitId &&
-                    hydrateFilesAfterDownload.ToString() == lastHydrateString &&
                     newFilesString == lastFilesString &&
                     newFoldersString == lastFoldersString;
 
@@ -144,11 +141,9 @@ namespace Scalar.Common.Prefetch
                         { "Last" + PrefetchArgs.CommitId, lastCommitId },
                         { "Last" + PrefetchArgs.Files, lastFilesString },
                         { "Last" + PrefetchArgs.Folders, lastFoldersString },
-                        { "Last" + PrefetchArgs.Hydrate, lastHydrateString },
                         { "New" + PrefetchArgs.CommitId, commitId },
                         { "New" + PrefetchArgs.Files, newFilesString },
                         { "New" + PrefetchArgs.Folders, newFoldersString },
-                        { "New" + PrefetchArgs.Hydrate, hydrateFilesAfterDownload.ToString() },
                         { "Result", isNoop },
                     });
 
@@ -193,14 +188,11 @@ namespace Scalar.Common.Prefetch
         public void PrefetchWithStats(
             string branchOrCommit,
             bool isBranch,
-            bool hydrateFilesAfterDownload,
             out int matchedBlobCount,
-            out int downloadedBlobCount,
-            out int hydratedFileCount)
+            out int downloadedBlobCount)
         {
             matchedBlobCount = 0;
             downloadedBlobCount = 0;
-            hydratedFileCount = 0;
 
             if (string.IsNullOrWhiteSpace(branchOrCommit))
             {
@@ -252,9 +244,6 @@ namespace Scalar.Common.Prefetch
             // First create the pipeline
             //
             //  diff ---> blobFinder ---> downloader ---> packIndexer
-            //    |           |              |                 |
-            //     ------------------------------------------------------> fileHydrator
-            ////
 
             // diff
             //  Inputs:
@@ -290,15 +279,6 @@ namespace Scalar.Common.Prefetch
             //      * availableBlobs (out param): Blobs that have completed downloading and indexing (shared between `blobFinder`, `downloader`, and `packIndexer`, all add blob ids to the list as they are locally available)
             IndexPackStage packIndexer = new IndexPackStage(this.IndexThreadCount, downloader.AvailablePacks, availableBlobs, this.Tracer, this.GitObjects);
 
-            // fileHydrator
-            //  Inputs:
-            //      * workingDirectoryRoot (in param): the root of the working directory where hydration takes place
-            //      * blobIdsToPaths (in param): paths of all blob ids that need to be hydrated from output of `diff`
-            //      * availableBlobs (in param): blobs id that are available locally, from whatever source
-            //  Outputs:
-            //      * Hydrated files on disk.
-            HydrateFilesStage fileHydrator = new HydrateFilesStage(Environment.ProcessorCount * 2, this.Enlistment.WorkingDirectoryRoot, diff.FileAddOperations, availableBlobs, this.Tracer);
-
             // All the stages of the pipeline are created and wired up, now kick them off in the proper sequence
 
             ThreadStart performDiff = () =>
@@ -307,24 +287,10 @@ namespace Scalar.Common.Prefetch
                 this.HasFailures |= diff.HasFailures;
             };
 
-            if (hydrateFilesAfterDownload)
-            {
-                // Call synchronously to ensure that diff.FileAddOperations
-                // is completely populated when fileHydrator starts
-                performDiff();
-            }
-            else
-            {
-                new Thread(performDiff).Start();
-            }
+            new Thread(performDiff).Start();
 
             blobFinder.Start();
             downloader.Start();
-
-            if (hydrateFilesAfterDownload)
-            {
-                fileHydrator.Start();
-            }
 
             // If indexing happens during searching, searching progressively gets slower, so wait on searching before indexing.
             blobFinder.WaitForCompletion();
@@ -340,15 +306,8 @@ namespace Scalar.Common.Prefetch
 
             availableBlobs.CompleteAdding();
 
-            if (hydrateFilesAfterDownload)
-            {
-                fileHydrator.WaitForCompletion();
-                this.HasFailures |= fileHydrator.HasFailures;
-            }
-
             matchedBlobCount = blobFinder.AvailableBlobCount + blobFinder.MissingBlobCount;
             downloadedBlobCount = blobFinder.MissingBlobCount;
-            hydratedFileCount = fileHydrator.ReadFileCount;
 
             if (!this.SkipConfigUpdate && !this.HasFailures)
             {
@@ -362,7 +321,7 @@ namespace Scalar.Common.Prefetch
 
             if (!this.HasFailures)
             {
-                this.SavePrefetchArgs(commitToFetch, hydrateFilesAfterDownload);
+                this.SavePrefetchArgs(commitToFetch);
             }
         }
 
@@ -557,7 +516,7 @@ namespace Scalar.Common.Prefetch
             return targetCommitish.StartsWith("refs/", StringComparison.OrdinalIgnoreCase);
         }
 
-        private void SavePrefetchArgs(string targetCommit, bool hydrate)
+        private void SavePrefetchArgs(string targetCommit)
         {
             if (this.lastPrefetchArgs != null)
             {
@@ -567,7 +526,6 @@ namespace Scalar.Common.Prefetch
                         new KeyValuePair<string, string>(PrefetchArgs.CommitId, targetCommit),
                         new KeyValuePair<string, string>(PrefetchArgs.Files, JsonConvert.SerializeObject(this.FileList)),
                         new KeyValuePair<string, string>(PrefetchArgs.Folders, JsonConvert.SerializeObject(this.FolderList)),
-                        new KeyValuePair<string, string>(PrefetchArgs.Hydrate, hydrate.ToString()),
                     });
             }
         }
@@ -585,7 +543,6 @@ namespace Scalar.Common.Prefetch
             public const string CommitId = "CommitId";
             public const string Files = "Files";
             public const string Folders = "Folders";
-            public const string Hydrate = "Hydrate";
         }
     }
 }

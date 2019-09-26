@@ -4,17 +4,14 @@ using Scalar.FunctionalTests.Should;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
-    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class SharedCacheTests : TestsWithMultiEnlistment
     {
         private const string WellKnownFile = "Readme.md";
@@ -61,25 +58,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
-        public void RepairFixesCorruptBlobSizesDatabase()
-        {
-            ScalarFunctionalTestEnlistment enlistment = this.CloneAndMountEnlistment();
-            enlistment.UnmountScalar();
-
-            // Repair on a healthy enlistment should succeed
-            enlistment.Repair(confirm: true);
-
-            string blobSizesRoot = ScalarHelpers.GetPersistedBlobSizesRoot(enlistment.DotScalarRoot).ShouldNotBeNull();
-            string blobSizesDbPath = Path.Combine(blobSizesRoot, "BlobSizes.sql");
-            blobSizesDbPath.ShouldBeAFile(this.fileSystem);
-            this.fileSystem.WriteAllText(blobSizesDbPath, "0000");
-
-            enlistment.TryMountScalar().ShouldEqual(false, "Scalar shouldn't mount when blob size db is corrupt");
-            enlistment.Repair(confirm: true);
-            enlistment.MountScalar();
-        }
-
-        [TestCase]
         [Category(Categories.MacTODO.NeedsServiceVerb)]
         public void CloneCleansUpStaleMetadataLock()
         {
@@ -97,14 +75,14 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
-        public void ParallelReadsInASharedCache()
+        public void ParallelDownloadsInSharedCache()
         {
             ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
             ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
             ScalarFunctionalTestEnlistment enlistment3 = null;
 
-            Task task1 = Task.Run(() => this.HydrateEntireRepo(enlistment1));
-            Task task2 = Task.Run(() => this.HydrateEntireRepo(enlistment2));
+            Task task1 = Task.Run(() => this.LoadBlobsViaGit(enlistment1));
+            Task task2 = Task.Run(() => this.LoadBlobsViaGit(enlistment2));
             Task task3 = Task.Run(() => enlistment3 = this.CloneAndMountEnlistment());
 
             task1.Wait();
@@ -125,6 +103,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
+        [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
         public void DeleteObjectsCacheAndCacheMappingBeforeMount()
         {
             ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
@@ -142,8 +121,8 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
             enlistment1.MountScalar();
 
-            Task task1 = Task.Run(() => this.HydrateRootFolder(enlistment1));
-            Task task2 = Task.Run(() => this.HydrateRootFolder(enlistment2));
+            Task task1 = Task.Run(() => this.LoadBlobsViaGit(enlistment1));
+            Task task2 = Task.Run(() => this.LoadBlobsViaGit(enlistment2));
             task1.Wait();
             task2.Wait();
             task1.Exception.ShouldBeNull();
@@ -154,38 +133,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
             this.AlternatesFileShouldHaveGitObjectsRoot(enlistment1);
             this.AlternatesFileShouldHaveGitObjectsRoot(enlistment2);
-        }
-
-        [TestCase]
-        public void DeleteCacheDuringHydrations()
-        {
-            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
-
-            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment1.DotScalarRoot).ShouldNotBeNull();
-            objectsRoot.ShouldBeADirectory(this.fileSystem);
-
-            Task task1 = Task.Run(() =>
-            {
-                this.HydrateEntireRepo(enlistment1);
-            });
-
-            while (!task1.IsCompleted)
-            {
-                try
-                {
-                    // Delete objectsRoot rather than this.localCachePath as the blob sizes database cannot be deleted while Scalar is mounted
-                    RepositoryHelpers.DeleteTestDirectory(objectsRoot);
-                    Thread.Sleep(100);
-                }
-                catch (IOException)
-                {
-                    // Hydration may have handles into the cache, so failing this delete is expected.
-                }
-            }
-
-            task1.Exception.ShouldBeNull();
-
-            enlistment1.Status().ShouldContain("Mount status: Ready");
         }
 
         [TestCase]
@@ -251,7 +198,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             // Determine the new local cache key
             string newMappingFileContents = mappingFilePath.ShouldBeAFile(this.fileSystem).WithContents();
             const int GuidStringLength = 32;
-            string mappingFileKey = "A {\"Key\":\"https://scalar.visualstudio.com/ci/_git/fortests\",\"Value\":\"";
+            string mappingFileKey = "A {\"Key\":\"https://gvfs.visualstudio.com/ci/_git/fortests\",\"Value\":\"";
             int localKeyIndex = newMappingFileContents.IndexOf(mappingFileKey);
             string newCacheKey = newMappingFileContents.Substring(localKeyIndex + mappingFileKey.Length, GuidStringLength);
 
@@ -266,9 +213,10 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
+        [Category(Categories.MacTODO.NeedsServiceVerb)]
         public void SecondCloneSucceedsWithMissingTrees()
         {
-            string newCachePath = Path.Combine(this.localCacheParentPath, ".customGvfsCache2");
+            string newCachePath = Path.Combine(this.localCacheParentPath, ".customScalarCache2");
             ScalarFunctionalTestEnlistment enlistment1 = this.CreateNewEnlistment(localCacheRoot: newCachePath, skipPrefetch: true);
             File.ReadAllText(Path.Combine(enlistment1.RepoRoot, WellKnownFile));
             this.AlternatesFileShouldHaveGitObjectsRoot(enlistment1);
@@ -277,11 +225,12 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             // but does not download any more reachable objects.
             string command = "cat-file -p origin/" + WellKnownBranch + "^{tree}";
             ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment1.RepoRoot, command);
-            result.ExitCode.ShouldEqual(0, $"git {command} failed with error: " + result.Errors);
+            result.ExitCode.ShouldEqual(0, $"git {command} failed on {nameof(enlistment1)} with error: {result.Errors}");
 
             // If we did not properly check the failed checkout at this step, then clone will fail during checkout.
             ScalarFunctionalTestEnlistment enlistment2 = this.CreateNewEnlistment(localCacheRoot: newCachePath, branch: WellKnownBranch, skipPrefetch: true);
-            File.ReadAllText(Path.Combine(enlistment2.RepoRoot, WellKnownFile));
+            result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment2.RepoRoot, command);
+            result.ExitCode.ShouldEqual(0, $"git {command} failed on {nameof(enlistment2)} with error: {result.Errors}");
         }
 
         // Override OnTearDownEnlistmentsDeleted rathern than using [TearDown] as the enlistments need to be unmounted before
@@ -303,25 +252,12 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             alternatesFileContents.ShouldEqual(objectsRoot);
         }
 
-        private void HydrateRootFolder(ScalarFunctionalTestEnlistment enlistment)
+        private void LoadBlobsViaGit(ScalarFunctionalTestEnlistment enlistment)
         {
-            List<string> allFiles = Directory.EnumerateFiles(enlistment.RepoRoot, "*", SearchOption.TopDirectoryOnly).ToList();
-            for (int i = 0; i < allFiles.Count; ++i)
-            {
-                File.ReadAllText(allFiles[i]);
-            }
-        }
-
-        private void HydrateEntireRepo(ScalarFunctionalTestEnlistment enlistment)
-        {
-            List<string> allFiles = Directory.EnumerateFiles(enlistment.RepoRoot, "*", SearchOption.AllDirectories).ToList();
-            for (int i = 0; i < allFiles.Count; ++i)
-            {
-                if (!allFiles[i].StartsWith(enlistment.RepoRoot + "\\.git\\", StringComparison.OrdinalIgnoreCase))
-                {
-                    File.ReadAllText(allFiles[i]);
-                }
-            }
+            // 'git rev-list --objects' will check for all objects' existence, which
+            // triggers an object download on every missing blob.
+            ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment.RepoRoot, "rev-list --all --objects");
+            result.ExitCode.ShouldEqual(0);
         }
     }
 }

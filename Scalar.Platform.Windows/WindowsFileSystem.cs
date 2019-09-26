@@ -103,11 +103,6 @@ namespace Scalar.Platform.Windows
             return WindowsFileSystem.TryGetNormalizedPathImplementation(path, out normalizedPath, out errorMessage);
         }
 
-        public bool HydrateFile(string fileName, byte[] buffer)
-        {
-            return NativeFileReader.TryReadFirstByteOfFile(fileName, buffer);
-        }
-
         public bool IsExecutable(string fileName)
         {
             string fileExtension = Path.GetExtension(fileName);
