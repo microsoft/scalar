@@ -13,7 +13,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
-    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class SharedCacheTests : TestsWithMultiEnlistment
     {
         private const string WellKnownFile = "Readme.md";
@@ -60,25 +59,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
-        public void RepairFixesCorruptBlobSizesDatabase()
-        {
-            ScalarFunctionalTestEnlistment enlistment = this.CloneAndMountEnlistment();
-            enlistment.UnmountScalar();
-
-            // Repair on a healthy enlistment should succeed
-            enlistment.Repair(confirm: true);
-
-            string blobSizesRoot = ScalarHelpers.GetPersistedBlobSizesRoot(enlistment.DotScalarRoot).ShouldNotBeNull();
-            string blobSizesDbPath = Path.Combine(blobSizesRoot, "BlobSizes.sql");
-            blobSizesDbPath.ShouldBeAFile(this.fileSystem);
-            this.fileSystem.WriteAllText(blobSizesDbPath, "0000");
-
-            enlistment.TryMountScalar().ShouldEqual(false, "Scalar shouldn't mount when blob size db is corrupt");
-            enlistment.Repair(confirm: true);
-            enlistment.MountScalar();
-        }
-
-        [TestCase]
         [Category(Categories.MacTODO.NeedsServiceVerb)]
         public void CloneCleansUpStaleMetadataLock()
         {
@@ -96,7 +76,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
-        public void ParallelReadsInASharedCache()
+        public void ParallelDownloadsInSharedCache()
         {
             ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
             ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
@@ -156,7 +136,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
-        public void DeleteCacheDuringHydrations()
+        public void DeleteCacheDuringDownloads()
         {
             ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
 
@@ -267,7 +247,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void SecondCloneSucceedsWithMissingTrees()
         {
-            string newCachePath = Path.Combine(this.localCacheParentPath, ".customGvfsCache2");
+            string newCachePath = Path.Combine(this.localCacheParentPath, ".customScalarCache2");
             ScalarFunctionalTestEnlistment enlistment1 = this.CreateNewEnlistment(localCacheRoot: newCachePath, skipPrefetch: true);
             File.ReadAllText(Path.Combine(enlistment1.RepoRoot, WellKnownFile));
             this.AlternatesFileShouldHaveGitObjectsRoot(enlistment1);
@@ -276,11 +256,12 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             // but does not download any more reachable objects.
             string command = "cat-file -p origin/" + WellKnownBranch + "^{tree}";
             ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment1.RepoRoot, command);
-            result.ExitCode.ShouldEqual(0, $"git {command} failed with error: " + result.Errors);
+            result.ExitCode.ShouldEqual(0, $"git {command} failed on {nameof(enlistment1)} with error: {result.Errors}");
 
             // If we did not properly check the failed checkout at this step, then clone will fail during checkout.
             ScalarFunctionalTestEnlistment enlistment2 = this.CreateNewEnlistment(localCacheRoot: newCachePath, branch: WellKnownBranch, skipPrefetch: true);
-            File.ReadAllText(Path.Combine(enlistment2.RepoRoot, WellKnownFile));
+            result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment2.RepoRoot, command);
+            result.ExitCode.ShouldEqual(0, $"git {command} failed on {nameof(enlistment2)} with error: {result.Errors}");
         }
 
         // Override OnTearDownEnlistmentsDeleted rathern than using [TearDown] as the enlistments need to be unmounted before
@@ -304,6 +285,8 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
         private void LoadBlobsViaGit(ScalarFunctionalTestEnlistment enlistment)
         {
+            // 'git rev-list --objects' will check for all objects' existence, which
+            // triggers an object download on every missing blob.
             ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment.RepoRoot, "rev-list --all --objects");
             result.ExitCode.ShouldEqual(0);
         }
