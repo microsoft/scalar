@@ -6,7 +6,6 @@ using Scalar.Tests.Should;
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
@@ -104,6 +103,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
+        [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
         public void DeleteObjectsCacheAndCacheMappingBeforeMount()
         {
             ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
@@ -198,7 +198,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             // Determine the new local cache key
             string newMappingFileContents = mappingFilePath.ShouldBeAFile(this.fileSystem).WithContents();
             const int GuidStringLength = 32;
-            string mappingFileKey = "A {\"Key\":\"https://scalar.visualstudio.com/ci/_git/fortests\",\"Value\":\"";
+            string mappingFileKey = "A {\"Key\":\"https://gvfs.visualstudio.com/ci/_git/fortests\",\"Value\":\"";
             int localKeyIndex = newMappingFileContents.IndexOf(mappingFileKey);
             string newCacheKey = newMappingFileContents.Substring(localKeyIndex + mappingFileKey.Length, GuidStringLength);
 
@@ -213,6 +213,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
+        [Category(Categories.MacTODO.NeedsServiceVerb)]
         public void SecondCloneSucceedsWithMissingTrees()
         {
             string newCachePath = Path.Combine(this.localCacheParentPath, ".customScalarCache2");
