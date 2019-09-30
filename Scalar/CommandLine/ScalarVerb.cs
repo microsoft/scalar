@@ -803,12 +803,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                 }
 
                 this.InitializeCachePathsFromRepoMetadata(tracer, enlistment);
-
-                // Note: Repos cloned with a version of Scalar that predates the local cache will not have a local cache configured
-                if (!string.IsNullOrWhiteSpace(enlistment.LocalCacheRoot))
-                {
-                    this.EnsureLocalCacheIsHealthy(tracer, enlistment, retryConfig, serverScalarConfig, cacheServer);
-                }
+                this.EnsureLocalCacheIsHealthy(tracer, enlistment, retryConfig, serverScalarConfig, cacheServer);
 
                 RepoMetadata.Shutdown();
             }
@@ -835,7 +830,10 @@ You can specify a URL, a name of a configured cache server, or the special names
                     this.ReportErrorAndExit(tracer, "Failed to determine local cache path from repo metadata: " + error);
                 }
 
-                // Note: localCacheRoot is allowed to be empty, this can occur when upgrading from disk layout version 11 to 12
+                if (string.IsNullOrWhiteSpace(localCacheRoot))
+                {
+                    this.ReportErrorAndExit(tracer, "Invalid local cache path (empty or whitespace)");
+                }
 
                 enlistment.InitializeCachePaths(localCacheRoot, gitObjectsRoot);
             }
