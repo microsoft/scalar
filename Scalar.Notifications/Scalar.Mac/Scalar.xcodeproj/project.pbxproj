@@ -41,7 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		433FE814227B593500488730 /* Scalar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Scalar.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		433FE814227B593500488730 /* Scalar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Scalar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		433FE817227B593500488730 /* ScalarAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScalarAppDelegate.h; sourceTree = "<group>"; };
 		433FE818227B593500488730 /* ScalarAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScalarAppDelegate.m; sourceTree = "<group>"; };
 		433FE81A227B594300488730 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -216,7 +216,7 @@
 			);
 			dependencies = (
 			);
-			name = "Scalar";
+			name = Scalar;
 			productName = Scalar;
 			productReference = 433FE814227B593500488730 /* Scalar.app */;
 			productType = "com.apple.product-type.application";
@@ -245,7 +245,7 @@
 		433FE80C227B593500488730 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0930;
+				LastUpgradeCheck = 1100;
 				ORGANIZATIONNAME = Microsoft;
 				TargetAttributes = {
 					433FE813227B593500488730 = {
@@ -465,13 +465,14 @@
 		433FE831227B594300488730 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "Scalar";
+				ASSETCATALOG_COMPILER_APPICON_NAME = Scalar;
 				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = StatusMenuItem/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -488,13 +489,14 @@
 		433FE832227B594300488730 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "Scalar";
+				ASSETCATALOG_COMPILER_APPICON_NAME = Scalar;
 				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = StatusMenuItem/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
