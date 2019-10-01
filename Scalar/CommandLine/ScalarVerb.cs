@@ -436,14 +436,18 @@ namespace Scalar.CommandLine
             }
         }
 
-        protected bool TryCreateAlternatesFile(PhysicalFileSystem fileSystem, ScalarEnlistment enlistment, out string errorMessage)
+        protected bool TrySetObjectCacheLocation(PhysicalFileSystem fileSystem, ScalarEnlistment enlistment, out string errorMessage)
         {
             try
             {
                 string alternatesFilePath = this.GetAlternatesPath(enlistment);
                 string tempFilePath = alternatesFilePath + ".tmp";
-                fileSystem.WriteAllText(tempFilePath, enlistment.GitObjectsRoot);
+                string gitObjectsPath = enlistment.GitObjectsRoot.Replace(Path.PathSeparator, ScalarConstants.GitPathSeparator);
+                fileSystem.WriteAllText(tempFilePath, gitObjectsPath);
                 fileSystem.MoveAndOverwriteFile(tempFilePath, alternatesFilePath);
+
+                GitProcess process = new GitProcess(enlistment);
+                process.SetInLocalConfig(ScalarConstants.GitConfig.ObjectCache, gitObjectsPath);
             }
             catch (SecurityException e)
             {
@@ -914,7 +918,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                     {
                         tracer.RelatedInfo($"{nameof(this.EnsureLocalCacheIsHealthy)}: GitObjectsRoot ({enlistment.GitObjectsRoot}) missing from alternates files, recreating alternates");
                         string error;
-                        if (!this.TryCreateAlternatesFile(fileSystem, enlistment, out error))
+                        if (!this.TrySetObjectCacheLocation(fileSystem, enlistment, out error))
                         {
                             this.ReportErrorAndExit(tracer, $"Failed to update alternates file to include git objects root: {error}");
                         }
@@ -981,7 +985,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                     }
 
                     tracer.RelatedInfo($"{nameof(this.EnsureLocalCacheIsHealthy)}: Creating new alternates file");
-                    if (!this.TryCreateAlternatesFile(fileSystem, enlistment, out error))
+                    if (!this.TrySetObjectCacheLocation(fileSystem, enlistment, out error))
                     {
                         this.ReportErrorAndExit(tracer, $"Failed to update alterates file with new objects path: {error}");
                     }

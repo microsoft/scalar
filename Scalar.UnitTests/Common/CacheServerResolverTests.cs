@@ -26,16 +26,6 @@ namespace Scalar.UnitTests.Common
         }
 
         [TestCase]
-        public void CanGetCacheServerFromOldConfig()
-        {
-            MockScalarEnlistment enlistment = this.CreateEnlistment(null, CacheServerUrl);
-            CacheServerInfo cacheServer = CacheServerResolver.GetCacheServerFromConfig(enlistment);
-
-            cacheServer.Url.ShouldEqual(CacheServerUrl);
-            CacheServerResolver.GetUrlFromConfig(enlistment).ShouldEqual(CacheServerUrl);
-        }
-
-        [TestCase]
         public void CanGetCacheServerWithNoConfig()
         {
             MockScalarEnlistment enlistment = this.CreateEnlistment();

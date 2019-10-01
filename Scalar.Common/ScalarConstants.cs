@@ -31,7 +31,7 @@ namespace Scalar.Common
             public const string MountId = ScalarPrefix + "mount-id";
             public const string EnlistmentId = ScalarPrefix + "enlistment-id";
             public const string CacheServer = ScalarPrefix + "cache-server";
-            public const string DeprecatedCacheEndpointSuffix = ".cache-server-url";
+            public const string ObjectCache = "gvfs.sharedCache";
             public const string ScalarTelemetryId = GitConfig.ScalarPrefix + "telemetry-id";
             public const string ScalarTelemetryPipe = GitConfig.ScalarPrefix + "telemetry-pipe";
             public const string IKey = GitConfig.ScalarPrefix + "ikey";
