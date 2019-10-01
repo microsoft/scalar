@@ -130,59 +130,8 @@ namespace Scalar.Common
                 {
                     new KeyValuePair<string, string>(Keys.DiskLayoutMajorVersion, ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion.ToString()),
                     new KeyValuePair<string, string>(Keys.DiskLayoutMinorVersion, ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMinorVersion.ToString()),
-                    new KeyValuePair<string, string>(Keys.GitObjectsRoot, enlistment.GitObjectsRoot),
-                    new KeyValuePair<string, string>(Keys.LocalCacheRoot, enlistment.LocalCacheRoot),
                     new KeyValuePair<string, string>(Keys.EnlistmentId, CreateNewEnlistmentId(tracer)),
                 });
-        }
-
-        public bool TryGetGitObjectsRoot(out string gitObjectsRoot, out string error)
-        {
-            gitObjectsRoot = null;
-
-            try
-            {
-                if (!this.repoMetadata.TryGetValue(Keys.GitObjectsRoot, out gitObjectsRoot))
-                {
-                    error = "Git objects root not found";
-                    return false;
-                }
-            }
-            catch (FileBasedCollectionException ex)
-            {
-                error = ex.Message;
-                return false;
-            }
-
-            error = null;
-            return true;
-        }
-
-        public void SetGitObjectsRoot(string gitObjectsRoot)
-        {
-            this.repoMetadata.SetValueAndFlush(Keys.GitObjectsRoot, gitObjectsRoot);
-        }
-
-        public bool TryGetLocalCacheRoot(out string localCacheRoot, out string error)
-        {
-            localCacheRoot = null;
-
-            try
-            {
-                if (!this.repoMetadata.TryGetValue(Keys.LocalCacheRoot, out localCacheRoot))
-                {
-                    error = "Local cache root not found";
-                    return false;
-                }
-            }
-            catch (FileBasedCollectionException ex)
-            {
-                error = ex.Message;
-                return false;
-            }
-
-            error = null;
-            return true;
         }
 
         public void SetEntry(string keyName, string valueName)
@@ -203,8 +152,6 @@ namespace Scalar.Common
         {
             public const string DiskLayoutMajorVersion = "DiskLayoutVersion";
             public const string DiskLayoutMinorVersion = "DiskLayoutMinorVersion";
-            public const string GitObjectsRoot = "GitObjectsRoot";
-            public const string LocalCacheRoot = "LocalCacheRoot";
             public const string EnlistmentId = "EnlistmentId";
         }
     }

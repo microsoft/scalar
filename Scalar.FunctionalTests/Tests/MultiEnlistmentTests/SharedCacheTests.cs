@@ -111,7 +111,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
             enlistment1.UnmountScalar();
 
-            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment1.DotScalarRoot).ShouldNotBeNull();
+            string objectsRoot = ScalarHelpers.GetGitObjectsRoot(enlistment1.RepoRoot);
             objectsRoot.ShouldBeADirectory(this.fileSystem);
             RepositoryHelpers.DeleteTestDirectory(objectsRoot);
 
@@ -153,7 +153,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             enlistment.UnmountScalar();
 
             // Find the current git objects root and ensure it's on disk
-            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment.DotScalarRoot).ShouldNotBeNull();
+            string objectsRoot = ScalarHelpers.GetGitObjectsRoot(enlistment.RepoRoot);
             objectsRoot.ShouldBeADirectory(this.fileSystem);
 
             string mappingFilePath = Path.Combine(enlistment.LocalCacheRoot, "mapping.dat");
@@ -165,7 +165,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
             enlistment.MountScalar();
 
-            ScalarHelpers.GetPersistedGitObjectsRoot(enlistment.DotScalarRoot).ShouldEqual(objectsRoot);
+            ScalarHelpers.GetGitObjectsRoot(enlistment.RepoRoot).ShouldEqual(objectsRoot);
             objectsRoot.ShouldBeADirectory(this.fileSystem);
             mappingFilePath.ShouldBeAFile(this.fileSystem).WithContents(mappingFileContents);
 
@@ -180,7 +180,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             enlistment.UnmountScalar();
 
             // Find the current git objects root and ensure it's on disk
-            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment.DotScalarRoot).ShouldNotBeNull();
+            string objectsRoot = ScalarHelpers.GetGitObjectsRoot(enlistment.RepoRoot);
             objectsRoot.ShouldBeADirectory(this.fileSystem);
 
             string mappingFilePath = Path.Combine(enlistment.LocalCacheRoot, "mapping.dat");
@@ -204,7 +204,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
             // Validate the new objects root is on disk and uses the new key
             objectsRoot.ShouldNotExistOnDisk(this.fileSystem);
-            string newObjectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment.DotScalarRoot);
+            string newObjectsRoot = ScalarHelpers.GetGitObjectsRoot(enlistment.RepoRoot);
             newObjectsRoot.ShouldNotEqual(objectsRoot);
             newObjectsRoot.ShouldContain(newCacheKey);
             newObjectsRoot.ShouldBeADirectory(this.fileSystem);
@@ -247,7 +247,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
         private void AlternatesFileShouldHaveGitObjectsRoot(ScalarFunctionalTestEnlistment enlistment)
         {
-            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(enlistment.DotScalarRoot);
+            string objectsRoot = ScalarHelpers.GetGitObjectsRoot(enlistment.RepoRoot);
             string alternatesFileContents = Path.Combine(enlistment.RepoRoot, ".git", "objects", "info", "alternates").ShouldBeAFile(this.fileSystem).WithContents();
             alternatesFileContents.ShouldEqual(objectsRoot);
         }
