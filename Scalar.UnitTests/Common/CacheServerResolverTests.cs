@@ -185,7 +185,7 @@ namespace Scalar.UnitTests.Common
         {
             MockGitProcess gitProcess = new MockGitProcess();
             gitProcess.SetExpectedCommandResult(
-                "config --local scalar.cache-server",
+                "config --local gvfs.cache-server",
                 () => new GitProcess.Result(newConfigValue ?? string.Empty, string.Empty, newConfigValue != null ? GitProcess.Result.SuccessCode : GitProcess.Result.GenericFailureCode));
             gitProcess.SetExpectedCommandResult(
                 "config scalar.mock:..repourl.cache-server-url",
