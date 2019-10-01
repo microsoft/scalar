@@ -257,7 +257,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             // 'git rev-list --objects' will check for all objects' existence, which
             // triggers an object download on every missing blob.
             ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment.RepoRoot, "rev-list --all --objects");
-            result.ExitCode.ShouldEqual(0);
+            result.ExitCode.ShouldEqual(0, result.Errors);
         }
     }
 }
