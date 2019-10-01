@@ -33,7 +33,6 @@ namespace Scalar.Common.Http
             // TODO 1057500: Remove support for encoded-repo-url cache config setting
             return
                 GetValueFromConfig(git, ScalarConstants.GitConfig.CacheServer, localOnly: true)
-                ?? GetValueFromConfig(git, GetDeprecatedCacheConfigSettingName(enlistment), localOnly: false)
                 ?? enlistment.RepoUrl;
         }
 
@@ -142,17 +141,6 @@ namespace Scalar.Common.Http
             }
 
             return value;
-        }
-
-        private static string GetDeprecatedCacheConfigSettingName(Enlistment enlistment)
-        {
-            string sectionUrl =
-                enlistment.RepoUrl.ToLowerInvariant()
-                .Replace("https://", string.Empty)
-                .Replace("http://", string.Empty)
-                .Replace('/', '.');
-
-            return ScalarConstants.GitConfig.ScalarPrefix + sectionUrl + ScalarConstants.GitConfig.DeprecatedCacheEndpointSuffix;
         }
 
         private CacheServerInfo CreateNone()

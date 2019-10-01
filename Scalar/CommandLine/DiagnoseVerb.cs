@@ -271,15 +271,14 @@ namespace Scalar.CommandLine
                 using (ITracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "DiagnoseVerb"))
                 {
                     string error;
-                    if (RepoMetadata.TryInitialize(tracer, Path.Combine(enlistment.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot), out error))
+                    GitProcess process = new GitProcess(enlistment);
+                    GitProcess.ConfigResult result = process.GetFromLocalConfig(ScalarConstants.GitConfig.ObjectCache);
+                    if (!result.TryParseAsString(out gitObjectsRoot, out error))
                     {
-                        RepoMetadata.Instance.TryGetLocalCacheRoot(out localCacheRoot, out error);
-                        RepoMetadata.Instance.TryGetGitObjectsRoot(out gitObjectsRoot, out error);
+                        this.WriteMessage("Failed to determine local cache path and git objects root: " + error);
                     }
-                    else
-                    {
-                        this.WriteMessage("Failed to determine local cache path and git objects root, RepoMetadata error: " + error);
-                    }
+
+                    localCacheRoot = Path.GetDirectoryName(gitObjectsRoot);
                 }
             }
             catch (Exception e)

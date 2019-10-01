@@ -14,17 +14,14 @@ namespace Scalar.FunctionalTests.Tools
         public const string ModifiedPathsNewLine = "\r\n";
         public const string PlaceholderFieldDelimiter = "\0";
 
+        public const string GitConfigObjectCache = "gvfs.sharedCache";
+
         public static readonly string BackgroundOpsFile = Path.Combine("databases", "BackgroundGitOperations.dat");
         public static readonly string PlaceholderListFile = Path.Combine("databases", "PlaceholderList.dat");
         public static readonly string RepoMetadataName = Path.Combine("databases", "RepoMetadata.dat");
 
-        private const string ModifedPathsLineAddPrefix = "A ";
-        private const string ModifedPathsLineDeletePrefix = "D ";
-
         private const string DiskLayoutMajorVersionKey = "DiskLayoutVersion";
         private const string DiskLayoutMinorVersionKey = "DiskLayoutMinorVersion";
-        private const string LocalCacheRootKey = "LocalCacheRoot";
-        private const string GitObjectsRootKey = "GitObjectsRoot";
         private const string BlobSizesRootKey = "BlobSizesRoot";
 
         public static string ConvertPathToGitFormat(string path)
@@ -44,24 +41,12 @@ namespace Scalar.FunctionalTests.Tools
             minorVersion = GetPersistedValue(dotScalarRoot, DiskLayoutMinorVersionKey);
         }
 
-        public static void SaveLocalCacheRoot(string dotScalarRoot, string value)
+        public static string GetGitObjectsRoot(string repoRoot)
         {
-            SavePersistedValue(dotScalarRoot, LocalCacheRootKey, value);
-        }
-
-        public static string GetPersistedLocalCacheRoot(string dotScalarRoot)
-        {
-            return GetPersistedValue(dotScalarRoot, LocalCacheRootKey);
-        }
-
-        public static void SaveGitObjectsRoot(string dotScalarRoot, string value)
-        {
-            SavePersistedValue(dotScalarRoot, GitObjectsRootKey, value);
-        }
-
-        public static string GetPersistedGitObjectsRoot(string dotScalarRoot)
-        {
-            return GetPersistedValue(dotScalarRoot, GitObjectsRootKey);
+            ProcessResult result = GitProcess.InvokeProcess(repoRoot, $"config --local {ScalarHelpers.GitConfigObjectCache}");
+            result.ExitCode.ShouldEqual(0, $"Failed to read git object root from config, error: {result.ExitCode}");
+            string.IsNullOrWhiteSpace(result.Output).ShouldBeFalse($"{ScalarHelpers.GitConfigObjectCache} should be set");
+            return result.Output.TrimEnd('\n');
         }
 
         public static string GetPersistedBlobSizesRoot(string dotScalarRoot)

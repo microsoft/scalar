@@ -119,60 +119,14 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase]
-        public void MountFailsWhenNoLocalCacheRootInRepoMetadata()
+        public void MountFailsWhenNoGitObjectsRootInGitConfig()
         {
             this.Enlistment.UnmountScalar();
+            string gitObjectsRoot = ScalarHelpers.GetGitObjectsRoot(this.Enlistment.RepoRoot);
 
-            string majorVersion;
-            string minorVersion;
-            ScalarHelpers.GetPersistedDiskLayoutVersion(this.Enlistment.DotScalarRoot, out majorVersion, out minorVersion);
-            majorVersion.ShouldNotBeNull();
-            minorVersion.ShouldNotBeNull();
-
-            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(this.Enlistment.DotScalarRoot).ShouldNotBeNull();
-
-            string metadataPath = Path.Combine(this.Enlistment.DotScalarRoot, ScalarHelpers.RepoMetadataName);
-            string metadataBackupPath = metadataPath + ".backup";
-            this.fileSystem.MoveFile(metadataPath, metadataBackupPath);
-
-            this.fileSystem.CreateEmptyFile(metadataPath);
-            ScalarHelpers.SaveDiskLayoutVersion(this.Enlistment.DotScalarRoot, majorVersion, minorVersion);
-            ScalarHelpers.SaveGitObjectsRoot(this.Enlistment.DotScalarRoot, objectsRoot);
-
-            this.MountShouldFail("Failed to determine local cache path from repo metadata");
-
-            this.fileSystem.DeleteFile(metadataPath);
-            this.fileSystem.MoveFile(metadataBackupPath, metadataPath);
-
-            this.Enlistment.MountScalar();
-        }
-
-        [TestCase]
-        public void MountFailsWhenNoGitObjectsRootInRepoMetadata()
-        {
-            this.Enlistment.UnmountScalar();
-
-            string majorVersion;
-            string minorVersion;
-            ScalarHelpers.GetPersistedDiskLayoutVersion(this.Enlistment.DotScalarRoot, out majorVersion, out minorVersion);
-            majorVersion.ShouldNotBeNull();
-            minorVersion.ShouldNotBeNull();
-
-            string localCacheRoot = ScalarHelpers.GetPersistedLocalCacheRoot(this.Enlistment.DotScalarRoot).ShouldNotBeNull();
-
-            string metadataPath = Path.Combine(this.Enlistment.DotScalarRoot, ScalarHelpers.RepoMetadataName);
-            string metadataBackupPath = metadataPath + ".backup";
-            this.fileSystem.MoveFile(metadataPath, metadataBackupPath);
-
-            this.fileSystem.CreateEmptyFile(metadataPath);
-            ScalarHelpers.SaveDiskLayoutVersion(this.Enlistment.DotScalarRoot, majorVersion, minorVersion);
-            ScalarHelpers.SaveLocalCacheRoot(this.Enlistment.DotScalarRoot, localCacheRoot);
-
-            this.MountShouldFail("Failed to determine git objects root from repo metadata");
-
-            this.fileSystem.DeleteFile(metadataPath);
-            this.fileSystem.MoveFile(metadataBackupPath, metadataPath);
-
+            GitProcess.Invoke(this.Enlistment.RepoRoot, $"config --local --unset-all {ScalarHelpers.GitConfigObjectCache}");
+            this.MountShouldFail("Failed to determine git objects root from git config");
+            GitProcess.Invoke(this.Enlistment.RepoRoot, $"config--local {ScalarHelpers.GitConfigObjectCache} {gitObjectsRoot}");
             this.Enlistment.MountScalar();
         }
 
@@ -181,7 +135,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             this.Enlistment.UnmountScalar();
 
-            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(this.Enlistment.DotScalarRoot).ShouldNotBeNull();
+            string objectsRoot = ScalarHelpers.GetGitObjectsRoot(this.Enlistment.RepoRoot);
 
             string alternatesFilePath = Path.Combine(this.Enlistment.RepoRoot, ".git", "objects", "info", "alternates");
             alternatesFilePath.ShouldBeAFile(this.fileSystem).WithContents(objectsRoot);
@@ -197,7 +151,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             this.Enlistment.UnmountScalar();
 
-            string objectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(this.Enlistment.DotScalarRoot).ShouldNotBeNull();
+            string objectsRoot = ScalarHelpers.GetGitObjectsRoot(this.Enlistment.RepoRoot);
 
             string alternatesFilePath = Path.Combine(this.Enlistment.RepoRoot, ".git", "objects", "info", "alternates");
             alternatesFilePath.ShouldBeAFile(this.fileSystem).WithContents(objectsRoot);

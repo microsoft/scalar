@@ -26,16 +26,6 @@ namespace Scalar.UnitTests.Common
         }
 
         [TestCase]
-        public void CanGetCacheServerFromOldConfig()
-        {
-            MockScalarEnlistment enlistment = this.CreateEnlistment(null, CacheServerUrl);
-            CacheServerInfo cacheServer = CacheServerResolver.GetCacheServerFromConfig(enlistment);
-
-            cacheServer.Url.ShouldEqual(CacheServerUrl);
-            CacheServerResolver.GetUrlFromConfig(enlistment).ShouldEqual(CacheServerUrl);
-        }
-
-        [TestCase]
         public void CanGetCacheServerWithNoConfig()
         {
             MockScalarEnlistment enlistment = this.CreateEnlistment();
@@ -195,7 +185,7 @@ namespace Scalar.UnitTests.Common
         {
             MockGitProcess gitProcess = new MockGitProcess();
             gitProcess.SetExpectedCommandResult(
-                "config --local scalar.cache-server",
+                "config --local gvfs.cache-server",
                 () => new GitProcess.Result(newConfigValue ?? string.Empty, string.Empty, newConfigValue != null ? GitProcess.Result.SuccessCode : GitProcess.Result.GenericFailureCode));
             gitProcess.SetExpectedCommandResult(
                 "config scalar.mock:..repourl.cache-server-url",

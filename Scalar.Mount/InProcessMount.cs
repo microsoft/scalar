@@ -64,17 +64,14 @@ namespace Scalar.Mount
             }
 
             string gitObjectsRoot;
-            if (!RepoMetadata.Instance.TryGetGitObjectsRoot(out gitObjectsRoot, out error))
+            GitProcess process = new GitProcess(this.enlistment);
+            GitProcess.ConfigResult result = process.GetFromLocalConfig(ScalarConstants.GitConfig.ObjectCache);
+            if (!result.TryParseAsString(out gitObjectsRoot, out error))
             {
-                this.FailMountAndExit("Failed to determine git objects root from repo metadata: " + error);
+                this.FailMountAndExit("Failed to determine git objects root from git config: " + error);
             }
 
-            string localCacheRoot;
-            if (!RepoMetadata.Instance.TryGetLocalCacheRoot(out localCacheRoot, out error))
-            {
-                this.FailMountAndExit("Failed to determine local cache path from repo metadata: " + error);
-            }
-
+            string localCacheRoot = Path.GetDirectoryName(gitObjectsRoot);
             this.tracer.RelatedEvent(
                 EventLevel.Informational,
                 "CachePathsLoaded",

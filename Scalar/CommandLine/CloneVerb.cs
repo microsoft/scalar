@@ -521,7 +521,7 @@ namespace Scalar.CommandLine
             }
 
             string errorMessage;
-            if (!this.TryCreateAlternatesFile(this.fileSystem, this.enlistment, out errorMessage))
+            if (!this.TrySetObjectCacheLocation(this.fileSystem, this.enlistment, out errorMessage))
             {
                 return new Result("Error configuring alternate: " + errorMessage);
             }

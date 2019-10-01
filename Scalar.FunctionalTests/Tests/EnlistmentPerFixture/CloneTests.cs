@@ -91,11 +91,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             string dotScalarRoot = Path.Combine(newEnlistmentRoot, ScalarTestConfig.DotScalarRoot);
             dotScalarRoot.ShouldBeADirectory(fileSystem);
-            string localCacheRoot = ScalarHelpers.GetPersistedLocalCacheRoot(dotScalarRoot);
-            string gitObjectsRoot = ScalarHelpers.GetPersistedGitObjectsRoot(dotScalarRoot);
+            string gitObjectsRoot = ScalarHelpers.GetGitObjectsRoot(Path.Combine(newEnlistmentRoot, "src"));
 
             string defaultScalarCacheRoot = Path.Combine(homeDirectory, ".scalarCache");
-            localCacheRoot.StartsWith(defaultScalarCacheRoot, StringComparison.Ordinal).ShouldBeTrue($"Local cache root did not default to using {homeDirectory}");
             gitObjectsRoot.StartsWith(defaultScalarCacheRoot, StringComparison.Ordinal).ShouldBeTrue($"Git objects root did not default to using {homeDirectory}");
 
             RepositoryHelpers.DeleteTestDirectory(newEnlistmentRoot);

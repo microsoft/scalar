@@ -13,7 +13,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase]
         public void SettingGitConfigChangesCacheServer()
         {
-            ProcessResult result = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "config scalar.cache-server " + CustomUrl);
+            ProcessResult result = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "config gvfs.cache-server " + CustomUrl);
             result.ExitCode.ShouldEqual(0, result.Errors);
 
             this.Enlistment.GetCacheServer().ShouldContain("Using cache server: User Defined (" + CustomUrl + ")");

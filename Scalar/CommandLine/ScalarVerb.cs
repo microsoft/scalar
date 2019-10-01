@@ -436,14 +436,18 @@ namespace Scalar.CommandLine
             }
         }
 
-        protected bool TryCreateAlternatesFile(PhysicalFileSystem fileSystem, ScalarEnlistment enlistment, out string errorMessage)
+        protected bool TrySetObjectCacheLocation(PhysicalFileSystem fileSystem, ScalarEnlistment enlistment, out string errorMessage)
         {
             try
             {
                 string alternatesFilePath = this.GetAlternatesPath(enlistment);
                 string tempFilePath = alternatesFilePath + ".tmp";
-                fileSystem.WriteAllText(tempFilePath, enlistment.GitObjectsRoot);
+                string gitObjectsPath = enlistment.GitObjectsRoot.Replace(Path.PathSeparator, ScalarConstants.GitPathSeparator);
+                fileSystem.WriteAllText(tempFilePath, gitObjectsPath);
                 fileSystem.MoveAndOverwriteFile(tempFilePath, alternatesFilePath);
+
+                GitProcess process = new GitProcess(enlistment);
+                process.SetInLocalConfig(ScalarConstants.GitConfig.ObjectCache, gitObjectsPath);
             }
             catch (SecurityException e)
             {
@@ -802,21 +806,23 @@ You can specify a URL, a name of a configured cache server, or the special names
                     this.ReportErrorAndExit(tracer, "Failed to initialize repo metadata: " + error);
                 }
 
-                this.InitializeCachePathsFromRepoMetadata(tracer, enlistment);
+                this.InitializeCachePaths(tracer, enlistment);
                 this.EnsureLocalCacheIsHealthy(tracer, enlistment, retryConfig, serverScalarConfig, cacheServer);
 
                 RepoMetadata.Shutdown();
             }
 
-            private void InitializeCachePathsFromRepoMetadata(
+            private void InitializeCachePaths(
                 ITracer tracer,
                 ScalarEnlistment enlistment)
             {
                 string error;
                 string gitObjectsRoot;
-                if (!RepoMetadata.Instance.TryGetGitObjectsRoot(out gitObjectsRoot, out error))
+                GitProcess process = new GitProcess(enlistment);
+                GitProcess.ConfigResult result = process.GetFromLocalConfig(ScalarConstants.GitConfig.ObjectCache);
+                if (!result.TryParseAsString(out gitObjectsRoot, out error))
                 {
-                    this.ReportErrorAndExit(tracer, "Failed to determine git objects root from repo metadata: " + error);
+                    this.ReportErrorAndExit("Failed to determine git objects root from git config: " + error);
                 }
 
                 if (string.IsNullOrWhiteSpace(gitObjectsRoot))
@@ -824,11 +830,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                     this.ReportErrorAndExit(tracer, "Invalid git objects root (empty or whitespace)");
                 }
 
-                string localCacheRoot;
-                if (!RepoMetadata.Instance.TryGetLocalCacheRoot(out localCacheRoot, out error))
-                {
-                    this.ReportErrorAndExit(tracer, "Failed to determine local cache path from repo metadata: " + error);
-                }
+                string localCacheRoot = Path.GetDirectoryName(gitObjectsRoot);
 
                 if (string.IsNullOrWhiteSpace(localCacheRoot))
                 {
@@ -914,7 +916,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                     {
                         tracer.RelatedInfo($"{nameof(this.EnsureLocalCacheIsHealthy)}: GitObjectsRoot ({enlistment.GitObjectsRoot}) missing from alternates files, recreating alternates");
                         string error;
-                        if (!this.TryCreateAlternatesFile(fileSystem, enlistment, out error))
+                        if (!this.TrySetObjectCacheLocation(fileSystem, enlistment, out error))
                         {
                             this.ReportErrorAndExit(tracer, $"Failed to update alternates file to include git objects root: {error}");
                         }
@@ -980,14 +982,11 @@ You can specify a URL, a name of a configured cache server, or the special names
                         this.ReportErrorAndExit(tracer, "Failed to create objects, pack, and sizes folders");
                     }
 
-                    tracer.RelatedInfo($"{nameof(this.EnsureLocalCacheIsHealthy)}: Creating new alternates file");
-                    if (!this.TryCreateAlternatesFile(fileSystem, enlistment, out error))
+                    tracer.RelatedInfo($"{nameof(this.EnsureLocalCacheIsHealthy)}: Creating new alternates file and setting object cache in git config");
+                    if (!this.TrySetObjectCacheLocation(fileSystem, enlistment, out error))
                     {
                         this.ReportErrorAndExit(tracer, $"Failed to update alterates file with new objects path: {error}");
                     }
-
-                    tracer.RelatedInfo($"{nameof(this.EnsureLocalCacheIsHealthy)}: Saving git objects root ({enlistment.GitObjectsRoot}) in repo metadata");
-                    RepoMetadata.Instance.SetGitObjectsRoot(enlistment.GitObjectsRoot);
                 }
             }
 
