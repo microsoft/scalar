@@ -108,6 +108,24 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             enlistment.UnmountAndDeleteAll();
         }
 
+        [TestCase]
+        public void CloneCreatesCorrectFilesInRoot()
+        {
+            ScalarFunctionalTestEnlistment enlistment = ScalarFunctionalTestEnlistment.CloneAndMount(ScalarTestConfig.PathToScalar);
+            try
+            {
+                Directory.GetFiles(enlistment.EnlistmentRoot).ShouldBeEmpty("There should be no files in the enlistment root after cloning");
+                string[] directories = Directory.GetDirectories(enlistment.EnlistmentRoot);
+                directories.Length.ShouldEqual(2);
+                directories.ShouldContain(x => Path.GetFileName(x).Equals(".scalar", StringComparison.Ordinal));
+                directories.ShouldContain(x => Path.GetFileName(x).Equals("src", StringComparison.Ordinal));
+            }
+            finally
+            {
+                enlistment.UnmountAndDeleteAll();
+            }
+        }
+
         private void SubfolderCloneShouldFail()
         {
             ProcessStartInfo processInfo = new ProcessStartInfo(ScalarTestConfig.PathToScalar);
