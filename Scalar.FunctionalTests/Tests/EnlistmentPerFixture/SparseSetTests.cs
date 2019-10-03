@@ -312,6 +312,10 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // Fix the error, switch to the new branch, and switch back and we should have all directories
             GitProcess.Invoke(this.Enlistment.RepoRoot, "cherry-pick --abort");
+
+            result = this.SparseSet();
+            result.ShouldNotContain(true, SetIndexStateMessage);
+
             GitProcess.Invoke(this.Enlistment.RepoRoot, "checkout branch_with_conflict");
             GitProcess.Invoke(this.Enlistment.RepoRoot, "checkout " + this.Enlistment.Commitish);
 
