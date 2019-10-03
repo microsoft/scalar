@@ -71,3 +71,16 @@ jobs:
     steps:
     - checkout: none # We'll get the build drop from Windows_Build_and_UnitTests job
     - template: templates/windows-functional-test.yml
+
+  - job: macOS_FunctionalTests_with_cache
+    variables:
+      platformFriendlyName: macOS
+      configuration: Release
+    timeoutInMinutes: 30
+    pool:
+      name: 'GVFS'
+    dependsOn: macOS_Build_and_UnitTests
+    condition: succeeded()
+    steps:
+      - checkout: none # Use the drop from macOS_Build_and_UnitTests job
+      - template: templates/macos-functional-test-with-cache.yml

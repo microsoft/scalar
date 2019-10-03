@@ -7,6 +7,9 @@ if [ -z $CONFIGURATION ]; then
   CONFIGURATION=Debug
 fi
 
+# consume $1 so the next "$@" is all arguments after it
+shift
+
 mkdir ~/Scalar.FT
 
-$Scalar_PUBLISHDIR/Scalar.FunctionalTests --full-suite $2
+$Scalar_PUBLISHDIR/Scalar.FunctionalTests --full-suite "$@"
