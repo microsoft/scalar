@@ -220,7 +220,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             // Create a conflict file Test_EPF_MoveRenameFileTests_2/_a
             // Add Test_EPF_MoveRenameFileTests / Test_EPF_MoveRenameFileTests_2, this should fail since Test_EPF_MoveRenameFileTests_2 has a conflict
-            // Checkout out a new branch and attempt to go back to the previous branch.  You won't be able to switch back to the previous branch. *current scalar bug*
+            // Checkout out a new branch and attempt to go back to the previous branch.
             // Deleting the conflict file will allow you to switch back to the branch and Test_EPF_MoveRenameFileTests / Test_EPF_MoveRenameFileTests_2 will be populated
             string folderRenameDirectory = this.Enlistment.GetSourcePath(FolderTest_MoveRenameFileTests);
             string folderRenameDirectory2 = this.Enlistment.GetSourcePath(FolderTest_MoveRenameFileTests2);
@@ -231,7 +231,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             this.VerifyContentsSparseSetWithOneFolderConflict();
 
-            // One folder conflict should fail the entire 'set'
+            // One folder conflict should fail the entire 'set', and this does not modify the sparse-checkout file
             this.currentFolderList.Add(FolderTest_MoveRenameFileTests);
             this.currentFolderList.Add(FolderTest_MoveRenameFileTests2);
             string result = this.SparseSet();
@@ -244,23 +244,19 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             GitProcess.Invoke(this.Enlistment.RepoRoot, "checkout -b new_branch");
 
             // Attempt to go back to previous branch
-            // This will fail because of previous failed 'set'
-            ProcessResult checkoutResult = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "checkout " + this.Enlistment.Commitish);
-            checkoutResult.Errors.ShouldContain("error: The following working tree files would be overwritten by sparse checkout update:\r\n\tTest_EPF_MoveRenameFileTests_2/RunUnitTests.bat\r\n\r\nAborting\r\n");
+            ProcessResult checkoutResult = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "checkout FunctionalTests/20180214");
+            checkoutResult.Errors.ShouldContain("Switched to branch 'FunctionalTests/20180214'");
 
-            // Remove the conflicting file
             this.fileSystem.DeleteFile(existingFile);
-
-            // Now that the conflict is removed we should be able to switch branches
-            checkoutResult = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "checkout " + this.Enlistment.Commitish);
-            checkoutResult.Errors.ShouldContain("Switched to branch 'FunctionalTests/20180214'\r\n");
+            result = this.SparseSet();
+            result.ShouldNotContain(false, SetOverwriteMessage);
 
             // Verify the folders are now populated
             this.VerifyDirectory(folderRenameDirectory, new List<string>
             {
                 "ChangeNestedUnhydratedFileNameCase",
                 "ChangeUnhydratedFileName",
-                "MoveUnhydratedFileToDotGitFolder"
+                "MoveUnhydratedFileToDotGitFolder",
             });
 
             this.VerifyDirectory(folderRenameDirectory2, new List<string>
