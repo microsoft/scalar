@@ -105,7 +105,7 @@ namespace Scalar.CommandLine
                         this.CopyAllFiles(enlistment.DotScalarRoot, Path.Combine(archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot), ScalarConstants.DotScalar.Databases.Name, copySubFolders: false);
 
                         // local cache
-                        this.CopyLocalCacheData(archiveFolderPath, localCacheRoot, gitObjectsRoot);
+                        this.CopyLocalCacheData(archiveFolderPath, gitObjectsRoot);
 
                         // corrupt objects
                         this.CopyAllFiles(enlistment.DotScalarRoot, Path.Combine(archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot), ScalarConstants.DotScalar.CorruptObjectsName, copySubFolders: false);
@@ -291,34 +291,12 @@ namespace Scalar.CommandLine
             }
         }
 
-        private void CopyLocalCacheData(string archiveFolderPath, string localCacheRoot, string gitObjectsRoot)
+        private void CopyLocalCacheData(string archiveFolderPath, string gitObjectsRoot)
         {
             try
             {
                 string localCacheArchivePath = Path.Combine(archiveFolderPath, ScalarConstants.DefaultScalarCacheFolderName);
                 Directory.CreateDirectory(localCacheArchivePath);
-
-                if (!string.IsNullOrWhiteSpace(localCacheRoot))
-                {
-                    // Copy all mapping.dat files in the local cache folder (i.e. mapping.dat, mapping.dat.tmp, mapping.dat.lock)
-                    foreach (string filePath in Directory.EnumerateFiles(localCacheRoot, "mapping.dat*"))
-                    {
-                        string fileName = Path.GetFileName(filePath);
-                        try
-                        {
-                            File.Copy(filePath, Path.Combine(localCacheArchivePath, fileName));
-                        }
-                        catch (Exception e)
-                        {
-                            this.WriteMessage(string.Format(
-                                "Failed to copy '{0}' from {1} to {2} with exception {3}",
-                                fileName,
-                                localCacheRoot,
-                                archiveFolderPath,
-                                e));
-                        }
-                    }
-                }
 
                 if (!string.IsNullOrWhiteSpace(gitObjectsRoot))
                 {

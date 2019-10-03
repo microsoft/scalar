@@ -485,13 +485,13 @@ namespace Scalar.CommandLine
             errorMessage = null;
             LocalCacheResolver localCacheResolver = new LocalCacheResolver(this.enlistment);
 
+            RepoInfo repoInfo = this.QueryRepoInfo(this.tracer, this.enlistment, this.retryConfig);
+
             string error;
             string localCacheKey;
-            if (!localCacheResolver.TryGetLocalCacheKeyFromLocalConfigOrRemoteCacheServers(
+            if (!localCacheResolver.TryGetLocalCacheKeyFromRepoInfoOrURL(
                 this.tracer,
-                this.serverScalarConfig,
-                this.cacheServer,
-                localCacheRoot,
+                repoInfo,
                 localCacheKey: out localCacheKey,
                 errorMessage: out error))
             {

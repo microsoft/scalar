@@ -401,6 +401,28 @@ namespace Scalar.CommandLine
             return serverScalarConfig;
         }
 
+        protected RepoInfo QueryRepoInfo(ITracer tracer, ScalarEnlistment enlistment, RetryConfig retryConfig)
+        {
+            RepoInfo repoInfo = null;
+            string errorMessage = null;
+            if (!this.ShowStatusWhileRunning(
+                () =>
+                {
+                    using (RepoInfoHttpRequestor repoInfoRequestor = new RepoInfoHttpRequestor(tracer, enlistment, retryConfig))
+                    {
+                        const bool LogErrors = true;
+                        return repoInfoRequestor.TryQueryRepoInfo(LogErrors, out repoInfo, out errorMessage);
+                    }
+                },
+                "Querying remote for repo info",
+                suppressGvfsLogMessage: true))
+            {
+                this.ReportErrorAndExit(tracer, $"Unable to query {ScalarConstants.Endpoints.RepoInfo}" + Environment.NewLine + errorMessage);
+            }
+
+            return repoInfo;
+        }
+
         protected bool IsExistingPipeListening(string enlistmentRoot)
         {
             using (NamedPipeClient pipeClient = new NamedPipeClient(ScalarPlatform.Instance.GetNamedPipeName(enlistmentRoot)))

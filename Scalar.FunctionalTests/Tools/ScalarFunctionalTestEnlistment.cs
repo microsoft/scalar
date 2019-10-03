@@ -119,37 +119,9 @@ namespace Scalar.FunctionalTests.Tools
             return Path.Combine(Properties.Settings.Default.EnlistmentRoot, "test " + Guid.NewGuid().ToString("N").Substring(0, 15));
         }
 
-        public string GetObjectRoot(FileSystemRunner fileSystem)
-        {
-            string mappingFile = Path.Combine(this.LocalCacheRoot, "mapping.dat");
-            mappingFile.ShouldBeAFile(fileSystem);
-
-            HashSet<string> allowedFileNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "mapping.dat",
-                "mapping.dat.lock" // mapping.dat.lock can be present, but doesn't have to be present
-            };
-
-            this.LocalCacheRoot.ShouldBeADirectory(fileSystem).WithFiles().ShouldNotContain(f => !allowedFileNames.Contains(f.Name));
-
-            string mappingFileContents = File.ReadAllText(mappingFile);
-            mappingFileContents.ShouldNotBeNull();
-            string[] objectRootEntries = mappingFileContents.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                                                            .Where(x => x.IndexOf(this.RepoUrl, StringComparison.OrdinalIgnoreCase) >= 0)
-                                                            .ToArray();
-            objectRootEntries.Length.ShouldEqual(1, $"Should be only one entry for repo url: {this.RepoUrl} mapping file content: {mappingFileContents}");
-            objectRootEntries[0].Substring(0, 2).ShouldEqual("A ", $"Invalid mapping entry for repo: {objectRootEntries[0]}");
-            JObject rootEntryJson = JObject.Parse(objectRootEntries[0].Substring(2));
-            string objectRootFolder = rootEntryJson.GetValue("Value").ToString();
-            objectRootFolder.ShouldNotBeNull();
-            objectRootFolder.Length.ShouldBeAtLeast(1, $"Invalid object root folder: {objectRootFolder} for {this.RepoUrl} mapping file content: {mappingFileContents}");
-
-            return Path.Combine(this.LocalCacheRoot, objectRootFolder);
-        }
-
         public string GetPackRoot(FileSystemRunner fileSystem)
         {
-            return Path.Combine(this.GetObjectRoot(fileSystem), "pack");
+            return Path.Combine(ScalarHelpers.GetObjectsRootFromGitConfig(this.RepoRoot), "pack");
         }
 
         public void DeleteEnlistment()

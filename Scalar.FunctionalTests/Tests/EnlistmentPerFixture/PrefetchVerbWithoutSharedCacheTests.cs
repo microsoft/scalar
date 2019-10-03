@@ -292,7 +292,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             // the commit-graph write happens only when the prefetch downloads at least one pack
 
-            string graphPath = Path.Combine(this.Enlistment.GetObjectRoot(this.fileSystem), "info", "commit-graphs", "commit-graph-chain");
+            string graphPath = Path.Combine(ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot), "info", "commit-graphs", "commit-graph-chain");
             string graphLockPath = graphPath + ".lock";
 
             this.fileSystem.CreateEmptyFile(graphLockPath);
@@ -386,7 +386,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         private void PostFetchJobShouldComplete()
         {
-            string objectDir = this.Enlistment.GetObjectRoot(this.fileSystem);
+            string objectDir = ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot);
             string postFetchLock = Path.Combine(objectDir, "git-maintenance-step.lock");
 
             while (this.fileSystem.FileExists(postFetchLock))

@@ -69,6 +69,7 @@ namespace Scalar.Common
             public const string ScalarPrefetch = "/gvfs/prefetch";
             public const string ScalarSizes = "/gvfs/sizes";
             public const string InfoRefs = "/info/refs?service=git-upload-pack";
+            public const string RepoInfo = "/vsts/info";
         }
 
         public static class SpecialGitFiles

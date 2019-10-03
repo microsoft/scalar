@@ -57,23 +57,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
-        [Category(Categories.MacTODO.NeedsServiceVerb)]
-        public void CloneCleansUpStaleMetadataLock()
-        {
-            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
-            string metadataLockPath = Path.Combine(this.localCachePath, "mapping.dat.lock");
-            metadataLockPath.ShouldNotExistOnDisk(this.fileSystem);
-            this.fileSystem.WriteAllText(metadataLockPath, enlistment1.EnlistmentRoot);
-            metadataLockPath.ShouldBeAFile(this.fileSystem);
-
-            ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
-            metadataLockPath.ShouldNotExistOnDisk(this.fileSystem);
-
-            enlistment1.Status().ShouldContain("Mount status: Ready");
-            enlistment2.Status().ShouldContain("Mount status: Ready");
-        }
-
-        [TestCase]
         public void ParallelDownloadsInSharedCache()
         {
             ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
@@ -103,20 +86,16 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
         [TestCase]
         [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
-        public void DeleteObjectsCacheAndCacheMappingBeforeMount()
+        public void DeleteObjectsCacheBeforeMount()
         {
             ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
             ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
 
             enlistment1.UnmountScalar();
 
-            string objectsRoot = ScalarHelpers.GetGitObjectsRoot(enlistment1.RepoRoot);
+            string objectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(enlistment1.RepoRoot);
             objectsRoot.ShouldBeADirectory(this.fileSystem);
             RepositoryHelpers.DeleteTestDirectory(objectsRoot);
-
-            string metadataPath = Path.Combine(this.localCachePath, "mapping.dat");
-            metadataPath.ShouldBeAFile(this.fileSystem);
-            this.fileSystem.DeleteFile(metadataPath);
 
             enlistment1.MountScalar();
 
@@ -153,17 +132,13 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             enlistment.UnmountScalar();
 
             // Find the current git objects root and ensure it's on disk
-            string objectsRoot = ScalarHelpers.GetGitObjectsRoot(enlistment.RepoRoot);
+            string objectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(enlistment.RepoRoot);
             objectsRoot.ShouldBeADirectory(this.fileSystem);
-
-            string mappingFilePath = Path.Combine(enlistment.LocalCacheRoot, "mapping.dat");
-            string mappingFileContents = this.fileSystem.ReadAllText(mappingFilePath);
-            mappingFileContents.Length.ShouldNotEqual(0, "mapping.dat should not be empty");
 
             RepositoryHelpers.DeleteTestDirectory(objectsRoot);
             enlistment.MountScalar();
 
-            ScalarHelpers.GetGitObjectsRoot(enlistment.RepoRoot).ShouldEqual(objectsRoot);
+            ScalarHelpers.GetObjectsRootFromGitConfig(enlistment.RepoRoot).ShouldEqual(objectsRoot);
 
             // Downloading objects should recreate the objects directory
             this.LoadBlobsViaGit(enlistment);
@@ -209,7 +184,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
         private void AlternatesFileShouldHaveGitObjectsRoot(ScalarFunctionalTestEnlistment enlistment)
         {
-            string objectsRoot = ScalarHelpers.GetGitObjectsRoot(enlistment.RepoRoot);
+            string objectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(enlistment.RepoRoot);
             string alternatesFileContents = Path.Combine(enlistment.RepoRoot, ".git", "objects", "info", "alternates").ShouldBeAFile(this.fileSystem).WithContents();
             alternatesFileContents.ShouldEqual(objectsRoot);
         }

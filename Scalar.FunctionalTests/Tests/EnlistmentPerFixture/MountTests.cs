@@ -109,7 +109,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         public void MountFailsWhenNoGitObjectsRootInGitConfig()
         {
             this.Enlistment.UnmountScalar();
-            string gitObjectsRoot = ScalarHelpers.GetGitObjectsRoot(this.Enlistment.RepoRoot);
+            string gitObjectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot);
 
             GitProcess.Invoke(this.Enlistment.RepoRoot, $"config --local --unset-all {ScalarHelpers.GitConfigObjectCache}");
             this.MountShouldFail("Failed to determine git objects root from git config");
@@ -122,7 +122,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             this.Enlistment.UnmountScalar();
 
-            string objectsRoot = ScalarHelpers.GetGitObjectsRoot(this.Enlistment.RepoRoot);
+            string objectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot);
 
             string alternatesFilePath = Path.Combine(this.Enlistment.RepoRoot, ".git", "objects", "info", "alternates");
             alternatesFilePath.ShouldBeAFile(this.fileSystem).WithContents(objectsRoot);
@@ -138,7 +138,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             this.Enlistment.UnmountScalar();
 
-            string objectsRoot = ScalarHelpers.GetGitObjectsRoot(this.Enlistment.RepoRoot);
+            string objectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot);
 
             string alternatesFilePath = Path.Combine(this.Enlistment.RepoRoot, ".git", "objects", "info", "alternates");
             alternatesFilePath.ShouldBeAFile(this.fileSystem).WithContents(objectsRoot);
