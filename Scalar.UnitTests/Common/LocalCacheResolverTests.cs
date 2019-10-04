@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
@@ -30,13 +31,13 @@ namespace Scalar.UnitTests.Common
 
             foreach (string repoId in repoIds)
             {
-                RepoInfo repoInfo = new RepoInfo();
-                repoInfo.repository = new RepoInfo.Repository();
-                repoInfo.repository.id = repoId;
+                VstsInfoData vstsInfo = new VstsInfoData();
+                vstsInfo.Repository = new VstsInfoData.RepositoryDetails();
+                vstsInfo.Repository.Id = repoId;
 
                 localCacheResolver.TryGetLocalCacheKeyFromRepoInfoOrURL(
                     tracer,
-                    repoInfo,
+                    vstsInfo,
                     out string localCacheKey,
                     out string errorMessage).ShouldBeTrue();
                 errorMessage.ShouldBeEmpty();
@@ -50,17 +51,17 @@ namespace Scalar.UnitTests.Common
             MockScalarEnlistment enlistment = CreateEnlistment("mock://repoUrl");
             LocalCacheResolver localCacheResolver = new LocalCacheResolver(enlistment);
 
-            RepoInfo repoInfo = new RepoInfo();
-            LocalKeyShouldBeResolvedFromURL(localCacheResolver, repoInfo);
+            VstsInfoData vstsInfo = new VstsInfoData();
+            LocalKeyShouldBeResolvedFromURL(localCacheResolver, vstsInfo);
 
-            repoInfo.repository = new RepoInfo.Repository();
-            LocalKeyShouldBeResolvedFromURL(localCacheResolver, repoInfo);
+            vstsInfo.Repository = new VstsInfoData.RepositoryDetails();
+            LocalKeyShouldBeResolvedFromURL(localCacheResolver, vstsInfo);
 
-            repoInfo.repository.id = string.Empty;
-            LocalKeyShouldBeResolvedFromURL(localCacheResolver, repoInfo);
+            vstsInfo.Repository.Id = string.Empty;
+            LocalKeyShouldBeResolvedFromURL(localCacheResolver, vstsInfo);
 
-            repoInfo.repository.id = "   ";
-            LocalKeyShouldBeResolvedFromURL(localCacheResolver, repoInfo);
+            vstsInfo.Repository.Id = "   ";
+            LocalKeyShouldBeResolvedFromURL(localCacheResolver, vstsInfo);
         }
 
         [TestCase]
@@ -68,7 +69,7 @@ namespace Scalar.UnitTests.Common
         {
             MockScalarEnlistment enlistment = CreateEnlistment("mock://repoUrl");
             LocalCacheResolver localCacheResolver = new LocalCacheResolver(enlistment);
-            LocalKeyShouldBeResolvedFromURL(localCacheResolver, repoInfo: null);
+            LocalKeyShouldBeResolvedFromURL(localCacheResolver, vstsInfo: null);
         }
 
         [TestCase]
@@ -87,7 +88,7 @@ namespace Scalar.UnitTests.Common
 
             localCacheResolvers.First().TryGetLocalCacheKeyFromRepoInfoOrURL(
                 tracer,
-                repoInfo: null,
+                vstsInfo: null,
                 localCacheKey: out string localCacheKey,
                 errorMessage: out _).ShouldBeTrue();
 
@@ -95,17 +96,16 @@ namespace Scalar.UnitTests.Common
             {
                 resolver.TryGetLocalCacheKeyFromRepoInfoOrURL(
                     tracer,
-                    repoInfo: null,
+                    vstsInfo: null,
                     localCacheKey: out string tempCacheKey,
                     errorMessage: out string ErrorMessage).ShouldBeTrue();
-                localCacheKey.ShouldEqual(tempCacheKey);
+                localCacheKey.ShouldEqual("url_0d95e2600bac6918e2073de5278eed6a6a06f79f");
             }
         }
 
         [TestCase]
         public void LocalCacheKeysFromDifferentURLsAreDifferent()
         {
-            MockTracer tracer = new MockTracer();
             List<MockScalarEnlistment> enlistments = new List<MockScalarEnlistment>
             {
                 CreateEnlistment("mock://repourl"),
@@ -116,30 +116,11 @@ namespace Scalar.UnitTests.Common
 
             IEnumerable<LocalCacheResolver> localCacheResolvers = enlistments.Select(x => new LocalCacheResolver(x));
 
-            List<string> localCacheKeys = new List<string>();
-
+            HashSet<string> localCacheKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (LocalCacheResolver resolver in localCacheResolvers)
             {
-                resolver.TryGetLocalCacheKeyFromRepoInfoOrURL(
-                    tracer,
-                    repoInfo: null,
-                    localCacheKey: out string localCacheKey,
-                    errorMessage: out string ErrorMessage).ShouldBeTrue();
-                localCacheKeys.Add(localCacheKey);
-            }
-
-            for (int i = 0; i < localCacheKeys.Count; ++i)
-            {
-                for (int j = 0; j < localCacheKeys.Count; j++)
-                {
-                    if (i != j)
-                    {
-                        string.Equals(
-                            localCacheKeys[i],
-                            localCacheKeys[j],
-                            System.StringComparison.OrdinalIgnoreCase).ShouldBeFalse();
-                    }
-                }
+                LocalKeyShouldBeResolvedFromURL(resolver, vstsInfo: null, localCacheKey: out string localCacheKey);
+                localCacheKeys.Add(localCacheKey).ShouldBeTrue("Different URLs should have unique cache keys");
             }
         }
 
@@ -152,12 +133,17 @@ namespace Scalar.UnitTests.Common
                 gitProcess: null);
         }
 
-        private static void LocalKeyShouldBeResolvedFromURL(LocalCacheResolver localCacheResolver, RepoInfo repoInfo)
+        private static void LocalKeyShouldBeResolvedFromURL(LocalCacheResolver localCacheResolver, VstsInfoData vstsInfo)
+        {
+            LocalKeyShouldBeResolvedFromURL(localCacheResolver, vstsInfo, out _);
+        }
+
+        private static void LocalKeyShouldBeResolvedFromURL(LocalCacheResolver localCacheResolver, VstsInfoData vstsInfo, out string localCacheKey)
         {
             localCacheResolver.TryGetLocalCacheKeyFromRepoInfoOrURL(
                 new MockTracer(),
-                repoInfo,
-                out string localCacheKey,
+                vstsInfo,
+                out localCacheKey,
                 out string errorMessage).ShouldBeTrue();
             errorMessage.ShouldBeEmpty();
             localCacheKey.Substring(0, UrlKeyPrefix.Length).ShouldEqual(UrlKeyPrefix);

@@ -1,24 +1,23 @@
 ﻿using Newtonsoft.Json;
 using Scalar.Common.Tracing;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 
 namespace Scalar.Common.Http
 {
-    public class RepoInfoHttpRequestor : HttpRequestor
+    public class VstsInfoHttpRequestor : HttpRequestor
     {
-        // Limit the number of retries because not all servers support providing repo info
-        private const int MaxRepoInfoRetries = 3;
         private readonly string repoUrl;
 
-        public RepoInfoHttpRequestor(ITracer tracer, Enlistment enlistment, RetryConfig retryConfig)
+        public VstsInfoHttpRequestor(ITracer tracer, Enlistment enlistment, RetryConfig retryConfig)
             : base(tracer, retryConfig, enlistment)
         {
             this.repoUrl = enlistment.RepoUrl;
         }
 
-        public bool TryQueryRepoInfo(bool logErrors, out RepoInfo repoInfo, out string errorMessage)
+        public bool TryQueryRepoInfo(bool logErrors, out VstsInfoData vstsInfo, out string errorMessage)
         {
             Uri repoInfoEndpoint;
             string repoInfoEndpointString = this.repoUrl + ScalarConstants.Endpoints.RepoInfo;
@@ -28,7 +27,7 @@ namespace Scalar.Common.Http
             }
             catch (UriFormatException e)
             {
-                repoInfo = null;
+                vstsInfo = null;
                 errorMessage = "UriFormatException when constructing Uri";
 
                 EventMetadata metadata = new EventMetadata();
@@ -41,20 +40,20 @@ namespace Scalar.Common.Http
             }
 
             long requestId = HttpRequestor.GetNewRequestId();
-            RetryWrapper<RepoInfo> retrier = new RetryWrapper<RepoInfo>(
-                Math.Min(this.RetryConfig.MaxAttempts, MaxRepoInfoRetries),
+            RetryWrapper<VstsInfoData> retrier = new RetryWrapper<VstsInfoData>(
+                this.RetryConfig.MaxAttempts,
                 CancellationToken.None);
 
             if (logErrors)
             {
-                retrier.OnFailure += RetryWrapper<RepoInfo>.StandardErrorHandler(
+                retrier.OnFailure += RetryWrapper<VstsInfoData>.StandardErrorHandler(
                     this.Tracer,
                     requestId,
                     "QueryRepoInfo",
-                    forceLogAsWarning: true); // Not all servers support repo info
+                    forceLogAsWarning: true); // Not all servers support /vsts/info
             }
 
-            RetryWrapper<RepoInfo>.InvocationResult output = retrier.Invoke(
+            RetryWrapper<VstsInfoData>.InvocationResult output = retrier.Invoke(
                 tryCount =>
                 {
                     using (GitEndPointResponseData response = this.SendRequest(
@@ -66,38 +65,40 @@ namespace Scalar.Common.Http
                     {
                         if (response.HasErrors)
                         {
-                            return new RetryWrapper<RepoInfo>.CallbackResult(response.Error, response.ShouldRetry);
+                            return new RetryWrapper<VstsInfoData>.CallbackResult(response.Error, response.ShouldRetry);
                         }
 
                         try
                         {
                             string configString = response.RetryableReadToEnd();
-                            RepoInfo config = JsonConvert.DeserializeObject<RepoInfo>(
+                            VstsInfoData vstsInfoData = JsonConvert.DeserializeObject<VstsInfoData>(
                                 configString,
                                 new JsonSerializerSettings
                                 {
                                     MissingMemberHandling = MissingMemberHandling.Ignore
                                 });
-                            return new RetryWrapper<RepoInfo>.CallbackResult(config);
+                            return new RetryWrapper<VstsInfoData>.CallbackResult(vstsInfoData);
                         }
                         catch (JsonReaderException e)
                         {
-                            return new RetryWrapper<RepoInfo>.CallbackResult(e, shouldRetry: false);
+                            return new RetryWrapper<VstsInfoData>.CallbackResult(e, shouldRetry: false);
                         }
                     }
                 });
 
             if (output.Succeeded)
             {
-                repoInfo = output.Result;
+                vstsInfo = output.Result;
                 errorMessage = null;
                 return true;
             }
 
+            HttpStatusCode? httpStatusCode = null;
             GitObjectsHttpException httpException = output.Error as GitObjectsHttpException;
             if (httpException != null)
             {
                 errorMessage = httpException.Message;
+                httpStatusCode = httpException.StatusCode;
             }
 
             if (logErrors)
@@ -110,12 +111,19 @@ namespace Scalar.Common.Http
                     $"{nameof(this.TryQueryRepoInfo)} failed");
             }
 
-            repoInfo = null;
-            errorMessage = null;
+            vstsInfo = null;
 
-            // Any failures other than UriFormatException are OK because
-            // not all servers support repo info
-            return true;
+            if (httpStatusCode == HttpStatusCode.NotFound ||
+                (httpStatusCode == HttpStatusCode.Unauthorized && this.IsAnonymous))
+            {
+                errorMessage = null;
+
+                // These failures are OK because not all servers support /vsts/info
+                return true;
+            }
+
+            errorMessage = output.Error.Message;
+            return false;
         }
     }
 }

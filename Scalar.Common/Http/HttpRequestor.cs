@@ -56,6 +56,11 @@ namespace Scalar.Common.Http
 
         protected ITracer Tracer { get; }
 
+        protected bool IsAnonymous
+        {
+            get { return this.authentication.IsAnonymous; }
+        }
+
         public static long GetNewRequestId()
         {
             return Interlocked.Increment(ref requestCount);

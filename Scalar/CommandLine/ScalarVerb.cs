@@ -401,17 +401,17 @@ namespace Scalar.CommandLine
             return serverScalarConfig;
         }
 
-        protected RepoInfo QueryRepoInfo(ITracer tracer, ScalarEnlistment enlistment, RetryConfig retryConfig)
+        protected VstsInfoData QueryVstsInfo(ITracer tracer, ScalarEnlistment enlistment, RetryConfig retryConfig)
         {
-            RepoInfo repoInfo = null;
+            VstsInfoData vstsInfo = null;
             string errorMessage = null;
             if (!this.ShowStatusWhileRunning(
                 () =>
                 {
-                    using (RepoInfoHttpRequestor repoInfoRequestor = new RepoInfoHttpRequestor(tracer, enlistment, retryConfig))
+                    using (VstsInfoHttpRequestor repoInfoRequestor = new VstsInfoHttpRequestor(tracer, enlistment, retryConfig))
                     {
                         const bool LogErrors = true;
-                        return repoInfoRequestor.TryQueryRepoInfo(LogErrors, out repoInfo, out errorMessage);
+                        return repoInfoRequestor.TryQueryRepoInfo(LogErrors, out vstsInfo, out errorMessage);
                     }
                 },
                 "Querying remote for repo info",
@@ -420,7 +420,7 @@ namespace Scalar.CommandLine
                 this.ReportErrorAndExit(tracer, $"Unable to query {ScalarConstants.Endpoints.RepoInfo}" + Environment.NewLine + errorMessage);
             }
 
-            return repoInfo;
+            return vstsInfo;
         }
 
         protected bool IsExistingPipeListening(string enlistmentRoot)

@@ -29,7 +29,7 @@ namespace Scalar.Common
 
         public bool TryGetLocalCacheKeyFromRepoInfoOrURL(
             ITracer tracer,
-            RepoInfo repoInfo,
+            VstsInfoData vstsInfo,
             out string localCacheKey,
             out string errorMessage)
         {
@@ -38,25 +38,25 @@ namespace Scalar.Common
                 EventMetadata metadata = CreateEventMetadata();
                 metadata.Add($"{nameof(this.enlistment)}.{nameof(this.enlistment.RepoUrl)}", this.enlistment.RepoUrl);
 
-                if (string.IsNullOrWhiteSpace(repoInfo?.repository?.id))
+                if (string.IsNullOrWhiteSpace(vstsInfo?.Repository?.Id))
                 {
                     // Generate cache key with SHA1 hash of the URL
                     localCacheKey = $"url_{SHA1Util.SHA1HashStringForUTF8String(this.enlistment.RepoUrl.ToLowerInvariant())}";
                     metadata.Add(nameof(localCacheKey), localCacheKey);
-                    metadata.Add("repoInfo_is_null", repoInfo == null ? "true" : "false");
-                    metadata.Add("repository_is_null", repoInfo?.repository == null ? "true" : "false");
-                    metadata.Add("repository_id", repoInfo?.repository?.id);
+                    metadata.Add("repoInfo_is_null", vstsInfo == null ? "true" : "false");
+                    metadata.Add("repository_is_null", vstsInfo?.Repository == null ? "true" : "false");
+                    metadata.Add("repository_id", vstsInfo?.Repository?.Id);
                     tracer.RelatedEvent(EventLevel.Informational, "LocalCacheResolver_KeyFromURL", metadata);
 
                     errorMessage = string.Empty;
                     return true;
                 }
 
-                metadata.Add($"{nameof(repoInfo.repository)}.{nameof(repoInfo.repository.id)}", repoInfo.repository.id);
-                metadata.Add($"{nameof(repoInfo.repository)}.{nameof(repoInfo.repository.name)}", repoInfo.repository.name);
-                metadata.Add($"{nameof(repoInfo.repository)}.{nameof(repoInfo.repository.remoteUrl)}", repoInfo.repository.remoteUrl);
+                metadata.Add($"{nameof(vstsInfo.Repository)}.{nameof(vstsInfo.Repository.Id)}", vstsInfo.Repository.Id);
+                metadata.Add($"{nameof(vstsInfo.Repository)}.{nameof(vstsInfo.Repository.Name)}", vstsInfo.Repository.Name);
+                metadata.Add($"{nameof(vstsInfo.Repository)}.{nameof(vstsInfo.Repository.RemoteUrl)}", vstsInfo.Repository.RemoteUrl);
 
-                localCacheKey = $"id_{repoInfo.repository.id}";
+                localCacheKey = $"id_{vstsInfo.Repository.Id}";
                 metadata.Add(nameof(localCacheKey), localCacheKey);
                 tracer.RelatedEvent(EventLevel.Informational, "LocalCacheResolver_KeyFromRepoInfo", metadata);
                 errorMessage = string.Empty;
