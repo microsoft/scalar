@@ -38,7 +38,6 @@
       $(BuildOutputDir)\Scalar.Common\bin\$(Platform)\$(Configuration)\netstandard2.0\Scalar.Common.dll;
       $(BuildOutputDir)\Scalar.Mount.Windows\bin\$(Platform)\$(Configuration)\Scalar.Mount.exe;
       $(BuildOutputDir)\Scalar.Platform.Windows\bin\$(Platform)\$(Configuration)\Scalar.Platform.Windows.dll;
-      $(BuildOutputDir)\Scalar.ReadObjectHook.Windows\bin\$(Platform)\$(Configuration)\Scalar.ReadObjectHook.exe;
       $(BuildOutputDir)\Scalar.Service.Windows\bin\$(Platform)\$(Configuration)\Scalar.Service.exe;
       $(BuildOutputDir)\Scalar.Service.UI\bin\$(Platform)\$(Configuration)\Scalar.Service.UI.exe;
       $(BuildOutputDir)\Scalar.Upgrader\bin\$(Platform)\$(Configuration)\net461\Scalar.Upgrader.exe;

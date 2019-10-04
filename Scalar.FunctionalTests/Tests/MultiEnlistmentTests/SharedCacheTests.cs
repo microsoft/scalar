@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {
     [TestFixture]
-    [Category(Categories.ExtraCoverage)]
     public class SharedCacheTests : TestsWithMultiEnlistment
     {
         private const string WellKnownFile = "Readme.md";
@@ -256,8 +255,8 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         {
             // 'git rev-list --objects' will check for all objects' existence, which
             // triggers an object download on every missing blob.
-            ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment.RepoRoot, "rev-list --all --objects");
-            result.ExitCode.ShouldEqual(0);
+            ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment.RepoRoot, "rev-list --objects HEAD^{tree}");
+            result.ExitCode.ShouldEqual(0, result.Errors);
         }
     }
 }

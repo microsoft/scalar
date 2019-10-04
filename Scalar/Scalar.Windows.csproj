@@ -116,7 +116,6 @@
     <Compile Include="CommandLine\DehydrateVerb.cs" />
     <Compile Include="CommandLine\DiagnoseVerb.cs" />
     <Compile Include="CommandLine\ScalarVerb.cs" />
-    <Compile Include="CommandLine\SparseVerb.cs" />
     <Compile Include="CommandLine\LogVerb.cs" />
     <Compile Include="CommandLine\MountVerb.cs" />
     <Compile Include="CommandLine\PrefetchVerb.cs" />
@@ -159,9 +158,6 @@
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(BuildOutputDir)\Scalar.ReadObjectHook.Windows\bin\$(Platform)\$(Configuration)\Scalar.ReadObjectHook.* $(TargetDir)</PostBuildEvent>
-  </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>

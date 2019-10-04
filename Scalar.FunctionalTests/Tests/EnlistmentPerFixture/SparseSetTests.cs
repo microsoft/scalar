@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
@@ -13,7 +14,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
     [Category(Categories.GitCommands)]
     public class SparseSetTests : TestsWithEnlistmentPerFixture
     {
-        private const string SetFailureMessage = "Failed to set folders to sparse-checkout";
+        private const string SetOverwriteMessage = "would be overwritten by sparse checkout update";
+        private const string SetIndexStateMessage = "You need to resolve your current index first";
 
         private const string FolderDotGit = ".git";
         private const string FolderDeleteFileTests = "DeleteFileTests";
@@ -39,7 +41,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase, Order(1)]
-        public void SparseSet()
+        public void InitialSparseSet()
         {
             // Simple Test Adding FileNameEncoding and verifying it exists afterwards
             this.VerifyDirectory(this.Enlistment.RepoRoot, new List<string>
@@ -47,10 +49,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                     FolderDotGit
                 });
 
-            ScalarProcess scalar = new ScalarProcess(this.Enlistment);
-
             this.currentFolderList.Add(FolderFileNameEncoding);
-            scalar.SparseSet(this.currentFolderList);
+            this.SparseSet();
 
             this.VerifyDirectory(this.Enlistment.RepoRoot, new List<string>
                 {
@@ -63,10 +63,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         public void SparseSetOneLevelDeep()
         {
             // Add GitCommands/DeleteFileTests, Verify the only directory added to GitCommands is DeleteFileTests
-            ScalarProcess scalar = new ScalarProcess(this.Enlistment);
             string addFolder = Path.Combine(FolderGitCommandsTests, FolderDeleteFileTests);
             this.currentFolderList.Add(addFolder);
-            scalar.SparseSet(this.currentFolderList);
+            this.SparseSet();
 
             this.VerifyDirectory(this.Enlistment.RepoRoot, new List<string>
             {
@@ -85,10 +84,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(3)]
         public void SparseSetRemoveAFolder()
         {
-            ScalarProcess scalar = new ScalarProcess(this.Enlistment);
             this.currentFolderList.Remove(FolderFileNameEncoding).ShouldBeTrue("failed to remove folder from list");
 
-            scalar.SparseSet(this.currentFolderList);
+            this.SparseSet();
 
             this.VerifyDirectory(this.Enlistment.RepoRoot, new List<string>
              {
@@ -98,7 +96,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             this.currentFolderList.Add(FolderFileNameEncoding);
 
-            scalar.SparseSet(this.currentFolderList);
+            this.SparseSet();
 
             this.VerifyDirectory(this.Enlistment.RepoRoot, new List<string>
              {
@@ -118,9 +116,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem.CreateDirectory(scriptsDirectory);
             this.fileSystem.CreateEmptyFile(testFile);
 
-            ScalarProcess scalar = new ScalarProcess(this.Enlistment);
             this.currentFolderList.Add(FolderScripts);
-            scalar.SparseSet(this.currentFolderList);
+            this.SparseSet();
 
             this.VerifyDirectory(this.Enlistment.RepoRoot, new List<string>
             {
@@ -149,18 +146,17 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.VerifyContentsForSparseSetFileAlreadyExists();
 
             // If a file already exists that would conflict with a sparse checkout, the 'set' should fail
-            ScalarProcess scalar = new ScalarProcess(this.Enlistment);
             this.currentFolderList.Add(FolderEnumerateAndReadTestFiles);
-            string result = scalar.SparseSet(this.currentFolderList);
-            result.ShouldContain(SetFailureMessage);
+            string result = this.SparseSet();
+            result.ShouldContain(SetOverwriteMessage);
 
             // Contents should be unchanged after failure
             this.VerifyContentsForSparseSetFileAlreadyExists();
 
             // After deleting the conflicting file you should be able to 'set'
             this.fileSystem.DeleteFile(existingFile);
-            result = scalar.SparseSet(this.currentFolderList);
-            result.ShouldNotContain(true, SetFailureMessage);
+            result = this.SparseSet();
+            result.ShouldNotContain(true, SetOverwriteMessage);
 
             // Should now have multiple files under EnumerateAndReadTestFiles
             Directory.GetFiles(folderEnumerateDirectory).Length.ShouldEqual(18);
@@ -176,9 +172,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             string gvfsDirectory2 = this.Enlistment.GetSourcePath(gvfs2);
 
             // Add GVFS
-            ScalarProcess scalar = new ScalarProcess(this.Enlistment);
             this.currentFolderList.Add(FolderGVFS);
-            scalar.SparseSet(this.currentFolderList);
+            this.SparseSet();
 
             this.VerifyDirectory(this.Enlistment.RepoRoot, new List<string>
             {
@@ -194,7 +189,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem.MoveDirectory(gvfsDirectory, gvfsDirectory2);
 
             // Add GVFS again
-            scalar.SparseSet(this.currentFolderList);
+            this.SparseSet();
 
             // Only GVFS2 should exist
             this.VerifyDirectory(this.Enlistment.RepoRoot, new List<string>
@@ -237,11 +232,10 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.VerifyContentsSparseSetWithOneFolderConflict();
 
             // One folder conflict should fail the entire 'set'
-            ScalarProcess scalar = new ScalarProcess(this.Enlistment);
             this.currentFolderList.Add(FolderTest_MoveRenameFileTests);
             this.currentFolderList.Add(FolderTest_MoveRenameFileTests2);
-            string result = scalar.SparseSet(this.currentFolderList);
-            result.ShouldContain(SetFailureMessage);
+            string result = this.SparseSet();
+            result.ShouldContain(SetOverwriteMessage);
 
             // Results should be unchanged
             this.VerifyContentsSparseSetWithOneFolderConflict();
@@ -303,10 +297,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             GitProcess.Invoke(this.Enlistment.RepoRoot, "cherry-pick " + commitId);
 
             // Should not be able to add which we have a merge conflict
-            ScalarProcess scalar = new ScalarProcess(this.Enlistment);
             this.currentFolderList.Add(FolderTrailingSlashTests);
-            string result = scalar.SparseSet(this.currentFolderList);
-            result.ShouldContain(SetFailureMessage);
+            string result = this.SparseSet();
+            result.ShouldContain(SetIndexStateMessage);
 
             // New directory should not be listed because of the error
             this.VerifyDirectory(this.Enlistment.RepoRoot, new List<string>
@@ -349,9 +342,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             GitProcess.Invoke(this.Enlistment.RepoRoot, "cherry-pick 316a387485d58d2f83cfd60dbc4fe54f5194055e");
 
             // Add the folder with the commit out of the cone
-            ScalarProcess scalar = new ScalarProcess(this.Enlistment);
             this.currentFolderList.Add(FolderTest_WorkingDirectoryTests);
-            string result = scalar.SparseSet(this.currentFolderList);
+            this.SparseSet();
 
             // New Folder should exist
             string newFolder = this.Enlistment.GetSourcePath(FolderTest_WorkingDirectoryTests);
@@ -406,10 +398,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.VerifyContentsMergeConflict();
 
             // Add the folder with the conflict out of the cone
-            ScalarProcess scalar = new ScalarProcess(this.Enlistment);
             this.currentFolderList.Add(FolderTest_ConflictTests);
-            string result = scalar.SparseSet(this.currentFolderList);
-            result.ShouldNotContain(true, SetFailureMessage);
+            string result = this.SparseSet();
+            result.ShouldNotContain(true, SetIndexStateMessage);
 
             // Now *all* files and directories should appear
             this.VerifyDirectory(this.Enlistment.GetSourcePath(FolderTest_ConflictTests), new List<string>
@@ -496,7 +487,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         private void VerifyDirectory(string directory, List<string> expectedFolders)
         {
             string[] dirs = Directory.GetDirectories(directory);
-            dirs.Length.ShouldEqual(expectedFolders.Count);
             IEnumerable<string> expectedFoldersWithPath = expectedFolders.Select(x => Path.Combine(directory, x));
             Array.Sort(dirs);
             dirs.ShouldMatchInOrder(expectedFoldersWithPath);
@@ -505,10 +495,25 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         private void VerifyFiles(string directory, List<string> expectedFiles)
         {
             string[] files = Directory.GetFiles(directory);
-            files.Length.ShouldEqual(expectedFiles.Count);
             IEnumerable<string> expectedFilesWithPath = expectedFiles.Select(x => Path.Combine(directory, x));
             Array.Sort(files);
             files.ShouldMatchInOrder(expectedFilesWithPath);
+        }
+
+        private string SparseSet()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (string folder in this.currentFolderList)
+            {
+                sb.Append(folder.Replace(Path.DirectorySeparatorChar, TestConstants.GitPathSeparator)
+                                .Trim(TestConstants.GitPathSeparator));
+                sb.Append("\n");
+            }
+
+            ProcessResult result = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "sparse-checkout set --stdin", sb.ToString());
+
+            return result.Errors;
         }
     }
 }

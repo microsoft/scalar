@@ -10,14 +10,12 @@ if not "%2"=="--test-scalar-on-path" goto :startFunctionalTests
 
 REM Force Scalar.FunctionalTests.exe to use the installed version of Scalar
 del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.exe
-del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.ReadObjectHook.exe
 del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.Mount.exe
 del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.Service.exe
 del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.Service.UI.exe
 
 REM Same for Scalar.FunctionalTests.Windows.exe
 del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests.Windows\bin\x64\%Configuration%\Scalar.exe
-del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests.Windows\bin\x64\%Configuration%\Scalar.ReadObjectHook.exe
 del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests.Windows\bin\x64\%Configuration%\Scalar.Mount.exe
 del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests.Windows\bin\x64\%Configuration%\Scalar.Service.exe
 del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests.Windows\bin\x64\%Configuration%\Scalar.Service.UI.exe

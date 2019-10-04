@@ -99,12 +99,6 @@ namespace Scalar.Mount
 
                 this.ValidateMountPoints();
 
-                string errorMessage;
-                if (!HooksInstaller.TryUpdateHooks(this.context, out errorMessage))
-                {
-                    this.FailMountAndExit(errorMessage);
-                }
-
                 ScalarPlatform.Instance.ConfigureVisualStudio(this.enlistment.GitBinPath, this.tracer);
 
                 this.MountAndStartWorkingDirectoryCallbacks(this.cacheServer);

@@ -3,10 +3,8 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
-using Scalar.Common.Prefetch;
 using Scalar.Common.Tracing;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -570,13 +568,6 @@ namespace Scalar.CommandLine
                 return new Result(errorMessage);
             }
 
-            string installHooksError;
-            if (!HooksInstaller.InstallHooks(this.context, out installHooksError))
-            {
-                this.tracer.RelatedError(installHooksError);
-                return new Result(installHooksError);
-            }
-
             if (!RepoMetadata.TryInitialize(this.tracer, this.enlistment.DotScalarRoot, out errorMessage))
             {
                 this.tracer.RelatedError(errorMessage);
@@ -640,31 +631,6 @@ namespace Scalar.CommandLine
 
         private Result CheckoutRepo()
         {
-            if (this.FullClone)
-            {
-                BlobPrefetcher prefetcher = new BlobPrefetcher(
-                                                    this.tracer,
-                                                    this.enlistment,
-                                                    this.objectRequestor,
-                                                    fileList: new List<string>() { "*" },
-                                                    folderList: null,
-                                                    lastPrefetchArgs: null,
-                                                    chunkSize: 4000,
-                                                    searchThreadCount: Environment.ProcessorCount,
-                                                    downloadThreadCount: Environment.ProcessorCount,
-                                                    indexThreadCount: Environment.ProcessorCount);
-                prefetcher.PrefetchWithStats(
-                                this.Branch,
-                                isBranch: true,
-                                matchedBlobCount: out int _,
-                                downloadedBlobCount: out int _);
-
-                if (prefetcher.HasFailures)
-                {
-                    return new Result("Failures while prefetching blobs");
-                }
-            }
-
             GitProcess.Result result = this.git.ForceCheckout(this.Branch);
             if (result.ExitCodeIsFailure)
             {

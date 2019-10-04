@@ -152,12 +152,6 @@ Note that Scalar on Mac is under active development.
   git clone https://github.com/microsoft/scalar.git src
   ```
 
-* Using XCode, open `Scalar/ReadObjectHook/Scalar.ReadObjectHook.Mac.xcodeproj`.
-
-  * Select the `Scalar.ReadObjectHook.Mac` project.
-  * Under "Signing", select your developer certificate, which may be an organization
-    certificate.
-
 * Run the build and installation scripts:
 
   ```

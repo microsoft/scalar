@@ -9,7 +9,6 @@
 #define ServiceDir BuildOutputDir + "\Scalar.Service.Windows\bin\" + PlatformAndConfiguration
 #define ServiceUIDir BuildOutputDir + "\Scalar.Service.UI\bin\" + PlatformAndConfiguration
 #define ScalarMountDir BuildOutputDir + "\Scalar.Mount.Windows\bin\" + PlatformAndConfiguration
-#define ReadObjectDir BuildOutputDir + "\Scalar.ReadObjectHook.Windows\bin\" + PlatformAndConfiguration
 #define ScalarUpgraderDir BuildOutputDir + "\Scalar.Upgrader\bin\" + PlatformAndConfiguration + "\net461"
 
 #define MyAppName "Scalar"
@@ -77,10 +76,6 @@ DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarMountDir}\Scalar.Mount.e
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarUpgraderDir}\Scalar.Upgrader.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarUpgraderDir}\Scalar.Upgrader.exe"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarUpgraderDir}\Scalar.Upgrader.exe.config"
-
-; Scalar.ReadObjectHook files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ReadObjectDir}\Scalar.ReadObjectHook.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ReadObjectDir}\Scalar.ReadObjectHook.exe"
 
 ; Cpp Dependencies
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#VCRuntimeDir}\msvcp140.dll"
