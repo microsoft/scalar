@@ -145,6 +145,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
+        [Ignore("TODO #147: Renamed this test after git recreates the gvfs.sharedCache folder if it's missing")]
         public void MountReusesLocalCacheKeyWhenGitObjectsRootDeleted()
         {
             ScalarFunctionalTestEnlistment enlistment = this.CloneAndMountEnlistment();
