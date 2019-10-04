@@ -530,10 +530,8 @@ namespace Scalar.CommandLine
 
             if (!this.TryDownloadCommit(
                 this.refs.GetTipCommitId(this.Branch),
-                this.enlistment,
                 this.objectRequestor,
                 this.gitObjects,
-                this.gitRepo,
                 out errorMessage))
             {
                 return new Result(errorMessage);

@@ -374,7 +374,7 @@ of your enlistment's src folder.
 
                         string headCommit = revParseResult.Output.TrimEnd('\n');
 
-                        if (!this.TryDownloadCommit(headCommit, enlistment, objectRequestor, gitObjects, gitRepo, out errorMessage) ||
+                        if (!this.TryDownloadCommit(headCommit, objectRequestor, gitObjects, out errorMessage) ||
                             !this.TryDownloadRootGitAttributes(enlistment, gitObjects, gitRepo, out errorMessage))
                         {
                             return false;

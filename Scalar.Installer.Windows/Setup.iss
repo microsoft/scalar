@@ -3,7 +3,6 @@
 
 ; General documentation on how to use InnoSetup scripts: http://www.jrsoftware.org/ishelp/index.php
 
-#define VCRuntimeDir PackagesDir + "\GVFS.VCRuntime.0.2.0-build\lib\x64"
 #define ScalarDir BuildOutputDir + "\Scalar.Windows\bin\" + PlatformAndConfiguration
 #define ScalarCommonDir BuildOutputDir + "\Scalar.Common\bin\" + PlatformAndConfiguration + "\netstandard2.0"
 #define ServiceDir BuildOutputDir + "\Scalar.Service.Windows\bin\" + PlatformAndConfiguration
@@ -64,9 +63,6 @@ Type: files; Name: "{app}\ucrtbase.dll"
 
 [Files]
 
-; Scalar.Common Files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarCommonDir}\git2.dll"
-
 ; Scalar.Mount Files
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarMountDir}\Scalar.Mount.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarMountDir}\Scalar.Mount.exe"
@@ -76,12 +72,6 @@ DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarMountDir}\Scalar.Mount.e
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarUpgraderDir}\Scalar.Upgrader.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarUpgraderDir}\Scalar.Upgrader.exe"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarUpgraderDir}\Scalar.Upgrader.exe.config"
-
-; Cpp Dependencies
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#VCRuntimeDir}\msvcp140.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#VCRuntimeDir}\msvcp140_1.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#VCRuntimeDir}\msvcp140_2.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#VCRuntimeDir}\vcruntime140.dll"
 
 ; Scalar PDB's
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.Common.pdb"

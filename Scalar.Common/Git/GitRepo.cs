@@ -13,18 +13,13 @@ namespace Scalar.Common.Git
 
         private ITracer tracer;
         private PhysicalFileSystem fileSystem;
-        private LibGit2RepoInvoker libgit2RepoInvoker;
         private Enlistment enlistment;
 
-        public GitRepo(ITracer tracer, Enlistment enlistment, PhysicalFileSystem fileSystem, Func<LibGit2Repo> repoFactory = null)
+        public GitRepo(ITracer tracer, Enlistment enlistment, PhysicalFileSystem fileSystem)
         {
             this.tracer = tracer;
             this.enlistment = enlistment;
             this.fileSystem = fileSystem;
-
-            this.libgit2RepoInvoker = new LibGit2RepoInvoker(
-                tracer,
-                repoFactory ?? (() => new LibGit2Repo(this.tracer, this.enlistment.WorkingDirectoryBackingRoot)));
         }
 
         // For Unit Testing
@@ -41,35 +36,6 @@ namespace Scalar.Common.Git
             Unknown,
         }
 
-        public void CloseActiveRepo()
-        {
-            this.libgit2RepoInvoker?.DisposeSharedRepo();
-        }
-
-        public void OpenRepo()
-        {
-            this.libgit2RepoInvoker?.InitializeSharedRepo();
-        }
-
-        public bool TryGetIsBlob(string sha, out bool isBlob)
-        {
-            return this.libgit2RepoInvoker.TryInvoke(repo => repo.IsBlob(sha), out isBlob);
-        }
-
-        public virtual bool CommitAndRootTreeExists(string commitSha)
-        {
-            bool output = false;
-            this.libgit2RepoInvoker.TryInvoke(repo => repo.CommitAndRootTreeExists(commitSha), out output);
-            return output;
-        }
-
-        public virtual bool ObjectExists(string blobSha)
-        {
-            bool output = false;
-            this.libgit2RepoInvoker.TryInvoke(repo => repo.ObjectExists(blobSha), out output);
-            return output;
-        }
-
         /// <summary>
         /// Try to find the size of a given blob by SHA1 hash.
         ///
@@ -82,11 +48,6 @@ namespace Scalar.Common.Git
 
         public void Dispose()
         {
-            if (this.libgit2RepoInvoker != null)
-            {
-                this.libgit2RepoInvoker.Dispose();
-                this.libgit2RepoInvoker = null;
-            }
         }
 
         private static bool ReadLooseObjectHeader(Stream input, out long size)

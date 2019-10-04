@@ -527,14 +527,12 @@ You can specify a URL, a name of a configured cache server, or the special names
 
         protected bool TryDownloadCommit(
             string commitId,
-            ScalarEnlistment enlistment,
             GitObjectsHttpRequestor objectRequestor,
             ScalarGitObjects gitObjects,
-            GitRepo repo,
             out string error,
             bool checkLocalObjectCache = true)
         {
-            if (!checkLocalObjectCache || !repo.CommitAndRootTreeExists(commitId))
+            if (!checkLocalObjectCache)
             {
                 if (!gitObjects.TryDownloadCommit(commitId))
                 {
@@ -569,13 +567,10 @@ You can specify a URL, a name of a configured cache server, or the special names
                 return false;
             }
 
-            if (!repo.ObjectExists(gitAttributes.TargetSha))
+            if (gitObjects.TryDownloadAndSaveObject(gitAttributes.TargetSha, ScalarGitObjects.RequestSource.ScalarVerb) != GitObjects.DownloadAndSaveObjectResult.Success)
             {
-                if (gitObjects.TryDownloadAndSaveObject(gitAttributes.TargetSha, ScalarGitObjects.RequestSource.ScalarVerb) != GitObjects.DownloadAndSaveObjectResult.Success)
-                {
-                    error = "Could not download " + ScalarConstants.SpecialGitFiles.GitAttributes + " file";
-                    return false;
-                }
+                error = "Could not download " + ScalarConstants.SpecialGitFiles.GitAttributes + " file";
+                return false;
             }
 
             error = null;
