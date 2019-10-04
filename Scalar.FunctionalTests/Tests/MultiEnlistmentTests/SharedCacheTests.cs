@@ -145,6 +145,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
+        [Ignore("TODO #147: Renamed this test after git recreates the gvfs.sharedCache folder if it's missing")]
         public void MountReusesLocalCacheKeyWhenGitObjectsRootDeleted()
         {
             ScalarFunctionalTestEnlistment enlistment = this.CloneAndMountEnlistment();
@@ -159,55 +160,17 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             string mappingFileContents = this.fileSystem.ReadAllText(mappingFilePath);
             mappingFileContents.Length.ShouldNotEqual(0, "mapping.dat should not be empty");
 
-            // Delete the git objects root folder, mount should re-create it and the mapping.dat file should not change
             RepositoryHelpers.DeleteTestDirectory(objectsRoot);
-
             enlistment.MountScalar();
 
             ScalarHelpers.GetGitObjectsRoot(enlistment.RepoRoot).ShouldEqual(objectsRoot);
-            objectsRoot.ShouldBeADirectory(this.fileSystem);
-            mappingFilePath.ShouldBeAFile(this.fileSystem).WithContents(mappingFileContents);
 
-            this.AlternatesFileShouldHaveGitObjectsRoot(enlistment);
-        }
+            // Downloading objects should recreate the objects directory
+            this.LoadBlobsViaGit(enlistment);
 
-        [TestCase]
-        public void MountUsesNewLocalCacheKeyWhenLocalCacheDeleted()
-        {
-            ScalarFunctionalTestEnlistment enlistment = this.CloneAndMountEnlistment();
-
-            enlistment.UnmountScalar();
-
-            // Find the current git objects root and ensure it's on disk
-            string objectsRoot = ScalarHelpers.GetGitObjectsRoot(enlistment.RepoRoot);
             objectsRoot.ShouldBeADirectory(this.fileSystem);
 
-            string mappingFilePath = Path.Combine(enlistment.LocalCacheRoot, "mapping.dat");
-            string mappingFileContents = this.fileSystem.ReadAllText(mappingFilePath);
-            mappingFileContents.Length.ShouldNotEqual(0, "mapping.dat should not be empty");
-
-            // Delete the local cache folder, mount should re-create it and generate a new mapping file and local cache key
-            RepositoryHelpers.DeleteTestDirectory(enlistment.LocalCacheRoot);
-
-            enlistment.MountScalar();
-
-            // Mount should recreate the local cache root
-            enlistment.LocalCacheRoot.ShouldBeADirectory(this.fileSystem);
-
-            // Determine the new local cache key
-            string newMappingFileContents = mappingFilePath.ShouldBeAFile(this.fileSystem).WithContents();
-            const int GuidStringLength = 32;
-            string mappingFileKey = "A {\"Key\":\"https://gvfs.visualstudio.com/ci/_git/fortests\",\"Value\":\"";
-            int localKeyIndex = newMappingFileContents.IndexOf(mappingFileKey);
-            string newCacheKey = newMappingFileContents.Substring(localKeyIndex + mappingFileKey.Length, GuidStringLength);
-
-            // Validate the new objects root is on disk and uses the new key
-            objectsRoot.ShouldNotExistOnDisk(this.fileSystem);
-            string newObjectsRoot = ScalarHelpers.GetGitObjectsRoot(enlistment.RepoRoot);
-            newObjectsRoot.ShouldNotEqual(objectsRoot);
-            newObjectsRoot.ShouldContain(newCacheKey);
-            newObjectsRoot.ShouldBeADirectory(this.fileSystem);
-
+            // The alternates file shouldn't have changed
             this.AlternatesFileShouldHaveGitObjectsRoot(enlistment);
         }
 
