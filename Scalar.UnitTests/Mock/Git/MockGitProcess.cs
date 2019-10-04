@@ -78,7 +78,7 @@ namespace Scalar.UnitTests.Mock.Git
             string command,
             string workingDirectory,
             string dotGitDirectory,
-            bool useReadObjectHook,
+            bool fetchMissingObjects,
             Action<StreamWriter> writeStdIn,
             Action<string> parseStdOutLine,
             int timeoutMs,
