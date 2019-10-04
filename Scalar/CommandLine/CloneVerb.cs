@@ -264,7 +264,6 @@ namespace Scalar.CommandLine
                         this.enlistment,
                         verb =>
                         {
-                            verb.Commits = true;
                             verb.SkipVersionCheck = true;
                             verb.ResolvedCacheServer = this.cacheServer;
                             verb.ServerScalarConfig = this.serverScalarConfig;

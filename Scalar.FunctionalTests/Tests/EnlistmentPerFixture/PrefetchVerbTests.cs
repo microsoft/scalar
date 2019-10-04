@@ -27,7 +27,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
         public void PrefetchCleansUpStalePrefetchLock()
         {
-            this.Enlistment.Prefetch("--commits");
+            this.Enlistment.Prefetch();
             this.PostFetchStepShouldComplete();
             string prefetchCommitsLockFile = Path.Combine(this.Enlistment.GetObjectRoot(this.fileSystem), "pack", PrefetchCommitsAndTreesLock);
             prefetchCommitsLockFile.ShouldNotExistOnDisk(this.fileSystem);
@@ -41,7 +41,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 .Count()
                 .ShouldEqual(1, "Incorrect number of .keep files in pack directory");
 
-            this.Enlistment.Prefetch("--commits");
+            this.Enlistment.Prefetch();
             this.PostFetchStepShouldComplete();
             prefetchCommitsLockFile.ShouldNotExistOnDisk(this.fileSystem);
         }
