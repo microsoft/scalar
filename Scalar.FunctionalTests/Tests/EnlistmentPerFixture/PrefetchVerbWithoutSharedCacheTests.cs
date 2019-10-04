@@ -48,7 +48,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(1)]
         public void PrefetchCommitsToEmptyCache()
         {
-            this.Enlistment.Prefetch("--commits");
+            this.Enlistment.Prefetch();
             this.PostFetchJobShouldComplete();
 
             // Verify prefetch pack(s) are in packs folder and have matching idx file
@@ -72,7 +72,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             idxPath.ShouldNotExistOnDisk(this.fileSystem);
 
             // Prefetch should rebuild the missing idx
-            this.Enlistment.Prefetch("--commits");
+            this.Enlistment.Prefetch();
             this.PostFetchJobShouldComplete();
 
             idxPath.ShouldBeAFile(this.fileSystem);
@@ -97,7 +97,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             badPackPath.ShouldBeAFile(this.fileSystem).WithContents(badContents);
 
             // Prefetch should delete the bad pack
-            this.Enlistment.Prefetch("--commits");
+            this.Enlistment.Prefetch();
             this.PostFetchJobShouldComplete();
 
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
@@ -124,7 +124,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             badPackPath.ShouldBeAFile(this.fileSystem).WithContents(badContents);
 
             // Prefetch should delete the bad pack and all packs after it
-            this.Enlistment.Prefetch("--commits");
+            this.Enlistment.Prefetch();
             this.PostFetchJobShouldComplete();
 
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
@@ -157,12 +157,12 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Open a handle to the bad pack that will prevent prefetch from being able to delete it
             using (FileStream stream = new FileStream(badPackPath, FileMode.Open, FileAccess.Read, FileShare.None))
             {
-                string output = this.Enlistment.Prefetch("--commits", failOnError: false);
+                string output = this.Enlistment.Prefetch(failOnError: false);
                 output.ShouldContain($"Unable to delete {badPackPath}");
             }
 
             // After handle is closed prefetch should succeed
-            this.Enlistment.Prefetch("--commits");
+            this.Enlistment.Prefetch();
             this.PostFetchJobShouldComplete();
 
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
@@ -190,12 +190,12 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Open a handle to a good pack that is newer than the bad pack, which will prevent prefetch from being able to delete it
             using (FileStream stream = new FileStream(prefetchPacks[0], FileMode.Open, FileAccess.Read, FileShare.None))
             {
-                string output = this.Enlistment.Prefetch("--commits", failOnError: false);
+                string output = this.Enlistment.Prefetch(failOnError: false);
                 output.ShouldContain($"Unable to delete {prefetchPacks[0]}");
             }
 
             // After handle is closed prefetch should succeed
-            this.Enlistment.Prefetch("--commits");
+            this.Enlistment.Prefetch();
             this.PostFetchJobShouldComplete();
 
             // The bad pack and all packs newer than it should not be on disk
@@ -227,12 +227,12 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Open a handle to a good idx that is newer than the bad pack, which will prevent prefetch from being able to delete it
             using (FileStream stream = new FileStream(newerIdxPath, FileMode.Open, FileAccess.Read, FileShare.None))
             {
-                string output = this.Enlistment.Prefetch("--commits", failOnError: false);
+                string output = this.Enlistment.Prefetch(failOnError: false);
                 output.ShouldContain($"Unable to delete {newerIdxPath}");
             }
 
             // After handle is closed prefetch should succeed
-            this.Enlistment.Prefetch("--commits");
+            this.Enlistment.Prefetch();
             this.PostFetchJobShouldComplete();
 
             // The bad pack and all packs newer than it should not be on disk
@@ -275,7 +275,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem.WriteAllText(otherFilePath, otherFileContents);
             otherFilePath.ShouldBeAFile(this.fileSystem).WithContents(otherFileContents);
 
-            this.Enlistment.Prefetch("--commits");
+            this.Enlistment.Prefetch();
             this.PostFetchJobShouldComplete();
 
             // Validate stale prefetch packs are cleaned up
@@ -307,7 +307,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Re-mount so the post-fetch job runs
             this.Enlistment.MountScalar();
 
-            this.Enlistment.Prefetch("--commits");
+            this.Enlistment.Prefetch();
             this.PostFetchJobShouldComplete();
 
             this.fileSystem.FileExists(graphLockPath).ShouldBeFalse(nameof(graphLockPath));

@@ -56,9 +56,9 @@ namespace Scalar.FunctionalTests.Tools
             return this.IsEnlistmentMounted();
         }
 
-        public string Prefetch(string args, bool failOnError, string standardInput = null)
+        public string Prefetch(bool failOnError, string standardInput = null)
         {
-            return this.CallScalar("prefetch \"" + this.enlistmentRoot + "\" " + args, failOnError ? SuccessExitCode : DoNotCheckExitCode, standardInput: standardInput);
+            return this.CallScalar($"prefetch \"{this.enlistmentRoot}\"", failOnError ? SuccessExitCode : DoNotCheckExitCode, standardInput: standardInput);
         }
 
         public void Repair(bool confirm)
