@@ -23,6 +23,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem = new SystemIORunner();
         }
 
+        [TestCase]
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
         public void PrefetchCleansUpStalePrefetchLock()
         {

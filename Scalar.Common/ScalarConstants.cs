@@ -36,6 +36,7 @@ namespace Scalar.Common
             public const string ScalarTelemetryPipe = GitConfig.ScalarPrefix + "telemetry-pipe";
             public const string IKey = GitConfig.ScalarPrefix + "ikey";
             public const string HooksExtension = ".hooks";
+            public const string UseGvfsHelper = "core.useGvfsHelper";
         }
 
         public static class LocalScalarConfig

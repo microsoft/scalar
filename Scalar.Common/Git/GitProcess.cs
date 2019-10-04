@@ -90,7 +90,7 @@ namespace Scalar.Common.Git
 
         public static Result SparseCheckoutInit(Enlistment enlistment)
         {
-            return new GitProcess(enlistment).InvokeGitInWorkingDirectoryRoot("sparse-checkout init --cone", useReadObjectHook: false);
+            return new GitProcess(enlistment).InvokeGitInWorkingDirectoryRoot("sparse-checkout init --cone", fetchMissingObjects: false);
         }
 
         public static ConfigResult GetFromGlobalConfig(string gitBinPath, string settingName)
@@ -413,19 +413,19 @@ namespace Scalar.Common.Git
 
         public Result ForceCheckout(string target)
         {
-            return this.InvokeGitInWorkingDirectoryRoot("checkout -f " + target, useReadObjectHook: true);
+            return this.InvokeGitInWorkingDirectoryRoot("checkout -f " + target, fetchMissingObjects: true);
         }
 
         public Result ForceCheckoutAllFiles()
         {
-            return this.InvokeGitInWorkingDirectoryRoot("checkout HEAD -- .", useReadObjectHook: true);
+            return this.InvokeGitInWorkingDirectoryRoot("checkout HEAD -- .", fetchMissingObjects: true);
         }
 
         public Result SparseCheckoutSet(List<string> foldersToSet)
         {
             return this.InvokeGitInWorkingDirectoryRoot(
                 $"sparse-checkout set --stdin",
-                useReadObjectHook: true,
+                fetchMissingObjects: true,
                 writeStdIn: writer =>
                 {
                     foreach (string path in foldersToSet)
@@ -449,7 +449,7 @@ namespace Scalar.Common.Git
                 command += " -uall";
             }
 
-            return this.InvokeGitInWorkingDirectoryRoot(command, useReadObjectHook: allowObjectDownloads);
+            return this.InvokeGitInWorkingDirectoryRoot(command, fetchMissingObjects: allowObjectDownloads);
         }
 
         public Result UnpackObjects(Stream packFileStream)
@@ -490,7 +490,7 @@ namespace Scalar.Common.Git
             string command = "commit-graph write --stdin-packs --split --size-multiple=4 --object-dir \"" + objectDir + "\"";
             return this.InvokeGitInWorkingDirectoryRoot(
                 command,
-                useReadObjectHook: true,
+                fetchMissingObjects: true,
                 writeStdIn: writer =>
                 {
                     foreach (string packIndex in packs)
@@ -506,7 +506,7 @@ namespace Scalar.Common.Git
         public Result VerifyCommitGraph(string objectDir)
         {
             string command = "commit-graph verify --shallow --object-dir \"" + objectDir + "\"";
-            return this.InvokeGitInWorkingDirectoryRoot(command, useReadObjectHook: true);
+            return this.InvokeGitInWorkingDirectoryRoot(command, fetchMissingObjects: true);
         }
 
         public Result IndexPack(string packfilePath, string idxOutputPath)
@@ -547,7 +547,7 @@ namespace Scalar.Common.Git
         {
             return this.InvokeGitInWorkingDirectoryRoot(
                 "ls-files -v",
-                useReadObjectHook: false,
+                fetchMissingObjects: false,
                 parseStdOutLine: parseStdOutLine);
         }
 
@@ -634,7 +634,7 @@ namespace Scalar.Common.Git
 
             if (!fetchMissingObjects)
             {
-                command = "-c " + "core.usegvfshelper=false " + command;
+                command = $"-c {ScalarConstants.GitConfig.UseGvfsHelper}=false {command}";
             }
 
             if (!string.IsNullOrEmpty(dotGitDirectory))
@@ -654,7 +654,7 @@ namespace Scalar.Common.Git
             string command,
             string workingDirectory,
             string dotGitDirectory,
-            bool useReadObjectHook,
+            bool fetchMissingObjects,
             Action<StreamWriter> writeStdIn,
             Action<string> parseStdOutLine,
             int timeoutMs,
@@ -674,7 +674,7 @@ namespace Scalar.Common.Git
                                                         command,
                                                         workingDirectory,
                                                         dotGitDirectory,
-                                                        fetchMissingObjects: useReadObjectHook,
+                                                        fetchMissingObjects: fetchMissingObjects,
                                                         redirectStandardError: true,
                                                         gitObjectsDirectory: gitObjectsDirectory))
                 {
@@ -799,7 +799,7 @@ namespace Scalar.Common.Git
                 command,
                 workingDirectory: Environment.SystemDirectory,
                 dotGitDirectory: null,
-                useReadObjectHook: false,
+                fetchMissingObjects: false,
                 writeStdIn: writeStdIn,
                 parseStdOutLine: parseStdOutLine,
                 timeoutMs: timeout);
@@ -810,7 +810,7 @@ namespace Scalar.Common.Git
         /// </summary>
         private Result InvokeGitInWorkingDirectoryRoot(
             string command,
-            bool useReadObjectHook,
+            bool fetchMissingObjects,
             Action<StreamWriter> writeStdIn = null,
             Action<string> parseStdOutLine = null)
         {
@@ -818,7 +818,7 @@ namespace Scalar.Common.Git
                 command,
                 workingDirectory: this.workingDirectoryRoot,
                 dotGitDirectory: null,
-                useReadObjectHook: useReadObjectHook,
+                fetchMissingObjects: fetchMissingObjects,
                 writeStdIn: writeStdIn,
                 parseStdOutLine: parseStdOutLine,
                 timeoutMs: -1);
@@ -846,7 +846,7 @@ namespace Scalar.Common.Git
                 command,
                 workingDirectory: Environment.SystemDirectory,
                 dotGitDirectory: this.dotGitRoot,
-                useReadObjectHook: false,
+                fetchMissingObjects: false,
                 writeStdIn: writeStdIn,
                 parseStdOutLine: parseStdOutLine,
                 timeoutMs: -1,

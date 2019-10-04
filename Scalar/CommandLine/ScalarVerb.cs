@@ -169,7 +169,7 @@ namespace Scalar.CommandLine
                 { "core.commitGraph", "true" },
                 { "core.fscache", "true" },
                 { "core.gvfs", coreGVFSFlags },
-                { "core.usegvfshelper", "true" },
+                { ScalarConstants.GitConfig.UseGvfsHelper, "true" },
                 { "core.multiPackIndex", "true" },
                 { "core.preloadIndex", "true" },
                 { "core.safecrlf", "false" },
