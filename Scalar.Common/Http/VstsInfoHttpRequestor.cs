@@ -20,38 +20,19 @@ namespace Scalar.Common.Http
         public bool TryQueryRepoInfo(bool logErrors, out VstsInfoData vstsInfo, out string errorMessage)
         {
             Uri repoInfoEndpoint;
-            string repoInfoEndpointString = this.repoUrl + ScalarConstants.Endpoints.RepoInfo;
-            try
-            {
-                repoInfoEndpoint = new Uri(repoInfoEndpointString);
-            }
-            catch (UriFormatException e)
+            if (!this.TryCreateRepoEndpointUri(this.repoUrl, ScalarConstants.Endpoints.RepoInfo, out repoInfoEndpoint, out errorMessage))
             {
                 vstsInfo = null;
-                errorMessage = "UriFormatException when constructing Uri";
-
-                EventMetadata metadata = new EventMetadata();
-                metadata.Add("Method", nameof(this.TryQueryRepoInfo));
-                metadata.Add("Exception", e.ToString());
-                metadata.Add("Url", repoInfoEndpointString);
-                this.Tracer.RelatedError(metadata, $"{nameof(this.TryQueryRepoInfo)}: {errorMessage}", Keywords.Network);
-
                 return false;
             }
 
             long requestId = HttpRequestor.GetNewRequestId();
-            RetryWrapper<VstsInfoData> retrier = new RetryWrapper<VstsInfoData>(
-                this.RetryConfig.MaxAttempts,
-                CancellationToken.None);
-
-            if (logErrors)
-            {
-                retrier.OnFailure += RetryWrapper<VstsInfoData>.StandardErrorHandler(
-                    this.Tracer,
-                    requestId,
-                    "QueryRepoInfo",
-                    forceLogAsWarning: true); // Not all servers support /vsts/info
-            }
+            RetryWrapper<VstsInfoData> retrier = new RetryWrapper<VstsInfoData>(this.RetryConfig.MaxAttempts, CancellationToken.None);
+            retrier.OnFailure += RetryWrapper<VstsInfoData>.StandardErrorHandler(
+                this.Tracer,
+                requestId,
+                "QueryVstsInfo",
+                forceLogAsWarning: true); // Not all servers support /vsts/info
 
             RetryWrapper<VstsInfoData>.InvocationResult output = retrier.Invoke(
                 tryCount =>
@@ -97,30 +78,30 @@ namespace Scalar.Common.Http
             GitObjectsHttpException httpException = output.Error as GitObjectsHttpException;
             if (httpException != null)
             {
-                errorMessage = httpException.Message;
                 httpStatusCode = httpException.StatusCode;
             }
 
-            if (logErrors)
-            {
-                this.Tracer.RelatedWarning(
-                    new EventMetadata
-                    {
-                        { "Exception", output.Error.ToString() }
-                    },
-                    $"{nameof(this.TryQueryRepoInfo)} failed");
-            }
-
             vstsInfo = null;
+
+            EventMetadata metadata = new EventMetadata();
+            metadata.Add(nameof(httpStatusCode), httpStatusCode.ToString());
+            metadata.Add(nameof(this.IsAnonymous), this.IsAnonymous);
 
             if (httpStatusCode == HttpStatusCode.NotFound ||
                 (httpStatusCode == HttpStatusCode.Unauthorized && this.IsAnonymous))
             {
                 errorMessage = null;
+                this.Tracer.RelatedEvent(
+                    EventLevel.Informational,
+                    $"{nameof(this.TryQueryRepoInfo)}_NoVstsInfo",
+                    metadata);
 
                 // These failures are OK because not all servers support /vsts/info
                 return true;
             }
+
+            metadata.Add("Exception", output.Error.ToString());
+            this.Tracer.RelatedError(metadata, $"{nameof(this.TryQueryRepoInfo)} failed");
 
             errorMessage = output.Error.Message;
             return false;

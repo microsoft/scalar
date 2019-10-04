@@ -85,19 +85,12 @@ namespace Scalar.UnitTests.Common
             };
 
             IEnumerable<LocalCacheResolver> localCacheResolvers = enlistments.Select(x => new LocalCacheResolver(x));
-
-            localCacheResolvers.First().TryGetLocalCacheKeyFromRepoInfoOrURL(
-                tracer,
-                vstsInfo: null,
-                localCacheKey: out string localCacheKey,
-                errorMessage: out _).ShouldBeTrue();
-
             foreach (LocalCacheResolver resolver in localCacheResolvers)
             {
                 resolver.TryGetLocalCacheKeyFromRepoInfoOrURL(
                     tracer,
                     vstsInfo: null,
-                    localCacheKey: out string tempCacheKey,
+                    localCacheKey: out string localCacheKey,
                     errorMessage: out string ErrorMessage).ShouldBeTrue();
                 localCacheKey.ShouldEqual("url_0d95e2600bac6918e2073de5278eed6a6a06f79f");
             }

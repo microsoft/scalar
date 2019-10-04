@@ -75,6 +75,30 @@ namespace Scalar.Common.Http
             }
         }
 
+        protected bool TryCreateRepoEndpointUri(string repoUrl, string endpoint, out Uri uri, out string error)
+        {
+            string endpointUrl = repoUrl + endpoint;
+            try
+            {
+                uri = new Uri(endpointUrl);
+                error = null;
+                return true;
+            }
+            catch (UriFormatException e)
+            {
+                uri = null;
+                error = "UriFormatException when constructing Uri";
+
+                EventMetadata metadata = new EventMetadata();
+                metadata.Add("Method", nameof(this.TryCreateRepoEndpointUri));
+                metadata.Add("Exception", e.ToString());
+                metadata.Add(nameof(endpointUrl), endpointUrl);
+                this.Tracer.RelatedError(metadata, $"{nameof(this.TryCreateRepoEndpointUri)}: {error}", Keywords.Network);
+
+                return false;
+            }
+        }
+
         protected GitEndPointResponseData SendRequest(
             long requestId,
             Uri requestUri,

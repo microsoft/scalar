@@ -19,24 +19,11 @@ namespace Scalar.Common.Http
 
         public bool TryQueryScalarConfig(bool logErrors, out ServerScalarConfig serverScalarConfig, out HttpStatusCode? httpStatus, out string errorMessage)
         {
-            serverScalarConfig = null;
-            httpStatus = null;
-            errorMessage = null;
-
             Uri scalarConfigEndpoint;
-            string scalarConfigEndpointString = this.repoUrl + ScalarConstants.Endpoints.ScalarConfig;
-            try
+            if (!this.TryCreateRepoEndpointUri(this.repoUrl, ScalarConstants.Endpoints.ScalarConfig, out scalarConfigEndpoint, out errorMessage))
             {
-                scalarConfigEndpoint = new Uri(scalarConfigEndpointString);
-            }
-            catch (UriFormatException e)
-            {
-                EventMetadata metadata = new EventMetadata();
-                metadata.Add("Method", nameof(this.TryQueryScalarConfig));
-                metadata.Add("Exception", e.ToString());
-                metadata.Add("Url", scalarConfigEndpointString);
-                this.Tracer.RelatedError(metadata, "UriFormatException when constructing Uri", Keywords.Network);
-
+                serverScalarConfig = null;
+                httpStatus = null;
                 return false;
             }
 
@@ -83,12 +70,14 @@ namespace Scalar.Common.Http
                 return true;
             }
 
+            httpStatus = null;
             GitObjectsHttpException httpException = output.Error as GitObjectsHttpException;
             if (httpException != null)
             {
                 httpStatus = httpException.StatusCode;
-                errorMessage = httpException.Message;
             }
+
+            errorMessage = output.Error.Message;
 
             if (logErrors)
             {
@@ -100,6 +89,7 @@ namespace Scalar.Common.Http
                     $"{nameof(this.TryQueryScalarConfig)} failed");
             }
 
+            serverScalarConfig = null;
             return false;
         }
     }
