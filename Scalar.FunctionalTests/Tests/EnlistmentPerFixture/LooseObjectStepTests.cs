@@ -90,6 +90,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         [TestCase]
         [Order(4)]
+        [Ignore("Wait until Git fixes corrupt loose objects. See #151")]
         public void CorruptLooseObjectIsDeleted()
         {
             this.ClearAllObjects();
