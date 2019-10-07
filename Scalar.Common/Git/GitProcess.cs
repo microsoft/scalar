@@ -90,7 +90,7 @@ namespace Scalar.Common.Git
 
         public static Result SparseCheckoutInit(Enlistment enlistment)
         {
-            return new GitProcess(enlistment).InvokeGitInWorkingDirectoryRoot("sparse-checkout init --cone", fetchMissingObjects: false);
+            return new GitProcess(enlistment).InvokeGitInWorkingDirectoryRoot("sparse-checkout init --cone", fetchMissingObjects: true);
         }
 
         public static ConfigResult GetFromGlobalConfig(string gitBinPath, string settingName)
@@ -408,7 +408,9 @@ namespace Scalar.Common.Git
 
         public Result CreateBranchWithUpstream(string branchToCreate, string upstreamBranch)
         {
-            return this.InvokeGitAgainstDotGitFolder("branch " + branchToCreate + " --track " + upstreamBranch);
+            return this.InvokeGitInWorkingDirectoryRoot(
+                                "branch " + branchToCreate + " --track " + upstreamBranch,
+                                fetchMissingObjects:true);
         }
 
         public Result ForceCheckout(string target)
@@ -537,17 +539,10 @@ namespace Scalar.Common.Git
 
         public Result LsTree(string treeish, Action<string> parseStdOutLine, bool recursive, bool showAllTrees = false, bool showDirectories = false)
         {
-            return this.InvokeGitAgainstDotGitFolder(
-                "ls-tree " + (recursive ? "-r " : string.Empty) + (showAllTrees ? "-t " : string.Empty) + (showDirectories ? "-d " : string.Empty) + treeish,
-                null,
-                parseStdOutLine);
-        }
-
-        public Result LsFiles(Action<string> parseStdOutLine)
-        {
             return this.InvokeGitInWorkingDirectoryRoot(
-                "ls-files -v",
-                fetchMissingObjects: false,
+                "ls-tree " + (recursive ? "-r " : string.Empty) + (showAllTrees ? "-t " : string.Empty) + (showDirectories ? "-d " : string.Empty) + treeish,
+                fetchMissingObjects: true,
+                writeStdIn: null,
                 parseStdOutLine: parseStdOutLine);
         }
 

@@ -18,7 +18,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         // Set forcePerRepoObjectCache to true to avoid any of the tests inadvertently corrupting
         // the cache
         public LooseObjectStepTests()
-            : base(forcePerRepoObjectCache: true, skipPrefetchDuringClone: false)
+            : base(forcePerRepoObjectCache: true, skipPrefetchDuringClone: false, fullClone: false)
         {
             this.fileSystem = new SystemIORunner();
         }
@@ -90,6 +90,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         [TestCase]
         [Order(4)]
+        [Ignore("Wait until Git fixes corrupt loose objects. See #151")]
         public void CorruptLooseObjectIsDeleted()
         {
             this.ClearAllObjects();
@@ -192,7 +193,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         private void ExpandOneTempPack(bool copyPackBackToPackDirectory)
         {
             // Find all pack files
-            string[] packFiles = Directory.GetFiles(this.TempPackRoot, "pack-*.pack");
+            string[] packFiles = Directory.GetFiles(this.TempPackRoot, "*.pack");
             Assert.Greater(packFiles.Length, 0);
 
             List<FileInfo> fileInfos = packFiles.Select(file => new FileInfo(file))

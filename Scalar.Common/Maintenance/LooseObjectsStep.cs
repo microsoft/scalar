@@ -164,34 +164,6 @@ namespace Scalar.Common.Maintenance
                             objectId.Substring(2, ScalarConstants.ShaStringLength - 2));
         }
 
-        public void ClearCorruptLooseObjects(EventMetadata metadata)
-        {
-            int numDeletedObjects = 0;
-            int numFailedDeletes = 0;
-
-            // Double the batch size to look beyond the current batch for bad objects, as there
-            // may be more bad objects in the next batch after deleting the corrupt objects.
-            foreach (string objectId in this.GetBatchOfLooseObjects(2 * this.MaxLooseObjectsInPack))
-            {
-                if (!this.Context.Repository.ObjectExists(objectId))
-                {
-                    string objectFile = this.GetLooseObjectFileName(objectId);
-
-                    if (this.Context.FileSystem.TryDeleteFile(objectFile))
-                    {
-                        numDeletedObjects++;
-                    }
-                    else
-                    {
-                        numFailedDeletes++;
-                    }
-                }
-            }
-
-            metadata.Add("RemovedCorruptObjects", numDeletedObjects);
-            metadata.Add("NumFailedDeletes", numFailedDeletes);
-        }
-
         protected override void PerformMaintenance()
         {
             using (ITracer activity = this.Context.Tracer.StartActivity(this.Area, EventLevel.Informational, Keywords.Telemetry, metadata: null))
@@ -241,11 +213,6 @@ namespace Scalar.Common.Maintenance
                     metadata.Add("RemovedCount", beforeLooseObjectsCount - afterLooseObjectsCount);
                     metadata.Add("LooseObjectsPutIntoPackFile", objectsAddedToPack);
                     metadata.Add("CreatePackResult", createPackResult.ToString());
-
-                    if (createPackResult == CreatePackResult.CorruptObject)
-                    {
-                        this.ClearCorruptLooseObjects(metadata);
-                    }
 
                     activity.RelatedEvent(EventLevel.Informational, $"{this.Area}_{nameof(this.PerformMaintenance)}", metadata, Keywords.Telemetry);
                     this.SaveLastRunTimeToFile();

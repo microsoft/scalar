@@ -109,9 +109,8 @@ namespace Scalar.UnitTests.Git
             MockTracer tracer = new MockTracer();
             ScalarEnlistment enlistment = new ScalarEnlistment(TestEnlistmentRoot, "https://fakeRepoUrl", "fakeGitBinPath", authentication: null);
             enlistment.InitializeCachePathsFromKey(TestLocalCacheRoot, TestObjectRoot);
-            GitRepo repo = new GitRepo(tracer, enlistment, fileSystem, () => new MockLibGit2Repo(tracer));
 
-            ScalarContext context = new ScalarContext(tracer, fileSystem, repo, enlistment);
+            ScalarContext context = new ScalarContext(tracer, fileSystem, enlistment);
             ScalarGitObjects dut = new ScalarGitObjects(context, httpObjects);
             return dut;
         }

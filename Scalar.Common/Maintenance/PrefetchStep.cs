@@ -229,11 +229,6 @@ namespace Scalar.Common.Maintenance
                     metadata.Add(TracingConstants.MessageKey.InfoMessage, $"{nameof(this.TryGetMaxGoodPrefetchTimestamp)} deleting bad idx file");
                     this.Context.Tracer.RelatedEvent(EventLevel.Informational, $"{nameof(this.TryGetMaxGoodPrefetchTimestamp)}_DeleteBadIdx", metadata);
 
-                    // We need to close the LibGit2 repo data in order to delete .idx files.
-                    // Close inside the loop to only close if necessary, reopen outside the loop
-                    // to minimize initializations.
-                    this.Context.Repository.CloseActiveRepo();
-
                     if (!this.Context.FileSystem.TryWaitForDelete(this.Context.Tracer, idxPath, IoFailureRetryDelayMS, MaxDeleteRetries, RetryLoggingThreshold))
                     {
                         error = $"Unable to delete {idxPath}";
@@ -251,8 +246,6 @@ namespace Scalar.Common.Maintenance
                         return false;
                     }
                 }
-
-                this.Context.Repository.OpenRepo();
             }
 
             error = null;

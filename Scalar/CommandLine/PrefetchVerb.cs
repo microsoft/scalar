@@ -149,8 +149,7 @@ namespace Scalar.CommandLine
             bool success;
             string error = string.Empty;
             PhysicalFileSystem fileSystem = new PhysicalFileSystem();
-            GitRepo repo = new GitRepo(tracer, enlistment, fileSystem);
-            ScalarContext context = new ScalarContext(tracer, fileSystem, repo, enlistment);
+            ScalarContext context = new ScalarContext(tracer, fileSystem, enlistment);
             GitObjects gitObjects = new ScalarGitObjects(context, objectRequestor);
 
             if (this.Verbose)
