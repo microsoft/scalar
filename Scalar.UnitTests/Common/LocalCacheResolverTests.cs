@@ -73,7 +73,7 @@ namespace Scalar.UnitTests.Common
         }
 
         [TestCase]
-        public void LocalCacheKeyFromURLIsCaseInsensitive()
+        public void LocalCacheKeyFromURLIsCaseInsensitiveAndStable()
         {
             MockTracer tracer = new MockTracer();
             List<MockScalarEnlistment> enlistments = new List<MockScalarEnlistment>
@@ -92,6 +92,8 @@ namespace Scalar.UnitTests.Common
                     vstsInfo: null,
                     localCacheKey: out string localCacheKey,
                     errorMessage: out string ErrorMessage).ShouldBeTrue();
+
+                // Use an explicit result to ensure the hash function is stable
                 localCacheKey.ShouldEqual("url_0d95e2600bac6918e2073de5278eed6a6a06f79f");
             }
         }

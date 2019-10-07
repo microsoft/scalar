@@ -74,12 +74,8 @@ namespace Scalar.Common.Http
                 return true;
             }
 
-            HttpStatusCode? httpStatusCode = null;
             GitObjectsHttpException httpException = output.Error as GitObjectsHttpException;
-            if (httpException != null)
-            {
-                httpStatusCode = httpException.StatusCode;
-            }
+            HttpStatusCode? httpStatusCode = httpException?.StatusCode;
 
             vstsInfo = null;
 
