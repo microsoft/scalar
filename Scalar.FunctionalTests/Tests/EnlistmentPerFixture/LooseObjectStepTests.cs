@@ -23,7 +23,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem = new SystemIORunner();
         }
 
-        private string GitObjectRoot => this.Enlistment.GetObjectRoot(this.fileSystem);
+        private string GitObjectRoot => ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot);
         private string PackRoot => this.Enlistment.GetPackRoot(this.fileSystem);
         private string TempPackRoot => Path.Combine(this.PackRoot, TempPackFolder);
 

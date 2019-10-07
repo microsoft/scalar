@@ -94,11 +94,7 @@ namespace Scalar.Common.Http
             long requestId = HttpRequestor.GetNewRequestId();
 
             Uri infoRefsEndpoint;
-            try
-            {
-                infoRefsEndpoint = new Uri(this.enlistment.RepoUrl + ScalarConstants.Endpoints.InfoRefs);
-            }
-            catch (UriFormatException)
+            if (!this.TryCreateRepoEndpointUri(this.enlistment.RepoUrl, ScalarConstants.Endpoints.InfoRefs, out infoRefsEndpoint, out _))
             {
                 return null;
             }

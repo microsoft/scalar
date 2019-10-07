@@ -29,7 +29,10 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             this.Enlistment.Prefetch();
             this.PostFetchStepShouldComplete();
-            string prefetchCommitsLockFile = Path.Combine(this.Enlistment.GetObjectRoot(this.fileSystem), "pack", PrefetchCommitsAndTreesLock);
+            string prefetchCommitsLockFile = Path.Combine(
+                ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot),
+                "pack",
+                PrefetchCommitsAndTreesLock);
             prefetchCommitsLockFile.ShouldNotExistOnDisk(this.fileSystem);
             this.fileSystem.WriteAllText(prefetchCommitsLockFile, this.Enlistment.EnlistmentRoot);
             prefetchCommitsLockFile.ShouldBeAFile(this.fileSystem);
@@ -48,7 +51,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         private void PostFetchStepShouldComplete()
         {
-            string objectDir = this.Enlistment.GetObjectRoot(this.fileSystem);
+            string objectDir = ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot);
             string objectCacheLock = Path.Combine(objectDir, "git-maintenance-step.lock");
 
             // Wait first, to hopefully ensure the background thread has

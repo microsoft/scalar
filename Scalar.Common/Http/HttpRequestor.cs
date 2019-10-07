@@ -56,6 +56,11 @@ namespace Scalar.Common.Http
 
         protected ITracer Tracer { get; }
 
+        protected bool IsAnonymous
+        {
+            get { return this.authentication.IsAnonymous; }
+        }
+
         public static long GetNewRequestId()
         {
             return Interlocked.Increment(ref requestCount);
@@ -67,6 +72,30 @@ namespace Scalar.Common.Http
             {
                 this.client.Dispose();
                 this.client = null;
+            }
+        }
+
+        protected bool TryCreateRepoEndpointUri(string repoUrl, string endpoint, out Uri uri, out string error)
+        {
+            string endpointUrl = repoUrl + endpoint;
+            try
+            {
+                uri = new Uri(endpointUrl);
+                error = null;
+                return true;
+            }
+            catch (UriFormatException e)
+            {
+                uri = null;
+                error = "UriFormatException when constructing Uri";
+
+                EventMetadata metadata = new EventMetadata();
+                metadata.Add("Method", nameof(this.TryCreateRepoEndpointUri));
+                metadata.Add("Exception", e.ToString());
+                metadata.Add(nameof(endpointUrl), endpointUrl);
+                this.Tracer.RelatedError(metadata, $"{nameof(this.TryCreateRepoEndpointUri)}: {error}", Keywords.Network);
+
+                return false;
             }
         }
 
@@ -255,10 +284,11 @@ namespace Scalar.Common.Http
 
         private static bool ShouldRetry(HttpStatusCode statusCode)
         {
-            // Retry timeout, Unauthorized, and 5xx errors
+            // Retry timeout, Unauthorized, 429 (Too Many Requests), and 5xx errors
             int statusInt = (int)statusCode;
             if (statusCode == HttpStatusCode.RequestTimeout ||
                 statusCode == HttpStatusCode.Unauthorized ||
+                statusInt == 429 ||
                 (statusInt >= 500 && statusInt < 600))
             {
                 return true;

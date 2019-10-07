@@ -41,7 +41,7 @@ namespace Scalar.FunctionalTests.Tools
             minorVersion = GetPersistedValue(dotScalarRoot, DiskLayoutMinorVersionKey);
         }
 
-        public static string GetGitObjectsRoot(string repoRoot)
+        public static string GetObjectsRootFromGitConfig(string repoRoot)
         {
             ProcessResult result = GitProcess.InvokeProcess(repoRoot, $"config --local {ScalarHelpers.GitConfigObjectCache}");
             result.ExitCode.ShouldEqual(0, $"Failed to read git object root from config, error: {result.ExitCode}");

@@ -483,13 +483,13 @@ namespace Scalar.CommandLine
             errorMessage = null;
             LocalCacheResolver localCacheResolver = new LocalCacheResolver(this.enlistment);
 
+            VstsInfoData vstsInfo = this.QueryVstsInfo(this.tracer, this.enlistment, this.retryConfig);
+
             string error;
             string localCacheKey;
-            if (!localCacheResolver.TryGetLocalCacheKeyFromLocalConfigOrRemoteCacheServers(
+            if (!localCacheResolver.TryGetLocalCacheKeyFromRepoInfoOrURL(
                 this.tracer,
-                this.serverScalarConfig,
-                this.cacheServer,
-                localCacheRoot,
+                vstsInfo,
                 localCacheKey: out localCacheKey,
                 errorMessage: out error))
             {
