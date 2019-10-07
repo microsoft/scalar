@@ -123,12 +123,10 @@ namespace Scalar.FunctionalTests.Tools
             }
         }
 
-        public static string GetInternalParameter(string maintenanceJob = "null", string packfileMaintenanceBatchSize = "null")
+        public static string GetInternalParameter()
         {
             return $"\"{{\\\"ServiceName\\\":\\\"{ScalarServiceProcess.TestServiceName}\\\"," +
-                    "\\\"StartedByService\\\":false," +
-                    $"\\\"MaintenanceJob\\\":{maintenanceJob}," +
-                    $"\\\"PackfileMaintenanceBatchSize\\\":{packfileMaintenanceBatchSize}}}\"";
+                    "\\\"StartedByService\\\":false}\"";
         }
 
         private static T RunSqliteCommand<T>(string sqliteDbPath, Func<SqliteCommand, T> runCommand)

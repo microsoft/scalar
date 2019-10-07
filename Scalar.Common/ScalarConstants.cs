@@ -84,7 +84,7 @@ namespace Scalar.Common
             public const string UpgradePrefix = "productupgrade";
 
             public const string Clone = "clone";
-            public const string Dehydrate = "dehydrate";
+            public const string Maintenance = "maintenance";
             public const string MountVerb = MountPrefix + "_verb";
             public const string MountProcess = MountPrefix + "_process";
             public const string MountUpgrade = MountPrefix + "_repoupgrade";

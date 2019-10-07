@@ -58,7 +58,6 @@ namespace Scalar.CommandLine
                 // By using MountPrefix ("mount") DisplayMostRecent will display either mount_verb, mount_upgrade, or mount_process, whichever is more recent
                 this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.MountPrefix);
                 this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.Prefetch);
-                this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.Dehydrate);
                 this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.Repair);
                 this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.Sparse);
 
@@ -121,7 +120,6 @@ namespace Scalar.CommandLine
                 ScalarConstants.LogFileTypes.Clone,
                 ScalarConstants.LogFileTypes.MountPrefix,
                 ScalarConstants.LogFileTypes.Prefetch,
-                ScalarConstants.LogFileTypes.Dehydrate,
                 ScalarConstants.LogFileTypes.Repair,
                 ScalarConstants.LogFileTypes.Sparse,
                 ScalarConstants.LogFileTypes.Service,

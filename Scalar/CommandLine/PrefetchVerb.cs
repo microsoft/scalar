@@ -52,7 +52,7 @@ namespace Scalar.CommandLine
 
                 try
                 {
-                    EventMetadata metadata = new EventMetadata();
+                    EventMetadata metadata = this.CreateEventMetadata();
                     tracer.RelatedEvent(EventLevel.Informational, "PerformPrefetch", metadata);
 
                     GitObjectsHttpRequestor objectRequestor;
@@ -77,11 +77,7 @@ namespace Scalar.CommandLine
                     foreach (Exception innerException in aggregateException.Flatten().InnerExceptions)
                     {
                         tracer.RelatedError(
-                            new EventMetadata
-                            {
-                                { "Verb", typeof(PrefetchVerb).Name },
-                                { "Exception", innerException.ToString() }
-                            },
+                            this.CreateEventMetadata(innerException),
                             $"Unhandled {innerException.GetType().Name}: {innerException.Message}");
                     }
 
@@ -93,11 +89,7 @@ namespace Scalar.CommandLine
                         "Cannot prefetch {0}. " + ConsoleHelper.GetScalarLogMessage(enlistment.EnlistmentRoot),
                         enlistment.EnlistmentRoot);
                     tracer.RelatedError(
-                        new EventMetadata
-                        {
-                            { "Verb", typeof(PrefetchVerb).Name },
-                            { "Exception", e.ToString() }
-                        },
+                        this.CreateEventMetadata(e),
                         $"Unhandled {e.GetType().Name}: {e.Message}");
 
                     Environment.ExitCode = (int)ReturnCode.GenericError;

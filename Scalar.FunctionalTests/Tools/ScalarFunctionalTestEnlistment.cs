@@ -194,11 +194,6 @@ namespace Scalar.FunctionalTests.Tools
             return this.scalarProcess.PackfileMaintenanceStep(batchSize);
         }
 
-        public string PostFetchStep()
-        {
-            return this.scalarProcess.PostFetchStep();
-        }
-
         public string Status(string trace = null)
         {
             return this.scalarProcess.Status(trace);

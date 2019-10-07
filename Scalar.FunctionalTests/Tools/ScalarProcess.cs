@@ -72,28 +72,16 @@ namespace Scalar.FunctionalTests.Tools
         public string LooseObjectStep()
         {
             return this.CallScalar(
-                "dehydrate \"" + this.enlistmentRoot + "\"",
-                expectedExitCode: SuccessExitCode,
-                internalParameter: ScalarHelpers.GetInternalParameter("\\\"LooseObjects\\\""));
+                $"maintenance \"{this.enlistmentRoot}\" --task LooseObjects",
+                expectedExitCode: SuccessExitCode);
         }
 
         public string PackfileMaintenanceStep(long? batchSize)
         {
-            string sizeString = batchSize.HasValue ? $"\\\"{batchSize.Value}\\\"" : "null";
-            string internalParameter = ScalarHelpers.GetInternalParameter("\\\"PackfileMaintenance\\\"", sizeString);
+            string sizeString = batchSize.HasValue ? $"--batch-size {batchSize.Value}" : string.Empty;
             return this.CallScalar(
-                "dehydrate \"" + this.enlistmentRoot + "\"",
-                expectedExitCode: SuccessExitCode,
-                internalParameter: internalParameter);
-        }
-
-        public string PostFetchStep()
-        {
-            string internalParameter = ScalarHelpers.GetInternalParameter("\\\"PostFetch\\\"");
-            return this.CallScalar(
-                "dehydrate \"" + this.enlistmentRoot + "\"",
-                expectedExitCode: SuccessExitCode,
-                internalParameter: internalParameter);
+                $"maintenance \"{this.enlistmentRoot}\" --task PackfileMaintenance {sizeString}",
+                expectedExitCode: SuccessExitCode);
         }
 
         public string Diagnose()

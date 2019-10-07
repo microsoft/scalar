@@ -328,8 +328,7 @@ namespace Scalar.CommandLine
             catch (IOException ex)
             {
                 this.Output.WriteLine("Failed: Check clone logs for details.");
-                EventMetadata metadata = new EventMetadata();
-                metadata.Add("Exception", ex.ToString());
+                EventMetadata metadata = this.CreateEventMetadata(ex);
                 this.tracer.RelatedError(metadata, $"Failed to configure Watchman integration: {ex.Message}");
             }
         }
@@ -388,7 +387,7 @@ namespace Scalar.CommandLine
             {
                 this.Branch = this.refs.GetDefaultBranch();
 
-                EventMetadata metadata = new EventMetadata();
+                EventMetadata metadata = this.CreateEventMetadata();
                 metadata.Add("Branch", this.Branch);
                 this.tracer.RelatedEvent(EventLevel.Informational, "CloneDefaultRemoteBranch", metadata);
             }
@@ -396,7 +395,7 @@ namespace Scalar.CommandLine
             {
                 if (!this.refs.HasBranch(this.Branch))
                 {
-                    EventMetadata metadata = new EventMetadata();
+                    EventMetadata metadata = this.CreateEventMetadata();
                     metadata.Add("Branch", this.Branch);
                     this.tracer.RelatedEvent(EventLevel.Warning, "CloneBranchDoesNotExist", metadata);
 
@@ -497,7 +496,7 @@ namespace Scalar.CommandLine
                 return false;
             }
 
-            EventMetadata metadata = new EventMetadata();
+            EventMetadata metadata = this.CreateEventMetadata();
             metadata.Add("localCacheRoot", localCacheRoot);
             metadata.Add("localCacheKey", localCacheKey);
             metadata.Add(TracingConstants.MessageKey.InfoMessage, "Initializing cache paths");
@@ -629,7 +628,7 @@ namespace Scalar.CommandLine
             GitProcess.Result result = this.git.ForceCheckout(this.Branch);
             if (result.ExitCodeIsFailure)
             {
-                EventMetadata metadata = new EventMetadata();
+                EventMetadata metadata = this.CreateEventMetadata();
                 metadata["git-output"] = result.Output;
                 metadata["git-errors"] = result.Errors;
                 this.tracer.RelatedError(metadata, "Failed to checkout repo");
