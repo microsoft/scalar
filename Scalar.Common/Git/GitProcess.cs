@@ -546,14 +546,6 @@ namespace Scalar.Common.Git
                 parseStdOutLine: parseStdOutLine);
         }
 
-        public Result LsFiles(Action<string> parseStdOutLine)
-        {
-            return this.InvokeGitInWorkingDirectoryRoot(
-                "ls-files -v",
-                fetchMissingObjects: true,
-                parseStdOutLine: parseStdOutLine);
-        }
-
         public Result UpdateBranchSymbolicRef(string refToUpdate, string targetRef)
         {
             return this.InvokeGitAgainstDotGitFolder("symbolic-ref " + refToUpdate + " " + targetRef);

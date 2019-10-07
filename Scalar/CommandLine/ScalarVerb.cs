@@ -529,16 +529,12 @@ You can specify a URL, a name of a configured cache server, or the special names
             string commitId,
             GitObjectsHttpRequestor objectRequestor,
             ScalarGitObjects gitObjects,
-            out string error,
-            bool checkLocalObjectCache = true)
+            out string error)
         {
-            if (!checkLocalObjectCache)
+            if (!gitObjects.TryDownloadCommit(commitId))
             {
-                if (!gitObjects.TryDownloadCommit(commitId))
-                {
-                    error = "Could not download commit " + commitId + " from: " + Uri.EscapeUriString(objectRequestor.CacheServer.ObjectsEndpointUrl);
-                    return false;
-                }
+                error = "Could not download commit " + commitId + " from: " + Uri.EscapeUriString(objectRequestor.CacheServer.ObjectsEndpointUrl);
+                return false;
             }
 
             error = null;
