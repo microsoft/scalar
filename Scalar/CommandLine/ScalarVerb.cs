@@ -549,27 +549,21 @@ You can specify a URL, a name of a configured cache server, or the special names
 
         protected bool TryDownloadCommit(
             string commitId,
-            ScalarEnlistment enlistment,
             GitObjectsHttpRequestor objectRequestor,
             ScalarGitObjects gitObjects,
-            GitRepo repo,
-            out string error,
-            bool checkLocalObjectCache = true)
+            out string error)
         {
-            if (!checkLocalObjectCache || !repo.CommitAndRootTreeExists(commitId))
+            if (!gitObjects.TryDownloadCommit(commitId))
             {
-                if (!gitObjects.TryDownloadCommit(commitId))
-                {
-                    error = "Could not download commit " + commitId + " from: " + Uri.EscapeUriString(objectRequestor.CacheServer.ObjectsEndpointUrl);
-                    return false;
-                }
+                error = "Could not download commit " + commitId + " from: " + Uri.EscapeUriString(objectRequestor.CacheServer.ObjectsEndpointUrl);
+                return false;
             }
 
             error = null;
             return true;
         }
 
-        protected bool TryDownloadRootGitAttributes(ScalarEnlistment enlistment, ScalarGitObjects gitObjects, GitRepo repo, out string error)
+        protected bool TryDownloadRootGitAttributes(ScalarEnlistment enlistment, ScalarGitObjects gitObjects, out string error)
         {
             List<DiffTreeResult> rootEntries = new List<DiffTreeResult>();
             GitProcess git = new GitProcess(enlistment);
@@ -591,13 +585,10 @@ You can specify a URL, a name of a configured cache server, or the special names
                 return false;
             }
 
-            if (!repo.ObjectExists(gitAttributes.TargetSha))
+            if (gitObjects.TryDownloadAndSaveObject(gitAttributes.TargetSha, ScalarGitObjects.RequestSource.ScalarVerb) != GitObjects.DownloadAndSaveObjectResult.Success)
             {
-                if (gitObjects.TryDownloadAndSaveObject(gitAttributes.TargetSha, ScalarGitObjects.RequestSource.ScalarVerb) != GitObjects.DownloadAndSaveObjectResult.Success)
-                {
-                    error = "Could not download " + ScalarConstants.SpecialGitFiles.GitAttributes + " file";
-                    return false;
-                }
+                error = "Could not download " + ScalarConstants.SpecialGitFiles.GitAttributes + " file";
+                return false;
             }
 
             error = null;

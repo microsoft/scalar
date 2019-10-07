@@ -221,11 +221,9 @@ namespace Scalar.UnitTests.Maintenance
             List<MockDirectory> directories = new List<MockDirectory>() { gitObjectsRoot };
             PhysicalFileSystem fileSystem = new MockFileSystem(new MockDirectory(enlistment.EnlistmentRoot, directories, null));
 
-            MockGitRepo repository = new MockGitRepo(this.tracer, enlistment, fileSystem);
-
             // Create and return Context
             this.tracer = new MockTracer();
-            this.context = new ScalarContext(this.tracer, fileSystem, repository, enlistment);
+            this.context = new ScalarContext(this.tracer, fileSystem, enlistment);
 
             this.gitProcess.SetExpectedCommandResult(
                 this.WriteCommand,

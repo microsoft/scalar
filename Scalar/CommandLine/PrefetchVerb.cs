@@ -14,17 +14,6 @@ namespace Scalar.CommandLine
     {
         private const string PrefetchVerbName = "prefetch";
 
-        /// <remarks>
-        /// This does not change behavior, but we leave it here as it is called by a hook this way.
-        /// </remarks>
-        [Option(
-            'c',
-            "commits",
-            Required = false,
-            Default = true,
-            HelpText = "Fetch the latest set of commit and tree packs. This option cannot be used with any of the file- or folder-related options.")]
-        public bool Commits { get; set; }
-
         [Option(
             "verbose",
             Required = false,
@@ -64,7 +53,6 @@ namespace Scalar.CommandLine
                 try
                 {
                     EventMetadata metadata = new EventMetadata();
-                    metadata.Add("Commits", this.Commits);
                     tracer.RelatedEvent(EventLevel.Informational, "PerformPrefetch", metadata);
 
                     GitObjectsHttpRequestor objectRequestor;
@@ -161,8 +149,7 @@ namespace Scalar.CommandLine
             bool success;
             string error = string.Empty;
             PhysicalFileSystem fileSystem = new PhysicalFileSystem();
-            GitRepo repo = new GitRepo(tracer, enlistment, fileSystem);
-            ScalarContext context = new ScalarContext(tracer, fileSystem, repo, enlistment);
+            ScalarContext context = new ScalarContext(tracer, fileSystem, enlistment);
             GitObjects gitObjects = new ScalarGitObjects(context, objectRequestor);
 
             if (this.Verbose)

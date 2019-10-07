@@ -169,9 +169,9 @@ namespace Scalar.FunctionalTests.Tools
             return this.scalarProcess.TryMount(out output);
         }
 
-        public string Prefetch(string args, bool failOnError = true, string standardInput = null)
+        public string Prefetch(bool failOnError = true, string standardInput = null)
         {
-            return this.scalarProcess.Prefetch(args, failOnError, standardInput);
+            return this.scalarProcess.Prefetch(failOnError, standardInput);
         }
 
         public void Repair(bool confirm)

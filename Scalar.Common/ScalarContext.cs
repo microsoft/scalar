@@ -9,19 +9,17 @@ namespace Scalar.Common
     {
         private bool disposedValue = false;
 
-        public ScalarContext(ITracer tracer, PhysicalFileSystem fileSystem, GitRepo repository, ScalarEnlistment enlistment)
+        public ScalarContext(ITracer tracer, PhysicalFileSystem fileSystem, ScalarEnlistment enlistment)
         {
             this.Tracer = tracer;
             this.FileSystem = fileSystem;
             this.Enlistment = enlistment;
-            this.Repository = repository;
 
             this.Unattended = ScalarEnlistment.IsUnattended(this.Tracer);
         }
 
         public ITracer Tracer { get; private set; }
         public PhysicalFileSystem FileSystem { get; private set; }
-        public GitRepo Repository { get; private set; }
         public ScalarEnlistment Enlistment { get; private set; }
         public bool Unattended { get; private set; }
 
@@ -37,7 +35,6 @@ namespace Scalar.Common
             {
                 if (disposing)
                 {
-                    this.Repository.Dispose();
                     this.Tracer.Dispose();
                     this.Tracer = null;
                 }

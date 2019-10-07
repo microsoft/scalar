@@ -82,7 +82,7 @@ namespace Scalar.UnitTests.Maintenance
             ScalarEnlistment enlistment = new MockScalarEnlistment();
             PhysicalFileSystem fileSystem = new MockFileSystem(new MockDirectory(enlistment.EnlistmentRoot, null, null));
 
-            this.context = new ScalarContext(tracer, fileSystem, null, enlistment);
+            this.context = new ScalarContext(tracer, fileSystem, enlistment);
         }
 
         public class CheckMethodStep : GitMaintenanceStep

@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\Scalar.Build\Scalar.cs.props" />
-  <Import Project="..\Scalar.Build\LibGit2Sharp.NativeBinaries.props" />
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;netstandard2.0</TargetFrameworks>
@@ -21,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.278" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="NuGet.Commands" Version="4.9.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">

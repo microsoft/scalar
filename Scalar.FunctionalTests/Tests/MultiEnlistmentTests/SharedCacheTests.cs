@@ -5,7 +5,6 @@ using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
@@ -34,26 +33,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         {
             this.localCacheParentPath = Path.Combine(Properties.Settings.Default.EnlistmentRoot, "..", Guid.NewGuid().ToString("N"));
             this.localCachePath = Path.Combine(this.localCacheParentPath, ".customScalarCache");
-        }
-
-        [TestCase]
-        public void SecondCloneDoesNotDownloadAdditionalObjects()
-        {
-            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
-            File.ReadAllText(Path.Combine(enlistment1.RepoRoot, WellKnownFile));
-
-            this.AlternatesFileShouldHaveGitObjectsRoot(enlistment1);
-
-            string[] allObjects = Directory.EnumerateFiles(enlistment1.LocalCacheRoot, "*", SearchOption.AllDirectories).ToArray();
-
-            ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
-            File.ReadAllText(Path.Combine(enlistment2.RepoRoot, WellKnownFile));
-
-            this.AlternatesFileShouldHaveGitObjectsRoot(enlistment2);
-
-            enlistment2.LocalCacheRoot.ShouldEqual(enlistment1.LocalCacheRoot, "Sanity: Local cache roots are expected to match.");
-            Directory.EnumerateFiles(enlistment2.LocalCacheRoot, "*", SearchOption.AllDirectories)
-                .ShouldMatchInOrder(allObjects);
         }
 
         [TestCase]
@@ -193,7 +172,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         {
             // 'git rev-list --objects' will check for all objects' existence, which
             // triggers an object download on every missing blob.
-            ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment.RepoRoot, "rev-list --objects HEAD^{tree}");
+            ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment.RepoRoot, "rev-list --all --objects");
             result.ExitCode.ShouldEqual(0, result.Errors);
         }
     }

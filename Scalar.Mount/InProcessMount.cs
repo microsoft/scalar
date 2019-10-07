@@ -125,13 +125,7 @@ namespace Scalar.Mount
         private ScalarContext CreateContext()
         {
             PhysicalFileSystem fileSystem = new PhysicalFileSystem();
-            GitRepo gitRepo = this.CreateOrReportAndExit(
-                () => new GitRepo(
-                    this.tracer,
-                    this.enlistment,
-                    fileSystem),
-                "Failed to read git repo");
-            return new ScalarContext(this.tracer, fileSystem, gitRepo, this.enlistment);
+            return new ScalarContext(this.tracer, fileSystem, this.enlistment);
         }
 
         private void ValidateMountPoints()
