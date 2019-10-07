@@ -541,7 +541,7 @@ You can specify a URL, a name of a configured cache server, or the special names
             return true;
         }
 
-        protected bool TryDownloadRootGitAttributes(ScalarEnlistment enlistment, ScalarGitObjects gitObjects, GitRepo repo, out string error)
+        protected bool TryDownloadRootGitAttributes(ScalarEnlistment enlistment, ScalarGitObjects gitObjects, out string error)
         {
             List<DiffTreeResult> rootEntries = new List<DiffTreeResult>();
             GitProcess git = new GitProcess(enlistment);

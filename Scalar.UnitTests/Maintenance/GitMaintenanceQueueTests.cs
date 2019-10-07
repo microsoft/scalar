@@ -115,7 +115,7 @@ namespace Scalar.UnitTests.Maintenance
                 this.enlistment.GitObjectsRoot
             });
 
-            this.context = new ScalarContext(tracer, this.fileSystem, null, this.enlistment);
+            this.context = new ScalarContext(tracer, this.fileSystem, this.enlistment);
             this.gitObjects = new MockPhysicalGitObjects(tracer, this.fileSystem, this.enlistment, null);
         }
 

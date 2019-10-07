@@ -63,8 +63,7 @@ namespace Scalar.CommandLine
                 {
                     this.InitializeLocalCacheAndObjectsPaths(tracer, enlistment, retryConfig: null, serverScalarConfig: null, cacheServer: null);
                     PhysicalFileSystem fileSystem = new PhysicalFileSystem();
-                    using (GitRepo gitRepo = new GitRepo(tracer, enlistment, fileSystem))
-                    using (ScalarContext context = new ScalarContext(tracer, fileSystem, gitRepo, enlistment))
+                    using (ScalarContext context = new ScalarContext(tracer, fileSystem, enlistment))
                     {
                         switch (this.MaintenanceJob)
                         {
@@ -362,8 +361,7 @@ of your enlistment's src folder.
                     using (GitObjectsHttpRequestor objectRequestor = new GitObjectsHttpRequestor(tracer, enlistment, cacheServer, retryConfig))
                     {
                         PhysicalFileSystem fileSystem = new PhysicalFileSystem();
-                        GitRepo gitRepo = new GitRepo(tracer, enlistment, fileSystem);
-                        ScalarGitObjects gitObjects = new ScalarGitObjects(new ScalarContext(tracer, fileSystem, gitRepo, enlistment), objectRequestor);
+                        ScalarGitObjects gitObjects = new ScalarGitObjects(new ScalarContext(tracer, fileSystem, enlistment), objectRequestor);
 
                         GitProcess.Result revParseResult = enlistment.CreateGitProcess().RevParse("HEAD");
                         if (revParseResult.ExitCodeIsFailure)
@@ -375,7 +373,7 @@ of your enlistment's src folder.
                         string headCommit = revParseResult.Output.TrimEnd('\n');
 
                         if (!this.TryDownloadCommit(headCommit, objectRequestor, gitObjects, out errorMessage) ||
-                            !this.TryDownloadRootGitAttributes(enlistment, gitObjects, gitRepo, out errorMessage))
+                            !this.TryDownloadRootGitAttributes(enlistment, gitObjects, out errorMessage))
                         {
                             return false;
                         }

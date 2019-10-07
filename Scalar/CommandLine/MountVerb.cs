@@ -84,8 +84,7 @@ namespace Scalar.CommandLine
             using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "ExecuteMount"))
             {
                 PhysicalFileSystem fileSystem = new PhysicalFileSystem();
-                GitRepo gitRepo = new GitRepo(tracer, enlistment, fileSystem);
-                ScalarContext context = new ScalarContext(tracer, fileSystem, gitRepo, enlistment);
+                ScalarContext context = new ScalarContext(tracer, fileSystem, enlistment);
 
                 CacheServerInfo cacheServer = this.ResolvedCacheServer ?? CacheServerResolver.GetCacheServerFromConfig(enlistment);
 

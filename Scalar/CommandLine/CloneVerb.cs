@@ -23,7 +23,6 @@ namespace Scalar.CommandLine
         private ServerScalarConfig serverScalarConfig;
         private RetryConfig retryConfig;
         private GitObjectsHttpRequestor objectRequestor;
-        private GitRepo gitRepo;
         private ScalarGitObjects gitObjects;
         private GitProcess git;
         private GitRefs refs;
@@ -524,8 +523,7 @@ namespace Scalar.CommandLine
                 return new Result("Error configuring alternate: " + errorMessage);
             }
 
-            this.gitRepo = new GitRepo(this.tracer, this.enlistment, this.fileSystem);
-            this.context = new ScalarContext(this.tracer, this.fileSystem, this.gitRepo, this.enlistment);
+            this.context = new ScalarContext(this.tracer, this.fileSystem, this.enlistment);
             this.gitObjects = new ScalarGitObjects(this.context, this.objectRequestor);
 
             if (!this.TryDownloadCommit(
@@ -561,7 +559,7 @@ namespace Scalar.CommandLine
                 Path.Combine(this.enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Head),
                 "ref: refs/heads/" + this.Branch);
 
-            if (!this.TryDownloadRootGitAttributes(this.enlistment, this.gitObjects, this.gitRepo, out errorMessage))
+            if (!this.TryDownloadRootGitAttributes(this.enlistment, this.gitObjects, out errorMessage))
             {
                 return new Result(errorMessage);
             }

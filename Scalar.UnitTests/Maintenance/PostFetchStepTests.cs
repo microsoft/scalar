@@ -95,7 +95,7 @@ namespace Scalar.UnitTests.Maintenance
 
             // Create and return Context
             this.tracer = new MockTracer();
-            this.context = new ScalarContext(this.tracer, fileSystem, repository: null, enlistment: enlistment);
+            this.context = new ScalarContext(this.tracer, fileSystem, enlistment: enlistment);
         }
     }
 }
