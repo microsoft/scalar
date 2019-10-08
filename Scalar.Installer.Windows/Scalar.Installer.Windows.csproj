@@ -1,65 +1,43 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props" Condition="Exists('..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="$(SolutionDir)\Scalar.Build\Scalar.cs.props" />
+<Project Sdk="Microsoft.Build.Traversal">
+
   <PropertyGroup>
-    <ProjectGuid>{3AB4FB1F-9E23-4CD8-BFAC-8A2221C8F893}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Scalar.Installer.Windows</RootNamespace>
-    <AssemblyName>Scalar.Installer.Windows</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IsSignable>true</IsSignable>
+    <InnoToolVersion>6.0.2</InnoToolVersion>
+
+    <!-- Computed paths -->
+    <InnoToolPath>$(NugetPackageRoot)Tools.InnoSetup\$(InnoToolVersion)\tools\ISCC.exe</InnoToolPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup> 
-    <FilesToSign Include="$(OutputPath)SetupScalar.$(ScalarVersion).exe">
-      <Authenticode>Microsoft400</Authenticode>
-      <InProject>false</InProject>
-    </FilesToSign>
-  </ItemGroup>
+
   <ItemGroup>
-    <None Include="Setup.iss" />
+    <None Include="**\*" />
+    <FilesToSign Include="$(InstallerFile)" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
+    <ProjectReference Include="..\Scalar\Scalar.csproj" />
+    <ProjectReference Include="..\Scalar.Mount\Scalar.Mount.csproj" />
+    <ProjectReference Include="..\Scalar.Service\Scalar.Service.csproj" />
+    <ProjectReference Include="..\Scalar.Service.UI\Scalar.Service.UI.csproj" />
+    <ProjectReference Include="..\Scalar.Upgrader\Scalar.Upgrader.csproj" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="CreateInstaller" BeforeTargets="Build;SignFiles">
-    <Exec Command="$(PackagesDir)\Tools.InnoSetup.5.5.9\tools\ISCC.exe /DPlatformAndConfiguration=$(Platform)\$(Configuration) /DBuildOutputDir=$(BuildOutputDir) /DPackagesDir=$(PackagesDir) /DScalarVersion=$(ScalarVersion) Setup.iss /O$(OutputPath)" />
-    <Copy SourceFiles="$(OutputPath)SetupScalar.$(ScalarVersion).exe" DestinationFiles="$(BuildOutputDir)\Scalar.Build\SetupScalar.$(ScalarVersion).exe" />
+
+  <ItemGroup>
+    <PackageReference Include="Tools.InnoSetup" Version="$(InnoToolVersion)" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Only create the installer on 'publish' and when running on Windows -->
+  <Target Name="CreateInstaller" AfterTargets="Publish" Condition="'$(OSPlatform)' == 'windows'" >
+
+    <!-- Run the Inno setup tool to build the installer -->
+    <Exec Command="$(InnoToolPath) /DPayloadPath=$(RepoPublishPath)\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier) /DScalarVersion=$(ScalarVersion) Setup.iss /O$(RepoPublishPath)$(Configuration)"/>
+
+    <!-- Mark the installer file as a output for this target so that the Clean target will delete it -->
+    <ItemGroup>
+      <FileWrites Include="$(RepoPublishPath)$(Configuration)\SetupScalar.$(ScalarVersion).exe" />
+    </ItemGroup>
+
   </Target>
-  <Target Name="Clean">
-    <RemoveDir Directories="$(BuildOutputDir)\$(MSBuildProjectName)" />
-  </Target>
-  <Target Name="Compile" /> <!-- Neuter compile, we don't want an assembly. We do still want a "Build" target properly configured from the CSharp targets so signing will work. -->
-  <Target Name="PrepareForRun" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props'))" />
-    <Error Condition="!Exists('..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets'))" />
-  </Target>
-  <Import Project="..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
+
 </Project>
