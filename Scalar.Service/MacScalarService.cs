@@ -7,11 +7,11 @@ using System.Threading;
 
 namespace Scalar.Service
 {
-    public class ScalarService
+    public class MacScalarService
     {
         public const string ServiceNameArgPrefix = "--servicename=";
 
-        private const string EtwArea = nameof(ScalarService);
+        private const string EtwArea = "ScalarService";
 
         private ITracer tracer;
         private Thread serviceThread;
@@ -20,7 +20,7 @@ namespace Scalar.Service
         private IRepoRegistry repoRegistry;
         private RequestHandler requestHandler;
 
-        public ScalarService(
+        public MacScalarService(
             ITracer tracer,
             string serviceName,
             IRepoRegistry repoRegistry)
@@ -71,7 +71,7 @@ namespace Scalar.Service
             {
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add("Version", ProcessHelper.GetCurrentProcessVersion());
-                this.tracer.RelatedEvent(EventLevel.Informational, $"{nameof(ScalarService)}_{nameof(this.ServiceThreadMain)}", metadata);
+                this.tracer.RelatedEvent(EventLevel.Informational, $"ScalarService_{nameof(this.ServiceThreadMain)}", metadata);
 
                 this.serviceStopped.WaitOne();
                 this.serviceStopped.Dispose();

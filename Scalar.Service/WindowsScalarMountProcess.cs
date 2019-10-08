@@ -5,11 +5,11 @@ using Scalar.Service.Handlers;
 
 namespace Scalar.Service
 {
-    public class ScalarMountProcess : IRepoMounter
+    public class WindowsScalarMountProcess : IRepoMounter
     {
         private readonly ITracer tracer;
 
-        public ScalarMountProcess(ITracer tracer)
+        public WindowsScalarMountProcess(ITracer tracer)
         {
             this.tracer = tracer;
         }

@@ -5,14 +5,14 @@ using System.IO;
 
 namespace Scalar.Service
 {
-    public class ScalarMountProcess : IRepoMounter
+    public class MacScalarMountProcess : IRepoMounter
     {
         private const string ExecutablePath = "/bin/launchctl";
 
         private MountLauncher processLauncher;
         private ITracer tracer;
 
-        public ScalarMountProcess(ITracer tracer, MountLauncher processLauncher = null)
+        public MacScalarMountProcess(ITracer tracer, MountLauncher processLauncher = null)
         {
             this.tracer = tracer;
             this.processLauncher = processLauncher ?? new MountLauncher(tracer);
@@ -64,7 +64,7 @@ namespace Scalar.Service
                 if (result.ExitCode != 0)
                 {
                     EventMetadata metadata = new EventMetadata();
-                    metadata.Add("Area", nameof(ScalarMountProcess));
+                    metadata.Add("Area", "ScalarMountProcess");
                     metadata.Add(nameof(executablePath), executablePath);
                     metadata.Add(nameof(arguments), arguments);
                     metadata.Add(nameof(workingDirectory), workingDirectory);

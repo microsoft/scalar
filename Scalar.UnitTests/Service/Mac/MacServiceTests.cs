@@ -81,7 +81,7 @@ namespace Scalar.UnitTests.Service.Mac
             string scalarBinPath = Path.Combine(this.scalarPlatform.Constants.ScalarBinDirectoryPath, this.scalarPlatform.Constants.ScalarExecutableName);
             string expectedArgs = $"asuser {ExpectedActiveUserId} {scalarBinPath} mount {ExpectedActiveRepoPath}";
 
-            Mock<ScalarMountProcess.MountLauncher> mountLauncherMock = new Mock<ScalarMountProcess.MountLauncher>(MockBehavior.Strict, this.tracer);
+            Mock<MacScalarMountProcess.MountLauncher> mountLauncherMock = new Mock<MacScalarMountProcess.MountLauncher>(MockBehavior.Strict, this.tracer);
             mountLauncherMock.Setup(mp => mp.LaunchProcess(
                 executable,
                 expectedArgs,
@@ -96,7 +96,7 @@ namespace Scalar.UnitTests.Service.Mac
                 out errorString))
                 .Returns(true);
 
-            ScalarMountProcess mountProcess = new ScalarMountProcess(this.tracer, mountLauncherMock.Object);
+            MacScalarMountProcess mountProcess = new MacScalarMountProcess(this.tracer, mountLauncherMock.Object);
             mountProcess.MountRepository(ExpectedActiveRepoPath, ExpectedActiveUserId);
 
             mountLauncherMock.VerifyAll();
