@@ -5,12 +5,12 @@ using System.IO;
 
 namespace Scalar.Service.Handlers
 {
-    public class NotificationHandler : INotificationHandler
+    public class MacNotificationHandler : INotificationHandler
     {
         private const string NotificationServerPipeName = "scalar.notification";
         private ITracer tracer;
 
-        public NotificationHandler(ITracer tracer)
+        public MacNotificationHandler(ITracer tracer)
         {
             this.tracer = tracer;
         }
@@ -29,7 +29,7 @@ namespace Scalar.Service.Handlers
                     catch (Exception ex)
                     {
                         EventMetadata metadata = new EventMetadata();
-                        metadata.Add("Area", nameof(NotificationHandler));
+                        metadata.Add("Area", "NotificationHandler");
                         metadata.Add("Exception", ex.ToString());
                         metadata.Add(TracingConstants.MessageKey.ErrorMessage, "MacOS notification display error");
                         this.tracer.RelatedError(metadata, $"MacOS notification: {request.Title} - {request.Message}.");

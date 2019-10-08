@@ -5,12 +5,12 @@ using Scalar.Platform.Windows;
 
 namespace Scalar.Service
 {
-    public class ScalarVerbRunner : IScalarVerbRunner
+    public class WindowsScalarVerbRunner : IScalarVerbRunner
     {
         private readonly ITracer tracer;
         private readonly string internalVerbJson;
 
-        public ScalarVerbRunner(ITracer tracer)
+        public WindowsScalarVerbRunner(ITracer tracer)
         {
             this.tracer = tracer;
 

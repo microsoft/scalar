@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Scalar.Service
 {
-    public class ScalarVerbRunner : IScalarVerbRunner
+    public class MacScalarVerbRunner : IScalarVerbRunner
     {
         private const string ExecutablePath = "/bin/launchctl";
 
@@ -16,7 +16,7 @@ namespace Scalar.Service
         private ScalarProcessLauncher processLauncher;
         private ITracer tracer;
 
-        public ScalarVerbRunner(ITracer tracer, ScalarProcessLauncher processLauncher = null)
+        public MacScalarVerbRunner(ITracer tracer, ScalarProcessLauncher processLauncher = null)
         {
             this.tracer = tracer;
             this.processLauncher = processLauncher ?? new ScalarProcessLauncher(tracer);
@@ -39,7 +39,7 @@ namespace Scalar.Service
             if (result.ExitCode != 0)
             {
                 EventMetadata metadata = new EventMetadata();
-                metadata.Add("Area", nameof(ScalarVerbRunner));
+                metadata.Add("Area", "ScalarVerbRunner");
                 metadata.Add(nameof(ExecutablePath), ExecutablePath);
                 metadata.Add(nameof(arguments), arguments);
                 metadata.Add(nameof(repoRoot), repoRoot);

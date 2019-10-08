@@ -14,10 +14,10 @@ using System.Threading;
 
 namespace Scalar.Service
 {
-    public class ScalarService : ServiceBase
+    public class WindowsScalarService : ServiceBase
     {
         private const string ServiceNameArgPrefix = "--servicename=";
-        private const string EtwArea = nameof(ScalarService);
+        private const string EtwArea = "ScalarService";
 
         private JsonTracer tracer;
         private Thread serviceThread;
@@ -30,12 +30,12 @@ namespace Scalar.Service
         private MaintenanceTaskScheduler maintenanceTaskScheduler;
         private INotificationHandler notificationHandler;
 
-        public ScalarService(JsonTracer tracer)
+        public WindowsScalarService(JsonTracer tracer)
         {
             this.tracer = tracer;
             this.serviceName = ScalarConstants.Service.ServiceName;
             this.CanHandleSessionChangeEvent = true;
-            this.notificationHandler = new NotificationHandler(tracer);
+            this.notificationHandler = new WindowsNotificationHandler(tracer);
             this.productUpgradeTimer = new ProductUpgradeTimer(tracer, this.notificationHandler);
         }
 
@@ -45,13 +45,13 @@ namespace Scalar.Service
             {
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add("Version", ProcessHelper.GetCurrentProcessVersion());
-                this.tracer.RelatedEvent(EventLevel.Informational, $"{nameof(ScalarService)}_{nameof(this.Run)}", metadata);
+                this.tracer.RelatedEvent(EventLevel.Informational, $"ScalarService_{nameof(this.Run)}", metadata);
 
                 this.repoRegistry = new RepoRegistry(
                     this.tracer,
                     new PhysicalFileSystem(),
                     this.serviceDataLocation,
-                    new ScalarVerbRunner(this.tracer));
+                    new WindowsScalarVerbRunner(this.tracer));
 
                 this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.tracer, this.repoRegistry);
 
