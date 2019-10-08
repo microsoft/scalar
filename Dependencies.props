@@ -1,0 +1,23 @@
+﻿<Project>
+
+  <ItemGroup>
+    <!-- Product dependencies -->
+    <PackageReference Update="CommandLineParser"               Version="2.6.0"  />
+    <PackageReference Update="Microsoft.PowerShell.SDK"        Version="6.2.2"  />
+    <PackageReference Update="Microsoft.Windows.Compatibility" Version="2.1.1"  />
+    <PackageReference Update="Newtonsoft.Json"                 Version="12.0.2" />
+    <PackageReference Update="NuGet.Commands"                  Version="5.2.0"  />
+    <PackageReference Update="MicroBuild.Core"                 Version="0.2.0"  />
+    <PackageReference Update="GitForWindows.GVFS.Installer"    Version="$(GitPackageVersion)" />
+    <PackageReference Update="GitForMac.GVFS.Installer"        Version="$(GitPackageVersion)" />
+
+    <!-- Test-only dependencies -->
+    <PackageReference Update="Microsoft.NET.Test.Sdk"          Version="15.9.0" />
+    <PackageReference Update="Moq"                             Version="4.13.0" />
+    <PackageReference Update="nunit"                           Version="3.11.0" />
+    <PackageReference Update="NUnit3TestAdapter"               Version="3.12.0" />
+    <PackageReference Update="NUnitLite"                       Version="3.12.0" />
+    <PackageReference Update="Microsoft.Data.Sqlite"           Version="2.2.4"  />
+  </ItemGroup>
+
+</Project>

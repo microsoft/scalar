@@ -1,0 +1,55 @@
+﻿<Project>
+
+  <!-- Define common properties that rely on SDK/props-defined properties -->
+  <PropertyGroup>
+    <Version>$(ScalarVersion)</Version>
+    <MacFilesTarget>$(OutputPath)</MacFilesTarget>
+    <PublishDir Condition="$(RuntimeIdentifier) == ''">$(RepoPublishPath)$(Configuration)\$(TargetFramework)\any</PublishDir>
+    <PublishDir Condition="$(RuntimeIdentifier) != ''">$(RepoPublishPath)$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)</PublishDir>
+  </PropertyGroup>
+
+  <!-- Windows application manifest generation -->
+  <PropertyGroup Condition="'$(GenerateWindowsAppManifest)' == 'true'">
+    <ApplicationManifest>$(IntermediateOutputPath)app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <!-- Include signing via MicroBuild if we have *FilesToSign -->
+  <ItemGroup Condition="@(FilesToSign->Count()) > 0 OR @(MacFilesToSign->Count()) > 0 ">
+    <PackageReference Include="MicroBuild.Core" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Load custom build tasks -->
+  <UsingTask TaskName="GenerateWindowsAppManifest" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <Task>
+      <Code Type="Class" Source="$(ScalarBuildTasks)GenerateWindowsAppManifest.cs" />
+    </Task>
+  </UsingTask>
+  <UsingTask TaskName="GetGitInstallerVersion" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <Task>
+      <Code Type="Class" Source="$(ScalarBuildTasks)GetGitInstallerVersion.cs" />
+    </Task>
+  </UsingTask>
+  <UsingTask TaskName="GenerateScalarConstants" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <Task>
+      <Code Type="Class" Source="$(ScalarBuildTasks)GenerateScalarConstants.cs" />
+    </Task>
+  </UsingTask>
+
+  <!-- Generate the manifest file before we set the win32 manifest properties -->
+  <Target Name="GenerateWindowsAppManifest"
+          BeforeTargets="SetWin32ManifestProperties"
+          Condition="'$(GenerateWindowsAppManifest)' == 'true'"
+          Inputs="$(ScalarVersion);$(AssemblyName)"
+          Outputs="$(IntermediateOutputPath)app.manifest">
+    <GenerateWindowsAppManifest Version="$(ScalarVersion)"
+                                ApplicationName="$(AssemblyName)"
+                                OutputFile="$(IntermediateOutputPath)app.manifest"/>
+    <ItemGroup>
+      <FileWrites Include="$(IntermediateOutputPath)app.manifest" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Unified dependency versions -->
+  <Import Project="Dependencies.props" />
+
+</Project>

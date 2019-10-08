@@ -2,9 +2,9 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using System.IO;
 
-namespace Scalar.PreBuild
+namespace Scalar.Build
 {
-    public class GenerateApplicationManifests : Task
+    public class GenerateWindowsAppManifest : Task
     {
         [Required]
         public string Version { get; set; }
@@ -13,13 +13,13 @@ namespace Scalar.PreBuild
         public string ApplicationName { get; set; }
 
         [Required]
-        public string ManifestPath { get; set; }
+        public string OutputFile { get; set; }
 
         public override bool Execute()
         {
-            this.Log.LogMessage(MessageImportance.High, "Creating application manifest file for {0}", ApplicationName);
+            this.Log.LogMessage(MessageImportance.Normal, "Creating application manifest file for '{0}'...", this.ApplicationName);
 
-            string manifestDirectory = Path.GetDirectoryName(this.ManifestPath);
+            string manifestDirectory = Path.GetDirectoryName(this.OutputFile);
             if (!Directory.Exists(manifestDirectory))
             {
                 Directory.CreateDirectory(manifestDirectory);
@@ -28,7 +28,7 @@ namespace Scalar.PreBuild
             // Any application that calls GetVersionEx must have an application manifest in order to get an accurate response.
             // See https://msdn.microsoft.com/en-us/library/windows/desktop/ms724451(v=vs.85).aspx for details
             File.WriteAllText(
-                this.ManifestPath,
+                this.OutputFile,
                 string.Format(
 @"<?xml version=""1.0"" encoding=""utf-8""?>
 <assembly manifestVersion=""1.0"" xmlns=""urn:schemas-microsoft-com:asm.v1"">
@@ -48,4 +48,3 @@ namespace Scalar.PreBuild
         }
     }
 }
-

@@ -1,9 +1,62 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!--This file is used to prevent build output from being written into the source tree when building with .NET Core/Standard.
-  This file should not be parsed when building with .NET Framework.
-  See https://github.com/Microsoft/msbuild/issues/1603#issuecomment-283104367 for more info .-->
+﻿<Project>
+
   <PropertyGroup>
-    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)\..\BuildOutput\$(MSBuildProjectName)\obj</BaseIntermediateOutputPath>
+    <!--
+      Set helpful property for detecting the current OS platform.
+      We can't use the build-in $(OS) because it returns 'Unix' on macOS when run under Mono.
+    -->
+    <OSPlatform Condition="$([MSBuild]::IsOsPlatform('windows'))">windows</OSPlatform>
+    <OSPlatform Condition="$([MSBuild]::IsOsPlatform('osx'))">osx</OSPlatform>
+    <OSPlatform Condition="$([MSBuild]::IsOsPlatform('linux'))">linux</OSPlatform>
+    <IsPosix>true</IsPosix>
+    <IsPosix Condition="'$(OSPlatform)'=='windows'">false</IsPosix>
+
+    <!-- Define the root of the repository as a property -->
+    <RepoPath>$(MSBuildThisFileDirectory)</RepoPath>
+    <RepoSrcPath>$(RepoPath)</RepoSrcPath>
+    <RepoOutPath>$(RepoPath)..\out\</RepoOutPath>
+    <RepoPublishPath>$(RepoPath)..\publish\</RepoPublishPath>
+    <ScalarBuildTasks>$(RepoSrcPath)Scalar.Build\</ScalarBuildTasks>
+
+    <!-- Redirect the intermediate and binary output directories -->
+    <ProjectOutPath>$(RepoOutPath)$(MSBuildProjectName)\</ProjectOutPath>
+    <BaseOutputPath>$(ProjectOutPath)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(ProjectOutPath)obj\</BaseIntermediateOutputPath>
+
+    <!-- Common build properties -->
+    <RuntimeIdentifiers>win-x64;osx-x64</RuntimeIdentifiers>
+    <Deterministic>true</Deterministic>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <CodeAnalysisRuleSet>$(RepoPath)Scalar.ruleset</CodeAnalysisRuleSet>
+
+    <!-- Common assembly information -->
+    <Product>Scalar</Product>
+    <Copyright>Microsoft Corporation (c)</Copyright>
+
+    <!-- Version information -->
+    <ScalarVersion>0.2.173.2</ScalarVersion>
+    <GitPackageVersion>2.20191004.2-sc</GitPackageVersion>
+
+    <!-- Signing certificates -->
+    <AuthenticodeCert>Microsoft400</AuthenticodeCert>
+    <MacFilesCert>8003</MacFilesCert>
   </PropertyGroup>
+
+  <!-- Common build-only dependencies -->
+  <ItemGroup>
+    <!-- <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" PrivateAssets="all"/> -->
+    <PackageReference Include="Microsoft.Build.Artifacts" Version="2.0.1" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Define default metadata on *FilesToSign items -->
+  <ItemDefinitionGroup>
+    <FilesToSign>
+      <Authenticode>$(AuthenticodeCert)</Authenticode>
+      <InProject>false</InProject>
+    </FilesToSign>
+    <MacFilesToSign>
+      <InProject>false</InProject>
+    </MacFilesToSign>
+  </ItemDefinitionGroup>
+
 </Project>
