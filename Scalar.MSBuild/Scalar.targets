@@ -1,0 +1,51 @@
+<Project>
+  <!-- Load custom build tasks -->
+  <Import Project="Scalar.tasks" />
+
+  <!-- Windows application manifest generation -->
+  <PropertyGroup Condition="'$(GenerateWindowsAppManifest)' == 'true'">
+    <ApplicationManifest>$(IntermediateOutputPath)app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <!-- Generate the manifest file before we set the win32 manifest properties -->
+  <Target Name="GenerateWindowsAppManifest"
+          BeforeTargets="SetWin32ManifestProperties"
+          Condition="'$(GenerateWindowsAppManifest)' == 'true'"
+          Inputs="$(Version);$(AssemblyName)"
+          Outputs="$(IntermediateOutputPath)app.manifest">
+    <GenerateWindowsAppManifest Version="$(Version)"
+                                ApplicationName="$(AssemblyName)"
+                                OutputFile="$(IntermediateOutputPath)app.manifest"/>
+    <ItemGroup>
+      <FileWrites Include="$(IntermediateOutputPath)app.manifest" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Location to cache GitHub assets -->
+  <PropertyGroup>
+    <GitHubAssetsPath Condition="'$(GitHubAssetsPath)' == '' AND '$(OS)' != 'Windows_NT'">$(HOME)\.githubassets\</GitHubAssetsPath>
+    <GitHubAssetsPath Condition="'$(GitHubAssetsPath)' == '' AND '$(OS)' == 'Windows_NT'">$(USERPROFILE)\.githubassets\</GitHubAssetsPath>
+  </PropertyGroup>
+
+  <!-- Download GitHub assets before build -->
+  <Target Name="DownloadGitHubReleaseAssets"
+          AfterTargets="BeforeBuild"
+          Inputs="@(GitHubAssetReference)"
+          Outputs="%(GitHubAssetReference.PropertyName);$(GitHubAssetsPath)\%(GitHubAssetReference.Identity)\%(GitHubAssetReference.Version)\*">
+    <CreateProperty Value="$(GitHubAssetsPath)\%(GitHubAssetReference.Identity)\%(GitHubAssetReference.Version)\">
+      <Output TaskParameter="Value" PropertyName="%(GitHubAssetReference.PropertyName)" />
+    </CreateProperty>
+
+    <GetGitHubReleaseAssets Repository="%(GitHubAssetReference.Identity)"
+                            Version="%(GitHubAssetReference.Version)"
+                            Filter="%(GitHubAssetReference.Filter)">
+      <Output TaskParameter="Assets" ItemName="_Asset" />
+    </GetGitHubReleaseAssets>
+
+    <DownloadFile DestinationFolder="$(GitHubAssetsPath)\%(_Asset.Repository)\%(_Asset.Version)"
+                  SourceUrl="%(_Asset.Url)"
+                  SkipUnchangedFiles="true">
+      <Output TaskParameter="DownloadedFile" ItemName="GitHubAsset" />
+    </DownloadFile>
+  </Target>
+</Project>
