@@ -72,7 +72,7 @@ namespace Scalar.FunctionalTests.Tools
         public string LooseObjectStep()
         {
             return this.CallScalar(
-                $"maintenance \"{this.enlistmentRoot}\" --task LooseObjects",
+                $"maintenance \"{this.enlistmentRoot}\" --task loose-objects",
                 expectedExitCode: SuccessExitCode);
         }
 
@@ -80,7 +80,7 @@ namespace Scalar.FunctionalTests.Tools
         {
             string sizeString = batchSize.HasValue ? $"--batch-size {batchSize.Value}" : string.Empty;
             return this.CallScalar(
-                $"maintenance \"{this.enlistmentRoot}\" --task PackfileMaintenance {sizeString}",
+                $"maintenance \"{this.enlistmentRoot}\" --task pack-files {sizeString}",
                 expectedExitCode: SuccessExitCode);
         }
 

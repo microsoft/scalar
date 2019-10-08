@@ -13,9 +13,9 @@ namespace Scalar.CommandLine
     {
         private const string MaintenanceVerbName = "maintenance";
 
-        private const string LooseObjectsTaskName = "LooseObjects";
-        private const string PackfileMaintenanceTaskName = "PackfileMaintenance";
-        private const string PostFetchTaskName = "PostFetch";
+        private const string LooseObjectsTaskName = "loose-objects";
+        private const string PackfilesTaskName = "pack-files";
+        private const string CommitGraphTaskName = "commit-graph";
 
         private const string BatchSizeOptionName = "batch-size";
 
@@ -26,15 +26,15 @@ namespace Scalar.CommandLine
             Default = "",
             HelpText = "Maintenance task to run.  Allowed values are '"
                 + LooseObjectsTaskName + "', '"
-                + PackfileMaintenanceTaskName + "', '"
-                + PostFetchTaskName + "'")]
+                + PackfilesTaskName + "', '"
+                + CommitGraphTaskName + "'")]
         public string MaintenanceTask { get; set; }
 
         [Option(
             BatchSizeOptionName,
             Required = false,
             Default = "",
-            HelpText = "Batch size.  This option can only be used with the '" + PackfileMaintenanceTaskName + "' task")]
+            HelpText = "Batch size.  This option can only be used with the '" + PackfilesTaskName + "' task")]
         public string PackfileMaintenanceBatchSize { get; set; }
 
         protected override string VerbName
@@ -74,7 +74,7 @@ namespace Scalar.CommandLine
                                 (new LooseObjectsStep(context, forceRun: true)).Execute();
                                 return;
 
-                            case PackfileMaintenanceTaskName:
+                            case PackfilesTaskName:
                                 (new PackfileMaintenanceStep(
                                     context,
                                     forceRun: true,
@@ -83,7 +83,7 @@ namespace Scalar.CommandLine
                                         this.PackfileMaintenanceBatchSize)).Execute();
                                 return;
 
-                            case PostFetchTaskName:
+                            case CommitGraphTaskName:
                                 this.FailIfBatchSizeSet(tracer);
                                 (new PostFetchStep(context, new System.Collections.Generic.List<string>(), requireObjectCacheLock: false)).Execute();
                                 return;
@@ -111,7 +111,7 @@ namespace Scalar.CommandLine
                 this.ReportErrorAndExit(
                     tracer,
                     ReturnCode.UnsupportedOption,
-                    $"--{BatchSizeOptionName} can only be used with the {PackfileMaintenanceTaskName} task");
+                    $"--{BatchSizeOptionName} can only be used with the {PackfilesTaskName} task");
             }
         }
     }
