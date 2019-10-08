@@ -1,34 +1,42 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <Import Project="..\Scalar.Build\Scalar.cs.props" />
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netstandard2.0</TargetFrameworks>
-    <Platforms>x64</Platforms>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Version>$(ScalarVersion)</Version>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Version>$(ScalarVersion)</Version>
+    <AssemblyName>scalar.common</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\BuildOutput\Scalar.Build\ScalarConstants.GitVersion.cs" Link="ScalarConstants.GitVersion.cs" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="NuGet.Commands" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" />
+    <PackageReference Include="GitForWindows.GVFS.Installer" PrivateAssets="all" />
+    <PackageReference Include="GitForMac.GVFS.Installer" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="NuGet.Commands" Version="4.9.2" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="NuGet.Protocol" Version="4.9.2" />
-    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="X509Certificates\" />
-  </ItemGroup>
+  <Target Name="_GenerateConstantsFile" BeforeTargets="BeforeBuild">
+    <!--
+      Extract the minimum Git version using the Git for Windows package.
+      We assume the Git for Mac package contains the same Git version for
+      the same NuGet package version.
+     -->
+    <GetGitInstallerVersion NuGetPackageRoot="$(NuGetPackageRoot)"
+                            PackageName="GitForWindows.GVFS.Installer"
+                            PackageVersion="$(GitPackageVersion)"
+                            InstallerExtension=".exe">
+      <Output TaskParameter="GitVersion" PropertyName="MinimumGitVersion" />
+    </GetGitInstallerVersion>
+
+    <!-- Generate Scalar constants file with the minimum Git version -->
+    <GenerateScalarConstants MinimumGitVersion="$(MinimumGitVersion)"
+                             OutputFile="$(IntermediateOutputPath)ScalarConstants.g.cs" />
+
+    <!-- Add the generated file to the list of file writes for MSBuild to keep track of for clean-up -->
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)ScalarConstants.g.cs" />
+      <FileWrites Include="$(IntermediateOutputPath)ScalarConstants.g.cs"/>
+    </ItemGroup>
+  </Target>
+
 </Project>
