@@ -29,6 +29,13 @@ namespace Scalar.FunctionalTests
                 ScalarTestConfig.TestScalarOnPath = true;
             }
 
+            string trace2Output = runner.GetCustomArgWithParam("--trace2-output");
+            if (trace2Output != null)
+            {
+                Console.WriteLine($"Sending trace2 output to {trace2Output}");
+                Environment.SetEnvironmentVariable("GIT_TRACE2_EVENT", trace2Output);
+            }
+
             ScalarTestConfig.LocalCacheRoot = runner.GetCustomArgWithParam("--shared-scalar-cache-root");
 
             HashSet<string> includeCategories = new HashSet<string>();
