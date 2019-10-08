@@ -1,266 +1,99 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29306.174
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DCE11095-DA5F-4878-B58D-2702765560F5}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-		.gitattributes = .gitattributes
-		.gitignore = .gitignore
-		AuthoringTests.md = AuthoringTests.md
-		nuget.config = nuget.config
-		Protocol.md = Protocol.md
-		Readme.md = Readme.md
-	EndProjectSection
+#
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar", "Scalar\Scalar.csproj", "{31208ED8-5B83-4BE6-802A-18EE67434537}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Common", "Scalar.Common\Scalar.Common.csproj", "{374BF1E5-0B2D-4D4A-BD5E-4212299DEF09}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A4984251-840E-4622-AD0C-66DFCE2B2574} = {A4984251-840E-4622-AD0C-66DFCE2B2574}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Common", "Scalar.Common\Scalar.Common.csproj", "{179EAE33-265B-4698-BBC7-130F28F6D768}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Tests", "Scalar.Tests\Scalar.Tests.csproj", "{72701BC3-5DA9-4C7A-BF10-9E98C9FC8EAC}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A4984251-840E-4622-AD0C-66DFCE2B2574} = {A4984251-840E-4622-AD0C-66DFCE2B2574}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Mount", "Scalar.Mount\Scalar.Mount.csproj", "{829C7E6B-ABD7-4CE5-8076-FB28821368C5}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scalar Tests", "Scalar Tests", "{C41F10F9-1163-4CFA-A465-EA728F75E9FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Service", "Scalar.Service\Scalar.Service.csproj", "{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.UnitTests.Windows", "Scalar.UnitTests.Windows\Scalar.UnitTests.Windows.csproj", "{8E0D0989-21F6-4DD8-946C-39F992523CC6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Upgrader", "Scalar.Upgrader\Scalar.Upgrader.csproj", "{424D0102-50EE-4CA6-A937-C8A89CE10103}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Service.Windows", "Scalar.Service\Scalar.Service.Windows.csproj", "{B8C1DFBA-CAFD-4F7E-A1A3-E11907B5467B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.UnitTests", "Scalar.UnitTests\Scalar.UnitTests.csproj", "{B1D1E8BE-D633-4624-A821-B222EB1B8020}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Service.Mac", "Scalar.Service\Scalar.Service.Mac.csproj", "{03769A07-F216-456B-886B-E07CAF6C5E81}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EB9427BB-456A-4319-8916-E782E0F5F6D3}"
+ProjectSection(SolutionItems) = preProject
+	Directory.Build.props = Directory.Build.props
+	Directory.Build.targets = Directory.Build.targets
+	Dependencies.props = Dependencies.props
+	global.json = global.json
+EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{28674A4B-1223-4633-A460-C8CC39B09318}"
-	ProjectSection(SolutionItems) = preProject
-		Scripts\CreateCommonAssemblyVersion.bat = Scripts\CreateCommonAssemblyVersion.bat
-		Scripts\CreateCommonCliAssemblyVersion.bat = Scripts\CreateCommonCliAssemblyVersion.bat
-		Scripts\CreateCommonVersionHeader.bat = Scripts\CreateCommonVersionHeader.bat
-		Scripts\RunFunctionalTests.bat = Scripts\RunFunctionalTests.bat
-		Scripts\RunUnitTests.bat = Scripts\RunUnitTests.bat
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.FunctionalTests", "Scalar.FunctionalTests\Scalar.FunctionalTests.csproj", "{C7E08779-6F45-4025-89E1-31346C9B234F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Service.UI", "Scalar.Service.UI\Scalar.Service.UI.csproj", "{93B403FD-DAFB-46C5-9636-B122792A548A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.TestInfrastructure", "Scalar.TestInfrastructure\Scalar.TestInfrastructure.csproj", "{77FC445D-FD03-4EE0-8582-7BD1437D9842}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.PreBuild", "Scalar.Build\Scalar.PreBuild.csproj", "{A4984251-840E-4622-AD0C-66DFCE2B2574}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.MSBuild", "Scalar.MSBuild\Scalar.MSBuild.csproj", "{6B05E1DE-1C67-48F7-9A2A-E109D7252CF2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{AB0D9230-3893-4486-8899-F9C871FB5D5F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Installer.Mac", "Scalar.Installer.Mac\Scalar.Installer.Mac.csproj", "{5CFE04A9-F65A-4EEF-B237-7608D19A87DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Installer.Windows", "Scalar.Installer.Windows\Scalar.Installer.Windows.csproj", "{3AB4FB1F-9E23-4CD8-BFAC-8A2221C8F893}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2F63B22B-EE26-4266-BF17-28A9146483A1} = {2F63B22B-EE26-4266-BF17-28A9146483A1}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Installer.Windows", "Scalar.Installer.Windows\Scalar.Installer.Windows.csproj", "{913C7CBD-876C-45D8-B59E-D0849CD219E4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Installer.Mac", "Scalar.Installer.Mac\Scalar.Installer.Mac.csproj", "{25229A04-6554-49B1-A95A-3F3B76C5B0C8}"
-	ProjectSection(ProjectDependencies) = postProject
-		{03769A07-F216-456B-886B-E07CAF6C5E81} = {03769A07-F216-456B-886B-E07CAF6C5E81}
-		{28939122-7263-41E7-A7E2-CBFB01AD6A04} = {28939122-7263-41E7-A7E2-CBFB01AD6A04}
-		{A4984251-840E-4622-AD0C-66DFCE2B2574} = {A4984251-840E-4622-AD0C-66DFCE2B2574}
-		{1DAC3DA6-3D21-4917-B9A8-D60C8712252A} = {1DAC3DA6-3D21-4917-B9A8-D60C8712252A}
-		{374BF1E5-0B2D-4D4A-BD5E-4212299DEF09} = {374BF1E5-0B2D-4D4A-BD5E-4212299DEF09}
-		{35CA4DFB-1320-4055-B8F6-F12E0F252FF0} = {35CA4DFB-1320-4055-B8F6-F12E0F252FF0}
-		{AECEC217-2499-403D-B0BB-2962B9BE5970} = {AECEC217-2499-403D-B0BB-2962B9BE5970}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Service.UI", "Scalar.Service.UI\Scalar.Service.UI.csproj", "{32D8335E-E9E8-4AD8-BAE5-162F53AA4D72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.SignFiles", "Scalar.SignFiles\Scalar.SignFiles.csproj", "{2F63B22B-EE26-4266-BF17-28A9146483A1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{17498502-AEFF-4E70-90CC-1D0B56A8ADF5} = {17498502-AEFF-4E70-90CC-1D0B56A8ADF5}
-		{32220664-594C-4425-B9A0-88E0BE2F3D2A} = {32220664-594C-4425-B9A0-88E0BE2F3D2A}
-		{B8C1DFBA-CAFD-4F7E-A1A3-E11907B5467B} = {B8C1DFBA-CAFD-4F7E-A1A3-E11907B5467B}
-		{374BF1E5-0B2D-4D4A-BD5E-4212299DEF09} = {374BF1E5-0B2D-4D4A-BD5E-4212299DEF09}
-		{4CE404E7-D3FC-471C-993C-64615861EA63} = {4CE404E7-D3FC-471C-993C-64615861EA63}
-		{93B403FD-DAFB-46C5-9636-B122792A548A} = {93B403FD-DAFB-46C5-9636-B122792A548A}
-		{AECEC217-2499-403D-B0BB-2962B9BE5970} = {AECEC217-2499-403D-B0BB-2962B9BE5970}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Platform.Mac", "Scalar.Platform.Mac\Scalar.Platform.Mac.csproj", "{1DAC3DA6-3D21-4917-B9A8-D60C8712252A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Platform.POSIX", "Scalar.Platform.POSIX\Scalar.Platform.POSIX.csproj", "{15FAE44C-0D21-4312-9FD3-28F05A5AB7A6}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.UnitTests", "Scalar.UnitTests\Scalar.UnitTests.csproj", "{0D434FA7-6D8C-481E-B0CE-779B59EAEF53}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Platform.Windows", "Scalar.Platform.Windows\Scalar.Platform.Windows.csproj", "{4CE404E7-D3FC-471C-993C-64615861EA63}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Mac", "Scalar\Scalar.Mac.csproj", "{28939122-7263-41E7-A7E2-CBFB01AD6A04}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Windows", "Scalar\Scalar.Windows.csproj", "{32220664-594C-4425-B9A0-88E0BE2F3D2A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Mount.Windows", "Scalar.Mount\Scalar.Mount.Windows.csproj", "{17498502-AEFF-4E70-90CC-1D0B56A8ADF5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Mount.Mac", "Scalar.Mount\Scalar.Mount.Mac.csproj", "{35CA4DFB-1320-4055-B8F6-F12E0F252FF0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.FunctionalTests", "Scalar.FunctionalTests\Scalar.FunctionalTests.csproj", "{BD7C5776-82F2-40C6-AF01-B3CC1E2D83AF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{17498502-AEFF-4E70-90CC-1D0B56A8ADF5} = {17498502-AEFF-4E70-90CC-1D0B56A8ADF5}
-		{28939122-7263-41E7-A7E2-CBFB01AD6A04} = {28939122-7263-41E7-A7E2-CBFB01AD6A04}
-		{32220664-594C-4425-B9A0-88E0BE2F3D2A} = {32220664-594C-4425-B9A0-88E0BE2F3D2A}
-		{B8C1DFBA-CAFD-4F7E-A1A3-E11907B5467B} = {B8C1DFBA-CAFD-4F7E-A1A3-E11907B5467B}
-		{35CA4DFB-1320-4055-B8F6-F12E0F252FF0} = {35CA4DFB-1320-4055-B8F6-F12E0F252FF0}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Upgrader", "Scalar.Upgrader\Scalar.Upgrader.csproj", "{AECEC217-2499-403D-B0BB-2962B9BE5970}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Notifications.Mac", "Scalar.Notifications.Mac\Scalar.Notifications.Mac.csproj", "{ED367118-BFB1-41CA-A010-E46C28796ED8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug.Mac|x64 = Debug.Mac|x64
-		Debug.Windows|x64 = Debug.Windows|x64
-		Release.Mac|x64 = Release.Mac|x64
-		Release.Windows|x64 = Release.Windows|x64
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{374BF1E5-0B2D-4D4A-BD5E-4212299DEF09}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{374BF1E5-0B2D-4D4A-BD5E-4212299DEF09}.Debug.Mac|x64.Build.0 = Debug|x64
-		{374BF1E5-0B2D-4D4A-BD5E-4212299DEF09}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{374BF1E5-0B2D-4D4A-BD5E-4212299DEF09}.Debug.Windows|x64.Build.0 = Debug|x64
-		{374BF1E5-0B2D-4D4A-BD5E-4212299DEF09}.Release.Mac|x64.ActiveCfg = Release|x64
-		{374BF1E5-0B2D-4D4A-BD5E-4212299DEF09}.Release.Mac|x64.Build.0 = Release|x64
-		{374BF1E5-0B2D-4D4A-BD5E-4212299DEF09}.Release.Windows|x64.ActiveCfg = Release|x64
-		{374BF1E5-0B2D-4D4A-BD5E-4212299DEF09}.Release.Windows|x64.Build.0 = Release|x64
-		{72701BC3-5DA9-4C7A-BF10-9E98C9FC8EAC}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{72701BC3-5DA9-4C7A-BF10-9E98C9FC8EAC}.Debug.Mac|x64.Build.0 = Debug|x64
-		{72701BC3-5DA9-4C7A-BF10-9E98C9FC8EAC}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{72701BC3-5DA9-4C7A-BF10-9E98C9FC8EAC}.Debug.Windows|x64.Build.0 = Debug|x64
-		{72701BC3-5DA9-4C7A-BF10-9E98C9FC8EAC}.Release.Mac|x64.ActiveCfg = Release|x64
-		{72701BC3-5DA9-4C7A-BF10-9E98C9FC8EAC}.Release.Mac|x64.Build.0 = Release|x64
-		{72701BC3-5DA9-4C7A-BF10-9E98C9FC8EAC}.Release.Windows|x64.ActiveCfg = Release|x64
-		{72701BC3-5DA9-4C7A-BF10-9E98C9FC8EAC}.Release.Windows|x64.Build.0 = Release|x64
-		{8E0D0989-21F6-4DD8-946C-39F992523CC6}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{8E0D0989-21F6-4DD8-946C-39F992523CC6}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{8E0D0989-21F6-4DD8-946C-39F992523CC6}.Debug.Windows|x64.Build.0 = Debug|x64
-		{8E0D0989-21F6-4DD8-946C-39F992523CC6}.Release.Mac|x64.ActiveCfg = Release|x64
-		{8E0D0989-21F6-4DD8-946C-39F992523CC6}.Release.Windows|x64.ActiveCfg = Release|x64
-		{8E0D0989-21F6-4DD8-946C-39F992523CC6}.Release.Windows|x64.Build.0 = Release|x64
-		{B8C1DFBA-CAFD-4F7E-A1A3-E11907B5467B}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{B8C1DFBA-CAFD-4F7E-A1A3-E11907B5467B}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{B8C1DFBA-CAFD-4F7E-A1A3-E11907B5467B}.Debug.Windows|x64.Build.0 = Debug|x64
-		{B8C1DFBA-CAFD-4F7E-A1A3-E11907B5467B}.Release.Mac|x64.ActiveCfg = Release|x64
-		{B8C1DFBA-CAFD-4F7E-A1A3-E11907B5467B}.Release.Windows|x64.ActiveCfg = Release|x64
-		{B8C1DFBA-CAFD-4F7E-A1A3-E11907B5467B}.Release.Windows|x64.Build.0 = Release|x64
-		{03769A07-F216-456B-886B-E07CAF6C5E81}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{03769A07-F216-456B-886B-E07CAF6C5E81}.Debug.Mac|x64.Build.0 = Debug|x64
-		{03769A07-F216-456B-886B-E07CAF6C5E81}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{03769A07-F216-456B-886B-E07CAF6C5E81}.Debug.Windows|x64.Build.0 = Debug|x64
-		{03769A07-F216-456B-886B-E07CAF6C5E81}.Release.Mac|x64.ActiveCfg = Release|x64
-		{03769A07-F216-456B-886B-E07CAF6C5E81}.Release.Mac|x64.Build.0 = Release|x64
-		{03769A07-F216-456B-886B-E07CAF6C5E81}.Release.Windows|x64.ActiveCfg = Release|x64
-		{03769A07-F216-456B-886B-E07CAF6C5E81}.Release.Windows|x64.Build.0 = Release|x64
-		{93B403FD-DAFB-46C5-9636-B122792A548A}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{93B403FD-DAFB-46C5-9636-B122792A548A}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{93B403FD-DAFB-46C5-9636-B122792A548A}.Debug.Windows|x64.Build.0 = Debug|x64
-		{93B403FD-DAFB-46C5-9636-B122792A548A}.Release.Mac|x64.ActiveCfg = Release|x64
-		{93B403FD-DAFB-46C5-9636-B122792A548A}.Release.Windows|x64.ActiveCfg = Release|x64
-		{93B403FD-DAFB-46C5-9636-B122792A548A}.Release.Windows|x64.Build.0 = Release|x64
-		{A4984251-840E-4622-AD0C-66DFCE2B2574}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{A4984251-840E-4622-AD0C-66DFCE2B2574}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{A4984251-840E-4622-AD0C-66DFCE2B2574}.Debug.Windows|x64.Build.0 = Debug|x64
-		{A4984251-840E-4622-AD0C-66DFCE2B2574}.Release.Mac|x64.ActiveCfg = Release|x64
-		{A4984251-840E-4622-AD0C-66DFCE2B2574}.Release.Windows|x64.ActiveCfg = Release|x64
-		{A4984251-840E-4622-AD0C-66DFCE2B2574}.Release.Windows|x64.Build.0 = Release|x64
-		{3AB4FB1F-9E23-4CD8-BFAC-8A2221C8F893}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{3AB4FB1F-9E23-4CD8-BFAC-8A2221C8F893}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{3AB4FB1F-9E23-4CD8-BFAC-8A2221C8F893}.Debug.Windows|x64.Build.0 = Debug|x64
-		{3AB4FB1F-9E23-4CD8-BFAC-8A2221C8F893}.Release.Mac|x64.ActiveCfg = Release|x64
-		{3AB4FB1F-9E23-4CD8-BFAC-8A2221C8F893}.Release.Windows|x64.ActiveCfg = Release|x64
-		{3AB4FB1F-9E23-4CD8-BFAC-8A2221C8F893}.Release.Windows|x64.Build.0 = Release|x64
-		{25229A04-6554-49B1-A95A-3F3B76C5B0C8}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{25229A04-6554-49B1-A95A-3F3B76C5B0C8}.Debug.Mac|x64.Build.0 = Debug|x64
-		{25229A04-6554-49B1-A95A-3F3B76C5B0C8}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{25229A04-6554-49B1-A95A-3F3B76C5B0C8}.Release.Mac|x64.ActiveCfg = Release|x64
-		{25229A04-6554-49B1-A95A-3F3B76C5B0C8}.Release.Mac|x64.Build.0 = Release|x64
-		{25229A04-6554-49B1-A95A-3F3B76C5B0C8}.Release.Windows|x64.ActiveCfg = Release|x64
-		{2F63B22B-EE26-4266-BF17-28A9146483A1}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{2F63B22B-EE26-4266-BF17-28A9146483A1}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{2F63B22B-EE26-4266-BF17-28A9146483A1}.Debug.Windows|x64.Build.0 = Debug|x64
-		{2F63B22B-EE26-4266-BF17-28A9146483A1}.Release.Mac|x64.ActiveCfg = Release|x64
-		{2F63B22B-EE26-4266-BF17-28A9146483A1}.Release.Windows|x64.ActiveCfg = Release|x64
-		{2F63B22B-EE26-4266-BF17-28A9146483A1}.Release.Windows|x64.Build.0 = Release|x64
-		{1DAC3DA6-3D21-4917-B9A8-D60C8712252A}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{1DAC3DA6-3D21-4917-B9A8-D60C8712252A}.Debug.Mac|x64.Build.0 = Debug|x64
-		{1DAC3DA6-3D21-4917-B9A8-D60C8712252A}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{1DAC3DA6-3D21-4917-B9A8-D60C8712252A}.Debug.Windows|x64.Build.0 = Debug|x64
-		{1DAC3DA6-3D21-4917-B9A8-D60C8712252A}.Release.Mac|x64.ActiveCfg = Release|x64
-		{1DAC3DA6-3D21-4917-B9A8-D60C8712252A}.Release.Mac|x64.Build.0 = Release|x64
-		{1DAC3DA6-3D21-4917-B9A8-D60C8712252A}.Release.Windows|x64.ActiveCfg = Release|x64
-		{1DAC3DA6-3D21-4917-B9A8-D60C8712252A}.Release.Windows|x64.Build.0 = Release|x64
-		{15FAE44C-0D21-4312-9FD3-28F05A5AB7A6}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{15FAE44C-0D21-4312-9FD3-28F05A5AB7A6}.Debug.Mac|x64.Build.0 = Debug|x64
-		{15FAE44C-0D21-4312-9FD3-28F05A5AB7A6}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{15FAE44C-0D21-4312-9FD3-28F05A5AB7A6}.Debug.Windows|x64.Build.0 = Debug|x64
-		{15FAE44C-0D21-4312-9FD3-28F05A5AB7A6}.Release.Mac|x64.ActiveCfg = Release|x64
-		{15FAE44C-0D21-4312-9FD3-28F05A5AB7A6}.Release.Mac|x64.Build.0 = Release|x64
-		{15FAE44C-0D21-4312-9FD3-28F05A5AB7A6}.Release.Windows|x64.ActiveCfg = Release|x64
-		{15FAE44C-0D21-4312-9FD3-28F05A5AB7A6}.Release.Windows|x64.Build.0 = Release|x64
-		{0D434FA7-6D8C-481E-B0CE-779B59EAEF53}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{0D434FA7-6D8C-481E-B0CE-779B59EAEF53}.Debug.Mac|x64.Build.0 = Debug|x64
-		{0D434FA7-6D8C-481E-B0CE-779B59EAEF53}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{0D434FA7-6D8C-481E-B0CE-779B59EAEF53}.Debug.Windows|x64.Build.0 = Debug|x64
-		{0D434FA7-6D8C-481E-B0CE-779B59EAEF53}.Release.Mac|x64.ActiveCfg = Release|x64
-		{0D434FA7-6D8C-481E-B0CE-779B59EAEF53}.Release.Mac|x64.Build.0 = Release|x64
-		{0D434FA7-6D8C-481E-B0CE-779B59EAEF53}.Release.Windows|x64.ActiveCfg = Release|x64
-		{0D434FA7-6D8C-481E-B0CE-779B59EAEF53}.Release.Windows|x64.Build.0 = Release|x64
-		{4CE404E7-D3FC-471C-993C-64615861EA63}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{4CE404E7-D3FC-471C-993C-64615861EA63}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{4CE404E7-D3FC-471C-993C-64615861EA63}.Debug.Windows|x64.Build.0 = Debug|x64
-		{4CE404E7-D3FC-471C-993C-64615861EA63}.Release.Mac|x64.ActiveCfg = Release|x64
-		{4CE404E7-D3FC-471C-993C-64615861EA63}.Release.Windows|x64.ActiveCfg = Release|x64
-		{4CE404E7-D3FC-471C-993C-64615861EA63}.Release.Windows|x64.Build.0 = Release|x64
-		{28939122-7263-41E7-A7E2-CBFB01AD6A04}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{28939122-7263-41E7-A7E2-CBFB01AD6A04}.Debug.Mac|x64.Build.0 = Debug|x64
-		{28939122-7263-41E7-A7E2-CBFB01AD6A04}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{28939122-7263-41E7-A7E2-CBFB01AD6A04}.Debug.Windows|x64.Build.0 = Debug|x64
-		{28939122-7263-41E7-A7E2-CBFB01AD6A04}.Release.Mac|x64.ActiveCfg = Release|x64
-		{28939122-7263-41E7-A7E2-CBFB01AD6A04}.Release.Mac|x64.Build.0 = Release|x64
-		{28939122-7263-41E7-A7E2-CBFB01AD6A04}.Release.Windows|x64.ActiveCfg = Release|x64
-		{28939122-7263-41E7-A7E2-CBFB01AD6A04}.Release.Windows|x64.Build.0 = Release|x64
-		{32220664-594C-4425-B9A0-88E0BE2F3D2A}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{32220664-594C-4425-B9A0-88E0BE2F3D2A}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{32220664-594C-4425-B9A0-88E0BE2F3D2A}.Debug.Windows|x64.Build.0 = Debug|x64
-		{32220664-594C-4425-B9A0-88E0BE2F3D2A}.Release.Mac|x64.ActiveCfg = Release|x64
-		{32220664-594C-4425-B9A0-88E0BE2F3D2A}.Release.Windows|x64.ActiveCfg = Release|x64
-		{32220664-594C-4425-B9A0-88E0BE2F3D2A}.Release.Windows|x64.Build.0 = Release|x64
-		{17498502-AEFF-4E70-90CC-1D0B56A8ADF5}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{17498502-AEFF-4E70-90CC-1D0B56A8ADF5}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{17498502-AEFF-4E70-90CC-1D0B56A8ADF5}.Debug.Windows|x64.Build.0 = Debug|x64
-		{17498502-AEFF-4E70-90CC-1D0B56A8ADF5}.Release.Mac|x64.ActiveCfg = Release|x64
-		{17498502-AEFF-4E70-90CC-1D0B56A8ADF5}.Release.Windows|x64.ActiveCfg = Release|x64
-		{17498502-AEFF-4E70-90CC-1D0B56A8ADF5}.Release.Windows|x64.Build.0 = Release|x64
-		{35CA4DFB-1320-4055-B8F6-F12E0F252FF0}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{35CA4DFB-1320-4055-B8F6-F12E0F252FF0}.Debug.Mac|x64.Build.0 = Debug|x64
-		{35CA4DFB-1320-4055-B8F6-F12E0F252FF0}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{35CA4DFB-1320-4055-B8F6-F12E0F252FF0}.Debug.Windows|x64.Build.0 = Debug|x64
-		{35CA4DFB-1320-4055-B8F6-F12E0F252FF0}.Release.Mac|x64.ActiveCfg = Release|x64
-		{35CA4DFB-1320-4055-B8F6-F12E0F252FF0}.Release.Mac|x64.Build.0 = Release|x64
-		{35CA4DFB-1320-4055-B8F6-F12E0F252FF0}.Release.Windows|x64.ActiveCfg = Release|x64
-		{35CA4DFB-1320-4055-B8F6-F12E0F252FF0}.Release.Windows|x64.Build.0 = Release|x64
-		{BD7C5776-82F2-40C6-AF01-B3CC1E2D83AF}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{BD7C5776-82F2-40C6-AF01-B3CC1E2D83AF}.Debug.Mac|x64.Build.0 = Debug|x64
-		{BD7C5776-82F2-40C6-AF01-B3CC1E2D83AF}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{BD7C5776-82F2-40C6-AF01-B3CC1E2D83AF}.Debug.Windows|x64.Build.0 = Debug|x64
-		{BD7C5776-82F2-40C6-AF01-B3CC1E2D83AF}.Release.Mac|x64.ActiveCfg = Release|x64
-		{BD7C5776-82F2-40C6-AF01-B3CC1E2D83AF}.Release.Mac|x64.Build.0 = Release|x64
-		{BD7C5776-82F2-40C6-AF01-B3CC1E2D83AF}.Release.Windows|x64.ActiveCfg = Release|x64
-		{BD7C5776-82F2-40C6-AF01-B3CC1E2D83AF}.Release.Windows|x64.Build.0 = Release|x64
-		{AECEC217-2499-403D-B0BB-2962B9BE5970}.Debug.Mac|x64.ActiveCfg = Debug|x64
-		{AECEC217-2499-403D-B0BB-2962B9BE5970}.Debug.Mac|x64.Build.0 = Debug|x64
-		{AECEC217-2499-403D-B0BB-2962B9BE5970}.Debug.Windows|x64.ActiveCfg = Debug|x64
-		{AECEC217-2499-403D-B0BB-2962B9BE5970}.Debug.Windows|x64.Build.0 = Debug|x64
-		{AECEC217-2499-403D-B0BB-2962B9BE5970}.Release.Mac|x64.ActiveCfg = Release|x64
-		{AECEC217-2499-403D-B0BB-2962B9BE5970}.Release.Mac|x64.Build.0 = Release|x64
-		{AECEC217-2499-403D-B0BB-2962B9BE5970}.Release.Windows|x64.ActiveCfg = Release|x64
-		{AECEC217-2499-403D-B0BB-2962B9BE5970}.Release.Windows|x64.Build.0 = Release|x64
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
+		{31208ED8-5B83-4BE6-802A-18EE67434537}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31208ED8-5B83-4BE6-802A-18EE67434537}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31208ED8-5B83-4BE6-802A-18EE67434537}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31208ED8-5B83-4BE6-802A-18EE67434537}.Release|Any CPU.Build.0 = Release|Any CPU
+		{179EAE33-265B-4698-BBC7-130F28F6D768}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{179EAE33-265B-4698-BBC7-130F28F6D768}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{179EAE33-265B-4698-BBC7-130F28F6D768}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{179EAE33-265B-4698-BBC7-130F28F6D768}.Release|Any CPU.Build.0 = Release|Any CPU
+		{829C7E6B-ABD7-4CE5-8076-FB28821368C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{829C7E6B-ABD7-4CE5-8076-FB28821368C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{829C7E6B-ABD7-4CE5-8076-FB28821368C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{829C7E6B-ABD7-4CE5-8076-FB28821368C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{424D0102-50EE-4CA6-A937-C8A89CE10103}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{424D0102-50EE-4CA6-A937-C8A89CE10103}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{424D0102-50EE-4CA6-A937-C8A89CE10103}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{424D0102-50EE-4CA6-A937-C8A89CE10103}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1D1E8BE-D633-4624-A821-B222EB1B8020}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1D1E8BE-D633-4624-A821-B222EB1B8020}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1D1E8BE-D633-4624-A821-B222EB1B8020}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1D1E8BE-D633-4624-A821-B222EB1B8020}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7E08779-6F45-4025-89E1-31346C9B234F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7E08779-6F45-4025-89E1-31346C9B234F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7E08779-6F45-4025-89E1-31346C9B234F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7E08779-6F45-4025-89E1-31346C9B234F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77FC445D-FD03-4EE0-8582-7BD1437D9842}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77FC445D-FD03-4EE0-8582-7BD1437D9842}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77FC445D-FD03-4EE0-8582-7BD1437D9842}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77FC445D-FD03-4EE0-8582-7BD1437D9842}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B05E1DE-1C67-48F7-9A2A-E109D7252CF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B05E1DE-1C67-48F7-9A2A-E109D7252CF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B05E1DE-1C67-48F7-9A2A-E109D7252CF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B05E1DE-1C67-48F7-9A2A-E109D7252CF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CFE04A9-F65A-4EEF-B237-7608D19A87DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CFE04A9-F65A-4EEF-B237-7608D19A87DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CFE04A9-F65A-4EEF-B237-7608D19A87DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CFE04A9-F65A-4EEF-B237-7608D19A87DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{913C7CBD-876C-45D8-B59E-D0849CD219E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{913C7CBD-876C-45D8-B59E-D0849CD219E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{913C7CBD-876C-45D8-B59E-D0849CD219E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{913C7CBD-876C-45D8-B59E-D0849CD219E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32D8335E-E9E8-4AD8-BAE5-162F53AA4D72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32D8335E-E9E8-4AD8-BAE5-162F53AA4D72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32D8335E-E9E8-4AD8-BAE5-162F53AA4D72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32D8335E-E9E8-4AD8-BAE5-162F53AA4D72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{72701BC3-5DA9-4C7A-BF10-9E98C9FC8EAC} = {C41F10F9-1163-4CFA-A465-EA728F75E9FA}
-		{8E0D0989-21F6-4DD8-946C-39F992523CC6} = {C41F10F9-1163-4CFA-A465-EA728F75E9FA}
-		{28674A4B-1223-4633-A460-C8CC39B09318} = {DCE11095-DA5F-4878-B58D-2702765560F5}
-		{A4984251-840E-4622-AD0C-66DFCE2B2574} = {AB0D9230-3893-4486-8899-F9C871FB5D5F}
-		{0D434FA7-6D8C-481E-B0CE-779B59EAEF53} = {C41F10F9-1163-4CFA-A465-EA728F75E9FA}
-		{BD7C5776-82F2-40C6-AF01-B3CC1E2D83AF} = {C41F10F9-1163-4CFA-A465-EA728F75E9FA}
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {A025908B-DAB1-46CB-83A3-56F3B863D8FA}
 	EndGlobalSection
 EndGlobal
