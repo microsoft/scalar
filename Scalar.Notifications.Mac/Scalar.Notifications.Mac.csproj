@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.Build.NoTargets">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <Target Name="_Clean" AfterTargets="Clean">
+    <RemoveDir Directories="$(ProjectOutPath)" />
+  </Target>
+
+  <!--
+    Only build and test the native bits when running on macOS.
+    -->
+  <Target Name="_XcodeBuild" AfterTargets="AfterBuild" Condition="'$(OSPlatform)' == 'osx'">
+    <Exec Command="$(MSBuildProjectDirectory)\build.sh $(Configuration) '$(ProjectOutPath)xcodebuild' '$(ProjectOutPath)bin\$(Configuration)\native\$(RuntimeIdentifier)' $(Version)" />
+    <Exec Command="$(MSBuildProjectDirectory)\test.sh $(Configuration) '$(ProjectOutPath)xcodebuild.test'" />
+  </Target>
+
+</Project>
