@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.Build.NoTargets">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <Target Name="_Clean" AfterTargets="Clean">
+    <RemoveDir Directories="$(ProjectOutPath)" />
+  </Target>
+
+  <!--
+    Only build and test the native bits when asked to publish, and when running on macOS.
+    Don't run Xcodebuild on the 'Build' target because this greatly slows down the managed
+    build which can freeze Visual Studio and other .NET IDEs/not show the native build progress.
+    -->
+  <Target Name="_XcodeBuild" AfterTargets="Publish" Condition="'$(OSPlatform)' == 'osx'">
+    <Exec Command="$(MSBuildProjectDirectory)\build.sh $(Configuration) $(ProjectOutPath)xcodebuild $(RepoPublishPath)$(Configuration)\native\$(RuntimeIdentifier) $(Version)" />
+    <Exec Command="$(MSBuildProjectDirectory)\test.sh $(Configuration) $(ProjectOutPath)xcodebuild.test" />
+  </Target>
+
+</Project>
