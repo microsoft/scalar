@@ -178,20 +178,20 @@ namespace Scalar.CommandLine
                 this.enlistment.EnlistmentRoot,
                 this.enlistment.RepoUrl,
                 this.CacheServerUrl,
-                new EventMetadata
+                this.AddVerbDataToMetadata(new EventMetadata
                 {
-                                { "Branch", this.Branch },
-                                { "LocalCacheRoot", this.LocalCacheRoot },
-                                { "SingleBranch", this.SingleBranch },
-                                { "FullClone", this.FullClone },
-                                { "NoPrefetch", this.NoPrefetch },
-                                { "Unattended", this.Unattended },
-                                { "IsElevated", ScalarPlatform.Instance.IsElevated() },
-                                { "NamedPipeName", this.enlistment.NamedPipeName },
-                                { "ProcessID", Process.GetCurrentProcess().Id },
-                                { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
-                                { nameof(fullEnlistmentRootPathParameter), fullEnlistmentRootPathParameter },
-                });
+                    { "Branch", this.Branch },
+                    { "LocalCacheRoot", this.LocalCacheRoot },
+                    { "SingleBranch", this.SingleBranch },
+                    { "FullClone", this.FullClone },
+                    { "NoPrefetch", this.NoPrefetch },
+                    { "Unattended", this.Unattended },
+                    { "IsElevated", ScalarPlatform.Instance.IsElevated() },
+                    { "NamedPipeName", this.enlistment.NamedPipeName },
+                    { "ProcessID", Process.GetCurrentProcess().Id },
+                    { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
+                    { nameof(fullEnlistmentRootPathParameter), fullEnlistmentRootPathParameter },
+                }));
 
             this.cacheServerResolver = new CacheServerResolver(this.tracer, this.enlistment);
             this.cacheServer = this.cacheServerResolver.ParseUrlOrFriendlyName(this.CacheServerUrl);

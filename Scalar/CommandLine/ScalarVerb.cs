@@ -315,13 +315,28 @@ namespace Scalar.CommandLine
         protected EventMetadata CreateEventMetadata(Exception e = null)
         {
             EventMetadata metadata = new EventMetadata();
-            metadata.Add("Area", $"{this.VerbName}_Verb");
-            metadata.Add("Verb", this.VerbName);
+            this.AddVerbDataToMetadata(metadata);
             if (e != null)
             {
                 metadata.Add("Exception", e.ToString());
             }
 
+            return metadata;
+        }
+
+        /// <summary>
+        /// Add the standard ScalarVerb metadata to the specified EventMetadata
+        /// </summary>
+        /// <param name="metadata">
+        /// EventMetadata to which verb data will be added
+        /// </param>
+        /// <returns>
+        /// The specified EventMetadata (updated to include verb metadata)
+        /// </returns>
+        protected EventMetadata AddVerbDataToMetadata(EventMetadata metadata)
+        {
+            metadata["Area"] = $"{this.VerbName}_Verb";
+            metadata["Verb"] = this.VerbName;
             return metadata;
         }
 
@@ -752,10 +767,10 @@ You can specify a URL, a name of a configured cache server, or the special names
                         activity.RelatedEvent(
                             EventLevel.Informational,
                             "ScalarVersionValidated",
-                            new EventMetadata
+                            this.AddVerbDataToMetadata(new EventMetadata
                             {
                                 { "SupportedVersionRange", versionRange },
-                            });
+                            }));
 
                         enlistment.SetScalarVersion(currentVersion.ToString());
                         return true;

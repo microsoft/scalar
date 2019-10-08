@@ -54,12 +54,13 @@ namespace Scalar.CommandLine
                     enlistment.EnlistmentRoot,
                     enlistment.RepoUrl,
                     CacheServerResolver.GetUrlFromConfig(enlistment),
-                    new EventMetadata
-                    {
-                        { nameof(this.MaintenanceTask), this.MaintenanceTask },
-                        { nameof(this.PackfileMaintenanceBatchSize), this.PackfileMaintenanceBatchSize },
-                        { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
-                    });
+                    this.AddVerbDataToMetadata(
+                        new EventMetadata
+                        {
+                            { nameof(this.MaintenanceTask), this.MaintenanceTask },
+                            { nameof(this.PackfileMaintenanceBatchSize), this.PackfileMaintenanceBatchSize },
+                            { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
+                        }));
 
                 this.InitializeLocalCacheAndObjectsPaths(tracer, enlistment, retryConfig: null, serverScalarConfig: null, cacheServer: null);
                 PhysicalFileSystem fileSystem = new PhysicalFileSystem();
