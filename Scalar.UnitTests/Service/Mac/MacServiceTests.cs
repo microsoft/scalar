@@ -39,7 +39,7 @@ namespace Scalar.UnitTests.Service.Mac
             repoRegistry.Setup(r => r.AutoMountRepos(ExpectedActiveUserId.ToString(), ExpectedSessionId));
             repoRegistry.Setup(r => r.TraceStatus());
 
-            ScalarService service = new ScalarService(
+            MacScalarService service = new MacScalarService(
                 this.tracer,
                 serviceName: null,
                 repoRegistry: repoRegistry.Object);
