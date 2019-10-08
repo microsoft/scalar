@@ -2,21 +2,17 @@
 <installer-gui-script minSpecVersion="1">
     <title>Scalar</title>
     <pkg-ref id="com.scalar.pkg"/>
-    <pkg-ref id="com.git.pkg"/>
     <options customize="never" allow-external-scripts="true"/>
     <choices-outline>
         <line choice="default">
             <line choice="com.scalar.pkg"/>
-            GIT_CHOICE_OUTLINE_PLACEHOLDER
         </line>
     </choices-outline>
     <choice id="default"/>
     <choice id="com.scalar.pkg" visible="false">
         <pkg-ref id="com.scalar.pkg"/>
     </choice>
-    <pkg-ref id="com.scalar.pkg" version="ScalarFORGIT_VERSION_PLACHOLDER" onConclusion="none">ScalarFORGIT_PKG_NAME_PLACEHOLDER</pkg-ref>
-    GIT_CHOICE_ID_PLACEHOLDER
-    GIT_PKG_REF_PLACEHOLDER
+    <pkg-ref id="com.scalar.pkg" version="SCALAR_VERSION_PLACHOLDER" onConclusion="none">SCALAR_PKG_NAME_PLACEHOLDER</pkg-ref>
     <installation-check script="InstallationCheck()"/>
     <script>
         function InstallationCheck(prefix)
