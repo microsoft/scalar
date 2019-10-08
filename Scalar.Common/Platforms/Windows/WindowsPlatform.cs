@@ -95,7 +95,7 @@ namespace Scalar.Platform.Windows
             //        GENERIC_EXECUTE
             //        GENERIC_WRITE
             //        GENERIC_READ
-            DirectorySecurity rootSecurity = Directory.GetAccessControl(enlistmentPath);
+            DirectorySecurity rootSecurity = DirectoryEx.GetAccessControl(enlistmentPath);
             AccessRule authenticatedUsersAccessRule = rootSecurity.AccessRuleFactory(
                 new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null),
                 unchecked((int)(NativeMethods.FileAccess.DELETE | NativeMethods.FileAccess.GENERIC_EXECUTE | NativeMethods.FileAccess.GENERIC_WRITE | NativeMethods.FileAccess.GENERIC_READ)),
@@ -107,7 +107,7 @@ namespace Scalar.Platform.Windows
             // The return type of the AccessRuleFactory method is the base class, AccessRule, but the return value can be cast safely to the derived class.
             // https://msdn.microsoft.com/en-us/library/system.security.accesscontrol.filesystemsecurity.accessrulefactory(v=vs.110).aspx
             rootSecurity.AddAccessRule((FileSystemAccessRule)authenticatedUsersAccessRule);
-            Directory.SetAccessControl(enlistmentPath, rootSecurity);
+            DirectoryEx.SetAccessControl(enlistmentPath, rootSecurity);
         }
 
         public override string GetOSVersionInformation()
@@ -184,10 +184,10 @@ namespace Scalar.Platform.Windows
                 NamedPipeServerStream.MaxAllowedServerInstances,
                 PipeTransmissionMode.Byte,
                 PipeOptions.WriteThrough | PipeOptions.Asynchronous,
-                0, // default inBufferSize
-                0, // default outBufferSize
-                security,
-                HandleInheritability.None);
+                0,  // default inBufferSize
+                0); // default outBufferSize
+
+            pipe.SetAccessControl(security);
 
             return pipe;
         }

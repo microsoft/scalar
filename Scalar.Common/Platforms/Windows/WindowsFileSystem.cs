@@ -127,7 +127,7 @@ namespace Scalar.Platform.Windows
                 AddUsersAccessRulesToDirectorySecurity(directorySecurity, grantUsersModifyPermissions: true);
                 AddAdminAccessRulesToDirectorySecurity(directorySecurity);
 
-                Directory.CreateDirectory(directoryPath, directorySecurity);
+                DirectoryEx.CreateDirectory(directoryPath, directorySecurity);
             }
             catch (Exception e) when (e is IOException ||
                                       e is UnauthorizedAccessException ||
@@ -149,7 +149,7 @@ namespace Scalar.Platform.Windows
                 DirectorySecurity directorySecurity;
                 if (Directory.Exists(directoryPath))
                 {
-                    directorySecurity = Directory.GetAccessControl(directoryPath);
+                    directorySecurity = DirectoryEx.GetAccessControl(directoryPath);
                 }
                 else
                 {
@@ -164,10 +164,10 @@ namespace Scalar.Platform.Windows
                 AddUsersAccessRulesToDirectorySecurity(directorySecurity, grantUsersModifyPermissions: false);
                 AddAdminAccessRulesToDirectorySecurity(directorySecurity);
 
-                Directory.CreateDirectory(directoryPath, directorySecurity);
+                DirectoryEx.CreateDirectory(directoryPath, directorySecurity);
 
                 // Ensure the ACLs are set correctly if the directory already existed
-                Directory.SetAccessControl(directoryPath, directorySecurity);
+                DirectoryEx.SetAccessControl(directoryPath, directorySecurity);
             }
             catch (Exception e) when (e is IOException || e is SystemException)
             {
