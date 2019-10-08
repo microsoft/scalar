@@ -169,7 +169,8 @@ namespace Scalar.Common.NuGetUpgrade
                 "VfsForGitNugetUpgrader",
                 "PersonalAccessToken",
                 personalAccessToken,
-                storePasswordInClearText: storePasswordInClearText);
+                storePasswordInClearText: storePasswordInClearText,
+                validAuthenticationTypesText: null); // null means "all"
         }
 
         private void SetSourceRepository()

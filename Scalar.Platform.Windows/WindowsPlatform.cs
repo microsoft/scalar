@@ -149,6 +149,7 @@ namespace Scalar.Platform.Windows
                 programArguments = string.Join(" ", args.Select(arg => arg.Contains(' ') ? "\"" + arg + "\"" : arg));
                 ProcessStartInfo processInfo = new ProcessStartInfo(programName, programArguments);
                 processInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                processInfo.UseShellExecute = true;
 
                 Process executingProcess = new Process();
                 executingProcess.StartInfo = processInfo;
