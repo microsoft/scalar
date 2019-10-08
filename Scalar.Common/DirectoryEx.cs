@@ -7,7 +7,8 @@ namespace Scalar.Common
     {
         public static DirectorySecurity GetAccessControl(string path)
         {
-            return new DirectorySecurity(path, AccessControlSections.All);
+            var di = new DirectoryInfo(path);
+            return di.GetAccessControl();
         }
 
         public static void SetAccessControl(string path, DirectorySecurity security)

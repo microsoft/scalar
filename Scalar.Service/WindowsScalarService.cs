@@ -254,12 +254,12 @@ namespace Scalar.Service
             DirectorySecurity serviceDataRootSecurity = this.GetServiceDirectorySecurity(serviceDataRootPath);
 
             // Create Scalar.Service and Scalar.Upgrade related directories (if they don't already exist)
-            Directory.CreateDirectory(serviceDataRootPath, serviceDataRootSecurity);
-            Directory.CreateDirectory(this.serviceDataLocation, serviceDataRootSecurity);
-            Directory.CreateDirectory(ProductUpgraderInfo.GetUpgradeProtectedDataDirectory(), serviceDataRootSecurity);
+            DirectoryEx.CreateDirectory(serviceDataRootPath, serviceDataRootSecurity);
+            DirectoryEx.CreateDirectory(this.serviceDataLocation, serviceDataRootSecurity);
+            DirectoryEx.CreateDirectory(ProductUpgraderInfo.GetUpgradeProtectedDataDirectory(), serviceDataRootSecurity);
 
             // Ensure the ACLs are set correctly on any files or directories that were already created (e.g. after upgrading Scalar)
-            Directory.SetAccessControl(serviceDataRootPath, serviceDataRootSecurity);
+            DirectoryEx.SetAccessControl(serviceDataRootPath, serviceDataRootSecurity);
 
             // Special rules for the upgrader logs, as non-elevated users need to be be able to write
             this.CreateAndConfigureLogDirectory(ProductUpgraderInfo.GetLogDirectoryPath());
@@ -290,7 +290,7 @@ namespace Scalar.Service
             if (Directory.Exists(serviceDataRootPath))
             {
                 this.tracer.RelatedInfo($"{nameof(this.GetServiceDirectorySecurity)}: {serviceDataRootPath} exists, modifying ACLs.");
-                serviceDataRootSecurity = Directory.GetAccessControl(serviceDataRootPath);
+                serviceDataRootSecurity = DirectoryEx.GetAccessControl(serviceDataRootPath);
             }
             else
             {
