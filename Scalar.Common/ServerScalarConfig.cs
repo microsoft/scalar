@@ -7,9 +7,9 @@ namespace Scalar.Common
 {
     public class ServerScalarConfig
     {
-        public IEnumerable<VersionRange> AllowedScalarClientVersions { get; set; }
+        public IList<VersionRange> AllowedScalarClientVersions { get; set; }
 
-        public IEnumerable<CacheServerInfo> CacheServers { get; set; } = Enumerable.Empty<CacheServerInfo>();
+        public IList<CacheServerInfo> CacheServers { get; set; } = new CacheServerInfo[0];
 
         public class VersionRange
         {
