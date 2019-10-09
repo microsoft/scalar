@@ -11,13 +11,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [NonParallelizable]
-    public class PrefetchVerbTests : TestsWithEnlistmentPerFixture
+    public class PrefetchMaintenanceStepTests : TestsWithEnlistmentPerFixture
     {
         private const string PrefetchCommitsAndTreesLock = "prefetch-commits-trees.lock";
 
         private FileSystemRunner fileSystem;
 
-        public PrefetchVerbTests()
+        public PrefetchMaintenanceStepTests()
         {
             this.fileSystem = new SystemIORunner();
         }

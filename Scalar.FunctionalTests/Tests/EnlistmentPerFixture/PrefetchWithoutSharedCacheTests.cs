@@ -9,7 +9,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
-    public class PrefetchVerbWithoutSharedCacheTests : TestsWithEnlistmentPerFixture
+    public class PrefetchWithoutSharedCacheTests : TestsWithEnlistmentPerFixture
     {
         private const string PrefetchPackPrefix = "prefetch";
         private const string TempPackFolder = "tempPacks";
@@ -18,7 +18,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         // Set forcePerRepoObjectCache to true to avoid any of the tests inadvertently corrupting
         // the cache
-        public PrefetchVerbWithoutSharedCacheTests()
+        public PrefetchWithoutSharedCacheTests()
             : base(forcePerRepoObjectCache: true, skipPrefetchDuringClone: true)
         {
             this.fileSystem = new SystemIORunner();
