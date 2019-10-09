@@ -259,10 +259,11 @@ namespace Scalar.CommandLine
 
                 if (!this.NoPrefetch)
                 {
-                    ReturnCode result = this.Execute<PrefetchVerb>(
+                    ReturnCode result = this.Execute<MaintenanceVerb>(
                         this.enlistment,
                         verb =>
                         {
+                            verb.MaintenanceTask = MaintenanceVerb.FetchCommitsAndTreesTaskName;
                             verb.SkipVersionCheck = true;
                             verb.ResolvedCacheServer = this.cacheServer;
                             verb.ServerScalarConfig = this.serverScalarConfig;

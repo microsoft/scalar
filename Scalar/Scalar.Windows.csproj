@@ -118,7 +118,6 @@
     <Compile Include="CommandLine\ScalarVerb.cs" />
     <Compile Include="CommandLine\LogVerb.cs" />
     <Compile Include="CommandLine\MountVerb.cs" />
-    <Compile Include="CommandLine\PrefetchVerb.cs" />
     <Compile Include="CommandLine\UpgradeVerb.cs" />
     <Compile Include="RepairJobs\GitHeadRepairJob.cs" />
     <Compile Include="RepairJobs\GitConfigRepairJob.cs" />

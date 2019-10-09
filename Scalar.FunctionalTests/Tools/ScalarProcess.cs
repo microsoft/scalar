@@ -58,7 +58,10 @@ namespace Scalar.FunctionalTests.Tools
 
         public string Prefetch(bool failOnError, string standardInput = null)
         {
-            return this.CallScalar($"prefetch \"{this.enlistmentRoot}\"", failOnError ? SuccessExitCode : DoNotCheckExitCode, standardInput: standardInput);
+            return this.CallScalar(
+                $"maintenance \"{this.enlistmentRoot}\" --task fetch-commits-and-trees",
+                failOnError ? SuccessExitCode : DoNotCheckExitCode,
+                standardInput: standardInput);
         }
 
         public void Repair(bool confirm)
