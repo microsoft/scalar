@@ -92,7 +92,6 @@ namespace Scalar.FunctionalTests
             {
                 excludeCategories.Add(Categories.MacTODO.NeedsNewFolderCreateNotification);
                 excludeCategories.Add(Categories.MacTODO.NeedsScalarConfig);
-                excludeCategories.Add(Categories.MacTODO.NeedsDehydrate);
                 excludeCategories.Add(Categories.MacTODO.NeedsServiceVerb);
                 excludeCategories.Add(Categories.MacTODO.TestNeedsToLockFile);
                 excludeCategories.Add(Categories.WindowsOnly);

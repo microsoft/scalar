@@ -96,13 +96,13 @@ namespace Scalar.CommandLine
                     enlistment.EnlistmentRoot,
                     enlistment.RepoUrl,
                     cacheServer.Url,
-                    new EventMetadata
+                    this.AddVerbDataToMetadata(new EventMetadata
                     {
                         { "Unattended", this.Unattended },
                         { "IsElevated", ScalarPlatform.Instance.IsElevated() },
                         { "NamedPipeName", enlistment.NamedPipeName },
                         { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
-                    });
+                    }));
 
                 RetryConfig retryConfig = null;
                 ServerScalarConfig serverScalarConfig = this.DownloadedScalarConfig;

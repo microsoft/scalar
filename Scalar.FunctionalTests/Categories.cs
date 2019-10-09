@@ -24,9 +24,6 @@ namespace Scalar.FunctionalTests
             // Tests that require Scalar Service
             public const string NeedsServiceVerb = "NeedsServiceVerb";
 
-            // Requires both functional and test fixes
-            public const string NeedsDehydrate = "NeedsDehydrate";
-
             // Tests requires code updates so that we lock the file instead of looking for a .lock file
             public const string TestNeedsToLockFile = "TestNeedsToLockFile";
         }

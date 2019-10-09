@@ -101,16 +101,6 @@ namespace Scalar.CommandLine
                             this.ServiceName = mountInternal.ServiceName;
                         }
 
-                        if (!string.IsNullOrEmpty(mountInternal.MaintenanceJob))
-                        {
-                            this.MaintenanceJob = mountInternal.MaintenanceJob;
-                        }
-
-                        if (!string.IsNullOrEmpty(mountInternal.PackfileMaintenanceBatchSize))
-                        {
-                            this.PackfileMaintenanceBatchSize = mountInternal.PackfileMaintenanceBatchSize;
-                        }
-
                         this.StartedByService = mountInternal.StartedByService;
                     }
                     catch (JsonReaderException e)
@@ -122,10 +112,6 @@ namespace Scalar.CommandLine
         }
 
         public string ServiceName { get; set; }
-
-        public string MaintenanceJob { get; set; }
-
-        public string PackfileMaintenanceBatchSize { get; set; }
 
         public bool StartedByService { get; set; }
 
@@ -324,6 +310,34 @@ namespace Scalar.CommandLine
 
             authErrorMessage = authError;
             return result;
+        }
+
+        protected EventMetadata CreateEventMetadata(Exception e = null)
+        {
+            EventMetadata metadata = new EventMetadata();
+            this.AddVerbDataToMetadata(metadata);
+            if (e != null)
+            {
+                metadata.Add("Exception", e.ToString());
+            }
+
+            return metadata;
+        }
+
+        /// <summary>
+        /// Add the standard ScalarVerb metadata to the specified EventMetadata
+        /// </summary>
+        /// <param name="metadata">
+        /// EventMetadata to which verb data will be added
+        /// </param>
+        /// <returns>
+        /// The specified EventMetadata (updated to include verb metadata)
+        /// </returns>
+        protected EventMetadata AddVerbDataToMetadata(EventMetadata metadata)
+        {
+            metadata["Area"] = $"{this.VerbName}_Verb";
+            metadata["Verb"] = this.VerbName;
+            return metadata;
         }
 
         protected void ReportErrorAndExit(ITracer tracer, ReturnCode exitCode, string error, params object[] args)
@@ -598,7 +612,7 @@ You can specify a URL, a name of a configured cache server, or the special names
         protected void LogEnlistmentInfoAndSetConfigValues(ITracer tracer, GitProcess git, ScalarEnlistment enlistment)
         {
             string mountId = CreateMountId();
-            EventMetadata metadata = new EventMetadata();
+            EventMetadata metadata = this.CreateEventMetadata();
             metadata.Add(nameof(RepoMetadata.Instance.EnlistmentId), RepoMetadata.Instance.EnlistmentId);
             metadata.Add(nameof(mountId), mountId);
             metadata.Add("Enlistment", enlistment);
@@ -739,7 +753,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                         errorMessage += "Server not configured to provide supported Scalar versions";
                     }
 
-                    EventMetadata metadata = new EventMetadata();
+                    EventMetadata metadata = this.CreateEventMetadata();
                     tracer.RelatedError(metadata, errorMessage, Keywords.Network);
 
                     return false;
@@ -753,10 +767,10 @@ You can specify a URL, a name of a configured cache server, or the special names
                         activity.RelatedEvent(
                             EventLevel.Informational,
                             "ScalarVersionValidated",
-                            new EventMetadata
+                            this.AddVerbDataToMetadata(new EventMetadata
                             {
                                 { "SupportedVersionRange", versionRange },
-                            });
+                            }));
 
                         enlistment.SetScalarVersion(currentVersion.ToString());
                         return true;

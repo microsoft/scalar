@@ -120,13 +120,13 @@ To actually execute any necessary repair(s), run 'scalar repair --confirm'
                     enlistment.EnlistmentRoot,
                     enlistment.RepoUrl,
                     "N/A",
-                    new EventMetadata
+                    this.AddVerbDataToMetadata(new EventMetadata
                     {
                         { "Confirmed", this.Confirmed },
                         { "IsElevated", ScalarPlatform.Instance.IsElevated() },
                         { "NamedPipename", enlistment.NamedPipeName },
                         { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
-                    });
+                    }));
 
                 List<RepairJob> jobs = new List<RepairJob>();
 
@@ -216,7 +216,10 @@ To actually execute any necessary repair(s), run 'scalar repair --confirm'
 
         private void WriteMessage(ITracer tracer, string message)
         {
-            tracer.RelatedEvent(EventLevel.Informational, "RepairInfo", new EventMetadata { { TracingConstants.MessageKey.InfoMessage, message } });
+            tracer.RelatedEvent(
+                EventLevel.Informational,
+                "RepairInfo",
+                this.AddVerbDataToMetadata(new EventMetadata { { TracingConstants.MessageKey.InfoMessage, message } }));
             this.Output.WriteLine(message);
         }
 
