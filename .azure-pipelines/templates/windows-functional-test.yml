@@ -32,3 +32,4 @@ steps:
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
       artifactName: trace2-event-windows.txt
+    condition: failed()
