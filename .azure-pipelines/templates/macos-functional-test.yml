@@ -28,7 +28,7 @@ steps:
   - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/PrepFunctionalTests.sh
     displayName: Prep functional tests
 
-  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/RunFunctionalTests.sh $(configuration)
+  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --trace2-output=$(Build.ArtifactStagingDirectory)/trace2-event-mac.txt
     displayName: Run functional tests
 
   - task: PublishTestResults@2
@@ -40,6 +40,12 @@ steps:
       testRunTitle: macOS $(configuration) Functional Tests
       publishRunAttachments: true
     condition: succeededOrFailed()
+    
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Git trace2 log
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: trace2-event-mac.txt
 
   - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/CleanupFunctionalTests.sh
     displayName: Cleanup

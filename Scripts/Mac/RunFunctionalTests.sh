@@ -9,4 +9,7 @@ fi
 
 mkdir ~/Scalar.FT
 
-$Scalar_PUBLISHDIR/Scalar.FunctionalTests --full-suite $2
+# Consume the first argument
+shift
+
+$Scalar_PUBLISHDIR/Scalar.FunctionalTests --full-suite "$@"

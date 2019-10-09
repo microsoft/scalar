@@ -29,7 +29,7 @@ echo git location:
 where git
 
 :startFunctionalTests
-dotnet %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.FunctionalTests.dll /result:TestResultNetCore.xml %2 %3 %4 %5 || goto :endFunctionalTests
+dotnet %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.FunctionalTests.dll /result:TestResultNetCore.xml %2 %3 %4 %5 %6 %7 %8 || goto :endFunctionalTests
 
 :endFunctionalTests
 set error=%errorlevel%
