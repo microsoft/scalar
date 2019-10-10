@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
@@ -7,8 +6,6 @@ using Scalar.Common.Maintenance;
 using Scalar.Common.NamedPipes;
 using Scalar.Common.Tracing;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
@@ -198,14 +195,6 @@ namespace Scalar.Mount
                     this.HandleUnmountRequest(connection);
                     break;
 
-                case NamedPipeMessages.DownloadObject.DownloadRequest:
-                    this.HandleDownloadObjectRequest(message, connection);
-                    break;
-
-                case NamedPipeMessages.RunPostFetchJob.PostFetchJob:
-                    this.HandlePostFetchJobRequest(message, connection);
-                    break;
-
                 default:
                     EventMetadata metadata = new EventMetadata();
                     metadata.Add("Area", "Mount");
@@ -215,61 +204,6 @@ namespace Scalar.Mount
                     connection.TrySendResponse(NamedPipeMessages.UnknownRequest);
                     break;
             }
-        }
-
-        private void HandleDownloadObjectRequest(NamedPipeMessages.Message message, NamedPipeServer.Connection connection)
-        {
-            NamedPipeMessages.DownloadObject.Response response;
-
-            NamedPipeMessages.DownloadObject.Request request = new NamedPipeMessages.DownloadObject.Request(message);
-            string objectSha = request.RequestSha;
-            if (this.currentState != MountState.Ready)
-            {
-                response = new NamedPipeMessages.DownloadObject.Response(NamedPipeMessages.MountNotReadyResult);
-            }
-            else
-            {
-                if (!SHA1Util.IsValidShaFormat(objectSha))
-                {
-                    response = new NamedPipeMessages.DownloadObject.Response(NamedPipeMessages.DownloadObject.InvalidSHAResult);
-                }
-                else
-                {
-                    Stopwatch downloadTime = Stopwatch.StartNew();
-                    if (this.gitObjects.TryDownloadAndSaveObject(objectSha, ScalarGitObjects.RequestSource.NamedPipeMessage) == GitObjects.DownloadAndSaveObjectResult.Success)
-                    {
-                        response = new NamedPipeMessages.DownloadObject.Response(NamedPipeMessages.DownloadObject.SuccessResult);
-                    }
-                    else
-                    {
-                        response = new NamedPipeMessages.DownloadObject.Response(NamedPipeMessages.DownloadObject.DownloadFailed);
-                    }
-                }
-            }
-
-            connection.TrySendResponse(response.CreateMessage());
-        }
-
-        private void HandlePostFetchJobRequest(NamedPipeMessages.Message message, NamedPipeServer.Connection connection)
-        {
-            NamedPipeMessages.RunPostFetchJob.Request request = new NamedPipeMessages.RunPostFetchJob.Request(message);
-
-            this.tracer.RelatedInfo("Received post-fetch job request with body {0}", message.Body);
-
-            NamedPipeMessages.RunPostFetchJob.Response response;
-            if (this.currentState == MountState.Ready)
-            {
-                List<string> packIndexes = JsonConvert.DeserializeObject<List<string>>(message.Body);
-                this.maintenanceScheduler.EnqueueOneTimeStep(new PostFetchStep(this.context, packIndexes));
-
-                response = new NamedPipeMessages.RunPostFetchJob.Response(NamedPipeMessages.RunPostFetchJob.QueuedResult);
-            }
-            else
-            {
-                response = new NamedPipeMessages.RunPostFetchJob.Response(NamedPipeMessages.RunPostFetchJob.MountNotReadyResult);
-            }
-
-            connection.TrySendResponse(response.CreateMessage());
         }
 
         private void HandleGetStatusRequest(NamedPipeServer.Connection connection)

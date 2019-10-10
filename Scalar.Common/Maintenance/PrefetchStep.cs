@@ -64,8 +64,6 @@ namespace Scalar.Common.Maintenance
                 this.UpdateKeepPacks();
             }
 
-            this.SchedulePostFetchJob(packIndexes);
-
             return true;
         }
 
@@ -250,52 +248,6 @@ namespace Scalar.Common.Maintenance
 
             error = null;
             return true;
-        }
-
-        private void SchedulePostFetchJob(List<string> packIndexes)
-        {
-            if (packIndexes.Count == 0)
-            {
-                return;
-            }
-
-            // We make a best-effort request to run MIDX and commit-graph writes
-            using (NamedPipeClient pipeClient = new NamedPipeClient(this.Context.Enlistment.NamedPipeName))
-            {
-                if (!pipeClient.Connect())
-                {
-                    this.Context.Tracer.RelatedWarning(
-                        metadata: this.CreateEventMetadata(),
-                        message: "Failed to connect to Scalar.Mount process. Skipping post-fetch job request.",
-                        keywords: Keywords.Telemetry);
-                    return;
-                }
-
-                NamedPipeMessages.RunPostFetchJob.Request request = new NamedPipeMessages.RunPostFetchJob.Request(packIndexes);
-                if (pipeClient.TrySendRequest(request.CreateMessage()))
-                {
-                    NamedPipeMessages.Message response;
-
-                    if (pipeClient.TryReadResponse(out response))
-                    {
-                        this.Context.Tracer.RelatedInfo("Requested post-fetch job with resonse '{0}'", response.Header);
-                    }
-                    else
-                    {
-                        this.Context.Tracer.RelatedWarning(
-                            metadata: this.CreateEventMetadata(),
-                            message: "Requested post-fetch job failed to respond",
-                            keywords: Keywords.Telemetry);
-                    }
-                }
-                else
-                {
-                    this.Context.Tracer.RelatedWarning(
-                        metadata: this.CreateEventMetadata(),
-                        message: "Message to named pipe failed to send, skipping post-fetch job request.",
-                        keywords: Keywords.Telemetry);
-                }
-            }
         }
 
         /// <summary>

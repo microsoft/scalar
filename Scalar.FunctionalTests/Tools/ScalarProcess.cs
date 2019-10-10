@@ -69,6 +69,13 @@ namespace Scalar.FunctionalTests.Tools
                 expectedExitCode: SuccessExitCode);
         }
 
+        public string CommitGraphStep()
+        {
+            return this.CallScalar(
+                $"maintenance \"{this.enlistmentRoot}\" --task commit-graph",
+                expectedExitCode: SuccessExitCode);
+        }
+
         public string LooseObjectStep()
         {
             return this.CallScalar(

@@ -410,7 +410,7 @@ namespace Scalar.Common.Git
         {
             return this.InvokeGitInWorkingDirectoryRoot(
                                 "branch " + branchToCreate + " --track " + upstreamBranch,
-                                fetchMissingObjects:true);
+                                fetchMissingObjects: true);
         }
 
         public Result ForceCheckout(string target)
@@ -480,29 +480,15 @@ namespace Scalar.Common.Git
         }
 
         /// <summary>
-        /// Write a new commit graph in the specified pack directory. Crawl the given pack-
-        /// indexes for commits and then close under everything reachable or exists in the
-        /// previous graph file.
+        /// Write a new commit graph in the specified pack directory. Walk starting at refs.
         ///
         /// This will update the graph-head file to point to the new commit graph and delete
         /// any expired graph files that previously existed.
         /// </summary>
-        public Result WriteCommitGraph(string objectDir, List<string> packs)
+        public Result WriteCommitGraph(string objectDir)
         {
-            string command = "commit-graph write --stdin-packs --split --size-multiple=4 --object-dir \"" + objectDir + "\"";
-            return this.InvokeGitInWorkingDirectoryRoot(
-                command,
-                fetchMissingObjects: true,
-                writeStdIn: writer =>
-                {
-                    foreach (string packIndex in packs)
-                    {
-                        writer.WriteLine(packIndex);
-                    }
-
-                    // We need to close stdin or else the process will not terminate.
-                    writer.Close();
-                });
+            string command = "commit-graph write --reachable --split --size-multiple=4 --object-dir \"" + objectDir + "\"";
+            return this.InvokeGitInWorkingDirectoryRoot(command, fetchMissingObjects: true);
         }
 
         public Result VerifyCommitGraph(string objectDir)
