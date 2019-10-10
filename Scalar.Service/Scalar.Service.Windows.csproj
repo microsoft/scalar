@@ -56,10 +56,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
-    <Compile Include="ScalarMountProcess.Windows.cs" />
+    <Compile Include="IServiceTask.cs" />
+    <Compile Include="MaintenanceTaskScheduler.cs" />
+    <Compile Include="ScalarVerbRunner.Windows.cs" />
     <Compile Include="ScalarService.Windows.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ServiceTaskQueue.cs" />
     <Compile Include="Handlers\INotificationHandler.cs" />
     <Compile Include="Handlers\MessageHandler.cs" />
     <Compile Include="Handlers\GetActiveRepoListHandler.cs" />
@@ -67,7 +70,7 @@
     <Compile Include="Handlers\RequestHandler.cs" />
     <Compile Include="Handlers\UnregisterRepoHandler.cs" />
     <Compile Include="Handlers\RegisterRepoHandler.cs" />
-    <Compile Include="IRepoMounter.cs" />
+    <Compile Include="IScalarVerbRunner.cs" />
     <Compile Include="IRepoRegistry.cs" />
     <Compile Include="ProductUpgradeTimer.cs" />
     <Compile Include="Program.Windows.cs" />

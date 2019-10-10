@@ -8,7 +8,7 @@ namespace Scalar.Service
         bool TryDeactivateRepo(string repoRoot, out string errorMessage);
         bool TryGetActiveRepos(out List<RepoRegistration> repoList, out string errorMessage);
         bool TryRemoveRepo(string repoRoot, out string errorMessage);
-        void AutoMountRepos(string userId, int sessionId);
+        void RunMaintenanceTaskForRepos(string task, string userId, int sessionId);
         void TraceStatus();
     }
 }

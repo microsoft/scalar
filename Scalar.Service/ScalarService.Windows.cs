@@ -27,6 +27,7 @@ namespace Scalar.Service
         private RepoRegistry repoRegistry;
         private ProductUpgradeTimer productUpgradeTimer;
         private RequestHandler requestHandler;
+        private MaintenanceTaskScheduler maintenanceTaskScheduler;
         private INotificationHandler notificationHandler;
 
         public ScalarService(JsonTracer tracer)
@@ -50,9 +51,10 @@ namespace Scalar.Service
                     this.tracer,
                     new PhysicalFileSystem(),
                     this.serviceDataLocation,
-                    new ScalarMountProcess(this.tracer),
-                    this.notificationHandler);
-                this.repoRegistry.Upgrade();
+                    new ScalarVerbRunner(this.tracer));
+
+                this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.tracer, this.repoRegistry);
+
                 this.requestHandler = new RequestHandler(this.tracer, EtwArea, this.repoRegistry);
 
                 string pipeName = ScalarPlatform.Instance.GetScalarServiceNamedPipeName(this.serviceName);
@@ -132,15 +134,14 @@ namespace Scalar.Service
 
                         using (ITracer activity = this.tracer.StartActivity("LogonAutomount", EventLevel.Informational))
                         {
-                            this.repoRegistry.AutoMountRepos(
+                            this.maintenanceTaskScheduler.RegisterUser(
                                 ScalarPlatform.Instance.GetUserIdFromLoginSessionId(changeDescription.SessionId, this.tracer),
                                 changeDescription.SessionId);
-                            this.repoRegistry.TraceStatus();
                         }
                     }
                     else if (changeDescription.Reason == SessionChangeReason.SessionLogoff)
                     {
-                        this.tracer.RelatedInfo("SessionLogoff detected");
+                        this.tracer.RelatedInfo($"SessionLogoff detected {changeDescription.SessionId}");
                     }
                 }
             }

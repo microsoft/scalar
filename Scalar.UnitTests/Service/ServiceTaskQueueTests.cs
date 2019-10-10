@@ -1,18 +1,19 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Maintenance;
 using Scalar.Common.Tracing;
+using Scalar.Service;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Scalar.UnitTests.Maintenance
+namespace Scalar.UnitTests.Service
 {
     [TestFixture]
-    public class GitMaintenanceQueueTests
+    public class ServiceTaskQueueTests
     {
         private int maxWaitTime = 500;
         private ReadyFileSystem fileSystem;
@@ -21,37 +22,14 @@ namespace Scalar.UnitTests.Maintenance
         private GitObjects gitObjects;
 
         [TestCase]
-        public void GitMaintenanceQueueEnlistmentRootReady()
+        public void ServiceTaskQueueHandlesTwoJobs()
         {
             this.TestSetup();
 
-            GitMaintenanceQueue queue = new GitMaintenanceQueue(this.context);
-            queue.EnlistmentRootReady().ShouldBeTrue();
+            TestServiceTask step1 = new TestServiceTask();
+            TestServiceTask step2 = new TestServiceTask();
 
-            this.fileSystem.Paths.Remove(this.enlistment.EnlistmentRoot);
-            queue.EnlistmentRootReady().ShouldBeFalse();
-
-            this.fileSystem.Paths.Remove(this.enlistment.GitObjectsRoot);
-            queue.EnlistmentRootReady().ShouldBeFalse();
-
-            this.fileSystem.Paths.Add(this.enlistment.EnlistmentRoot);
-            queue.EnlistmentRootReady().ShouldBeFalse();
-
-            this.fileSystem.Paths.Add(this.enlistment.GitObjectsRoot);
-            queue.EnlistmentRootReady().ShouldBeTrue();
-
-            queue.Stop();
-        }
-
-        [TestCase]
-        public void GitMaintenanceQueueHandlesTwoJobs()
-        {
-            this.TestSetup();
-
-            TestGitMaintenanceStep step1 = new TestGitMaintenanceStep(this.context);
-            TestGitMaintenanceStep step2 = new TestGitMaintenanceStep(this.context);
-
-            GitMaintenanceQueue queue = new GitMaintenanceQueue(this.context);
+            ServiceTaskQueue queue = new ServiceTaskQueue(new MockTracer());
 
             queue.TryEnqueue(step1);
             queue.TryEnqueue(step2);
@@ -66,39 +44,39 @@ namespace Scalar.UnitTests.Maintenance
         }
 
         [TestCase]
-        public void GitMaintenanceQueueStopSuceedsWhenQueueIsEmpty()
+        public void ServiceTaskQueueStopSuceedsWhenQueueIsEmpty()
         {
             this.TestSetup();
 
-            GitMaintenanceQueue queue = new GitMaintenanceQueue(this.context);
+            ServiceTaskQueue queue = new ServiceTaskQueue(new MockTracer());
 
             queue.Stop();
 
-            TestGitMaintenanceStep step = new TestGitMaintenanceStep(this.context);
+            TestServiceTask step = new TestServiceTask();
             queue.TryEnqueue(step).ShouldEqual(false);
         }
 
         [TestCase]
-        public void GitMaintenanceQueueStopsJob()
+        public void ServiceTaskQueueStopsJob()
         {
             this.TestSetup();
 
-            GitMaintenanceQueue queue = new GitMaintenanceQueue(this.context);
+            ServiceTaskQueue queue = new ServiceTaskQueue(new MockTracer());
 
             // This step stops the queue after the step is started,
             // then checks if Stop() was called.
-            WatchForStopStep watchForStop = new WatchForStopStep(queue, this.context);
+            WatchForStopTask watchForStop = new WatchForStopTask(queue);
 
             queue.TryEnqueue(watchForStop);
-            Assert.IsTrue(watchForStop.EventTriggered.WaitOne(this.maxWaitTime));
+            watchForStop.EventTriggered.WaitOne(this.maxWaitTime).ShouldBeTrue();
             watchForStop.SawStopping.ShouldBeTrue();
 
             // Ensure we don't start a job after the Stop() call
-            TestGitMaintenanceStep watchForStart = new TestGitMaintenanceStep(this.context);
+            TestServiceTask watchForStart = new TestServiceTask();
             queue.TryEnqueue(watchForStart).ShouldBeFalse();
 
             // This only ensures the event didn't happen within maxWaitTime
-            Assert.IsFalse(watchForStart.EventTriggered.WaitOne(this.maxWaitTime));
+            watchForStart.EventTriggered.WaitOne(this.maxWaitTime).ShouldBeFalse();
 
             queue.Stop();
         }
@@ -134,10 +112,9 @@ namespace Scalar.UnitTests.Maintenance
             }
         }
 
-        public class TestGitMaintenanceStep : GitMaintenanceStep
+        public class TestServiceTask : IServiceTask
         {
-            public TestGitMaintenanceStep(ScalarContext context)
-                : base(context, requireObjectCacheLock: true)
+            public TestServiceTask()
             {
                 this.EventTriggered = new ManualResetEvent(initialState: false);
             }
@@ -145,39 +122,40 @@ namespace Scalar.UnitTests.Maintenance
             public ManualResetEvent EventTriggered { get; set; }
             public int NumberOfExecutions { get; set; }
 
-            public override string Area => "TestGitMaintenanceStep";
-
-            protected override void PerformMaintenance()
+            public void Execute()
             {
                 this.NumberOfExecutions++;
                 this.EventTriggered.Set();
             }
+
+            public void Stop()
+            {
+            }
         }
 
-        private class WatchForStopStep : GitMaintenanceStep
+        private class WatchForStopTask : IServiceTask
         {
-            public WatchForStopStep(GitMaintenanceQueue queue, ScalarContext context)
-                : base(context, requireObjectCacheLock: true)
+            public WatchForStopTask(ServiceTaskQueue queue)
             {
                 this.Queue = queue;
                 this.EventTriggered = new ManualResetEvent(false);
             }
 
-            public GitMaintenanceQueue Queue { get; set; }
+            public ServiceTaskQueue Queue { get; set; }
 
             public bool SawStopping { get; private set; }
 
             public ManualResetEvent EventTriggered { get; private set; }
 
-            public override string Area => "WatchForStopStep";
-
-            protected override void PerformMaintenance()
+            public void Execute()
             {
                 this.Queue.Stop();
-
-                this.SawStopping = this.Stopping;
-
                 this.EventTriggered.Set();
+            }
+
+            public void Stop()
+            {
+                this.SawStopping = true;
             }
         }
     }

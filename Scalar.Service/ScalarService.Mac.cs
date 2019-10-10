@@ -19,6 +19,7 @@ namespace Scalar.Service
         private string serviceName;
         private IRepoRegistry repoRegistry;
         private RequestHandler requestHandler;
+        private MaintenanceTaskScheduler maintenanceTaskScheduler;
 
         public ScalarService(
             ITracer tracer,
@@ -38,8 +39,6 @@ namespace Scalar.Service
         {
             try
             {
-                this.AutoMountReposForUser();
-
                 if (!string.IsNullOrEmpty(this.serviceName))
                 {
                     string pipeName = ScalarPlatform.Instance.GetScalarServiceNamedPipeName(this.serviceName);
@@ -65,16 +64,61 @@ namespace Scalar.Service
             }
         }
 
+        private static EventMetadata CreateEventMetadata(Exception e = null)
+        {
+            EventMetadata metadata = new EventMetadata();
+            metadata.Add("Area", EtwArea);
+            if (e != null)
+            {
+                metadata.Add("Exception", e.ToString());
+            }
+
+            return metadata;
+        }
+
         private void ServiceThreadMain()
         {
             try
             {
+                string currentUser = ScalarPlatform.Instance.GetCurrentUser();
+
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add("Version", ProcessHelper.GetCurrentProcessVersion());
+                metadata.Add(nameof(currentUser), currentUser);
                 this.tracer.RelatedEvent(EventLevel.Informational, $"{nameof(ScalarService)}_{nameof(this.ServiceThreadMain)}", metadata);
+
+                if (int.TryParse(currentUser, out int sessionId))
+                {
+                    try
+                    {
+                        this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.tracer, this.repoRegistry);
+
+                        // On Mac, there is no separate session Id. currentUser is used as sessionId
+                        this.maintenanceTaskScheduler.RegisterUser(currentUser, sessionId);
+                    }
+                    catch (Exception e)
+                    {
+                        this.tracer.RelatedError(CreateEventMetadata(e), "Failed to start maintenance scheduler");
+                    }
+                }
+                else
+                {
+                    EventMetadata errorMetadata = CreateEventMetadata();
+                    errorMetadata.Add(nameof(currentUser), currentUser);
+                    this.tracer.RelatedError(
+                        errorMetadata,
+                        $"{nameof(this.ServiceThreadMain)}: Failed to parse current user as int.");
+                }
 
                 this.serviceStopped.WaitOne();
                 this.serviceStopped.Dispose();
+                this.serviceStopped = null;
+
+                if (this.maintenanceTaskScheduler != null)
+                {
+                    this.maintenanceTaskScheduler.Dispose();
+                    this.maintenanceTaskScheduler = null;
+                }
             }
             catch (Exception e)
             {
@@ -82,27 +126,9 @@ namespace Scalar.Service
             }
         }
 
-        private void AutoMountReposForUser()
-        {
-            string currentUser = ScalarPlatform.Instance.GetCurrentUser();
-            if (int.TryParse(currentUser, out int sessionId))
-            {
-                // On Mac, there is no separate session Id. currentUser is used as sessionId
-                this.repoRegistry.AutoMountRepos(currentUser, sessionId);
-                this.repoRegistry.TraceStatus();
-            }
-            else
-            {
-                this.tracer.RelatedError($"{nameof(this.AutoMountReposForUser)} Error: could not parse current user({currentUser}) info from RepoRegistry.");
-            }
-        }
-
         private void LogExceptionAndExit(Exception e, string method)
         {
-            EventMetadata metadata = new EventMetadata();
-            metadata.Add("Area", EtwArea);
-            metadata.Add("Exception", e.ToString());
-            this.tracer.RelatedError(metadata, "Unhandled exception in " + method);
+            this.tracer.RelatedError(CreateEventMetadata(e), "Unhandled exception in " + method);
             Environment.Exit((int)ReturnCode.GenericError);
         }
     }

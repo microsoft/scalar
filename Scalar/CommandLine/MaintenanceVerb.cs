@@ -12,15 +12,7 @@ namespace Scalar.CommandLine
     [Verb(MaintenanceVerb.MaintenanceVerbName, HelpText = "Perform a maintenance task in a Scalar repo")]
     public class MaintenanceVerb : ScalarVerb.ForExistingEnlistment
     {
-        public const string FetchCommitsAndTreesTaskName = "fetch-commits-and-trees";
-
         private const string MaintenanceVerbName = "maintenance";
-
-        private const string LooseObjectsTaskName = "loose-objects";
-        private const string PackfilesTaskName = "pack-files";
-        private const string CommitGraphTaskName = "commit-graph";
-
-        private const string BatchSizeOptionName = "batch-size";
 
         [Option(
             't',
@@ -28,16 +20,16 @@ namespace Scalar.CommandLine
             Required = true,
             Default = "",
             HelpText = "Maintenance task to run.  Allowed values are '"
-                + LooseObjectsTaskName + "', '"
-                + PackfilesTaskName + "', '"
-                + CommitGraphTaskName + "'")]
+                + ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName + "', '"
+                + ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName + "', '"
+                + ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName + "'")]
         public string MaintenanceTask { get; set; }
 
         [Option(
-            BatchSizeOptionName,
+            ScalarConstants.VerbParameters.Maintenance.BatchSizeOptionName,
             Required = false,
             Default = "",
-            HelpText = "Batch size.  This option can only be used with the '" + PackfilesTaskName + "' task")]
+            HelpText = "Batch size.  This option can only be used with the '" + ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName + "' task")]
         public string PackfileMaintenanceBatchSize { get; set; }
 
         public bool SkipVersionCheck { get; set; }
@@ -69,6 +61,7 @@ namespace Scalar.CommandLine
                             { nameof(this.MaintenanceTask), this.MaintenanceTask },
                             { nameof(this.PackfileMaintenanceBatchSize), this.PackfileMaintenanceBatchSize },
                             { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
+                            { nameof(this.StartedByService), this.StartedByService },
                         }));
 
                 this.InitializeLocalCacheAndObjectsPaths(tracer, enlistment, retryConfig: null, serverScalarConfig: null, cacheServer: null);
@@ -79,12 +72,12 @@ namespace Scalar.CommandLine
                     {
                         switch (this.MaintenanceTask)
                         {
-                            case LooseObjectsTaskName:
+                            case ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName:
                                 this.FailIfBatchSizeSet(tracer);
                                 (new LooseObjectsStep(context, forceRun: true)).Execute();
                                 return;
 
-                            case PackfilesTaskName:
+                            case ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName:
                                 (new PackfileMaintenanceStep(
                                     context,
                                     forceRun: true,
@@ -93,12 +86,12 @@ namespace Scalar.CommandLine
                                         this.PackfileMaintenanceBatchSize)).Execute();
                                 return;
 
-                            case FetchCommitsAndTreesTaskName:
+                            case ScalarConstants.VerbParameters.Maintenance.FetchCommitsAndTreesTaskName:
                                 this.FailIfBatchSizeSet(tracer);
                                 this.FetchCommitsAndTrees(tracer, enlistment, cacheServerUrl);
                                 return;
 
-                            case CommitGraphTaskName:
+                            case ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName:
                                 this.FailIfBatchSizeSet(tracer);
                                 (new CommitGraphStep(context, requireObjectCacheLock: false)).Execute();
                                 return;
@@ -155,7 +148,7 @@ namespace Scalar.CommandLine
                 this.ReportErrorAndExit(
                     tracer,
                     ReturnCode.UnsupportedOption,
-                    $"--{BatchSizeOptionName} can only be used with the '{PackfilesTaskName}' task");
+                    $"--{ScalarConstants.VerbParameters.Maintenance.BatchSizeOptionName} can only be used with the '{ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName}' task");
             }
         }
 
