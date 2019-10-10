@@ -9,7 +9,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
-    public class PrefetchWithoutSharedCacheTests : TestsWithEnlistmentPerFixture
+    public class FetchCommitsAndTreesWithoutSharedCacheTests : TestsWithEnlistmentPerFixture
     {
         private const string PrefetchPackPrefix = "prefetch";
         private const string TempPackFolder = "tempPacks";
@@ -18,8 +18,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         // Set forcePerRepoObjectCache to true to avoid any of the tests inadvertently corrupting
         // the cache
-        public PrefetchWithoutSharedCacheTests()
-            : base(forcePerRepoObjectCache: true, skipPrefetchDuringClone: true)
+        public FetchCommitsAndTreesWithoutSharedCacheTests()
+            : base(forcePerRepoObjectCache: true, skipFetchCommitsAndTreesDuringClone: true)
         {
             this.fileSystem = new SystemIORunner();
         }
@@ -41,9 +41,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase, Order(1)]
-        public void PrefetchCommitsToEmptyCache()
+        public void FetchCommitsAndTreesCommitsToEmptyCache()
         {
-            this.Enlistment.Prefetch();
+            this.Enlistment.FetchCommitsAndTrees();
 
             // Verify prefetch pack(s) are in packs folder and have matching idx file
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
@@ -54,7 +54,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase, Order(2)]
-        public void PrefetchBuildsIdxWhenMissingFromPrefetchPack()
+        public void FetchCommitsAndTreesBuildsIdxWhenMissingFromPrefetchPack()
         {
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
             prefetchPacks.Length.ShouldBeAtLeast(1, "There should be at least one prefetch pack");
@@ -65,8 +65,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem.DeleteFile(idxPath);
             idxPath.ShouldNotExistOnDisk(this.fileSystem);
 
-            // Prefetch should rebuild the missing idx
-            this.Enlistment.Prefetch();
+            // fetch-commits-and-trees should rebuild the missing idx
+            this.Enlistment.FetchCommitsAndTrees();
 
             idxPath.ShouldBeAFile(this.fileSystem);
 
@@ -78,7 +78,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase, Order(3)]
-        public void PrefetchCleansUpBadPrefetchPack()
+        public void FetchCommitsAndTreesCleansUpBadPrefetchPack()
         {
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
             long mostRecentPackTimestamp = this.GetMostRecentPackTimestamp(prefetchPacks);
@@ -89,8 +89,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem.WriteAllText(badPackPath, badContents);
             badPackPath.ShouldBeAFile(this.fileSystem).WithContents(badContents);
 
-            // Prefetch should delete the bad pack
-            this.Enlistment.Prefetch();
+            // fetch-commits-and-trees should delete the bad pack
+            this.Enlistment.FetchCommitsAndTrees();
 
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
 
@@ -102,7 +102,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase, Order(4)]
-        public void PrefetchCleansUpOldPrefetchPack()
+        public void FetchCommitsAndTreesCleansUpOldPrefetchPack()
         {
             this.Enlistment.UnmountScalar();
 
@@ -115,8 +115,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem.WriteAllText(badPackPath, badContents);
             badPackPath.ShouldBeAFile(this.fileSystem).WithContents(badContents);
 
-            // Prefetch should delete the bad pack and all packs after it
-            this.Enlistment.Prefetch();
+            // fetch-commits-and-trees should delete the bad pack and all packs after it
+            this.Enlistment.FetchCommitsAndTrees();
 
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
             foreach (string packPath in prefetchPacks)
@@ -133,7 +133,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         [TestCase, Order(5)]
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
-        public void PrefetchFailsWhenItCannotRemoveABadPrefetchPack()
+        public void FetchCommitsAndTreesFailsWhenItCannotRemoveABadPrefetchPack()
         {
             this.Enlistment.UnmountScalar();
 
@@ -146,15 +146,15 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem.WriteAllText(badPackPath, badContents);
             badPackPath.ShouldBeAFile(this.fileSystem).WithContents(badContents);
 
-            // Open a handle to the bad pack that will prevent prefetch from being able to delete it
+            // Open a handle to the bad pack that will prevent fetch-commits-and-trees from being able to delete it
             using (FileStream stream = new FileStream(badPackPath, FileMode.Open, FileAccess.Read, FileShare.None))
             {
-                string output = this.Enlistment.Prefetch(failOnError: false);
+                string output = this.Enlistment.FetchCommitsAndTrees(failOnError: false);
                 output.ShouldContain($"Unable to delete {badPackPath}");
             }
 
-            // After handle is closed prefetch should succeed
-            this.Enlistment.Prefetch();
+            // After handle is closed fetching commits and trees should succeed
+            this.Enlistment.FetchCommitsAndTrees();
 
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
 
@@ -166,7 +166,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         [TestCase, Order(6)]
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
-        public void PrefetchFailsWhenItCannotRemoveAPrefetchPackNewerThanBadPrefetchPack()
+        public void FetchCommitsAndTreesFailsWhenItCannotRemoveAPrefetchPackNewerThanBadPrefetchPack()
         {
             this.Enlistment.UnmountScalar();
 
@@ -179,15 +179,15 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem.WriteAllText(badPackPath, badContents);
             badPackPath.ShouldBeAFile(this.fileSystem).WithContents(badContents);
 
-            // Open a handle to a good pack that is newer than the bad pack, which will prevent prefetch from being able to delete it
+            // Open a handle to a good pack that is newer than the bad pack, which will prevent fetch-commits-and-trees from being able to delete it
             using (FileStream stream = new FileStream(prefetchPacks[0], FileMode.Open, FileAccess.Read, FileShare.None))
             {
-                string output = this.Enlistment.Prefetch(failOnError: false);
+                string output = this.Enlistment.FetchCommitsAndTrees(failOnError: false);
                 output.ShouldContain($"Unable to delete {prefetchPacks[0]}");
             }
 
-            // After handle is closed prefetch should succeed
-            this.Enlistment.Prefetch();
+            // After handle is closed fetching commits and trees should succeed
+            this.Enlistment.FetchCommitsAndTrees();
 
             // The bad pack and all packs newer than it should not be on disk
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
@@ -200,7 +200,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         [TestCase, Order(7)]
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
-        public void PrefetchFailsWhenItCannotRemoveAPrefetchIdxNewerThanBadPrefetchPack()
+        public void FetchCommitsAndTreesFailsWhenItCannotRemoveAPrefetchIdxNewerThanBadPrefetchPack()
         {
             this.Enlistment.UnmountScalar();
 
@@ -216,15 +216,15 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             string newerIdxPath = Path.ChangeExtension(prefetchPacks[0], ".idx");
             newerIdxPath.ShouldBeAFile(this.fileSystem);
 
-            // Open a handle to a good idx that is newer than the bad pack, which will prevent prefetch from being able to delete it
+            // Open a handle to a good idx that is newer than the bad pack, which will prevent fetch-commits-and-trees from being able to delete it
             using (FileStream stream = new FileStream(newerIdxPath, FileMode.Open, FileAccess.Read, FileShare.None))
             {
-                string output = this.Enlistment.Prefetch(failOnError: false);
+                string output = this.Enlistment.FetchCommitsAndTrees(failOnError: false);
                 output.ShouldContain($"Unable to delete {newerIdxPath}");
             }
 
-            // After handle is closed prefetch should succeed
-            this.Enlistment.Prefetch();
+            // After handle is closed fetching commits and trees should succeed
+            this.Enlistment.FetchCommitsAndTrees();
 
             // The bad pack and all packs newer than it should not be on disk
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
@@ -237,7 +237,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase, Order(8)]
-        public void PrefetchCleansUpStaleTempPrefetchPacks()
+        public void FetchCommitsAndTreesCleansUpStaleTempPrefetchPacks()
         {
             this.Enlistment.UnmountScalar();
 
@@ -266,7 +266,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem.WriteAllText(otherFilePath, otherFileContents);
             otherFilePath.ShouldBeAFile(this.fileSystem).WithContents(otherFileContents);
 
-            this.Enlistment.Prefetch();
+            this.Enlistment.FetchCommitsAndTrees();
 
             // Validate stale prefetch packs are cleaned up
             Directory.GetFiles(this.TempPackRoot, $"{PrefetchPackPrefix}*.pack").ShouldBeEmpty("There should be no .pack files in the tempPack folder");
@@ -301,7 +301,10 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         private long GetTimestamp(string preFetchPackName)
         {
             string filename = Path.GetFileName(preFetchPackName);
-            filename.StartsWith(PrefetchPackPrefix).ShouldBeTrue($"'{preFetchPackName}' does not start with '{PrefetchPackPrefix}'");
+
+            // StringComparison.Ordinal because packs should be created using the case we expect
+            filename.StartsWith(PrefetchPackPrefix, StringComparison.Ordinal)
+                .ShouldBeTrue($"'{preFetchPackName}' does not start with '{PrefetchPackPrefix}'");
 
             string[] parts = filename.Split('-');
             long parsed;

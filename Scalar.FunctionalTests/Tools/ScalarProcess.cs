@@ -26,7 +26,7 @@ namespace Scalar.FunctionalTests.Tools
             this.localCacheRoot = localCacheRoot;
         }
 
-        public void Clone(string repositorySource, string branchToCheckout, bool skipPrefetch, bool fullClone = true)
+        public void Clone(string repositorySource, string branchToCheckout, bool skipFetchCommitsAndTrees, bool fullClone = true)
         {
             // TODO: consider sparse clone for functional tests
             string args = string.Format(
@@ -36,7 +36,7 @@ namespace Scalar.FunctionalTests.Tools
                 fullClone ? "--full-clone" : string.Empty,
                 branchToCheckout,
                 this.localCacheRoot,
-                skipPrefetch ? "--no-prefetch" : string.Empty);
+                skipFetchCommitsAndTrees ? "--no-fetch-commits-and-trees" : string.Empty);
             this.CallScalar(args, expectedExitCode: SuccessExitCode);
         }
 
@@ -56,7 +56,7 @@ namespace Scalar.FunctionalTests.Tools
             return this.IsEnlistmentMounted();
         }
 
-        public string Prefetch(bool failOnError, string standardInput = null)
+        public string FetchCommitsAndTrees(bool failOnError, string standardInput = null)
         {
             return this.CallScalar(
                 $"maintenance \"{this.enlistmentRoot}\" --task fetch-commits-and-trees",

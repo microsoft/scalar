@@ -16,7 +16,7 @@ namespace Scalar.Common.Maintenance
         private readonly TimeSpan commitGraphDueTime = TimeSpan.FromMinutes(15);
         private readonly TimeSpan commitGraphPeriod = TimeSpan.FromHours(1);
 
-        private readonly TimeSpan defaultPrefetchPeriod = TimeSpan.FromMinutes(15);
+        private readonly TimeSpan defaultFetchCommitsAndTreesPeriod = TimeSpan.FromMinutes(15);
 
         private List<Timer> stepTimers;
         private ScalarContext context;
@@ -57,17 +57,17 @@ namespace Scalar.Common.Maintenance
                 return;
             }
 
-            TimeSpan actualPrefetchPeriod = this.defaultPrefetchPeriod;
+            TimeSpan actualFetchCommitsAndTreesPeriod = this.defaultFetchCommitsAndTreesPeriod;
             if (!this.gitObjects.IsUsingCacheServer())
             {
-                actualPrefetchPeriod = TimeSpan.FromHours(24);
+                actualFetchCommitsAndTreesPeriod = TimeSpan.FromHours(24);
             }
 
             this.stepTimers.Add(new Timer(
-                (state) => this.queue.TryEnqueue(new PrefetchStep(this.context, this.gitObjects)),
+                (state) => this.queue.TryEnqueue(new FetchCommitsAndTreesStep(this.context, this.gitObjects)),
                 state: null,
-                dueTime: actualPrefetchPeriod,
-                period: actualPrefetchPeriod));
+                dueTime: actualFetchCommitsAndTreesPeriod,
+                period: actualFetchCommitsAndTreesPeriod));
 
             this.stepTimers.Add(new Timer(
                 (state) => this.queue.TryEnqueue(new LooseObjectsStep(this.context)),

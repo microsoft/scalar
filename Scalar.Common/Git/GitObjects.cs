@@ -646,7 +646,7 @@ namespace Scalar.Common.Git
                     activity.RelatedEvent(EventLevel.Informational, "Receiving Pack/Index", data);
 
                     // Write the pack
-                    // If it fails, TryWriteTempFile cleans up the file and we retry the prefetch
+                    // If it fails, TryWriteTempFile cleans up the file and we retry the fetch-commits-and-trees
                     Task packFlushTask;
                     if (!this.TryWriteTempFile(activity, pack.PackStream, packTempPath, out packLength, out packFlushTask))
                     {
@@ -687,12 +687,12 @@ namespace Scalar.Common.Git
                         {
                             bytesDownloaded += indexLength;
 
-                            // Try to build the index manually, then retry the prefetch
+                            // Try to build the index manually, then retry the fetch-commits-and-trees
                             GitProcess.Result result;
                             if (this.TryBuildIndex(activity, packTempPath, out result, gitProcess))
                             {
                                 // If we were able to recreate the failed index
-                                // we can start the prefetch at the next timestamp
+                                // we can start the fetch-commits-and-trees at the next timestamp
                                 tempPacks.Add(new TempPrefetchPackAndIdx(pack.Timestamp, packName, packTempPath, packFlushTask, idxName, idxTempPath, idxFlushTask: null));
                             }
                             else
@@ -708,7 +708,7 @@ namespace Scalar.Common.Git
                             this.TryFlushAndMoveTempPacks(tempPacks, ref latestTimestamp, out moveException);
 
                             // The download stream will not be in a good state if the index download fails.
-                            // So we have to restart the prefetch
+                            // So we have to restart the fetch-commits-and-trees
                             return new RetryWrapper<GitObjectsHttpRequestor.GitObjectTaskResult>.CallbackResult(null, true);
                         }
                     }

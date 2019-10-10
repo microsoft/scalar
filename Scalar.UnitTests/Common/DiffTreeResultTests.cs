@@ -5,7 +5,7 @@ using Scalar.UnitTests.Category;
 using System;
 using System.IO;
 
-namespace Scalar.UnitTests.Prefetch
+namespace Scalar.UnitTests.Common
 {
     [TestFixture]
     public class DiffTreeResultTests

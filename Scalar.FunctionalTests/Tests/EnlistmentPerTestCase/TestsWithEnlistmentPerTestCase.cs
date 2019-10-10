@@ -23,7 +23,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerTestCase
         {
             if (this.forcePerRepoObjectCache)
             {
-                this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMountWithPerRepoCache(ScalarTestConfig.PathToScalar, skipPrefetch: false);
+                this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMountWithPerRepoCache(
+                    ScalarTestConfig.PathToScalar,
+                    skipFetchCommitsAndTrees: false);
             }
             else
             {

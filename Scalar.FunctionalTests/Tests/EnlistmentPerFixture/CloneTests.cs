@@ -47,13 +47,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase]
-        public void SparseCloneWithNoPrefetchSucceeds()
+        public void SparseCloneWithNoFetchOfCommitsAndTreesSucceeds()
         {
             ScalarFunctionalTestEnlistment enlistment = null;
 
             try
             {
-                enlistment = ScalarFunctionalTestEnlistment.CloneAndMountWithPerRepoCache(ScalarTestConfig.PathToScalar, skipPrefetch: true);
+                enlistment = ScalarFunctionalTestEnlistment.CloneAndMountWithPerRepoCache(ScalarTestConfig.PathToScalar, skipFetchCommitsAndTrees: true);
 
                 ProcessResult result = GitProcess.InvokeProcess(enlistment.RepoRoot, "status");
                 result.ExitCode.ShouldEqual(0, result.Errors);
@@ -79,7 +79,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // Needs update for non-virtualized mode: this used to have --no-mount to avoid an issue
             // with registering the mount with the service.
-            processInfo.Arguments = $"clone {Properties.Settings.Default.RepoToClone} {newEnlistmentRoot} --no-prefetch";
+            processInfo.Arguments = $"clone {Properties.Settings.Default.RepoToClone} {newEnlistmentRoot} --no-fetch-commits-and-trees";
             processInfo.WindowStyle = ProcessWindowStyle.Hidden;
             processInfo.CreateNoWindow = true;
             processInfo.UseShellExecute = false;

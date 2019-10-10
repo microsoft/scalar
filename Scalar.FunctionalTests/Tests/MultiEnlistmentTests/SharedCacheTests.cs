@@ -132,7 +132,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         public void SecondCloneSucceedsWithMissingTrees()
         {
             string newCachePath = Path.Combine(this.localCacheParentPath, ".customScalarCache2");
-            ScalarFunctionalTestEnlistment enlistment1 = this.CreateNewEnlistment(localCacheRoot: newCachePath, skipPrefetch: true);
+            ScalarFunctionalTestEnlistment enlistment1 = this.CreateNewEnlistment(localCacheRoot: newCachePath, skipFetchCommitsAndTrees: true);
             File.ReadAllText(Path.Combine(enlistment1.RepoRoot, WellKnownFile));
             this.AlternatesFileShouldHaveGitObjectsRoot(enlistment1);
 
@@ -143,7 +143,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             result.ExitCode.ShouldEqual(0, $"git {command} failed on {nameof(enlistment1)} with error: {result.Errors}");
 
             // If we did not properly check the failed checkout at this step, then clone will fail during checkout.
-            ScalarFunctionalTestEnlistment enlistment2 = this.CreateNewEnlistment(localCacheRoot: newCachePath, branch: WellKnownBranch, skipPrefetch: true);
+            ScalarFunctionalTestEnlistment enlistment2 = this.CreateNewEnlistment(localCacheRoot: newCachePath, branch: WellKnownBranch, skipFetchCommitsAndTrees: true);
             result = GitHelpers.InvokeGitAgainstScalarRepo(enlistment2.RepoRoot, command);
             result.ExitCode.ShouldEqual(0, $"git {command} failed on {nameof(enlistment2)} with error: {result.Errors}");
         }

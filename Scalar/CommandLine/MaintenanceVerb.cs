@@ -145,7 +145,7 @@ namespace Scalar.CommandLine
                 cacheServerUrl,
                 out objectRequestor,
                 out cacheServer);
-            this.RunPrefetchStep(tracer, enlistment, objectRequestor, cacheServer);
+            this.RunFetchCommitsAndTreesStep(tracer, enlistment, objectRequestor, cacheServer);
         }
 
         private void FailIfBatchSizeSet(ITracer tracer)
@@ -198,7 +198,7 @@ namespace Scalar.CommandLine
             objectRequestor = new GitObjectsHttpRequestor(tracer, enlistment, cacheServer, retryConfig);
         }
 
-        private void RunPrefetchStep(ITracer tracer, ScalarEnlistment enlistment, GitObjectsHttpRequestor objectRequestor, CacheServerInfo cacheServer)
+        private void RunFetchCommitsAndTreesStep(ITracer tracer, ScalarEnlistment enlistment, GitObjectsHttpRequestor objectRequestor, CacheServerInfo cacheServer)
         {
             bool success;
             string error = string.Empty;
@@ -207,7 +207,7 @@ namespace Scalar.CommandLine
             GitObjects gitObjects = new ScalarGitObjects(context, objectRequestor);
 
             success = this.ShowStatusWhileRunning(
-                () => new PrefetchStep(context, gitObjects, requireCacheLock: false).TryPrefetchCommitsAndTrees(out error),
+                () => new FetchCommitsAndTreesStep(context, gitObjects, requireCacheLock: false).TryFetchCommitsAndTrees(out error),
             "Fetching commits and trees " + this.GetCacheServerDisplay(cacheServer, enlistment.RepoUrl));
 
             if (!success)

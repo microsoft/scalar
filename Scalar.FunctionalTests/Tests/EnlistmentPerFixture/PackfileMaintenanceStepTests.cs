@@ -27,13 +27,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(1)]
         public void RepackAllToOnePack()
         {
-            this.GetPackSizes(out int beforePrefetchPackCount, out long maxSize, out long totalSize);
+            this.GetPackSizes(out int beforeFetchCommitsAndTreesPackCount, out long maxSize, out long totalSize);
 
             // Cannot be sure of the count, but there should be two from the inital clone
-            beforePrefetchPackCount.ShouldBeAtLeast(2);
+            beforeFetchCommitsAndTreesPackCount.ShouldBeAtLeast(2);
 
             // Create a multi-pack-index that covers the prefetch packs
-            // (The post-fetch job creates a multi-pack-index only after a prefetch)
+            // (The pack-files job creates a multi-pack-index only after a fetch-commits-and-trees)
             GitProcess.InvokeProcess(
                 this.Enlistment.RepoRoot,
                 $"multi-pack-index write --object-dir={this.GitObjectRoot}");
@@ -43,7 +43,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             this.GetPackSizes(out int afterPrefetchPackCount, out maxSize, out totalSize);
 
-            // Cannot be sure of the count, as the prefetch uses parallel threads to get multiple packs
+            // Cannot be sure of the count, as the fetch-commits-and-trees uses parallel threads to get multiple packs
             afterPrefetchPackCount.ShouldBeAtLeast(2);
 
             this.Enlistment.PackfileMaintenanceStep(batchSize: totalSize - 1);

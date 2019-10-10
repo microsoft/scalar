@@ -66,11 +66,11 @@ namespace Scalar.CommandLine
         public bool SingleBranch { get; set; }
 
         [Option(
-            "no-prefetch",
+            "no-fetch-commits-and-trees",
             Required = false,
             Default = false,
-            HelpText = "Use this option to not prefetch commits after clone")]
-        public bool NoPrefetch { get; set; }
+            HelpText = "Use this option to skip fetching commits and trees after clone")]
+        public bool NoFetchCommitsAndTrees { get; set; }
 
         // By default this is "Drive\.scalarCache"
         [Option(
@@ -180,14 +180,14 @@ namespace Scalar.CommandLine
                 this.CacheServerUrl,
                 this.AddVerbDataToMetadata(new EventMetadata
                 {
-                    { "Branch", this.Branch },
-                    { "LocalCacheRoot", this.LocalCacheRoot },
-                    { "SingleBranch", this.SingleBranch },
-                    { "FullClone", this.FullClone },
-                    { "NoPrefetch", this.NoPrefetch },
-                    { "Unattended", this.Unattended },
-                    { "IsElevated", ScalarPlatform.Instance.IsElevated() },
-                    { "NamedPipeName", this.enlistment.NamedPipeName },
+                    { nameof(this.Branch), this.Branch },
+                    { nameof(this.LocalCacheRoot), this.LocalCacheRoot },
+                    { nameof(this.SingleBranch), this.SingleBranch },
+                    { nameof(this.FullClone), this.FullClone },
+                    { nameof(this.NoFetchCommitsAndTrees), this.NoFetchCommitsAndTrees },
+                    { nameof(this.Unattended), this.Unattended },
+                    { nameof(ScalarPlatform.Instance.IsElevated), ScalarPlatform.Instance.IsElevated() },
+                    { nameof(this.enlistment.NamedPipeName), this.enlistment.NamedPipeName },
                     { "ProcessID", Process.GetCurrentProcess().Id },
                     { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
                     { nameof(fullEnlistmentRootPathParameter), fullEnlistmentRootPathParameter },
@@ -257,7 +257,7 @@ namespace Scalar.CommandLine
                     return cloneResult;
                 }
 
-                if (!this.NoPrefetch)
+                if (!this.NoFetchCommitsAndTrees)
                 {
                     ReturnCode result = this.Execute<MaintenanceVerb>(
                         this.enlistment,
@@ -271,7 +271,7 @@ namespace Scalar.CommandLine
 
                     if (result != ReturnCode.Success)
                     {
-                        this.Output.WriteLine("\r\nError during prefetch @ {0}", fullEnlistmentRootPathParameter);
+                        this.Output.WriteLine("\r\nError while fetching commits and trees @ {0}", fullEnlistmentRootPathParameter);
                         return cloneResult;
                     }
                 }
