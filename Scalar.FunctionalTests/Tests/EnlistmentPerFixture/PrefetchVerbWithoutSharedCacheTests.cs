@@ -1,19 +1,14 @@
 using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Should;
-using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System;
 using System.IO;
-using System.Threading;
 
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
-    // TODO(#1219): Before these tests can be enabled PostFetchJobShouldComplete needs
-    // to work on Mac (where post-fetch.lock is not removed from disk)
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
-    [Category(Categories.MacTODO.TestNeedsToLockFile)]
     public class PrefetchVerbWithoutSharedCacheTests : TestsWithEnlistmentPerFixture
     {
         private const string PrefetchPackPrefix = "prefetch";
@@ -49,7 +44,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         public void PrefetchCommitsToEmptyCache()
         {
             this.Enlistment.Prefetch();
-            this.PostFetchJobShouldComplete();
 
             // Verify prefetch pack(s) are in packs folder and have matching idx file
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
@@ -73,7 +67,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // Prefetch should rebuild the missing idx
             this.Enlistment.Prefetch();
-            this.PostFetchJobShouldComplete();
 
             idxPath.ShouldBeAFile(this.fileSystem);
 
@@ -98,7 +91,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // Prefetch should delete the bad pack
             this.Enlistment.Prefetch();
-            this.PostFetchJobShouldComplete();
 
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
 
@@ -125,7 +117,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // Prefetch should delete the bad pack and all packs after it
             this.Enlistment.Prefetch();
-            this.PostFetchJobShouldComplete();
 
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
             foreach (string packPath in prefetchPacks)
@@ -141,6 +132,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase, Order(5)]
+        [Category(Categories.MacTODO.TestNeedsToLockFile)]
         public void PrefetchFailsWhenItCannotRemoveABadPrefetchPack()
         {
             this.Enlistment.UnmountScalar();
@@ -163,7 +155,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // After handle is closed prefetch should succeed
             this.Enlistment.Prefetch();
-            this.PostFetchJobShouldComplete();
 
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
 
@@ -174,6 +165,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase, Order(6)]
+        [Category(Categories.MacTODO.TestNeedsToLockFile)]
         public void PrefetchFailsWhenItCannotRemoveAPrefetchPackNewerThanBadPrefetchPack()
         {
             this.Enlistment.UnmountScalar();
@@ -196,7 +188,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // After handle is closed prefetch should succeed
             this.Enlistment.Prefetch();
-            this.PostFetchJobShouldComplete();
 
             // The bad pack and all packs newer than it should not be on disk
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
@@ -208,6 +199,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase, Order(7)]
+        [Category(Categories.MacTODO.TestNeedsToLockFile)]
         public void PrefetchFailsWhenItCannotRemoveAPrefetchIdxNewerThanBadPrefetchPack()
         {
             this.Enlistment.UnmountScalar();
@@ -233,7 +225,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // After handle is closed prefetch should succeed
             this.Enlistment.Prefetch();
-            this.PostFetchJobShouldComplete();
 
             // The bad pack and all packs newer than it should not be on disk
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
@@ -276,7 +267,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             otherFilePath.ShouldBeAFile(this.fileSystem).WithContents(otherFileContents);
 
             this.Enlistment.Prefetch();
-            this.PostFetchJobShouldComplete();
 
             // Validate stale prefetch packs are cleaned up
             Directory.GetFiles(this.TempPackRoot, $"{PrefetchPackPrefix}*.pack").ShouldBeEmpty("There should be no .pack files in the tempPack folder");
@@ -285,33 +275,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // Validate other files are not impacted
             otherFilePath.ShouldBeAFile(this.fileSystem).WithContents(otherFileContents);
-        }
-
-        [TestCase, Order(9)]
-        public void PrefetchCleansUpOphanedLockFiles()
-        {
-            // the commit-graph write happens only when the prefetch downloads at least one pack
-
-            string graphPath = Path.Combine(ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot), "info", "commit-graphs", "commit-graph-chain");
-            string graphLockPath = graphPath + ".lock";
-
-            this.fileSystem.CreateEmptyFile(graphLockPath);
-
-            // Unmount so we can delete the files.
-            this.Enlistment.UnmountScalar();
-
-            // Force deleting the prefetch packs to make the prefetch non-trivial.
-            this.fileSystem.DeleteDirectory(this.PackRoot);
-            this.fileSystem.CreateDirectory(this.PackRoot);
-
-            // Re-mount so the post-fetch job runs
-            this.Enlistment.MountScalar();
-
-            this.Enlistment.Prefetch();
-            this.PostFetchJobShouldComplete();
-
-            this.fileSystem.FileExists(graphLockPath).ShouldBeFalse(nameof(graphLockPath));
-            this.fileSystem.FileExists(graphPath).ShouldBeTrue(nameof(graphPath));
         }
 
         private void PackShouldHaveIdxFile(string pathPath)
@@ -382,20 +345,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             oldestPackTimestamp.ShouldBeAtMost(long.MaxValue - 1, "Failed to find the oldest pack");
             return oldestPackTimestamp;
-        }
-
-        private void PostFetchJobShouldComplete()
-        {
-            string objectDir = ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot);
-            string postFetchLock = Path.Combine(objectDir, "git-maintenance-step.lock");
-
-            while (this.fileSystem.FileExists(postFetchLock))
-            {
-                Thread.Sleep(500);
-            }
-
-            ProcessResult graphResult = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "commit-graph verify --shallow --object-dir=\"" + objectDir + "\"");
-            graphResult.ExitCode.ShouldEqual(0);
         }
     }
 }

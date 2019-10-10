@@ -13,7 +13,10 @@ namespace Scalar.Common.Maintenance
         private readonly TimeSpan packfileDueTime = TimeSpan.FromMinutes(30);
         private readonly TimeSpan packfilePeriod = TimeSpan.FromHours(12);
 
-        private readonly TimeSpan prefetchPeriod = TimeSpan.FromMinutes(15);
+        private readonly TimeSpan commitGraphDueTime = TimeSpan.FromMinutes(15);
+        private readonly TimeSpan commitGraphPeriod = TimeSpan.FromHours(1);
+
+        private readonly TimeSpan defaultPrefetchPeriod = TimeSpan.FromMinutes(15);
 
         private List<Timer> stepTimers;
         private ScalarContext context;
@@ -54,15 +57,17 @@ namespace Scalar.Common.Maintenance
                 return;
             }
 
-            if (this.gitObjects.IsUsingCacheServer())
+            TimeSpan actualPrefetchPeriod = this.defaultPrefetchPeriod;
+            if (!this.gitObjects.IsUsingCacheServer())
             {
-                TimeSpan prefetchPeriod = TimeSpan.FromMinutes(15);
-                this.stepTimers.Add(new Timer(
-                    (state) => this.queue.TryEnqueue(new PrefetchStep(this.context, this.gitObjects)),
-                    state: null,
-                    dueTime: this.prefetchPeriod,
-                    period: this.prefetchPeriod));
+                actualPrefetchPeriod = TimeSpan.FromHours(24);
             }
+
+            this.stepTimers.Add(new Timer(
+                (state) => this.queue.TryEnqueue(new PrefetchStep(this.context, this.gitObjects)),
+                state: null,
+                dueTime: actualPrefetchPeriod,
+                period: actualPrefetchPeriod));
 
             this.stepTimers.Add(new Timer(
                 (state) => this.queue.TryEnqueue(new LooseObjectsStep(this.context)),
@@ -75,6 +80,12 @@ namespace Scalar.Common.Maintenance
                 state: null,
                 dueTime: this.packfileDueTime,
                 period: this.packfilePeriod));
+
+            this.stepTimers.Add(new Timer(
+                (state) => this.queue.TryEnqueue(new CommitGraphStep(this.context)),
+                state: null,
+                dueTime: this.commitGraphDueTime,
+                period: this.commitGraphPeriod));
         }
     }
 }

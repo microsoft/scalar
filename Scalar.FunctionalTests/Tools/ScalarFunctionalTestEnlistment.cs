@@ -184,6 +184,11 @@ namespace Scalar.FunctionalTests.Tools
             return this.scalarProcess.Diagnose();
         }
 
+        public string CommitGraphStep()
+        {
+            return this.scalarProcess.CommitGraphStep();
+        }
+
         public string LooseObjectStep()
         {
             return this.scalarProcess.LooseObjectStep();

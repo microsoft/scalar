@@ -270,13 +270,13 @@ namespace Scalar.Common.Maintenance
             activity.RelatedWarning(errorMetadata, "multi-pack-index is corrupt after write. Deleting and rewriting.", Keywords.Telemetry);
         }
 
-        protected void LogErrorAndRewriteCommitGraph(ITracer activity, List<string> packs)
+        protected void LogErrorAndRewriteCommitGraph(ITracer activity)
         {
             EventMetadata errorMetadata = this.CreateEventMetadata();
             string commitGraphPath = Path.Combine(this.Context.Enlistment.GitObjectsRoot, "info", "commit-graph");
             errorMetadata["TryDeleteFileResult"] = this.Context.FileSystem.TryDeleteFile(commitGraphPath);
 
-            GitProcess.Result rewriteResult = this.RunGitCommand((process) => process.WriteCommitGraph(this.Context.Enlistment.GitObjectsRoot, packs), nameof(GitProcess.WriteCommitGraph));
+            GitProcess.Result rewriteResult = this.RunGitCommand((process) => process.WriteCommitGraph(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.WriteCommitGraph));
             errorMetadata["RewriteResultExitCode"] = rewriteResult.ExitCode;
 
             activity.RelatedWarning(errorMetadata, "commit-graph is corrupt after write. Deleting and rewriting.", Keywords.Telemetry);

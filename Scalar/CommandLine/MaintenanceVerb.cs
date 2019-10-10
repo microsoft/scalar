@@ -1,10 +1,10 @@
-using System;
 using CommandLine;
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Http;
 using Scalar.Common.Maintenance;
 using Scalar.Common.Tracing;
+using System;
 
 namespace Scalar.CommandLine
 {
@@ -86,7 +86,7 @@ namespace Scalar.CommandLine
 
                             case CommitGraphTaskName:
                                 this.FailIfBatchSizeSet(tracer);
-                                (new PostFetchStep(context, new System.Collections.Generic.List<string>(), requireObjectCacheLock: false)).Execute();
+                                (new CommitGraphStep(context, requireObjectCacheLock: false)).Execute();
                                 return;
 
                             default:
