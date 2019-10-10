@@ -5,10 +5,6 @@ namespace Scalar.Common.Http
 {
     public class CacheServerInfo
     {
-        private const string ObjectsEndpointSuffix = "/gvfs/objects";
-        private const string PrefetchEndpointSuffix = "/gvfs/prefetch";
-        private const string SizesEndpointSuffix = "/gvfs/sizes";
-
         [JsonConstructor]
         public CacheServerInfo(string url, string name, bool globalDefault = false)
         {
@@ -18,9 +14,9 @@ namespace Scalar.Common.Http
 
             if (this.Url != null)
             {
-                this.ObjectsEndpointUrl = this.Url + ObjectsEndpointSuffix;
-                this.PrefetchEndpointUrl = this.Url + PrefetchEndpointSuffix;
-                this.SizesEndpointUrl = this.Url + SizesEndpointSuffix;
+                this.ObjectsEndpointUrl = this.Url + ScalarConstants.Endpoints.ScalarObjects;
+                this.PrefetchEndpointUrl = this.Url + ScalarConstants.Endpoints.ScalarPrefetch;
+                this.SizesEndpointUrl = this.Url + ScalarConstants.Endpoints.ScalarSizes;
             }
         }
 

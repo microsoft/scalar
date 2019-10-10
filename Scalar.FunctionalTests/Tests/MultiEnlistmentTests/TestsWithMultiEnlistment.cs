@@ -31,13 +31,13 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         protected ScalarFunctionalTestEnlistment CreateNewEnlistment(
             string localCacheRoot = null,
             string branch = null,
-            bool skipPrefetch = false)
+            bool skipFetchCommitsAndTrees = false)
         {
             ScalarFunctionalTestEnlistment output = ScalarFunctionalTestEnlistment.CloneAndMount(
                 ScalarTestConfig.PathToScalar,
                 branch,
                 localCacheRoot,
-                skipPrefetch);
+                skipFetchCommitsAndTrees);
             this.enlistmentsToDelete.Add(output);
             return output;
         }

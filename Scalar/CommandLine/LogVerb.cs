@@ -57,9 +57,7 @@ namespace Scalar.CommandLine
 
                 // By using MountPrefix ("mount") DisplayMostRecent will display either mount_verb, mount_upgrade, or mount_process, whichever is more recent
                 this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.MountPrefix);
-                this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.Prefetch);
                 this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.Repair);
-                this.DisplayMostRecent(scalarLogsRoot, ScalarConstants.LogFileTypes.Sparse);
 
                 string serviceLogsRoot = Path.Combine(
                     ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.Service.ServiceName),
@@ -119,9 +117,7 @@ namespace Scalar.CommandLine
             {
                 ScalarConstants.LogFileTypes.Clone,
                 ScalarConstants.LogFileTypes.MountPrefix,
-                ScalarConstants.LogFileTypes.Prefetch,
                 ScalarConstants.LogFileTypes.Repair,
-                ScalarConstants.LogFileTypes.Sparse,
                 ScalarConstants.LogFileTypes.Service,
                 ScalarConstants.LogFileTypes.UpgradePrefix,
             };

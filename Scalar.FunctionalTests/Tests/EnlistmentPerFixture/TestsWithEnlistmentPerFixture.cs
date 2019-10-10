@@ -7,13 +7,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
     public abstract class TestsWithEnlistmentPerFixture
     {
         private readonly bool forcePerRepoObjectCache;
-        private readonly bool skipPrefetchDuringClone;
+        private readonly bool skipFetchCommitsAndTreesDuringClone;
         private readonly bool fullClone;
 
-        public TestsWithEnlistmentPerFixture(bool forcePerRepoObjectCache = false, bool skipPrefetchDuringClone = false, bool fullClone = true)
+        public TestsWithEnlistmentPerFixture(bool forcePerRepoObjectCache = false, bool skipFetchCommitsAndTreesDuringClone = false, bool fullClone = true)
         {
             this.forcePerRepoObjectCache = forcePerRepoObjectCache;
-            this.skipPrefetchDuringClone = skipPrefetchDuringClone;
+            this.skipFetchCommitsAndTreesDuringClone = skipFetchCommitsAndTreesDuringClone;
             this.fullClone = fullClone;
         }
 
@@ -27,7 +27,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             if (this.forcePerRepoObjectCache)
             {
-                this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMountWithPerRepoCache(ScalarTestConfig.PathToScalar, this.skipPrefetchDuringClone);
+                this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMountWithPerRepoCache(
+                    ScalarTestConfig.PathToScalar,
+                    this.skipFetchCommitsAndTreesDuringClone);
             }
             else
             {

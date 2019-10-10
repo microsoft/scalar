@@ -11,29 +11,29 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [NonParallelizable]
-    public class PrefetchVerbTests : TestsWithEnlistmentPerFixture
+    public class FetchCommitsAndTreesStepTests : TestsWithEnlistmentPerFixture
     {
-        private const string PrefetchCommitsAndTreesLock = "prefetch-commits-trees.lock";
+        private const string FetchCommitsAndTreesLock = "fetch-commits-trees.lock";
 
         private FileSystemRunner fileSystem;
 
-        public PrefetchVerbTests()
+        public FetchCommitsAndTreesStepTests()
         {
             this.fileSystem = new SystemIORunner();
         }
 
         [TestCase]
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
-        public void PrefetchCleansUpStalePrefetchLock()
+        public void FetchCommitsAndTreesCleansUpStaleFetchLock()
         {
-            this.Enlistment.Prefetch();
-            string prefetchCommitsLockFile = Path.Combine(
+            this.Enlistment.FetchCommitsAndTrees();
+            string fetchCommitsLockFile = Path.Combine(
                 ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot),
                 "pack",
-                PrefetchCommitsAndTreesLock);
-            prefetchCommitsLockFile.ShouldNotExistOnDisk(this.fileSystem);
-            this.fileSystem.WriteAllText(prefetchCommitsLockFile, this.Enlistment.EnlistmentRoot);
-            prefetchCommitsLockFile.ShouldBeAFile(this.fileSystem);
+                FetchCommitsAndTreesLock);
+            fetchCommitsLockFile.ShouldNotExistOnDisk(this.fileSystem);
+            this.fileSystem.WriteAllText(fetchCommitsLockFile, this.Enlistment.EnlistmentRoot);
+            fetchCommitsLockFile.ShouldBeAFile(this.fileSystem);
 
             this.fileSystem
                 .EnumerateDirectory(this.Enlistment.GetPackRoot(this.fileSystem))
@@ -42,8 +42,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 .Count()
                 .ShouldEqual(1, "Incorrect number of .keep files in pack directory");
 
-            this.Enlistment.Prefetch();
-            prefetchCommitsLockFile.ShouldNotExistOnDisk(this.fileSystem);
+            this.Enlistment.FetchCommitsAndTrees();
+            fetchCommitsLockFile.ShouldNotExistOnDisk(this.fileSystem);
         }
     }
 }

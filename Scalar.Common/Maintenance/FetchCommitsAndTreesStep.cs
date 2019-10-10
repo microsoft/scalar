@@ -1,6 +1,5 @@
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
-using Scalar.Common.NamedPipes;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
@@ -10,25 +9,25 @@ using System.Threading;
 
 namespace Scalar.Common.Maintenance
 {
-    public class PrefetchStep : GitMaintenanceStep
+    public class FetchCommitsAndTreesStep : GitMaintenanceStep
     {
         private const int IoFailureRetryDelayMS = 50;
         private const int LockWaitTimeMs = 100;
         private const int WaitingOnLockLogThreshold = 50;
-        private const string PrefetchCommitsAndTreesLock = "prefetch-commits-trees.lock";
-        private readonly TimeSpan timeBetweenPrefetches = TimeSpan.FromMinutes(70);
+        private const string FetchCommitsAndTreesLock = "fetch-commits-trees.lock";
+        private readonly TimeSpan timeBetweenFetches = TimeSpan.FromMinutes(70);
 
-        public PrefetchStep(ScalarContext context, GitObjects gitObjects, bool requireCacheLock = true)
+        public FetchCommitsAndTreesStep(ScalarContext context, GitObjects gitObjects, bool requireCacheLock = true)
             : base(context, requireCacheLock)
         {
             this.GitObjects = gitObjects;
         }
 
-        public override string Area => "PrefetchStep";
+        public override string Area => "FetchCommitsAndTreesStep";
 
         protected GitObjects GitObjects { get; }
 
-        public bool TryPrefetchCommitsAndTrees(out string error, GitProcess gitProcess = null)
+        public bool TryFetchCommitsAndTrees(out string error, GitProcess gitProcess = null)
         {
             if (gitProcess == null)
             {
@@ -37,20 +36,21 @@ namespace Scalar.Common.Maintenance
 
             List<string> packIndexes;
 
-            // We take our own lock here to keep background and foreground prefetches
+            // We take our own lock here to keep background and foreground fetches
+            // (i.e. a user running 'scalar maintenance --fetch-commits-and-trees')
             // from running at the same time.
-            using (FileBasedLock prefetchLock = ScalarPlatform.Instance.CreateFileBasedLock(
+            using (FileBasedLock fetchLock = ScalarPlatform.Instance.CreateFileBasedLock(
                 this.Context.FileSystem,
                 this.Context.Tracer,
-                Path.Combine(this.Context.Enlistment.GitPackRoot, PrefetchCommitsAndTreesLock)))
+                Path.Combine(this.Context.Enlistment.GitPackRoot, FetchCommitsAndTreesLock)))
             {
-                WaitUntilLockIsAcquired(this.Context.Tracer, prefetchLock);
+                WaitUntilLockIsAcquired(this.Context.Tracer, fetchLock);
                 long maxGoodTimeStamp;
 
                 this.GitObjects.DeleteStaleTempPrefetchPackAndIdxs();
                 this.GitObjects.DeleteTemporaryFiles();
 
-                if (!this.TryGetMaxGoodPrefetchTimestamp(out maxGoodTimeStamp, out error))
+                if (!this.TryGetMaxGoodPrefetchPackTimestamp(out maxGoodTimeStamp, out error))
                 {
                     return false;
                 }
@@ -72,7 +72,7 @@ namespace Scalar.Common.Maintenance
             long last;
             string error = null;
 
-            if (!this.TryGetMaxGoodPrefetchTimestamp(out last, out error))
+            if (!this.TryGetMaxGoodPrefetchPackTimestamp(out last, out error))
             {
                 this.Context.Tracer.RelatedError(error);
                 return;
@@ -81,25 +81,25 @@ namespace Scalar.Common.Maintenance
             DateTime lastDateTime = EpochConverter.FromUnixEpochSeconds(last);
             DateTime now = DateTime.UtcNow;
 
-            if (now <= lastDateTime + this.timeBetweenPrefetches)
+            if (now <= lastDateTime + this.timeBetweenFetches)
             {
-                this.Context.Tracer.RelatedInfo(this.Area + ": Skipping prefetch since most-recent prefetch ({0}) is too close to now ({1})", lastDateTime, now);
+                this.Context.Tracer.RelatedInfo(this.Area + ": Skipping fetch since most-recent fetch ({0}) is too close to now ({1})", lastDateTime, now);
                 return;
             }
 
             this.RunGitCommand(
                 process =>
                 {
-                    this.TryPrefetchCommitsAndTrees(out error, process);
+                    this.TryFetchCommitsAndTrees(out error, process);
                     return null;
                 },
-                nameof(this.TryPrefetchCommitsAndTrees));
+                nameof(this.TryFetchCommitsAndTrees));
 
             if (!string.IsNullOrEmpty(error))
             {
                 this.Context.Tracer.RelatedWarning(
                     metadata: this.CreateEventMetadata(),
-                    message: $"{nameof(this.TryPrefetchCommitsAndTrees)} failed with error '{error}'",
+                    message: $"{nameof(this.TryFetchCommitsAndTrees)} failed with error '{error}'",
                     keywords: Keywords.Telemetry);
             }
         }
@@ -107,7 +107,7 @@ namespace Scalar.Common.Maintenance
         private static long? GetTimestamp(string packName)
         {
             string filename = Path.GetFileName(packName);
-            if (!filename.StartsWith(ScalarConstants.PrefetchPackPrefix))
+            if (!filename.StartsWith(ScalarConstants.PrefetchPackPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 return null;
             }
@@ -132,12 +132,12 @@ namespace Scalar.Common.Maintenance
                 if (attempt == WaitingOnLockLogThreshold)
                 {
                     attempt = 0;
-                    tracer.RelatedInfo("WaitUntilLockIsAcquired: Waiting to acquire prefetch lock");
+                    tracer.RelatedInfo("WaitUntilLockIsAcquired: Waiting to acquire fetch lock");
                 }
             }
         }
 
-        private bool TryGetMaxGoodPrefetchTimestamp(out long maxGoodTimestamp, out string error)
+        private bool TryGetMaxGoodPrefetchPackTimestamp(out long maxGoodTimestamp, out string error)
         {
             this.Context.FileSystem.CreateDirectory(this.Context.Enlistment.GitPackRoot);
 
@@ -168,15 +168,15 @@ namespace Scalar.Common.Maintenance
                     {
                         firstBadPack = i;
 
-                        this.Context.Tracer.RelatedWarning(metadata, $"{nameof(this.TryGetMaxGoodPrefetchTimestamp)}: Found pack file that's missing idx file, and failed to regenerate idx");
+                        this.Context.Tracer.RelatedWarning(metadata, $"{nameof(this.TryGetMaxGoodPrefetchPackTimestamp)}: Found pack file that's missing idx file, and failed to regenerate idx");
                         break;
                     }
                     else
                     {
                         maxGoodTimestamp = timestamp;
 
-                        metadata.Add(TracingConstants.MessageKey.InfoMessage, $"{nameof(this.TryGetMaxGoodPrefetchTimestamp)}: Found pack file that's missing idx file, and regenerated idx");
-                        this.Context.Tracer.RelatedEvent(EventLevel.Informational, $"{nameof(this.TryGetMaxGoodPrefetchTimestamp)}_RebuildIdx", metadata);
+                        metadata.Add(TracingConstants.MessageKey.InfoMessage, $"{nameof(this.TryGetMaxGoodPrefetchPackTimestamp)}: Found pack file that's missing idx file, and regenerated idx");
+                        this.Context.Tracer.RelatedEvent(EventLevel.Informational, $"{nameof(this.TryGetMaxGoodPrefetchPackTimestamp)}_RebuildIdx", metadata);
                     }
                 }
                 else
@@ -201,8 +201,8 @@ namespace Scalar.Common.Maintenance
                 EventMetadata metadata = this.CreateEventMetadata();
                 string midxPath = Path.Combine(this.Context.Enlistment.GitPackRoot, "multi-pack-index");
                 metadata.Add("path", midxPath);
-                metadata.Add(TracingConstants.MessageKey.InfoMessage, $"{nameof(this.TryGetMaxGoodPrefetchTimestamp)} deleting multi-pack-index");
-                this.Context.Tracer.RelatedEvent(EventLevel.Informational, $"{nameof(this.TryGetMaxGoodPrefetchTimestamp)}_DeleteMultiPack_index", metadata);
+                metadata.Add(TracingConstants.MessageKey.InfoMessage, $"{nameof(this.TryGetMaxGoodPrefetchPackTimestamp)} deleting multi-pack-index");
+                this.Context.Tracer.RelatedEvent(EventLevel.Informational, $"{nameof(this.TryGetMaxGoodPrefetchPackTimestamp)}_DeleteMultiPack_index", metadata);
 
                 if (!this.Context.FileSystem.TryWaitForDelete(this.Context.Tracer, midxPath, IoFailureRetryDelayMS, MaxDeleteRetries, RetryLoggingThreshold))
                 {
@@ -210,8 +210,8 @@ namespace Scalar.Common.Maintenance
                     return false;
                 }
 
-                // Delete packs and indexes in reverse order so that if prefetch is killed, subseqeuent prefetch commands will
-                // find the right starting spot.
+                // Delete packs and indexes in reverse order so that if fetch-commits-and-trees is killed, subseqeuent
+                // fetch-commits-and-trees commands will find the right starting spot.
                 for (int i = orderedPacks.Count - 1; i >= firstBadPack; --i)
                 {
                     if (this.Stopping)
@@ -224,8 +224,8 @@ namespace Scalar.Common.Maintenance
 
                     metadata = this.CreateEventMetadata();
                     metadata.Add("path", idxPath);
-                    metadata.Add(TracingConstants.MessageKey.InfoMessage, $"{nameof(this.TryGetMaxGoodPrefetchTimestamp)} deleting bad idx file");
-                    this.Context.Tracer.RelatedEvent(EventLevel.Informational, $"{nameof(this.TryGetMaxGoodPrefetchTimestamp)}_DeleteBadIdx", metadata);
+                    metadata.Add(TracingConstants.MessageKey.InfoMessage, $"{nameof(this.TryGetMaxGoodPrefetchPackTimestamp)} deleting bad idx file");
+                    this.Context.Tracer.RelatedEvent(EventLevel.Informational, $"{nameof(this.TryGetMaxGoodPrefetchPackTimestamp)}_DeleteBadIdx", metadata);
 
                     if (!this.Context.FileSystem.TryWaitForDelete(this.Context.Tracer, idxPath, IoFailureRetryDelayMS, MaxDeleteRetries, RetryLoggingThreshold))
                     {
@@ -235,8 +235,8 @@ namespace Scalar.Common.Maintenance
 
                     metadata = this.CreateEventMetadata();
                     metadata.Add("path", packPath);
-                    metadata.Add(TracingConstants.MessageKey.InfoMessage, $"{nameof(this.TryGetMaxGoodPrefetchTimestamp)} deleting bad pack file");
-                    this.Context.Tracer.RelatedEvent(EventLevel.Informational, $"{nameof(this.TryGetMaxGoodPrefetchTimestamp)}_DeleteBadPack", metadata);
+                    metadata.Add(TracingConstants.MessageKey.InfoMessage, $"{nameof(this.TryGetMaxGoodPrefetchPackTimestamp)} deleting bad pack file");
+                    this.Context.Tracer.RelatedEvent(EventLevel.Informational, $"{nameof(this.TryGetMaxGoodPrefetchPackTimestamp)}_DeleteBadPack", metadata);
 
                     if (!this.Context.FileSystem.TryWaitForDelete(this.Context.Tracer, packPath, IoFailureRetryDelayMS, MaxDeleteRetries, RetryLoggingThreshold))
                     {
@@ -259,17 +259,17 @@ namespace Scalar.Common.Maintenance
         /// </summary>
         private void UpdateKeepPacks()
         {
-            if (!this.TryGetMaxGoodPrefetchTimestamp(out long maxGoodTimeStamp, out string error))
+            if (!this.TryGetMaxGoodPrefetchPackTimestamp(out long maxGoodTimeStamp, out string error))
             {
                 return;
             }
 
-            string prefix = $"prefetch-{maxGoodTimeStamp}-";
+            string prefix = $"{ScalarConstants.PrefetchPackPrefix}-{maxGoodTimeStamp}-";
 
             DirectoryItemInfo info = this.Context
                                          .FileSystem
                                          .ItemsInDirectory(this.Context.Enlistment.GitPackRoot)
-                                         .Where(item => item.Name.StartsWith(prefix)
+                                         .Where(item => item.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
                                                         && string.Equals(Path.GetExtension(item.Name), ".pack", StringComparison.OrdinalIgnoreCase))
                                          .FirstOrDefault();
             if (info == null)
@@ -289,7 +289,7 @@ namespace Scalar.Common.Maintenance
             foreach (string keepFile in this.Context
                                      .FileSystem
                                      .ItemsInDirectory(this.Context.Enlistment.GitPackRoot)
-                                     .Where(item => item.Name.EndsWith(".keep"))
+                                     .Where(item => item.Name.EndsWith(".keep", StringComparison.OrdinalIgnoreCase))
                                      .Select(item => item.FullName))
             {
                 if (!keepFile.Equals(newKeepFile))

@@ -1,12 +1,8 @@
-using Newtonsoft.Json.Linq;
 using Scalar.FunctionalTests.FileSystemRunners;
-using Scalar.FunctionalTests.Should;
 using Scalar.FunctionalTests.Tests;
 using Scalar.Tests.Should;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 
 namespace Scalar.FunctionalTests.Tools
@@ -84,22 +80,22 @@ namespace Scalar.FunctionalTests.Tools
             get; private set;
         }
 
-        public static ScalarFunctionalTestEnlistment CloneAndMountWithPerRepoCache(string pathToGvfs, bool skipPrefetch)
+        public static ScalarFunctionalTestEnlistment CloneAndMountWithPerRepoCache(string pathToGvfs, bool skipFetchCommitsAndTrees)
         {
             string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
             string localCache = ScalarFunctionalTestEnlistment.GetRepoSpecificLocalCacheRoot(enlistmentRoot);
-            return CloneAndMount(pathToGvfs, enlistmentRoot, null, localCacheRoot: localCache, skipPrefetch: skipPrefetch);
+            return CloneAndMount(pathToGvfs, enlistmentRoot, null, localCacheRoot: localCache, skipFetchCommitsAndTrees: skipFetchCommitsAndTrees);
         }
 
         public static ScalarFunctionalTestEnlistment CloneAndMount(
             string pathToGvfs,
             string commitish = null,
             string localCacheRoot = null,
-            bool skipPrefetch = false,
+            bool skipFetchCommitsAndTrees = false,
             bool fullClone = true)
         {
             string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
-            return CloneAndMount(pathToGvfs, enlistmentRoot, commitish, localCacheRoot, skipPrefetch, fullClone);
+            return CloneAndMount(pathToGvfs, enlistmentRoot, commitish, localCacheRoot, skipFetchCommitsAndTrees, fullClone);
         }
 
         public static ScalarFunctionalTestEnlistment CloneAndMountEnlistmentWithSpacesInPath(string pathToGvfs, string commitish = null)
@@ -130,9 +126,9 @@ namespace Scalar.FunctionalTests.Tools
             RepositoryHelpers.DeleteTestDirectory(this.EnlistmentRoot);
         }
 
-        public void CloneAndMount(bool skipPrefetch)
+        public void CloneAndMount(bool skipFetchCommitsAndTrees)
         {
-            this.scalarProcess.Clone(this.RepoUrl, this.Commitish, skipPrefetch, fullClone: this.fullClone);
+            this.scalarProcess.Clone(this.RepoUrl, this.Commitish, skipFetchCommitsAndTrees, fullClone: this.fullClone);
 
             GitProcess.Invoke(this.RepoRoot, "checkout " + this.Commitish);
             GitProcess.Invoke(this.RepoRoot, "branch --unset-upstream");
@@ -169,9 +165,9 @@ namespace Scalar.FunctionalTests.Tools
             return this.scalarProcess.TryMount(out output);
         }
 
-        public string Prefetch(bool failOnError = true, string standardInput = null)
+        public string FetchCommitsAndTrees(bool failOnError = true, string standardInput = null)
         {
-            return this.scalarProcess.Prefetch(failOnError, standardInput);
+            return this.scalarProcess.FetchCommitsAndTrees(failOnError, standardInput);
         }
 
         public void Repair(bool confirm)
@@ -256,7 +252,13 @@ namespace Scalar.FunctionalTests.Tools
                 objectHash.Substring(2));
         }
 
-        private static ScalarFunctionalTestEnlistment CloneAndMount(string pathToGvfs, string enlistmentRoot, string commitish, string localCacheRoot, bool skipPrefetch = false, bool fullClone = true)
+        private static ScalarFunctionalTestEnlistment CloneAndMount(
+            string pathToGvfs,
+            string enlistmentRoot,
+            string commitish,
+            string localCacheRoot,
+            bool skipFetchCommitsAndTrees = false,
+            bool fullClone = true)
         {
             ScalarFunctionalTestEnlistment enlistment = new ScalarFunctionalTestEnlistment(
                 pathToGvfs,
@@ -268,7 +270,7 @@ namespace Scalar.FunctionalTests.Tools
 
             try
             {
-                enlistment.CloneAndMount(skipPrefetch);
+                enlistment.CloneAndMount(skipFetchCommitsAndTrees);
             }
             catch (Exception e)
             {
