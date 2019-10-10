@@ -178,16 +178,16 @@ namespace Scalar.Platform.Windows
             security.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.CreatorOwnerSid, null), PipeAccessRights.FullControl, AccessControlType.Allow));
             security.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null), PipeAccessRights.FullControl, AccessControlType.Allow));
 
-            NamedPipeServerStream pipe = new NamedPipeServerStream(
+            NamedPipeServerStream pipe = NamedPipeServerStreamEx.Create(
                 pipeName,
                 PipeDirection.InOut,
                 NamedPipeServerStream.MaxAllowedServerInstances,
                 PipeTransmissionMode.Byte,
                 PipeOptions.WriteThrough | PipeOptions.Asynchronous,
-                0,  // default inBufferSize
-                0); // default outBufferSize
-
-            pipe.SetAccessControl(security);
+                0, // default inBufferSize
+                0, // default outBufferSize
+                security,
+                HandleInheritability.None);
 
             return pipe;
         }
