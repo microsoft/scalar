@@ -19,6 +19,7 @@ namespace Scalar.Service
         private string serviceName;
         private IRepoRegistry repoRegistry;
         private RequestHandler requestHandler;
+        private GitMaintenanceScheduler maintenanceScheduler;
 
         public ScalarService(
             ITracer tracer,
@@ -72,6 +73,15 @@ namespace Scalar.Service
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add("Version", ProcessHelper.GetCurrentProcessVersion());
                 this.tracer.RelatedEvent(EventLevel.Informational, $"{nameof(ScalarService)}_{nameof(this.ServiceThreadMain)}", metadata);
+
+                try
+                {
+                    this.maintenanceScheduler = new MaintenanceTaskScheduler(this.context, this.gitObjects);
+                }
+                catch (Exception e)
+                {
+                    tracer.RelatedError("Failed to start maintenance scheduler");
+                }
 
                 this.serviceStopped.WaitOne();
                 this.serviceStopped.Dispose();

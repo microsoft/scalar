@@ -35,6 +35,7 @@
     <Compile Include="Program.Mac.cs" />
     <Compile Include="RepoRegistration.cs" />
     <Compile Include="RepoRegistry.cs" />
+    <Compile Include="MaintenanceTaskScheduler.cs" />
   </ItemGroup>
   
   <ItemGroup>
