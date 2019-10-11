@@ -226,3 +226,6 @@ ModelManifest.xml
 
 # VS Code private directory
 .vscode/
+
+# JetBrains IDEs
+.idea/
