@@ -4,22 +4,31 @@ Scalar: Enabling Git at Scale
 Scalar is a tool that helps Git scale to some of the largest Git repositories.
 It achieves this by enabling some advanced Git features, such as:
 
-* *Sparse Checkout:* limits the size of your working directory.
+* *Sparse-checkout:* limits the size of your working directory.
 
-* *File System Monitor:* reduces the number of files Git scans to the set
-  that have been modified recently.
+* *File system monitor:* tracks the recently modified files and eliminates
+  the need for Git to scan the entire worktree.
 
-* *Commit-Graph:* accelerates commit walks and reachability calculations.
+* *Commit-graph:* accelerates commit walks and reachability calculations,
+   speeding up commands like `git log`.
 
-* *Multi-pack-index:* enables fast object lookups across many pack-files and
-  combines pack-files in the background without blocking user-facing commands.
+* *Multi-pack-index:* enables fast object lookups across many pack-files.
 
-Scalar clones also use the [GVFS](https://github.com/microsoft/vfsforgit)
-protocol to significantly reduce the amount of data required to get started
+* *Incremental repack:* Repacks the packed Git data into fewer pack-file
+  without disrupting concurrent commands by using the multi-pack-index.
+
+Scalar clones also use the
+[GVFS protocol](https://github.com/microsoft//VFSForGit/blob/master/Protocol.md)
+to significantly reduce the amount of data required to get started
 using a repository. By delaying all blob downloads until they are required,
 Scalar allows you to work with very large repositories quickly. This protocol
 allows a network of _cache servers_ to serve objects with lower latency and
-higher throughput.
+higher throughput. The cache servers also reduce load on the central server.
+
+Documentation
+-------------
+
+* [Frequently Asked Questions](faq.md)
 
 Scalar Commands
 ---------------

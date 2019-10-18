@@ -24,5 +24,6 @@ Options
 * `--dry-run`: Display progress and errors, but don't install Scalar. Not
   compatible with the `--confirm` option.
 
-* `--no-verify`: This parameter is reserved for internal use.
+* `--no-verify`: This parameter is currently required for upgrade on
+   macOS.
 
