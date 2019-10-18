@@ -27,8 +27,8 @@ namespace Scalar.FunctionalTests.Tests
         [TestCase]
         public void UnknownArgs()
         {
-            this.CallScalar("log --help", ExpectedReturnCode.Success);
-            this.CallScalar("log --unknown-arg", ExpectedReturnCode.ParsingError);
+            this.CallScalar("clone --help", ExpectedReturnCode.Success);
+            this.CallScalar("clone --unknown-arg", ExpectedReturnCode.ParsingError);
         }
 
         private void CallScalar(string args, ExpectedReturnCode expectedErrorCode)
