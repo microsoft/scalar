@@ -17,7 +17,6 @@ namespace Scalar.Mount
 
         private ScalarEnlistment enlistment;
         private ITracer tracer;
-        private GitMaintenanceScheduler maintenanceScheduler;
 
         private CacheServerInfo cacheServer;
         private RetryConfig retryConfig;
@@ -181,7 +180,7 @@ namespace Scalar.Mount
             }
         }
 
-        private void HandleRequest(ITracer tracer, string request, NamedPipeServer.Connection connection)
+        private void HandleRequest(ITracer requestTracer, string request, NamedPipeServer.Connection connection)
         {
             NamedPipeMessages.Message message = NamedPipeMessages.Message.FromString(request);
 
@@ -258,7 +257,6 @@ namespace Scalar.Mount
                     this.currentState = MountState.Unmounting;
 
                     connection.TrySendResponse(NamedPipeMessages.Unmount.Acknowledged);
-                    this.UnmountAndStopWorkingDirectoryCallbacks();
                     connection.TrySendResponse(NamedPipeMessages.Unmount.Completed);
 
                     this.unmountEvent.Set();
@@ -286,8 +284,6 @@ namespace Scalar.Mount
             GitObjectsHttpRequestor objectRequestor = new GitObjectsHttpRequestor(this.context.Tracer, this.context.Enlistment, cache, this.retryConfig);
             this.gitObjects = new ScalarGitObjects(this.context, objectRequestor);
 
-            this.maintenanceScheduler = this.CreateOrReportAndExit(() => new GitMaintenanceScheduler(this.context, this.gitObjects), "Failed to start maintenance scheduler");
-
             int majorVersion;
             int minorVersion;
             if (!RepoMetadata.Instance.TryGetOnDiskLayoutVersion(out majorVersion, out minorVersion, out error))
@@ -301,15 +297,6 @@ namespace Scalar.Mount
                     "Error: On disk version ({0}) does not match current version ({1})",
                     majorVersion,
                     ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion);
-            }
-        }
-
-        private void UnmountAndStopWorkingDirectoryCallbacks()
-        {
-            if (this.maintenanceScheduler != null)
-            {
-                this.maintenanceScheduler.Dispose();
-                this.maintenanceScheduler = null;
             }
         }
     }

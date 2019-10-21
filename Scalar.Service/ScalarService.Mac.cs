@@ -19,7 +19,7 @@ namespace Scalar.Service
         private string serviceName;
         private IRepoRegistry repoRegistry;
         private RequestHandler requestHandler;
-        private GitMaintenanceScheduler maintenanceScheduler;
+        private MaintenanceTaskScheduler maintenanceTaskScheduler;
 
         public ScalarService(
             ITracer tracer,
@@ -76,11 +76,14 @@ namespace Scalar.Service
 
                 try
                 {
-                    this.maintenanceScheduler = new MaintenanceTaskScheduler(this.context, this.gitObjects);
+                    this.maintenanceTaskScheduler = new MaintenanceTaskScheduler();
                 }
                 catch (Exception e)
                 {
-                    tracer.RelatedError("Failed to start maintenance scheduler");
+                    EventMetadata exceptionMetadata = new EventMetadata();
+                    exceptionMetadata.Add("Area", EtwArea);
+                    exceptionMetadata.Add("Exception", e.ToString());
+                    tracer.RelatedError(exceptionMetadata, "Failed to start maintenance scheduler");
                 }
 
                 this.serviceStopped.WaitOne();

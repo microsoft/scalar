@@ -1,4 +1,6 @@
-﻿using Scalar.Common.Git;
+﻿using Scalar.Common;
+using Scalar.Common.Git;
+using Scalar.Common.Maintenance;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -13,16 +15,16 @@ namespace Scalar.Service
         private readonly TimeSpan packfileDueTime = TimeSpan.FromMinutes(30);
         private readonly TimeSpan packfilePeriod = TimeSpan.FromHours(12);
 
-        private readonly TimeSpan prefetchPeriod = TimeSpan.FromMinutes(15);
+        // Used for both FetchCommitsAndTrees and CommitGraphStep.
+        private readonly TimeSpan commitsAndTreesPeriod = TimeSpan.FromMinutes(15);
 
         private List<Timer> stepTimers;
         private GitMaintenanceQueue queue;
 
-        public GitMaintenanceScheduler(ScalarContext context, GitObjects gitObjects)
+        public MaintenanceTaskScheduler()
         {
             this.stepTimers = new List<Timer>();
             this.queue = new GitMaintenanceQueue(context);
-
             this.ScheduleRecurringSteps();
         }
 
@@ -40,20 +42,20 @@ namespace Scalar.Service
 
         private void ScheduleRecurringSteps()
         {
-            if (this.context.Unattended)
+            if (ScalarEnlistment.IsUnattended(tracer: null))
             {
                 return;
             }
 
-            if (this.gitObjects.IsUsingCacheServer())
-            {
-                TimeSpan prefetchPeriod = TimeSpan.FromMinutes(15);
-                this.stepTimers.Add(new Timer(
-                    (state) => this.queue.TryEnqueue(new PrefetchStep(this.context, this.gitObjects)),
-                    state: null,
-                    dueTime: this.prefetchPeriod,
-                    period: this.prefetchPeriod));
-            }
+            this.stepTimers.Add(new Timer(
+                (state) =>
+                {
+                    this.queue.TryEnqueue(new FetchCommitsAndTreesStep(this.context, this.gitObjects));
+                    this.queue.TryEnqueue(new CommitGraphStep(this.context));
+                },
+                state: null,
+                dueTime: this.commitsAndTreesPeriod,
+                period: this.commitsAndTreesPeriod));
 
             this.stepTimers.Add(new Timer(
                 (state) => this.queue.TryEnqueue(new LooseObjectsStep(this.context)),
