@@ -20,7 +20,7 @@ namespace Scalar.Service
         private ITracer tracer;
         private PhysicalFileSystem fileSystem;
         private object repoLock = new object();
-        private IScalarVerb repoMounter;
+        private IScalarVerb scalarVerb;
         private INotificationHandler notificationHandler;
 
         public RepoRegistry(
@@ -33,7 +33,7 @@ namespace Scalar.Service
             this.tracer = tracer;
             this.fileSystem = fileSystem;
             this.registryParentFolderPath = serviceDataLocation;
-            this.repoMounter = repoMounter;
+            this.scalarVerb = repoMounter;
             this.notificationHandler = notificationHandler;
 
             EventMetadata metadata = new EventMetadata();
@@ -41,16 +41,6 @@ namespace Scalar.Service
             metadata.Add("registryParentFolderPath", this.registryParentFolderPath);
             metadata.Add(TracingConstants.MessageKey.InfoMessage, "RepoRegistry created");
             this.tracer.RelatedEvent(EventLevel.Informational, "RepoRegistry_Created", metadata);
-        }
-
-        public void Upgrade()
-        {
-            // Version 1 to Version 2, added OwnerSID
-            Dictionary<string, RepoRegistration> allRepos = this.ReadRegistry();
-            if (allRepos.Any())
-            {
-                this.WriteRegistry(allRepos);
-            }
         }
 
         public bool TryRegisterRepo(string repoRoot, string ownerSID, out string errorMessage)
@@ -182,7 +172,7 @@ namespace Scalar.Service
 
                 foreach (RepoRegistration repo in activeRepos)
                 {
-                    if (!this.repoMounter.CallMaintenance(task, repo.EnlistmentRoot, sessionId))
+                    if (!this.scalarVerb.CallMaintenance(task, repo.EnlistmentRoot, sessionId))
                     {
                         // TODO: Logging
                     }
