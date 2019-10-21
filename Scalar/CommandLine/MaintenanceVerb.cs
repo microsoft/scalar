@@ -77,11 +77,11 @@ namespace Scalar.CommandLine
                                 return;
 
                             case ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName:
-                                (new PackFileMaintenanceStep(
+                                (new PackfileMaintenanceStep(
                                     context,
                                     forceRun: true,
                                     batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
-                                        PackFileMaintenanceStep.DefaultBatchSize :
+                                        PackfileMaintenanceStep.DefaultBatchSize :
                                         this.PackfileMaintenanceBatchSize)).Execute();
                                 return;
 

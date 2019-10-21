@@ -24,7 +24,7 @@ namespace Scalar.Common.Maintenance
     /// up to at least "size". Then generate a new pack-file containing the
     /// objects that are uniquely referenced by the multi-pack-index.
     /// </summary>
-    public class PackFileMaintenanceStep : GitMaintenanceStep
+    public class PackfileMaintenanceStep : GitMaintenanceStep
     {
         public const string PackfileLastRunFileName = "pack-maintenance.time";
         public const string DefaultBatchSize = "2g";
@@ -32,7 +32,7 @@ namespace Scalar.Common.Maintenance
         private readonly bool forceRun;
         private readonly string batchSize;
 
-        public PackFileMaintenanceStep(
+        public PackfileMaintenanceStep(
             ScalarContext context,
             bool requireObjectCacheLock = true,
             bool forceRun = false,
@@ -44,7 +44,7 @@ namespace Scalar.Common.Maintenance
             this.batchSize = batchSize;
         }
 
-        public override string Area => nameof(PackFileMaintenanceStep);
+        public override string Area => nameof(PackfileMaintenanceStep);
         protected override string LastRunTimeFilePath => Path.Combine(this.Context.Enlistment.GitObjectsRoot, "info", PackfileLastRunFileName);
         protected override TimeSpan TimeBetweenRuns => TimeSpan.FromDays(1);
 
@@ -96,14 +96,14 @@ namespace Scalar.Common.Maintenance
                 {
                     if (!this.EnoughTimeBetweenRuns())
                     {
-                        activity.RelatedWarning($"Skipping {nameof(PackFileMaintenanceStep)} due to not enough time between runs");
+                        activity.RelatedWarning($"Skipping {nameof(PackfileMaintenanceStep)} due to not enough time between runs");
                         return;
                     }
 
                     IEnumerable<int> processIds = this.GitProcessChecker.GetRunningGitProcessIds();
                     if (processIds.Any())
                     {
-                        activity.RelatedWarning($"Skipping {nameof(PackFileMaintenanceStep)} due to git pids {string.Join(",", processIds)}", Keywords.Telemetry);
+                        activity.RelatedWarning($"Skipping {nameof(PackfileMaintenanceStep)} due to git pids {string.Join(",", processIds)}", Keywords.Telemetry);
                         return;
                     }
                 }
