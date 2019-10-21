@@ -56,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
-    <Compile Include="ScalarMountProcess.Windows.cs" />
+    <Compile Include="ScalarVerb.Windows.cs" />
     <Compile Include="ScalarService.Windows.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -67,7 +67,7 @@
     <Compile Include="Handlers\RequestHandler.cs" />
     <Compile Include="Handlers\UnregisterRepoHandler.cs" />
     <Compile Include="Handlers\RegisterRepoHandler.cs" />
-    <Compile Include="IRepoMounter.cs" />
+    <Compile Include="IScalarVerb.cs" />
     <Compile Include="IRepoRegistry.cs" />
     <Compile Include="ProductUpgradeTimer.cs" />
     <Compile Include="Program.Windows.cs" />

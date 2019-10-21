@@ -20,14 +20,14 @@ namespace Scalar.Service
         private ITracer tracer;
         private PhysicalFileSystem fileSystem;
         private object repoLock = new object();
-        private IRepoMounter repoMounter;
+        private IScalarVerb repoMounter;
         private INotificationHandler notificationHandler;
 
         public RepoRegistry(
             ITracer tracer,
             PhysicalFileSystem fileSystem,
             string serviceDataLocation,
-            IRepoMounter repoMounter,
+            IScalarVerb repoMounter,
             INotificationHandler notificationHandler)
         {
             this.tracer = tracer;
@@ -170,29 +170,21 @@ namespace Scalar.Service
             return false;
         }
 
-        public void AutoMountRepos(string userId, int sessionId)
+        public void RunMainteanceTaskForRepos(string task, string userId, int sessionId)
         {
-            using (ITracer activity = this.tracer.StartActivity("AutoMount", EventLevel.Informational))
+            using (ITracer activity = this.tracer.StartActivity(nameof(this.RunMainteanceTaskForRepos), EventLevel.Informational))
             {
                 List<RepoRegistration> activeRepos = this.GetActiveReposForUser(userId);
                 if (activeRepos.Count > 0)
                 {
-                    this.SendNotification(
-                    sessionId,
-                    NamedPipeMessages.Notification.Request.Identifier.AutomountStart,
-                    enlistment: null,
-                    enlistmentCount: activeRepos.Count);
+                    // TODO: Logging
                 }
 
                 foreach (RepoRegistration repo in activeRepos)
                 {
-                    // TODO #1089: We need to respect the elevation level of the original mount
-                    if (!this.repoMounter.MountRepository(repo.EnlistmentRoot, sessionId))
+                    if (!this.repoMounter.CallMaintenance(task, repo.EnlistmentRoot, sessionId))
                     {
-                        this.SendNotification(
-                            sessionId,
-                            NamedPipeMessages.Notification.Request.Identifier.MountFailure,
-                            repo.EnlistmentRoot);
+                        // TODO: Logging
                     }
                 }
             }

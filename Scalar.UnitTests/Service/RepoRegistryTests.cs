@@ -15,13 +15,13 @@ namespace Scalar.UnitTests.Service
     [TestFixture]
     public class RepoRegistryTests
     {
-        private Mock<IRepoMounter> mockRepoMounter;
+        private Mock<IScalarVerb> mockRepoMounter;
         private Mock<INotificationHandler> mockNotificationHandler;
 
         [SetUp]
         public void Setup()
         {
-            this.mockRepoMounter = new Mock<IRepoMounter>(MockBehavior.Strict);
+            this.mockRepoMounter = new Mock<IScalarVerb>(MockBehavior.Strict);
             this.mockNotificationHandler = new Mock<INotificationHandler>(MockBehavior.Strict);
         }
 

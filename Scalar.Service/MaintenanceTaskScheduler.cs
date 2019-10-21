@@ -19,11 +19,16 @@ namespace Scalar.Service
         private List<Timer> stepTimers;
         private MaintenanceTaskRunner taskRunner;
 
-        public MaintenanceTaskScheduler()
+        public MaintenanceTaskScheduler(IRepoRegistry repoRegistry)
         {
             this.stepTimers = new List<Timer>();
-            this.taskRunner = new MaintenanceTaskRunner();
+            this.taskRunner = new MaintenanceTaskRunner(repoRegistry);
             this.ScheduleRecurringSteps();
+        }
+
+        public void RegisterActiveUser(string userId, int sessionId)
+        {
+            this.taskRunner.RegisterActiveUser(userId, sessionId);
         }
 
         public void Dispose()

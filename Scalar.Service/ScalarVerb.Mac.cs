@@ -5,37 +5,34 @@ using System.IO;
 
 namespace Scalar.Service
 {
-    public class ScalarMountProcess : IRepoMounter
+    public class ScalarVerb : IScalarVerb
     {
         private const string ExecutablePath = "/bin/launchctl";
 
         private MountLauncher processLauncher;
         private ITracer tracer;
 
-        public ScalarMountProcess(ITracer tracer, MountLauncher processLauncher = null)
+        public ScalarVerb(ITracer tracer, MountLauncher processLauncher = null)
         {
             this.tracer = tracer;
             this.processLauncher = processLauncher ?? new MountLauncher(tracer);
         }
 
-        public bool MountRepository(string repoRoot, int sessionId)
+        public bool CallMaintenance(string task, string repoRoot, int sessionId)
         {
-            string arguments = string.Format(
-                "asuser {0} {1} mount {2}",
-                sessionId,
-                Path.Combine(ScalarPlatform.Instance.Constants.ScalarBinDirectoryPath, ScalarPlatform.Instance.Constants.ScalarExecutableName),
-                repoRoot);
+            // TODO: Here and in Windows only compute these once
+            string scalarBinPath = Path.Combine(
+                ScalarPlatform.Instance.Constants.ScalarBinDirectoryPath,
+                ScalarPlatform.Instance.Constants.ScalarExecutableName);
+
+            InternalVerbParameters internalParams = new InternalVerbParameters(startedByService: true);
+
+            string arguments =
+                $"asuser {sessionId} {scalarBinPath} maintenance \"{repoRoot}\" {task} --{ScalarConstants.VerbParameters.InternalUseOnly} {internalParams.ToJson()}";
 
             if (!this.processLauncher.LaunchProcess(ExecutablePath, arguments, repoRoot))
             {
-                this.tracer.RelatedError($"{nameof(this.MountRepository)}: Unable to start the Scalar process.");
-                return false;
-            }
-
-            string errorMessage;
-            if (!this.processLauncher.WaitUntilMounted(this.tracer, repoRoot, false, out errorMessage))
-            {
-                this.tracer.RelatedError(errorMessage);
+                this.tracer.RelatedError($"{nameof(this.CallMaintenance)}: Unable to start the Scalar process.");
                 return false;
             }
 
@@ -64,7 +61,7 @@ namespace Scalar.Service
                 if (result.ExitCode != 0)
                 {
                     EventMetadata metadata = new EventMetadata();
-                    metadata.Add("Area", nameof(ScalarMountProcess));
+                    metadata.Add("Area", nameof(ScalarVerb));
                     metadata.Add(nameof(executablePath), executablePath);
                     metadata.Add(nameof(arguments), arguments);
                     metadata.Add(nameof(workingDirectory), workingDirectory);
@@ -76,11 +73,6 @@ namespace Scalar.Service
                 }
 
                 return true;
-            }
-
-            public virtual bool WaitUntilMounted(ITracer tracer, string enlistmentRoot, bool unattended, out string errorMessage)
-            {
-                return ScalarEnlistment.WaitUntilMounted(tracer, enlistmentRoot, unattended: false, errorMessage: out errorMessage);
             }
         }
     }

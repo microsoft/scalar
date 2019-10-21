@@ -39,8 +39,6 @@ namespace Scalar.Service
         {
             try
             {
-                this.AutoMountReposForUser();
-
                 if (!string.IsNullOrEmpty(this.serviceName))
                 {
                     string pipeName = ScalarPlatform.Instance.GetScalarServiceNamedPipeName(this.serviceName);
@@ -76,7 +74,18 @@ namespace Scalar.Service
 
                 try
                 {
-                    this.maintenanceTaskScheduler = new MaintenanceTaskScheduler();
+                    this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.repoRegistry);
+
+                    string currentUser = ScalarPlatform.Instance.GetCurrentUser();
+                    if (int.TryParse(currentUser, out int sessionId))
+                    {
+                        // On Mac, there is no separate session Id. currentUser is used as sessionId
+                        this.maintenanceTaskScheduler.RegisterActiveUser(currentUser, sessionId);
+                    }
+                    else
+                    {
+                        this.tracer.RelatedError($"{nameof(this.ServiceThreadMain)} Error: could not parse current user '{currentUser}' as int.");
+                    }
                 }
                 catch (Exception e)
                 {
@@ -92,21 +101,6 @@ namespace Scalar.Service
             catch (Exception e)
             {
                 this.LogExceptionAndExit(e, nameof(this.ServiceThreadMain));
-            }
-        }
-
-        private void AutoMountReposForUser()
-        {
-            string currentUser = ScalarPlatform.Instance.GetCurrentUser();
-            if (int.TryParse(currentUser, out int sessionId))
-            {
-                // On Mac, there is no separate session Id. currentUser is used as sessionId
-                this.repoRegistry.AutoMountRepos(currentUser, sessionId);
-                this.repoRegistry.TraceStatus();
-            }
-            else
-            {
-                this.tracer.RelatedError($"{nameof(this.AutoMountReposForUser)} Error: could not parse current user({currentUser}) info from RepoRegistry.");
             }
         }
 

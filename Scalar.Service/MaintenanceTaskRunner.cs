@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
+using Scalar.Common;
 
 namespace Scalar.Service
 {
@@ -9,17 +11,30 @@ namespace Scalar.Service
         private readonly ManualResetEvent commitsAndTreesEvent;
         private readonly ManualResetEvent shutdownEvent;
 
-        public MaintenanceTaskRunner()
+        private readonly ConcurrentHashSet<Tuple<string, int>> registeredUsers;
+
+        private readonly IRepoRegistry repoRegistry;
+
+        public MaintenanceTaskRunner(IRepoRegistry repoRegistry)
         {
             this.looseObjectsEvent = new ManualResetEvent(initialState: false);
             this.packFilesEvent = new ManualResetEvent(initialState: false);
             this.commitsAndTreesEvent = new ManualResetEvent(initialState: false);
             this.shutdownEvent = new ManualResetEvent(initialState: false);
 
+            this.registeredUsers = new ConcurrentHashSet<Tuple<string, int>>();
+
+            this.repoRegistry = repoRegistry;
+
             Thread worker = new Thread(() => this.RunTasks());
             worker.Name = "MaintenanceWorker";
             worker.IsBackground = true;
             worker.Start();
+        }
+
+        public void RegisterActiveUser(string userId, int sessionId)
+        {
+            this.registeredUsers.Add(new Tuple<string, int>(userId, sessionId));
         }
 
         public void RunLooseObjectsTask()
@@ -68,13 +83,15 @@ namespace Scalar.Service
 
                 if (this.looseObjectsEvent.WaitOne(0))
                 {
-                    this.RunLooseObjectTaskInRepos();
+                    this.RunMaintenanceTaskForRegisteredUsers(
+                        ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName);
                     this.looseObjectsEvent.Reset();
                 }
 
                 if (this.packFilesEvent.WaitOne(0))
                 {
-                    this.RunPackFilesTaskInRepos();
+                    this.RunMaintenanceTaskForRegisteredUsers(
+                        ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName);
                     this.packFilesEvent.Reset();
                 }
 
@@ -82,27 +99,24 @@ namespace Scalar.Service
                 {
                     // Increase the chances that "commit-graph" has something to
                     // do by running "fetch-commits-and-trees" first
-                    this.RunFetchCommitsAndTreesTaskInRepos();
-                    this.RunCommitGraphTaskInRepos();
+                    this.RunMaintenanceTaskForRegisteredUsers(
+                        ScalarConstants.VerbParameters.Maintenance.FetchCommitsAndTreesTaskName);
+                    this.RunMaintenanceTaskForRegisteredUsers(
+                        ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName);
                     this.commitsAndTreesEvent.Reset();
                 }
             }
         }
 
-        private void RunLooseObjectTaskInRepos()
+        private void RunMaintenanceTaskForRegisteredUsers(string task)
         {
-        }
-
-        private void RunPackFilesTaskInRepos()
-        {
-        }
-
-        private void RunFetchCommitsAndTreesTaskInRepos()
-        {
-        }
-
-        private void RunCommitGraphTaskInRepos()
-        {
+            foreach (Tuple<string, int> user in this.registeredUsers)
+            {
+                this.repoRegistry.RunMainteanceTaskForRepos(
+                    task,
+                    user.Item1,
+                    user.Item2);
+            }
         }
     }
 }
