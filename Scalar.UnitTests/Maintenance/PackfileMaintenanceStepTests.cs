@@ -33,7 +33,7 @@ namespace Scalar.UnitTests.Maintenance
         {
             this.TestSetup(DateTime.UtcNow);
 
-            PackfileMaintenanceStep step = new PackfileMaintenanceStep(this.context, requireObjectCacheLock: false, forceRun: true);
+            PackFileMaintenanceStep step = new PackFileMaintenanceStep(this.context, requireObjectCacheLock: false, forceRun: true);
             step.Execute();
 
             this.tracer.StartActivityTracer.RelatedErrorEvents.Count.ShouldEqual(0);
@@ -52,7 +52,7 @@ namespace Scalar.UnitTests.Maintenance
         {
             this.TestSetup(DateTime.UtcNow);
 
-            PackfileMaintenanceStep step = new PackfileMaintenanceStep(this.context, requireObjectCacheLock: false, forceRun: false);
+            PackFileMaintenanceStep step = new PackFileMaintenanceStep(this.context, requireObjectCacheLock: false, forceRun: false);
             step.Execute();
 
             this.tracer.StartActivityTracer.RelatedErrorEvents.Count.ShouldEqual(0);
@@ -70,7 +70,7 @@ namespace Scalar.UnitTests.Maintenance
             mockChecker.Setup(checker => checker.GetRunningGitProcessIds())
                        .Returns(Array.Empty<int>());
 
-            PackfileMaintenanceStep step = new PackfileMaintenanceStep(
+            PackFileMaintenanceStep step = new PackFileMaintenanceStep(
                                                     this.context,
                                                     requireObjectCacheLock: false,
                                                     forceRun: false,
@@ -100,7 +100,7 @@ namespace Scalar.UnitTests.Maintenance
             mockChecker.Setup(checker => checker.GetRunningGitProcessIds())
                        .Returns(new int[] { 1 });
 
-            PackfileMaintenanceStep step = new PackfileMaintenanceStep(
+            PackFileMaintenanceStep step = new PackFileMaintenanceStep(
                                                     this.context,
                                                     requireObjectCacheLock: false,
                                                     forceRun: false,
@@ -125,7 +125,7 @@ namespace Scalar.UnitTests.Maintenance
                 this.WriteCommand,
                 () => new GitProcess.Result(string.Empty, string.Empty, GitProcess.Result.SuccessCode));
 
-            PackfileMaintenanceStep step = new PackfileMaintenanceStep(this.context, requireObjectCacheLock: false, forceRun: true);
+            PackFileMaintenanceStep step = new PackFileMaintenanceStep(this.context, requireObjectCacheLock: false, forceRun: true);
             step.Execute();
 
             this.tracer.StartActivityTracer.RelatedErrorEvents.Count.ShouldEqual(0);
@@ -147,7 +147,7 @@ namespace Scalar.UnitTests.Maintenance
         {
             this.TestSetup(DateTime.UtcNow);
 
-            PackfileMaintenanceStep step = new PackfileMaintenanceStep(this.context, requireObjectCacheLock: false, forceRun: true);
+            PackFileMaintenanceStep step = new PackFileMaintenanceStep(this.context, requireObjectCacheLock: false, forceRun: true);
 
             step.GetPackFilesInfo(out int count, out long size, out bool hasKeep);
             count.ShouldEqual(3);
@@ -167,7 +167,7 @@ namespace Scalar.UnitTests.Maintenance
         {
             this.TestSetup(DateTime.UtcNow);
 
-            PackfileMaintenanceStep step = new PackfileMaintenanceStep(this.context, requireObjectCacheLock: false, forceRun: true);
+            PackFileMaintenanceStep step = new PackFileMaintenanceStep(this.context, requireObjectCacheLock: false, forceRun: true);
 
             List<string> staleIdx = step.CleanStaleIdxFiles(out int numDeletionBlocked);
 
@@ -190,7 +190,7 @@ namespace Scalar.UnitTests.Maintenance
             ScalarEnlistment enlistment = new MockScalarEnlistment(this.gitProcess);
 
             // Create a last run time file
-            MockFile timeFile = new MockFile(Path.Combine(enlistment.GitObjectsRoot, "info", PackfileMaintenanceStep.PackfileLastRunFileName), lastRunTime);
+            MockFile timeFile = new MockFile(Path.Combine(enlistment.GitObjectsRoot, "info", PackFileMaintenanceStep.PackfileLastRunFileName), lastRunTime);
 
             // Create info directory to hold last run time file
             MockDirectory info = new MockDirectory(

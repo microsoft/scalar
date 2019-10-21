@@ -17,7 +17,7 @@ namespace Scalar.CommandLine
         private const string MaintenanceVerbName = "maintenance";
 
         private const string LooseObjectsTaskName = "loose-objects";
-        private const string PackfilesTaskName = "pack-files";
+        private const string PackFilesTaskName = "pack-files";
         private const string CommitGraphTaskName = "commit-graph";
 
         private const string BatchSizeOptionName = "batch-size";
@@ -29,7 +29,7 @@ namespace Scalar.CommandLine
             Default = "",
             HelpText = "Maintenance task to run.  Allowed values are '"
                 + LooseObjectsTaskName + "', '"
-                + PackfilesTaskName + "', '"
+                + PackFilesTaskName + "', '"
                 + CommitGraphTaskName + "'")]
         public string MaintenanceTask { get; set; }
 
@@ -37,7 +37,7 @@ namespace Scalar.CommandLine
             BatchSizeOptionName,
             Required = false,
             Default = "",
-            HelpText = "Batch size.  This option can only be used with the '" + PackfilesTaskName + "' task")]
+            HelpText = "Batch size.  This option can only be used with the '" + PackFilesTaskName + "' task")]
         public string PackfileMaintenanceBatchSize { get; set; }
 
         public bool SkipVersionCheck { get; set; }
@@ -84,12 +84,12 @@ namespace Scalar.CommandLine
                                 (new LooseObjectsStep(context, forceRun: true)).Execute();
                                 return;
 
-                            case PackfilesTaskName:
-                                (new PackfileMaintenanceStep(
+                            case PackFilesTaskName:
+                                (new PackFileMaintenanceStep(
                                     context,
                                     forceRun: true,
                                     batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
-                                        PackfileMaintenanceStep.DefaultBatchSize :
+                                        PackFileMaintenanceStep.DefaultBatchSize :
                                         this.PackfileMaintenanceBatchSize)).Execute();
                                 return;
 
@@ -155,7 +155,7 @@ namespace Scalar.CommandLine
                 this.ReportErrorAndExit(
                     tracer,
                     ReturnCode.UnsupportedOption,
-                    $"--{BatchSizeOptionName} can only be used with the '{PackfilesTaskName}' task");
+                    $"--{BatchSizeOptionName} can only be used with the '{PackFilesTaskName}' task");
             }
         }
 

@@ -1,6 +1,4 @@
 ﻿using Scalar.Common;
-using Scalar.Common.Git;
-using Scalar.Common.Maintenance;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -15,22 +13,22 @@ namespace Scalar.Service
         private readonly TimeSpan packfileDueTime = TimeSpan.FromMinutes(30);
         private readonly TimeSpan packfilePeriod = TimeSpan.FromHours(12);
 
-        // Used for both FetchCommitsAndTrees and CommitGraphStep.
+        // Used for both "fetch-commits-and-trees" and "commit-graph" tasks
         private readonly TimeSpan commitsAndTreesPeriod = TimeSpan.FromMinutes(15);
 
         private List<Timer> stepTimers;
-        private GitMaintenanceQueue queue;
+        private MaintenanceTaskRunner taskRunner;
 
         public MaintenanceTaskScheduler()
         {
             this.stepTimers = new List<Timer>();
-            this.queue = new GitMaintenanceQueue(context);
+            this.taskRunner = new MaintenanceTaskRunner();
             this.ScheduleRecurringSteps();
         }
 
         public void Dispose()
         {
-            this.queue.Stop();
+            this.taskRunner.Stop();
 
             foreach (Timer timer in this.stepTimers)
             {
@@ -48,23 +46,19 @@ namespace Scalar.Service
             }
 
             this.stepTimers.Add(new Timer(
-                (state) =>
-                {
-                    this.queue.TryEnqueue(new FetchCommitsAndTreesStep(this.context, this.gitObjects));
-                    this.queue.TryEnqueue(new CommitGraphStep(this.context));
-                },
+                (state) => this.taskRunner.RunCommitsAndTreesTasks(),
                 state: null,
                 dueTime: this.commitsAndTreesPeriod,
                 period: this.commitsAndTreesPeriod));
 
             this.stepTimers.Add(new Timer(
-                (state) => this.queue.TryEnqueue(new LooseObjectsStep(this.context)),
+                (state) => this.taskRunner.RunLooseObjectsTask(),
                 state: null,
                 dueTime: this.looseObjectsDueTime,
                 period: this.looseObjectsPeriod));
 
             this.stepTimers.Add(new Timer(
-                (state) => this.queue.TryEnqueue(new PackfileMaintenanceStep(this.context)),
+                (state) => this.taskRunner.RunPackFilesTask(),
                 state: null,
                 dueTime: this.packfileDueTime,
                 period: this.packfilePeriod));

@@ -83,7 +83,7 @@ namespace Scalar.Service
                     EventMetadata exceptionMetadata = new EventMetadata();
                     exceptionMetadata.Add("Area", EtwArea);
                     exceptionMetadata.Add("Exception", e.ToString());
-                    tracer.RelatedError(exceptionMetadata, "Failed to start maintenance scheduler");
+                    this.tracer.RelatedError(exceptionMetadata, "Failed to start maintenance scheduler");
                 }
 
                 this.serviceStopped.WaitOne();
