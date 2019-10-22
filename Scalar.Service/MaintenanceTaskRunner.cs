@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Scalar.Common;
+using Scalar.Common.Tracing;
 
 namespace Scalar.Service
 {
@@ -14,9 +15,11 @@ namespace Scalar.Service
         private readonly ConcurrentHashSet<Tuple<string, int>> registeredUsers;
 
         private readonly IRepoRegistry repoRegistry;
+        private readonly ITracer tracer;
 
-        public MaintenanceTaskRunner(IRepoRegistry repoRegistry)
+        public MaintenanceTaskRunner(ITracer tracer, IRepoRegistry repoRegistry)
         {
+            this.tracer = tracer;
             this.looseObjectsEvent = new ManualResetEvent(initialState: false);
             this.packFilesEvent = new ManualResetEvent(initialState: false);
             this.commitsAndTreesEvent = new ManualResetEvent(initialState: false);
@@ -62,6 +65,8 @@ namespace Scalar.Service
 
         private void RunTasks()
         {
+            this.tracer.RelatedInfo($"{nameof(MaintenanceTaskRunner)}_{nameof(this.RunTasks)}: Waiting for tasks");
+
             while (true)
             {
                 WaitHandle.WaitAny(
@@ -75,6 +80,7 @@ namespace Scalar.Service
 
                 if (this.shutdownEvent.WaitOne(0))
                 {
+                    this.tracer.RelatedInfo($"{nameof(MaintenanceTaskRunner)}_{nameof(this.RunTasks)}: Shutting down");
                     return;
                 }
 
@@ -110,6 +116,8 @@ namespace Scalar.Service
 
         private void RunMaintenanceTaskForRegisteredUsers(string task)
         {
+            this.tracer.RelatedInfo($"{nameof(this.RunMaintenanceTaskForRegisteredUsers)}: Running '{task}'");
+
             foreach (Tuple<string, int> user in this.registeredUsers)
             {
                 this.repoRegistry.RunMainteanceTaskForRepos(

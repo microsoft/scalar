@@ -1,4 +1,5 @@
 ﻿using Scalar.Common;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -16,18 +17,29 @@ namespace Scalar.Service
         // Used for both "fetch-commits-and-trees" and "commit-graph" tasks
         private readonly TimeSpan commitsAndTreesPeriod = TimeSpan.FromMinutes(15);
 
-        private List<Timer> stepTimers;
-        private MaintenanceTaskRunner taskRunner;
+        private readonly ITracer tracer;
 
-        public MaintenanceTaskScheduler(IRepoRegistry repoRegistry)
+        private readonly MaintenanceTaskRunner taskRunner;
+        private List<Timer> stepTimers;
+
+        public MaintenanceTaskScheduler(ITracer tracer, IRepoRegistry repoRegistry)
         {
+            this.tracer = tracer;
             this.stepTimers = new List<Timer>();
-            this.taskRunner = new MaintenanceTaskRunner(repoRegistry);
+            this.taskRunner = new MaintenanceTaskRunner(tracer, repoRegistry);
             this.ScheduleRecurringSteps();
         }
 
         public void RegisterActiveUser(string userId, int sessionId)
         {
+            EventMetadata metadata = new EventMetadata();
+            metadata.Add(nameof(userId), userId);
+            metadata.Add(nameof(sessionId), sessionId);
+            metadata.Add(
+                TracingConstants.MessageKey.InfoMessage,
+                $"{nameof(MaintenanceTaskScheduler)}: Registering user");
+            this.tracer.RelatedEvent(EventLevel.Informational, nameof(this.RegisterActiveUser), metadata);
+
             this.taskRunner.RegisterActiveUser(userId, sessionId);
         }
 
@@ -45,8 +57,9 @@ namespace Scalar.Service
 
         private void ScheduleRecurringSteps()
         {
-            if (ScalarEnlistment.IsUnattended(tracer: null))
+            if (ScalarEnlistment.IsUnattended(this.tracer))
             {
+                this.tracer.RelatedInfo($"{nameof(this.ScheduleRecurringSteps)}: Skipping maintenance tasks due to running unattended");
                 return;
             }
 

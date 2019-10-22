@@ -51,7 +51,7 @@ namespace Scalar.Service
                     this.tracer,
                     new PhysicalFileSystem(),
                     this.serviceDataLocation,
-                    new ScalarVerb(this.tracer),
+                    new ScalarVerbRunner(this.tracer),
                     this.notificationHandler);
 
                 this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.repoRegistry);

@@ -20,14 +20,14 @@ namespace Scalar.Service
         private ITracer tracer;
         private PhysicalFileSystem fileSystem;
         private object repoLock = new object();
-        private IScalarVerb scalarVerb;
+        private IScalarVerbRunner scalarVerb;
         private INotificationHandler notificationHandler;
 
         public RepoRegistry(
             ITracer tracer,
             PhysicalFileSystem fileSystem,
             string serviceDataLocation,
-            IScalarVerb repoMounter,
+            IScalarVerbRunner repoMounter,
             INotificationHandler notificationHandler)
         {
             this.tracer = tracer;
@@ -165,16 +165,27 @@ namespace Scalar.Service
             using (ITracer activity = this.tracer.StartActivity(nameof(this.RunMainteanceTaskForRepos), EventLevel.Informational))
             {
                 List<RepoRegistration> activeRepos = this.GetActiveReposForUser(userId);
-                if (activeRepos.Count > 0)
+                if (activeRepos.Count == 0)
                 {
-                    // TODO: Logging
+                    EventMetadata metadata = CreateEventMetadata();
+                    metadata.Add(nameof(task), task);
+                    metadata.Add(nameof(userId), userId);
+                    metadata.Add(nameof(sessionId), sessionId);
+                    metadata.Add(TracingConstants.MessageKey.InfoMessage, "No active repos for user");
+                    this.tracer.RelatedEvent(
+                        EventLevel.Informational,
+                        $"{nameof(this.RunMainteanceTaskForRepos)}_NoRepos",
+                        metadata);
                 }
-
-                foreach (RepoRegistration repo in activeRepos)
+                else
                 {
-                    if (!this.scalarVerb.CallMaintenance(task, repo.EnlistmentRoot, sessionId))
+                    foreach (RepoRegistration repo in activeRepos)
                     {
-                        // TODO: Logging
+                        if (!this.scalarVerb.CallMaintenance(task, repo.EnlistmentRoot, sessionId))
+                        {
+                            // TODO: #111 - If the maintenance verb failed because the repo is no longer
+                            // on disk, it should be removed from the registry
+                        }
                     }
                 }
             }
@@ -200,8 +211,7 @@ namespace Scalar.Service
                     {
                         if (versionString != null)
                         {
-                            EventMetadata metadata = new EventMetadata();
-                            metadata.Add("Area", EtwArea);
+                            EventMetadata metadata = CreateEventMetadata();
                             metadata.Add("OnDiskVersion", versionString);
                             metadata.Add("ExpectedVersion", versionString);
                             this.tracer.RelatedError(metadata, "ReadRegistry: Unsupported version");
@@ -225,7 +235,7 @@ namespace Scalar.Service
                                 {
                                     if (!normalizedEnlistmentRootPath.Equals(registration.EnlistmentRoot, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        EventMetadata metadata = new EventMetadata();
+                                        EventMetadata metadata = CreateEventMetadata();
                                         metadata.Add("registration.EnlistmentRoot", registration.EnlistmentRoot);
                                         metadata.Add(nameof(normalizedEnlistmentRootPath), normalizedEnlistmentRootPath);
                                         metadata.Add(TracingConstants.MessageKey.InfoMessage, $"{nameof(this.ReadRegistry)}: Mapping registered enlistment root to final path");
@@ -234,7 +244,7 @@ namespace Scalar.Service
                                 }
                                 else
                                 {
-                                    EventMetadata metadata = new EventMetadata();
+                                    EventMetadata metadata = CreateEventMetadata();
                                     metadata.Add("registration.EnlistmentRoot", registration.EnlistmentRoot);
                                     metadata.Add("NormalizedEnlistmentRootPath", normalizedEnlistmentRootPath);
                                     metadata.Add("ErrorMessage", errorMessage);
@@ -248,10 +258,8 @@ namespace Scalar.Service
                             }
                             catch (Exception e)
                             {
-                                EventMetadata metadata = new EventMetadata();
-                                metadata.Add("Area", EtwArea);
+                                EventMetadata metadata = CreateEventMetadata(e);
                                 metadata.Add("entry", entry);
-                                metadata.Add("Exception", e.ToString());
                                 this.tracer.RelatedError(metadata, "ReadRegistry: Failed to read entry");
                             }
                         }
@@ -284,6 +292,18 @@ namespace Scalar.Service
                     return false;
                 }
             }
+        }
+
+        private static EventMetadata CreateEventMetadata(Exception e = null)
+        {
+            EventMetadata metadata = new EventMetadata();
+            metadata.Add("Area", EtwArea);
+            if (e != null)
+            {
+                metadata.Add("Exception", e.ToString());
+            }
+
+            return metadata;
         }
 
         private List<RepoRegistration> GetActiveReposForUser(string ownerSID)

@@ -4,13 +4,17 @@ using Scalar.Platform.Windows;
 
 namespace Scalar.Service
 {
-    public class ScalarVerb : IScalarVerb
+    public class ScalarVerbRunner : IScalarVerbRunner
     {
         private readonly ITracer tracer;
+        private readonly string internalVerbJson;
 
-        public ScalarVerb(ITracer tracer)
+        public ScalarVerbRunner(ITracer tracer)
         {
             this.tracer = tracer;
+
+            InternalVerbParameters internalParams = new InternalVerbParameters(startedByService: true);
+            this.internalVerbJson = internalParams.ToJson();
         }
 
         public bool CallMaintenance(string task, string repoRoot, int sessionId)
@@ -29,10 +33,9 @@ namespace Scalar.Service
 
         private bool CallScalarMaintenance(string task, string repoRoot, CurrentUser currentUser)
         {
-            InternalVerbParameters internalParams = new InternalVerbParameters(startedByService: true);
             return currentUser.RunAs(
                 Configuration.Instance.ScalarLocation,
-                $"maintenance \"{repoRoot}\" --{task} --{ScalarConstants.VerbParameters.InternalUseOnly} {internalParams.ToJson()}");
+                $"maintenance \"{repoRoot}\" --{task} --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}");
         }
     }
 }

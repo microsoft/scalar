@@ -1,6 +1,6 @@
 namespace Scalar.Service
 {
-    public interface IScalarVerb
+    public interface IScalarVerbRunner
     {
         bool CallMaintenance(string task, string repoRoot, int sessionId);
     }

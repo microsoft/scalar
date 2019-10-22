@@ -58,7 +58,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="MaintenanceTaskRunner.cs" />
     <Compile Include="MaintenanceTaskScheduler.cs" />
-    <Compile Include="ScalarVerb.Windows.cs" />
+    <Compile Include="ScalarVerbRunner.Windows.cs" />
     <Compile Include="ScalarService.Windows.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -69,7 +69,7 @@
     <Compile Include="Handlers\RequestHandler.cs" />
     <Compile Include="Handlers\UnregisterRepoHandler.cs" />
     <Compile Include="Handlers\RegisterRepoHandler.cs" />
-    <Compile Include="IScalarVerb.cs" />
+    <Compile Include="IScalarVerbRunner.cs" />
     <Compile Include="IRepoRegistry.cs" />
     <Compile Include="ProductUpgradeTimer.cs" />
     <Compile Include="Program.Windows.cs" />

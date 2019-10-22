@@ -64,39 +64,61 @@ namespace Scalar.Service
             }
         }
 
+        private static EventMetadata CreateEventMetadata(Exception e = null)
+        {
+            EventMetadata metadata = new EventMetadata();
+            metadata.Add("Area", EtwArea);
+            if (e != null)
+            {
+                metadata.Add("Exception", e.ToString());
+            }
+
+            return metadata;
+        }
+
         private void ServiceThreadMain()
         {
             try
             {
+                string currentUser = ScalarPlatform.Instance.GetCurrentUser();
+
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add("Version", ProcessHelper.GetCurrentProcessVersion());
+                metadata.Add(nameof(currentUser), currentUser);
                 this.tracer.RelatedEvent(EventLevel.Informational, $"{nameof(ScalarService)}_{nameof(this.ServiceThreadMain)}", metadata);
 
-                try
+                if (int.TryParse(currentUser, out int sessionId))
                 {
-                    this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.repoRegistry);
-
-                    string currentUser = ScalarPlatform.Instance.GetCurrentUser();
-                    if (int.TryParse(currentUser, out int sessionId))
+                    try
                     {
+                        this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.tracer, this.repoRegistry);
+
                         // On Mac, there is no separate session Id. currentUser is used as sessionId
                         this.maintenanceTaskScheduler.RegisterActiveUser(currentUser, sessionId);
                     }
-                    else
+                    catch (Exception e)
                     {
-                        this.tracer.RelatedError($"{nameof(this.ServiceThreadMain)} Error: could not parse current user '{currentUser}' as int.");
+                        this.tracer.RelatedError(CreateEventMetadata(e), "Failed to start maintenance scheduler");
                     }
                 }
-                catch (Exception e)
+                else
                 {
-                    EventMetadata exceptionMetadata = new EventMetadata();
-                    exceptionMetadata.Add("Area", EtwArea);
-                    exceptionMetadata.Add("Exception", e.ToString());
-                    this.tracer.RelatedError(exceptionMetadata, "Failed to start maintenance scheduler");
+                    EventMetadata errorMetadata = CreateEventMetadata();
+                    errorMetadata.Add(nameof(currentUser), currentUser);
+                    this.tracer.RelatedError(
+                        errorMetadata,
+                        $"{nameof(this.ServiceThreadMain)}: Failed to parse current user as int.");
                 }
 
                 this.serviceStopped.WaitOne();
                 this.serviceStopped.Dispose();
+                this.serviceStopped = null;
+
+                if (this.maintenanceTaskScheduler != null)
+                {
+                    this.maintenanceTaskScheduler.Dispose();
+                    this.maintenanceTaskScheduler = null;
+                }
             }
             catch (Exception e)
             {
@@ -106,10 +128,7 @@ namespace Scalar.Service
 
         private void LogExceptionAndExit(Exception e, string method)
         {
-            EventMetadata metadata = new EventMetadata();
-            metadata.Add("Area", EtwArea);
-            metadata.Add("Exception", e.ToString());
-            this.tracer.RelatedError(metadata, "Unhandled exception in " + method);
+            this.tracer.RelatedError(CreateEventMetadata(e), "Unhandled exception in " + method);
             Environment.Exit((int)ReturnCode.GenericError);
         }
     }
