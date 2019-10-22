@@ -54,7 +54,7 @@ namespace Scalar.Service
                     new ScalarVerbRunner(this.tracer),
                     this.notificationHandler);
 
-                this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.repoRegistry);
+                this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.tracer, this.repoRegistry);
 
                 this.requestHandler = new RequestHandler(this.tracer, EtwArea, this.repoRegistry);
 
