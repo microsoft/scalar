@@ -135,13 +135,16 @@ namespace Scalar.Service
 
                         using (ITracer activity = this.tracer.StartActivity("LogonAutomount", EventLevel.Informational))
                         {
-                            this.maintenanceTaskScheduler.RegisterActiveUser(
+                            this.maintenanceTaskScheduler.RegisterUser(
                                 ScalarPlatform.Instance.GetUserIdFromLoginSessionId(changeDescription.SessionId, this.tracer),
                                 changeDescription.SessionId);
                         }
                     }
                     else if (changeDescription.Reason == SessionChangeReason.SessionLogoff)
                     {
+                        this.maintenanceTaskScheduler.UnregisterUser(
+                            ScalarPlatform.Instance.GetUserIdFromLoginSessionId(changeDescription.SessionId, this.tracer),
+                                changeDescription.SessionId);
                         this.tracer.RelatedInfo("SessionLogoff detected");
                     }
                 }
