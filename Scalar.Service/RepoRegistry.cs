@@ -160,9 +160,9 @@ namespace Scalar.Service
             return false;
         }
 
-        public void RunMainteanceTaskForRepos(string task, string userId, int sessionId)
+        public void RunMaintenanceTaskForRepos(string task, string userId, int sessionId)
         {
-            using (ITracer activity = this.tracer.StartActivity(nameof(this.RunMainteanceTaskForRepos), EventLevel.Informational))
+            using (ITracer activity = this.tracer.StartActivity(nameof(this.RunMaintenanceTaskForRepos), EventLevel.Informational))
             {
                 List<RepoRegistration> activeRepos = this.GetActiveReposForUser(userId);
                 if (activeRepos.Count == 0)
@@ -174,7 +174,7 @@ namespace Scalar.Service
                     metadata.Add(TracingConstants.MessageKey.InfoMessage, "No active repos for user");
                     this.tracer.RelatedEvent(
                         EventLevel.Informational,
-                        $"{nameof(this.RunMainteanceTaskForRepos)}_NoRepos",
+                        $"{nameof(this.RunMaintenanceTaskForRepos)}_NoRepos",
                         metadata);
                 }
                 else

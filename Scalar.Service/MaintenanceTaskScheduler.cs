@@ -170,7 +170,7 @@ namespace Scalar.Service
                 UserAndSession registeredUser = this.getRegisteredUser();
                 if (registeredUser != null)
                 {
-                    this.repoRegistry.RunMainteanceTaskForRepos(
+                    this.repoRegistry.RunMaintenanceTaskForRepos(
                         this.task,
                         registeredUser.UserId,
                         registeredUser.SessionId);

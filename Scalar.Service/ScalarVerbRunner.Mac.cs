@@ -12,13 +12,13 @@ namespace Scalar.Service
         private readonly string scalarBinPath;
         private readonly string internalVerbJson;
 
-        private MountLauncher processLauncher;
+        private ScalarProcessLauncher processLauncher;
         private ITracer tracer;
 
-        public ScalarVerbRunner(ITracer tracer, MountLauncher processLauncher = null)
+        public ScalarVerbRunner(ITracer tracer, ScalarProcessLauncher processLauncher = null)
         {
             this.tracer = tracer;
-            this.processLauncher = processLauncher ?? new MountLauncher(tracer);
+            this.processLauncher = processLauncher ?? new ScalarProcessLauncher(tracer);
 
             this.scalarBinPath = Path.Combine(
                 ScalarPlatform.Instance.Constants.ScalarBinDirectoryPath,
@@ -51,11 +51,11 @@ namespace Scalar.Service
             return true;
         }
 
-        public class MountLauncher
+        public class ScalarProcessLauncher
         {
             private ITracer tracer;
 
-            public MountLauncher(ITracer tracer)
+            public ScalarProcessLauncher(ITracer tracer)
             {
                 this.tracer = tracer;
             }
