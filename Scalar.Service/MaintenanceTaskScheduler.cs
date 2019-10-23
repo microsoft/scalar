@@ -20,20 +20,16 @@ namespace Scalar.Service
         private readonly TimeSpan fetchCommitsAndTreesPeriod = TimeSpan.FromMinutes(15);
 
         private readonly ITracer tracer;
-
-        private readonly ServiceTaskRunner taskRunner;
-        private readonly Dictionary<string, ServiceTask> maintenanceTasks;
+        private readonly ServiceTaskQueue taskQueue;
         private List<Timer> stepTimers;
-
         private UserAndSession registeredUser;
 
         public MaintenanceTaskScheduler(ITracer tracer, IRepoRegistry repoRegistry)
         {
             this.tracer = tracer;
             this.stepTimers = new List<Timer>();
-            this.maintenanceTasks = this.CreateMaintenanceTasks(repoRegistry);
-            this.taskRunner = new ServiceTaskRunner(this.tracer, this.maintenanceTasks.Values);
-            this.ScheduleRecurringSteps();
+            this.taskQueue = new ServiceTaskQueue(this.tracer);
+            this.ScheduleRecurringSteps(repoRegistry);
         }
 
         public void RegisterUser(string userId, int sessionId)
@@ -77,7 +73,7 @@ namespace Scalar.Service
 
         public void Dispose()
         {
-            this.taskRunner.Stop();
+            this.taskQueue.Stop();
 
             foreach (Timer timer in this.stepTimers)
             {
@@ -87,7 +83,7 @@ namespace Scalar.Service
             this.stepTimers = null;
         }
 
-        private void ScheduleRecurringSteps()
+        private void ScheduleRecurringSteps(IRepoRegistry repoRegistry)
         {
             if (ScalarEnlistment.IsUnattended(this.tracer))
             {
@@ -95,54 +91,51 @@ namespace Scalar.Service
                 return;
             }
 
+            Func<UserAndSession> getRegisteredUser = () => { return this.registeredUser; };
+
             this.stepTimers.Add(new Timer(
-                (state) => this.maintenanceTasks[ScalarConstants.VerbParameters.Maintenance.FetchCommitsAndTreesTaskName].TaskSignaled.Set(),
+                (state) => this.taskQueue.TryEnqueue(
+                    new MaintenanceTask(
+                        this.tracer,
+                        repoRegistry,
+                        getRegisteredUser,
+                        ScalarConstants.VerbParameters.Maintenance.FetchCommitsAndTreesTaskName)),
                 state: null,
                 dueTime: this.fetchCommitsAndTreesPeriod,
                 period: this.fetchCommitsAndTreesPeriod));
 
             this.stepTimers.Add(new Timer(
-                (state) => this.maintenanceTasks[ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName].TaskSignaled.Set(),
+                (state) => this.taskQueue.TryEnqueue(
+                    new MaintenanceTask(
+                        this.tracer,
+                        repoRegistry,
+                        getRegisteredUser,
+                        ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName)),
                 state: null,
                 dueTime: this.looseObjectsDueTime,
                 period: this.looseObjectsPeriod));
 
             this.stepTimers.Add(new Timer(
-                (state) => this.maintenanceTasks[ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName].TaskSignaled.Set(),
+                (state) => this.taskQueue.TryEnqueue(
+                    new MaintenanceTask(
+                        this.tracer,
+                        repoRegistry,
+                        getRegisteredUser,
+                        ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName)),
                 state: null,
                 dueTime: this.packfileDueTime,
                 period: this.packfilePeriod));
 
             this.stepTimers.Add(new Timer(
-                (state) => this.maintenanceTasks[ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName].TaskSignaled.Set(),
+                (state) => this.taskQueue.TryEnqueue(
+                    new MaintenanceTask(
+                        this.tracer,
+                        repoRegistry,
+                        getRegisteredUser,
+                        ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName)),
                 state: null,
                 dueTime: this.commitGraphDueTime,
                 period: this.commitGraphPeriod));
-        }
-
-        private Dictionary<string, ServiceTask> CreateMaintenanceTasks(IRepoRegistry repoRegistry)
-        {
-            Func<UserAndSession> getRegisteredUser = () => { return this.registeredUser; };
-
-            return new Dictionary<string, ServiceTask>()
-            {
-                {
-                    ScalarConstants.VerbParameters.Maintenance.FetchCommitsAndTreesTaskName,
-                    new MaintenanceTask(this.tracer, repoRegistry, getRegisteredUser, ScalarConstants.VerbParameters.Maintenance.FetchCommitsAndTreesTaskName)
-                },
-                {
-                    ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName,
-                    new MaintenanceTask(this.tracer, repoRegistry, getRegisteredUser, ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName)
-                },
-                {
-                    ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName,
-                    new MaintenanceTask(this.tracer, repoRegistry, getRegisteredUser, ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName)
-                },
-                {
-                    ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName,
-                    new MaintenanceTask(this.tracer, repoRegistry, getRegisteredUser, ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName)
-                },
-            };
         }
 
         private class MaintenanceTask : ServiceTask

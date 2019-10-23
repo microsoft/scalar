@@ -62,7 +62,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ServiceTask.cs" />
-    <Compile Include="ServiceTaskRunner.cs" />
+    <Compile Include="ServiceTaskQueue.cs" />
     <Compile Include="Handlers\INotificationHandler.cs" />
     <Compile Include="Handlers\MessageHandler.cs" />
     <Compile Include="Handlers\GetActiveRepoListHandler.cs" />

@@ -36,7 +36,7 @@
     <Compile Include="RepoRegistration.cs" />
     <Compile Include="RepoRegistry.cs" />
     <Compile Include="MaintenanceTaskScheduler.cs" />
-    <Compile Include="ServiceTaskRunner.cs" />
+    <Compile Include="ServiceTaskQueue.cs" />
     <Compile Include="ServiceTask.cs" />
   </ItemGroup>
   
