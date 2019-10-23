@@ -61,6 +61,7 @@ namespace Scalar.CommandLine
                             { nameof(this.MaintenanceTask), this.MaintenanceTask },
                             { nameof(this.PackfileMaintenanceBatchSize), this.PackfileMaintenanceBatchSize },
                             { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
+                            { nameof(this.StartedByService), this.StartedByService },
                         }));
 
                 this.InitializeLocalCacheAndObjectsPaths(tracer, enlistment, retryConfig: null, serverScalarConfig: null, cacheServer: null);

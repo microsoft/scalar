@@ -164,13 +164,14 @@ namespace Scalar.Service
         {
             using (ITracer activity = this.tracer.StartActivity(nameof(this.RunMaintenanceTaskForRepos), EventLevel.Informational))
             {
+                EventMetadata metadata = CreateEventMetadata();
+                metadata.Add(nameof(task), task);
+                metadata.Add(nameof(userId), userId);
+                metadata.Add(nameof(sessionId), sessionId);
+
                 List<RepoRegistration> activeRepos = this.GetActiveReposForUser(userId);
                 if (activeRepos.Count == 0)
                 {
-                    EventMetadata metadata = CreateEventMetadata();
-                    metadata.Add(nameof(task), task);
-                    metadata.Add(nameof(userId), userId);
-                    metadata.Add(nameof(sessionId), sessionId);
                     metadata.Add(TracingConstants.MessageKey.InfoMessage, "No active repos for user");
                     this.tracer.RelatedEvent(
                         EventLevel.Informational,
@@ -179,8 +180,17 @@ namespace Scalar.Service
                 }
                 else
                 {
+                    metadata.Add(TracingConstants.MessageKey.InfoMessage, "Calling maintenance verb");
+
                     foreach (RepoRegistration repo in activeRepos)
                     {
+                        metadata[nameof(repo.EnlistmentRoot)] = repo.EnlistmentRoot;
+                        metadata[nameof(task)] = task;
+                        this.tracer.RelatedEvent(
+                            EventLevel.Informational,
+                            $"{nameof(this.RunMaintenanceTaskForRepos)}_CallingMaintenance",
+                            metadata);
+
                         if (!this.scalarVerb.CallMaintenance(task, repo.EnlistmentRoot, sessionId))
                         {
                             // TODO: #111 - If the maintenance verb failed because the repo is no longer

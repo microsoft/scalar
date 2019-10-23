@@ -31,7 +31,7 @@ namespace Scalar.Service
         public bool CallMaintenance(string task, string repoRoot, int sessionId)
         {
             string arguments =
-                $"asuser {sessionId} {this.scalarBinPath} maintenance \"{repoRoot}\" {task} --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}";
+                $"asuser {sessionId} {this.scalarBinPath} maintenance \"{repoRoot}\" --task {task} --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}";
 
             ProcessResult result = this.processLauncher.LaunchProcess(ExecutablePath, arguments, repoRoot);
             if (result.ExitCode != 0)

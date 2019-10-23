@@ -62,7 +62,7 @@ namespace Scalar.UnitTests.Service.Mac
             string executable = @"/bin/launchctl";
             string scalarBinPath = Path.Combine(this.scalarPlatform.Constants.ScalarBinDirectoryPath, this.scalarPlatform.Constants.ScalarExecutableName);
             string expectedArgs =
-                $"asuser {ExpectedActiveUserId} {scalarBinPath} maintenance \"{ExpectedActiveRepoPath}\" {task} --{ScalarConstants.VerbParameters.InternalUseOnly} {new InternalVerbParameters(startedByService: true).ToJson()}";
+                $"asuser {ExpectedActiveUserId} {scalarBinPath} maintenance \"{ExpectedActiveRepoPath}\" --task {task} --{ScalarConstants.VerbParameters.InternalUseOnly} {new InternalVerbParameters(startedByService: true).ToJson()}";
 
             Mock<ScalarVerbRunner.ScalarProcessLauncher> mountLauncherMock = new Mock<ScalarVerbRunner.ScalarProcessLauncher>(MockBehavior.Strict, this.tracer);
             mountLauncherMock.Setup(mp => mp.LaunchProcess(
