@@ -9,8 +9,8 @@ namespace Scalar.Service
     {
         private readonly object queueLock = new object();
         private readonly ITracer tracer;
-        private BlockingCollection<ServiceTask> queue = new BlockingCollection<ServiceTask>();
-        private ServiceTask currentTask;
+        private BlockingCollection<IServiceTask> queue = new BlockingCollection<IServiceTask>();
+        private IServiceTask currentTask;
 
         public ServiceTaskQueue(ITracer tracer)
         {
@@ -21,7 +21,7 @@ namespace Scalar.Service
             worker.Start();
         }
 
-        public bool TryEnqueue(ServiceTask step)
+        public bool TryEnqueue(IServiceTask step)
         {
             try
             {

@@ -138,7 +138,7 @@ namespace Scalar.Service
                 period: this.commitGraphPeriod));
         }
 
-        private class MaintenanceTask : ServiceTask
+        private class MaintenanceTask : IServiceTask
         {
             private readonly string task;
             private readonly IRepoRegistry repoRegistry;
@@ -157,7 +157,7 @@ namespace Scalar.Service
                 this.task = task;
             }
 
-            public override void Execute()
+            public void Execute()
             {
                 this.tracer.RelatedInfo($"{nameof(MaintenanceTask)}: Executing '{this.task}'");
                 UserAndSession registeredUser = this.getRegisteredUser();
@@ -170,7 +170,7 @@ namespace Scalar.Service
                 }
             }
 
-            public override void Stop()
+            public void Stop()
             {
                 // TODO: #185 - Kill the currently running maintenance verb
             }

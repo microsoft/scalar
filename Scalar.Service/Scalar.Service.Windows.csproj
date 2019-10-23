@@ -56,12 +56,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="IServiceTask.cs" />
     <Compile Include="MaintenanceTaskScheduler.cs" />
     <Compile Include="ScalarVerbRunner.Windows.cs" />
     <Compile Include="ScalarService.Windows.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ServiceTask.cs" />
     <Compile Include="ServiceTaskQueue.cs" />
     <Compile Include="Handlers\INotificationHandler.cs" />
     <Compile Include="Handlers\MessageHandler.cs" />
