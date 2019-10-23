@@ -177,6 +177,7 @@ namespace Scalar.CommandLine
                 { "pack.useSparse", "true" },
                 { "receive.autogc", "false" },
                 { "reset.quiet", "true" },
+                { "http.version", "HTTP/1.1" },
             };
 
             if (!TrySetConfig(enlistment, requiredSettings, isRequired: true))
