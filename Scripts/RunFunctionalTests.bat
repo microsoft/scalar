@@ -6,34 +6,42 @@ IF "%1"=="" (SET "Configuration=Debug") ELSE (SET "Configuration=%1")
 SETLOCAL
 SET PATH=C:\Program Files\Scalar;C:\Program Files\Git\cmd;%PATH%
 
-if not "%2"=="--test-scalar-on-path" goto :startFunctionalTests
+SET publishFragment=bin\%Configuration%\netcoreapp3.0\win-x64\publish
+SET functionalTestsDir=%SCALAR_OUTPUTDIR%\Scalar.FunctionalTests\%publishFragment%
 
-REM Force Scalar.FunctionalTests.exe to use the installed version of Scalar
-del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.exe
-del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.Mount.exe
-del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.Service.exe
-del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.Service.UI.exe
+IF "%2"=="--test-scalar-on-path" GOTO :testPath
 
-REM Same for Scalar.FunctionalTests.Windows.exe
-del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests.Windows\bin\x64\%Configuration%\Scalar.exe
-del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests.Windows\bin\x64\%Configuration%\Scalar.Mount.exe
-del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests.Windows\bin\x64\%Configuration%\Scalar.Service.exe
-del %Scalar_OUTPUTDIR%\Scalar.FunctionalTests.Windows\bin\x64\%Configuration%\Scalar.Service.UI.exe
+:testBuilt
+ECHO *******************************
+ECHO Testing built version of Scalar
+ECHO *******************************
+REM Copy most recently build Scalar binaries
+SET copyOptions=/s /njh /njs /nfl /ndl
+robocopy %SCALAR_OUTPUTDIR%\Scalar\%publishFragment% %functionalTestsDir% %copyOptions%
+robocopy %SCALAR_OUTPUTDIR%\Scalar.Mount\%publishFragment% %functionalTestsDir% %copyOptions%
+robocopy %SCALAR_OUTPUTDIR%\Scalar.Service\%publishFragment% %functionalTestsDir% %copyOptions%
+robocopy %SCALAR_OUTPUTDIR%\Scalar.Service.UI\%publishFragment% %functionalTestsDir% %copyOptions%
+robocopy %SCALAR_OUTPUTDIR%\Scalar.Upgrader\%publishFragment% %functionalTestsDir% %copyOptions%
+GOTO :startTests
 
-echo PATH = %PATH%
-echo scalar location:
+:testPath
+ECHO **************************
+ECHO Testing Scalar on the PATH
+ECHO **************************
+ECHO PATH:
+ECHO %PATH%
+ECHO Scalar location:
 where scalar
-echo Scalar.Service location:
-where Scalar.Service
-echo git location:
+ECHO Scalar.Service location:
+where scalar.service
+ECHO Git location:
 where git
 
-:startFunctionalTests
-dotnet %Scalar_OUTPUTDIR%\Scalar.FunctionalTests\bin\x64\%Configuration%\netcoreapp2.1\Scalar.FunctionalTests.dll /result:TestResultNetCore.xml %2 %3 %4 %5 %6 %7 %8 || goto :endFunctionalTests
+:startTests
+%functionalTestsDir%\Scalar.FunctionalTests /result:TestResultNetCore.xml %2 %3 %4 %5 %6 %7 %8 || goto :endTests
 
-:endFunctionalTests
-set error=%errorlevel%
+:endTests
+SET error=%errorlevel%
+CALL %SCALAR_SCRIPTSDIR%\StopAllServices.bat
 
-call %Scalar_SCRIPTSDIR%\StopAllServices.bat
-
-exit /b %error%
+EXIT /b %error%

@@ -58,6 +58,8 @@ jobs:
     steps:
       - checkout: none # Use the drop from macOS_Build_and_UnitTests job
       - template: templates/macos-functional-test.yml
+        parameters:
+          useWatchman: false
 
   - job: macOS_FunctionalTests_watchman
     variables:
@@ -70,7 +72,9 @@ jobs:
     condition: succeeded()
     steps:
       - checkout: none # Use the drop from macOS_Build_and_UnitTests job
-      - template: templates/macos-functional-test-watchman.yml
+      - template: templates/macos-functional-test.yml
+        parameters:
+          useWatchman: true
 
   - job: Windows_FunctionalTests
     timeoutInMinutes: 30

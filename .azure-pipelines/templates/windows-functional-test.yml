@@ -1,15 +1,29 @@
 steps:
 
+  - task: UseDotNet@2
+    displayName: Use .NET Core SDK 3.0.100
+    inputs:
+      packageType: sdk
+      version: 3.0.100
+
   - task: DownloadBuildArtifacts@0
-    displayName: Download functional test drop
+    displayName: Download functional tests drop
     inputs:
       buildType: current
       downloadType: specific
       artifactName: FunctionalTests_$(platformFriendlyName)_$(configuration)
       downloadPath: $(Build.BinariesDirectory)
 
-  - script: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/ReinstallScalar.bat $(configuration)
-    displayName: Run Scalar and G4W installers
+  - task: DownloadBuildArtifacts@0
+    displayName: Download installers drop
+    inputs:
+      buildType: current
+      downloadType: specific
+      artifactName: Installers_$(platformFriendlyName)_$(configuration)
+      downloadPath: $(Build.BinariesDirectory)
+
+  - script: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.bat
+    displayName: Install product
 
   - script: git config --global credential.interactive never
     displayName: Disable interactive auth
@@ -18,7 +32,7 @@ steps:
     displayName: Run functional tests
 
   - task: PublishTestResults@2
-    displayName: Publish functional test results
+    displayName: Publish functional tests results
     inputs:
       testRunner: NUnit
       testResultsFiles: "**\\TestResult*.xml"

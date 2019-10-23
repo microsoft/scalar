@@ -18,25 +18,11 @@ IF EXIST C:\Repos\ScalarPerfTest (
     ECHO no perf test enlistment found
 )
 
-IF EXIST %Scalar_OUTPUTDIR% (
+IF EXIST %SCALAR_OUTPUTDIR% (
     ECHO deleting build outputs
     rmdir /s /q %Scalar_OUTPUTDIR%
 ) ELSE (
     ECHO no build outputs found
 )
 
-IF EXIST %Scalar_PUBLISHDIR% (
-    ECHO deleting published output
-    rmdir /s /q %Scalar_PUBLISHDIR%
-) ELSE (
-    ECHO no packages found
-)
-
-IF EXIST %Scalar_PACKAGESDIR% (
-    ECHO deleting packages
-    rmdir /s /q %Scalar_PACKAGESDIR%
-) ELSE (
-    ECHO no packages found
-)
-
-call %Scalar_SCRIPTSDIR%\StopAllServices.bat
+call %SCALAR_SCRIPTSDIR%\StopAllServices.bat

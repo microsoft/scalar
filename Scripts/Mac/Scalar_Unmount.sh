@@ -7,4 +7,4 @@ if [ -z $CONFIGURATION ]; then
   CONFIGURATION=Debug
 fi
 
-$Scalar_PUBLISHDIR/scalar unmount ~/ScalarTest
+$SCALAR_OUTPUTDIR/Scalar/bin/$CONFIGURATION/netcoreapp3.0/osx-x64/publish/scalar unmount ~/ScalarTest
