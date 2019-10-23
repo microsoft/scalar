@@ -35,7 +35,7 @@ namespace Scalar.Service
         {
             return currentUser.RunAs(
                 Configuration.Instance.ScalarLocation,
-                $"maintenance \"{repoRoot}\" --{task} --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}");
+                $"maintenance \"{repoRoot}\" --task {task} --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}");
         }
     }
 }
