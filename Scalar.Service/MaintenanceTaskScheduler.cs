@@ -166,7 +166,7 @@ namespace Scalar.Service
                     metadata.Add(nameof(registeredUser.UserId), registeredUser.UserId);
                     metadata.Add(nameof(registeredUser.SessionId), registeredUser.SessionId);
                     metadata.Add(nameof(this.task), this.task);
-                    metadata.Add(TracingConstants.MessageKey.InfoMessagem "Executing maintenance task");
+                    metadata.Add(TracingConstants.MessageKey.InfoMessage, "Executing maintenance task");
                     this.tracer.RelatedEvent(
                         EventLevel.Informational,
                         $"{nameof(MaintenanceTaskScheduler)}.{nameof(this.Execute)}",
