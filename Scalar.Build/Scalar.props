@@ -3,7 +3,7 @@
 
   <PropertyGroup Label="Parameters">
     <ScalarVersion>0.2.173.2</ScalarVersion>
-    <GitPackageVersion>2.20191022.1-pr</GitPackageVersion>
+    <GitPackageVersion>2.20191023.1-pr</GitPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="DefaultSettings">
