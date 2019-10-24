@@ -71,12 +71,14 @@
     <Compile Include="Handlers\UnregisterRepoHandler.cs" />
     <Compile Include="Handlers\RegisterRepoHandler.cs" />
     <Compile Include="IScalarVerbRunner.cs" />
+    <Compile Include="IRegisteredUserStore.cs" />
     <Compile Include="IRepoRegistry.cs" />
     <Compile Include="ProductUpgradeTimer.cs" />
     <Compile Include="Program.Windows.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepoRegistration.cs" />
     <Compile Include="RepoRegistry.cs" />
+    <Compile Include="UserAndSession.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Scalar.Common\Scalar.Common.csproj">

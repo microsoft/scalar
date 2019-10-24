@@ -38,6 +38,8 @@
     <Compile Include="MaintenanceTaskScheduler.cs" />
     <Compile Include="ServiceTaskQueue.cs" />
     <Compile Include="IServiceTask.cs" />
+    <Compile Include="IRegisteredUserStore.cs" />
+    <Compile Include="UserAndSession.cs" />
   </ItemGroup>
   
   <ItemGroup>

@@ -105,6 +105,12 @@ namespace Scalar.Service
                     this.serviceThread.Join();
                     this.serviceThread = null;
 
+                    if (this.maintenanceTaskScheduler != null)
+                    {
+                        this.maintenanceTaskScheduler.Dispose();
+                        this.maintenanceTaskScheduler = null;
+                    }
+
                     if (this.serviceStopped != null)
                     {
                         this.serviceStopped.Dispose();
@@ -135,8 +141,9 @@ namespace Scalar.Service
                         using (ITracer activity = this.tracer.StartActivity("LogonAutomount", EventLevel.Informational))
                         {
                             this.maintenanceTaskScheduler.RegisterUser(
-                                ScalarPlatform.Instance.GetUserIdFromLoginSessionId(changeDescription.SessionId, this.tracer),
-                                changeDescription.SessionId);
+                                new UserAndSession(
+                                    ScalarPlatform.Instance.GetUserIdFromLoginSessionId(changeDescription.SessionId, this.tracer),
+                                    changeDescription.SessionId));
                         }
                     }
                     else if (changeDescription.Reason == SessionChangeReason.SessionLogoff)

@@ -5,36 +5,28 @@ using Scalar.Common.Tracing;
 
 namespace Scalar.Service
 {
-    public class ServiceTaskQueue
+    public class ServiceTaskQueue : IDisposable
     {
-        private readonly object queueLock = new object();
         private readonly ITracer tracer;
         private BlockingCollection<IServiceTask> queue = new BlockingCollection<IServiceTask>();
         private IServiceTask currentTask;
+        private Thread workerThread;
 
         public ServiceTaskQueue(ITracer tracer)
         {
             this.tracer = tracer;
-            Thread worker = new Thread(() => this.RunQueue());
-            worker.Name = "MaintenanceWorker";
-            worker.IsBackground = true;
-            worker.Start();
+            this.workerThread = new Thread(() => this.RunQueue());
+            this.workerThread.Name = nameof(ServiceTaskQueue);
+            this.workerThread.IsBackground = true;
+            this.workerThread.Start();
         }
 
         public bool TryEnqueue(IServiceTask step)
         {
             try
             {
-                lock (this.queueLock)
-                {
-                    if (this.queue == null)
-                    {
-                        return false;
-                    }
-
-                    this.queue.Add(step);
-                    return true;
-                }
+                this.queue.Add(step);
+                return true;
             }
             catch (InvalidOperationException)
             {
@@ -46,32 +38,33 @@ namespace Scalar.Service
 
         public void Stop()
         {
-            lock (this.queueLock)
+            this.queue.CompleteAdding();
+            this.currentTask?.Stop();
+        }
+
+        public void Dispose()
+        {
+            if (this.workerThread != null)
             {
-                this.queue?.CompleteAdding();
+                // Wait for the working thread to finish before setting queue
+                // to null to ensure that the worker does not hit a null
+                // reference exception trying to access the queue
+                this.workerThread.Join();
+                this.workerThread = null;
             }
 
-            this.currentTask?.Stop();
+            if (this.queue != null)
+            {
+                this.queue.Dispose();
+                this.queue = null;
+            }
         }
 
         private void RunQueue()
         {
-            while (true)
+            while (this.queue.TryTake(out this.currentTask, Timeout.Infinite) &&
+                !this.queue.IsAddingCompleted)
             {
-                // We cannot take the lock here, as TryTake is blocking.
-                // However, this is the place to set 'this.queue' to null.
-                if (!this.queue.TryTake(out this.currentTask, Timeout.Infinite)
-                    || this.queue.IsAddingCompleted)
-                {
-                    lock (this.queueLock)
-                    {
-                        // A stop was requested
-                        this.queue?.Dispose();
-                        this.queue = null;
-                        return;
-                    }
-                }
-
                 try
                 {
                     this.currentTask.Execute();

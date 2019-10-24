@@ -1,6 +1,5 @@
 using Scalar.Common.FileSystem;
 using Scalar.Common.Tracing;
-using Scalar.Service.Handlers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,12 +24,12 @@ namespace Scalar.Service
             ITracer tracer,
             PhysicalFileSystem fileSystem,
             string serviceDataLocation,
-            IScalarVerbRunner repoMounter)
+            IScalarVerbRunner scalarVerbRunner)
         {
             this.tracer = tracer;
             this.fileSystem = fileSystem;
             this.registryParentFolderPath = serviceDataLocation;
-            this.scalarVerb = repoMounter;
+            this.scalarVerb = scalarVerbRunner;
 
             EventMetadata metadata = new EventMetadata();
             metadata.Add("Area", EtwArea);

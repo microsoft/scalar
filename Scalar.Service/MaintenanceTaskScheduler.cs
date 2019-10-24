@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Scalar.Service
 {
-    public class MaintenanceTaskScheduler : IDisposable
+    public class MaintenanceTaskScheduler : IDisposable, IRegisteredUserStore
     {
         private readonly TimeSpan looseObjectsDueTime = TimeSpan.FromMinutes(5);
         private readonly TimeSpan looseObjectsPeriod = TimeSpan.FromHours(6);
@@ -20,9 +20,8 @@ namespace Scalar.Service
         private readonly TimeSpan fetchCommitsAndTreesPeriod = TimeSpan.FromMinutes(15);
 
         private readonly ITracer tracer;
-        private readonly ServiceTaskQueue taskQueue;
+        private ServiceTaskQueue taskQueue;
         private List<Timer> stepTimers;
-        private UserAndSession registeredUser;
 
         public MaintenanceTaskScheduler(ITracer tracer, IRepoRegistry repoRegistry)
         {
@@ -32,28 +31,35 @@ namespace Scalar.Service
             this.ScheduleRecurringSteps(repoRegistry);
         }
 
-        public void RegisterUser(string userId, int sessionId)
+        public UserAndSession RegisteredUser { get; private set; }
+
+        public void RegisterUser(UserAndSession user)
         {
             EventMetadata metadata = new EventMetadata();
-            metadata.Add(nameof(userId), userId);
-            metadata.Add(nameof(sessionId), sessionId);
+            metadata.Add(nameof(user.UserId), user.UserId);
+            metadata.Add(nameof(user.SessionId), user.SessionId);
             metadata.Add(
                 TracingConstants.MessageKey.InfoMessage,
                 $"{nameof(MaintenanceTaskScheduler)}: Registering user");
             this.tracer.RelatedEvent(EventLevel.Informational, nameof(this.RegisterUser), metadata);
 
-            this.registeredUser = new UserAndSession(userId, sessionId);
+            this.RegisteredUser = user;
         }
 
         public void Dispose()
         {
             this.taskQueue.Stop();
-
             foreach (Timer timer in this.stepTimers)
             {
-                timer?.Dispose();
+                using (ManualResetEvent timerDisposed = new ManualResetEvent(initialState: false))
+                {
+                    timer.Dispose(timerDisposed);
+                    timerDisposed.WaitOne();
+                }
             }
 
+            this.taskQueue.Dispose();
+            this.taskQueue = null;
             this.stepTimers = null;
         }
 
@@ -65,51 +71,53 @@ namespace Scalar.Service
                 return;
             }
 
-            Func<UserAndSession> getRegisteredUser = () => { return this.registeredUser; };
+            List<TaskTiming> tasks = new List<TaskTiming>()
+            {
+                new TaskTiming(
+                    ScalarConstants.VerbParameters.Maintenance.FetchCommitsAndTreesTaskName,
+                    dueTime: this.fetchCommitsAndTreesPeriod,
+                    period: this.fetchCommitsAndTreesPeriod),
+                new TaskTiming(
+                    ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName,
+                    dueTime: this.looseObjectsDueTime,
+                    period: this.looseObjectsPeriod),
+                new TaskTiming(
+                    ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName,
+                    dueTime: this.packfileDueTime,
+                    period: this.packfilePeriod),
+                new TaskTiming(
+                    ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName,
+                    dueTime: this.commitGraphDueTime,
+                    period: this.commitGraphPeriod),
+            };
 
-            this.stepTimers.Add(new Timer(
+            foreach (TaskTiming task in tasks)
+            {
+                this.stepTimers.Add(new Timer(
                 (state) => this.taskQueue.TryEnqueue(
                     new MaintenanceTask(
                         this.tracer,
                         repoRegistry,
-                        getRegisteredUser,
-                        ScalarConstants.VerbParameters.Maintenance.FetchCommitsAndTreesTaskName)),
+                        this,
+                        task.Name)),
                 state: null,
-                dueTime: this.fetchCommitsAndTreesPeriod,
-                period: this.fetchCommitsAndTreesPeriod));
+                dueTime: task.DueTime,
+                period: task.Period));
+            }
+        }
 
-            this.stepTimers.Add(new Timer(
-                (state) => this.taskQueue.TryEnqueue(
-                    new MaintenanceTask(
-                        this.tracer,
-                        repoRegistry,
-                        getRegisteredUser,
-                        ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName)),
-                state: null,
-                dueTime: this.looseObjectsDueTime,
-                period: this.looseObjectsPeriod));
+        private class TaskTiming
+        {
+            public TaskTiming(string name, TimeSpan dueTime, TimeSpan period)
+            {
+                this.Name = name;
+                this.DueTime = dueTime;
+                this.Period = period;
+            }
 
-            this.stepTimers.Add(new Timer(
-                (state) => this.taskQueue.TryEnqueue(
-                    new MaintenanceTask(
-                        this.tracer,
-                        repoRegistry,
-                        getRegisteredUser,
-                        ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName)),
-                state: null,
-                dueTime: this.packfileDueTime,
-                period: this.packfilePeriod));
-
-            this.stepTimers.Add(new Timer(
-                (state) => this.taskQueue.TryEnqueue(
-                    new MaintenanceTask(
-                        this.tracer,
-                        repoRegistry,
-                        getRegisteredUser,
-                        ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName)),
-                state: null,
-                dueTime: this.commitGraphDueTime,
-                period: this.commitGraphPeriod));
+            public string Name { get; }
+            public TimeSpan DueTime { get; }
+            public TimeSpan Period { get; }
         }
 
         private class MaintenanceTask : IServiceTask
@@ -117,23 +125,23 @@ namespace Scalar.Service
             private readonly string task;
             private readonly IRepoRegistry repoRegistry;
             private readonly ITracer tracer;
-            private readonly Func<UserAndSession> getRegisteredUser;
+            private readonly IRegisteredUserStore registeredUserStore;
 
             public MaintenanceTask(
                 ITracer tracer,
                 IRepoRegistry repoRegistry,
-                Func<UserAndSession> getRegisteredUser,
+                IRegisteredUserStore registeredUserStore,
                 string task)
             {
                 this.tracer = tracer;
                 this.repoRegistry = repoRegistry;
-                this.getRegisteredUser = getRegisteredUser;
+                this.registeredUserStore = registeredUserStore;
                 this.task = task;
             }
 
             public void Execute()
             {
-                UserAndSession registeredUser = this.getRegisteredUser();
+                UserAndSession registeredUser = this.registeredUserStore.RegisteredUser;
                 if (registeredUser != null)
                 {
                     EventMetadata metadata = new EventMetadata();
@@ -148,8 +156,8 @@ namespace Scalar.Service
 
                     this.repoRegistry.RunMaintenanceTaskForRepos(
                         this.task,
-                        registeredUser.UserId,
-                        registeredUser.SessionId);
+                        this.registeredUserStore.RegisteredUser.UserId,
+                        this.registeredUserStore.RegisteredUser.SessionId);
                 }
                 else
                 {
@@ -161,18 +169,6 @@ namespace Scalar.Service
             {
                 // TODO: #185 - Kill the currently running maintenance verb
             }
-        }
-
-        private class UserAndSession
-        {
-            public UserAndSession(string userId, int sessionId)
-            {
-                this.UserId = userId;
-                this.SessionId = sessionId;
-            }
-
-            public string UserId { get; }
-            public int SessionId { get; }
         }
     }
 }
