@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-#
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar", "Scalar\Scalar.csproj", "{31208ED8-5B83-4BE6-802A-18EE67434537}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Common", "Scalar.Common\Scalar.Common.csproj", "{179EAE33-265B-4698-BBC7-130F28F6D768}"
@@ -14,12 +14,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.UnitTests", "Scalar.UnitTests\Scalar.UnitTests.csproj", "{B1D1E8BE-D633-4624-A821-B222EB1B8020}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EB9427BB-456A-4319-8916-E782E0F5F6D3}"
-ProjectSection(SolutionItems) = preProject
-	Directory.Build.props = Directory.Build.props
-	Directory.Build.targets = Directory.Build.targets
-	Dependencies.props = Dependencies.props
-	global.json = global.json
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
+		Dependencies.props = Dependencies.props
+		global.json = global.json
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.FunctionalTests", "Scalar.FunctionalTests\Scalar.FunctionalTests.csproj", "{C7E08779-6F45-4025-89E1-31346C9B234F}"
 EndProject
@@ -34,6 +34,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Service.UI", "Scalar.Service.UI\Scalar.Service.UI.csproj", "{32D8335E-E9E8-4AD8-BAE5-162F53AA4D72}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Notifications.Mac", "Scalar.Notifications.Mac\Scalar.Notifications.Mac.csproj", "{ED367118-BFB1-41CA-A010-E46C28796ED8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Distribution.Mac", "Scalar.Distribution.Mac\Scalar.Distribution.Mac.csproj", "{A08AD7F8-A716-47E3-9975-CB4D09CE3534}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Distribution.Windows", "Scalar.Distribution.Windows\Scalar.Distribution.Windows.csproj", "{3FCFC3EC-CFD8-483E-9946-A2C405A329F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +97,14 @@ Global
 		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A08AD7F8-A716-47E3-9975-CB4D09CE3534}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A08AD7F8-A716-47E3-9975-CB4D09CE3534}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A08AD7F8-A716-47E3-9975-CB4D09CE3534}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A08AD7F8-A716-47E3-9975-CB4D09CE3534}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FCFC3EC-CFD8-483E-9946-A2C405A329F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FCFC3EC-CFD8-483E-9946-A2C405A329F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FCFC3EC-CFD8-483E-9946-A2C405A329F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FCFC3EC-CFD8-483E-9946-A2C405A329F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

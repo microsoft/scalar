@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.Build.NoTargets">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <DistributionOutputPath>$(ProjectOutPath)dist\$(Configuration)\</DistributionOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Scalar.Installer.Mac\Scalar.Installer.Mac.csproj" ReferenceOutputAssembly="false" Private="false" />
+    <PackageReference Include="GitForMac.GVFS.Installer" />
+    <GitHubAssetReference Include="microsoft/Git-Credential-Manager-Core" Version="v2.0.79-beta" Filter=".*\.pkg" PropertyName="GcmCoreAssets" />
+  </ItemGroup>
+
+  <Target Name="BuildDistribution" AfterTargets="Publish" Condition="'$(OSPlatform)' == 'osx'">
+    <ItemGroup>
+      <ScalarPackage  Include="$(RepoOutPath)Scalar.Installer.Mac\installer\$(Configuration)\*.pkg" LinkBase="Scalar" />
+      <GitPackage     Include="$(PkgGitForMac_GVFS_Installer)\tools\*.pkg"                          LinkBase="Git" />
+      <GcmCorePackage Include="$(GcmCoreAssets)\*.pkg"                                              LinkBase="GCM" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ScalarPackage);@(GitPackage);@(GcmCorePackage)"
+          DestinationFolder="$(DistributionOutputPath)%(LinkBase)"
+          SkipUnchangedFiles="true" />
+
+    <PropertyGroup>
+      <ScalarPackageFilename>%(ScalarPackage.Filename)%(ScalarPackage.Extension)</ScalarPackageFilename>
+      <GitPackageFilename>%(GitPackage.Filename)%(GitPackage.Extension)</GitPackageFilename>
+      <GcmCorePackageFilename>%(GcmCorePackage.Filename)%(GcmCorePackage.Extension)</GcmCorePackageFilename>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ScriptTemplate Include="InstallScalar.template.sh" TargetPath="InstallScalar.sh"
+                      Properties="##SCALAR_INSTALLER_PKG_PLACEHOLDER##=$(ScalarPackageFilename);
+                                  ##GIT_INSTALLER_PKG_PLACEHOLDER##=$(GitPackageFilename);
+                                  ##GCM_CORE_INSTALLER_PKG_PLACEHOLDER##=$(GcmCorePackageFilename);" />
+    </ItemGroup>
+    <CompileTemplatedFile Template="@(ScriptTemplate)" OutputFile="$(DistributionOutputPath)\%(TargetPath)" />
+  </Target>
+
+</Project>
