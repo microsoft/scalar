@@ -15,7 +15,7 @@ namespace Scalar.Service
         public ServiceTaskQueue(ITracer tracer)
         {
             this.tracer = tracer;
-            this.workerThread = new Thread(() => this.RunQueue());
+            this.workerThread = new Thread(this.ExecuteTasksOnWorkerThread);
             this.workerThread.Name = nameof(ServiceTaskQueue);
             this.workerThread.IsBackground = true;
             this.workerThread.Start();
@@ -60,7 +60,7 @@ namespace Scalar.Service
             }
         }
 
-        private void RunQueue()
+        private void ExecuteTasksOnWorkerThread()
         {
             while (this.queue.TryTake(out this.currentTask, Timeout.Infinite) &&
                 !this.queue.IsAddingCompleted)
@@ -71,10 +71,10 @@ namespace Scalar.Service
                 }
                 catch (Exception e)
                 {
-                    EventMetadata metadata = this.CreateEventMetadata(nameof(this.RunQueue), e);
+                    EventMetadata metadata = this.CreateEventMetadata(nameof(this.ExecuteTasksOnWorkerThread), e);
                     this.tracer.RelatedError(
                         metadata: metadata,
-                        message: $"{nameof(this.RunQueue)}: Unexpected Exception while running service tasks: {e.Message}");
+                        message: $"{nameof(this.ExecuteTasksOnWorkerThread)}: Unexpected Exception while running service tasks: {e.Message}");
                 }
             }
         }

@@ -156,8 +156,8 @@ namespace Scalar.Service
 
                     this.repoRegistry.RunMaintenanceTaskForRepos(
                         this.task,
-                        this.registeredUserStore.RegisteredUser.UserId,
-                        this.registeredUserStore.RegisteredUser.SessionId);
+                        registeredUser.UserId,
+                        registeredUser.SessionId);
                 }
                 else
                 {
