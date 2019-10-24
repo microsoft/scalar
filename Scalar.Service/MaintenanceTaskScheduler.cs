@@ -1,4 +1,5 @@
 ﻿using Scalar.Common;
+using Scalar.Common.Maintenance;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
@@ -21,14 +22,14 @@ namespace Scalar.Service
 
         private readonly ITracer tracer;
         private ServiceTaskQueue taskQueue;
-        private List<Timer> stepTimers;
+        private List<Timer> taskTimers;
 
         public MaintenanceTaskScheduler(ITracer tracer, IRepoRegistry repoRegistry)
         {
             this.tracer = tracer;
-            this.stepTimers = new List<Timer>();
+            this.taskTimers = new List<Timer>();
             this.taskQueue = new ServiceTaskQueue(this.tracer);
-            this.ScheduleRecurringSteps(repoRegistry);
+            this.ScheduleRecurringTasks(repoRegistry);
         }
 
         public UserAndSession RegisteredUser { get; private set; }
@@ -49,7 +50,7 @@ namespace Scalar.Service
         public void Dispose()
         {
             this.taskQueue.Stop();
-            foreach (Timer timer in this.stepTimers)
+            foreach (Timer timer in this.taskTimers)
             {
                 using (ManualResetEvent timerDisposed = new ManualResetEvent(initialState: false))
                 {
@@ -60,69 +61,69 @@ namespace Scalar.Service
 
             this.taskQueue.Dispose();
             this.taskQueue = null;
-            this.stepTimers = null;
+            this.taskTimers = null;
         }
 
-        private void ScheduleRecurringSteps(IRepoRegistry repoRegistry)
+        private void ScheduleRecurringTasks(IRepoRegistry repoRegistry)
         {
             if (ScalarEnlistment.IsUnattended(this.tracer))
             {
-                this.tracer.RelatedInfo($"{nameof(this.ScheduleRecurringSteps)}: Skipping maintenance tasks due to running unattended");
+                this.tracer.RelatedInfo($"{nameof(this.ScheduleRecurringTasks)}: Skipping maintenance tasks due to running unattended");
                 return;
             }
 
-            List<TaskTiming> tasks = new List<TaskTiming>()
+            List<MaintenanceSchedule> taskSchedules = new List<MaintenanceSchedule>()
             {
-                new TaskTiming(
-                    ScalarConstants.VerbParameters.Maintenance.FetchCommitsAndTreesTaskName,
+                new MaintenanceSchedule(
+                    MaintenanceTasks.Task.FetchCommitsAndTrees,
                     dueTime: this.fetchCommitsAndTreesPeriod,
                     period: this.fetchCommitsAndTreesPeriod),
-                new TaskTiming(
-                    ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName,
+                new MaintenanceSchedule(
+                    MaintenanceTasks.Task.LooseObjects,
                     dueTime: this.looseObjectsDueTime,
                     period: this.looseObjectsPeriod),
-                new TaskTiming(
-                    ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName,
+                new MaintenanceSchedule(
+                    MaintenanceTasks.Task.PackFiles,
                     dueTime: this.packfileDueTime,
                     period: this.packfilePeriod),
-                new TaskTiming(
-                    ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName,
+                new MaintenanceSchedule(
+                    MaintenanceTasks.Task.CommitGraph,
                     dueTime: this.commitGraphDueTime,
                     period: this.commitGraphPeriod),
             };
 
-            foreach (TaskTiming task in tasks)
+            foreach (MaintenanceSchedule schedule in taskSchedules)
             {
-                this.stepTimers.Add(new Timer(
+                this.taskTimers.Add(new Timer(
                 (state) => this.taskQueue.TryEnqueue(
                     new MaintenanceTask(
                         this.tracer,
                         repoRegistry,
                         this,
-                        task.Name)),
+                        schedule.Task)),
                 state: null,
-                dueTime: task.DueTime,
-                period: task.Period));
+                dueTime: schedule.DueTime,
+                period: schedule.Period));
             }
         }
 
-        private class TaskTiming
+        private class MaintenanceSchedule
         {
-            public TaskTiming(string name, TimeSpan dueTime, TimeSpan period)
+            public MaintenanceSchedule(MaintenanceTasks.Task task, TimeSpan dueTime, TimeSpan period)
             {
-                this.Name = name;
+                this.Task = task;
                 this.DueTime = dueTime;
                 this.Period = period;
             }
 
-            public string Name { get; }
+            public MaintenanceTasks.Task Task { get; }
             public TimeSpan DueTime { get; }
             public TimeSpan Period { get; }
         }
 
         private class MaintenanceTask : IServiceTask
         {
-            private readonly string task;
+            private readonly MaintenanceTasks.Task task;
             private readonly IRepoRegistry repoRegistry;
             private readonly ITracer tracer;
             private readonly IRegisteredUserStore registeredUserStore;
@@ -131,7 +132,7 @@ namespace Scalar.Service
                 ITracer tracer,
                 IRepoRegistry repoRegistry,
                 IRegisteredUserStore registeredUserStore,
-                string task)
+                MaintenanceTasks.Task task)
             {
                 this.tracer = tracer;
                 this.repoRegistry = repoRegistry;

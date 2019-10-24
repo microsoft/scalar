@@ -1,4 +1,5 @@
 using Scalar.Common;
+using Scalar.Common.Maintenance;
 using Scalar.Common.Tracing;
 using System.Diagnostics;
 using System.IO;
@@ -28,10 +29,11 @@ namespace Scalar.Service
             this.internalVerbJson = internalParams.ToJson();
         }
 
-        public bool CallMaintenance(string task, string repoRoot, int sessionId)
+        public bool CallMaintenance(MaintenanceTasks.Task task, string repoRoot, int sessionId)
         {
+            string taskVerbName = MaintenanceTasks.GetVerbTaskName(task);
             string arguments =
-                $"asuser {sessionId} {this.scalarBinPath} maintenance \"{repoRoot}\" --{ScalarConstants.VerbParameters.Maintenance.Task} {task} --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}";
+                $"asuser {sessionId} {this.scalarBinPath} maintenance \"{repoRoot}\" --{ScalarConstants.VerbParameters.Maintenance.Task} {taskVerbName} --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}";
 
             ProcessResult result = this.processLauncher.LaunchProcess(ExecutablePath, arguments, repoRoot);
             if (result.ExitCode != 0)

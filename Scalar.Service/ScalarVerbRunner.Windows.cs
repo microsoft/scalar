@@ -1,4 +1,5 @@
 using Scalar.Common;
+using Scalar.Common.Maintenance;
 using Scalar.Common.Tracing;
 using Scalar.Platform.Windows;
 
@@ -17,7 +18,7 @@ namespace Scalar.Service
             this.internalVerbJson = internalParams.ToJson();
         }
 
-        public bool CallMaintenance(string task, string repoRoot, int sessionId)
+        public bool CallMaintenance(MaintenanceTasks.Task task, string repoRoot, int sessionId)
         {
             using (CurrentUser currentUser = new CurrentUser(this.tracer, sessionId))
             {
@@ -31,11 +32,13 @@ namespace Scalar.Service
             return true;
         }
 
-        private bool CallScalarMaintenance(string task, string repoRoot, CurrentUser currentUser)
+        private bool CallScalarMaintenance(MaintenanceTasks.Task task, string repoRoot, CurrentUser currentUser)
         {
+            string taskVerbName = MaintenanceTasks.GetVerbTaskName(task);
+
             return currentUser.RunAs(
                 Configuration.Instance.ScalarLocation,
-                $"maintenance \"{repoRoot}\" --{ScalarConstants.VerbParameters.Maintenance.Task} {task} --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}");
+                $"maintenance \"{repoRoot}\" --{ScalarConstants.VerbParameters.Maintenance.Task} {taskVerbName} --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}");
         }
     }
 }

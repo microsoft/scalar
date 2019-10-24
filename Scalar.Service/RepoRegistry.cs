@@ -1,4 +1,5 @@
 using Scalar.Common.FileSystem;
+using Scalar.Common.Maintenance;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
@@ -155,10 +156,10 @@ namespace Scalar.Service
             return false;
         }
 
-        public void RunMaintenanceTaskForRepos(string task, string userId, int sessionId)
+        public void RunMaintenanceTaskForRepos(MaintenanceTasks.Task task, string userId, int sessionId)
         {
             EventMetadata metadata = CreateEventMetadata();
-            metadata.Add(nameof(task), task);
+            metadata.Add(nameof(task), MaintenanceTasks.GetVerbTaskName(task));
             metadata.Add(nameof(userId), userId);
             metadata.Add(nameof(sessionId), sessionId);
 

@@ -1,6 +1,7 @@
 using Moq;
 using NUnit.Framework;
 using Scalar.Common;
+using Scalar.Common.Maintenance;
 using Scalar.Service;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.FileSystem;
@@ -34,7 +35,7 @@ namespace Scalar.UnitTests.Service.Mac
         {
             Mock<IScalarVerbRunner> repoMounterMock = new Mock<IScalarVerbRunner>(MockBehavior.Strict);
 
-            string task = "test-task";
+            MaintenanceTasks.Task task = MaintenanceTasks.Task.FetchCommitsAndTrees;
             repoMounterMock.Setup(mp => mp.CallMaintenance(task, ExpectedActiveRepoPath, ExpectedActiveUserId)).Returns(true);
 
             this.CreateTestRepos(ServiceDataLocation);
@@ -53,11 +54,12 @@ namespace Scalar.UnitTests.Service.Mac
         [TestCase]
         public void MaintenanceVerbLaunchedUsingCorrectArgs()
         {
-            string task = "test-task";
+            MaintenanceTasks.Task task = MaintenanceTasks.Task.FetchCommitsAndTrees;
+            string taskVerbName = MaintenanceTasks.GetVerbTaskName(task);
             string executable = @"/bin/launchctl";
             string scalarBinPath = Path.Combine(this.scalarPlatform.Constants.ScalarBinDirectoryPath, this.scalarPlatform.Constants.ScalarExecutableName);
             string expectedArgs =
-                $"asuser {ExpectedActiveUserId} {scalarBinPath} maintenance \"{ExpectedActiveRepoPath}\" --{ScalarConstants.VerbParameters.Maintenance.Task} {task} --{ScalarConstants.VerbParameters.InternalUseOnly} {new InternalVerbParameters(startedByService: true).ToJson()}";
+                $"asuser {ExpectedActiveUserId} {scalarBinPath} maintenance \"{ExpectedActiveRepoPath}\" --{ScalarConstants.VerbParameters.Maintenance.Task} {taskVerbName} --{ScalarConstants.VerbParameters.InternalUseOnly} {new InternalVerbParameters(startedByService: true).ToJson()}";
 
             Mock<ScalarVerbRunner.ScalarProcessLauncher> mountLauncherMock = new Mock<ScalarVerbRunner.ScalarProcessLauncher>(MockBehavior.Strict, this.tracer);
             mountLauncherMock.Setup(mp => mp.LaunchProcess(
