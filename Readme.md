@@ -1,6 +1,6 @@
 # Scalar
 
-[![Build Status](https://dev.azure.com/gvfs/scalar/_apis/build/status/microsoft.scalar?branchName=master)](https://dev.azure.com/gvfs/scalar/_build/latest?definitionId=32&branchName=master)
+[![Build Status](https://dev.azure.com/mseng/Scalar/_apis/build/status/microsoft.scalar?branchName=master)](https://dev.azure.com/mseng/Scalar/_build/latest?definitionId=9297&branchName=master)
 
 ## What is Scalar?
 
