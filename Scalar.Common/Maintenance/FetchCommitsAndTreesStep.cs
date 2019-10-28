@@ -16,6 +16,7 @@ namespace Scalar.Common.Maintenance
         private const int WaitingOnLockLogThreshold = 50;
         private const string FetchCommitsAndTreesLock = "fetch-commits-trees.lock";
         private readonly TimeSpan timeBetweenFetches = TimeSpan.FromMinutes(70);
+        private readonly TimeSpan timeBetweenFetchesNoCacheServer = TimeSpan.FromDays(1);
 
         public FetchCommitsAndTreesStep(ScalarContext context, GitObjects gitObjects, bool requireCacheLock = true)
             : base(context, requireCacheLock)
@@ -78,10 +79,13 @@ namespace Scalar.Common.Maintenance
                 return;
             }
 
+            TimeSpan timeBetween = this.GitObjects.IsUsingCacheServer()
+                                    ? this.timeBetweenFetches
+                                    : this.timeBetweenFetchesNoCacheServer;
+
             DateTime lastDateTime = EpochConverter.FromUnixEpochSeconds(last);
             DateTime now = DateTime.UtcNow;
-
-            if (now <= lastDateTime + this.timeBetweenFetches)
+            if (now <= lastDateTime + timeBetween)
             {
                 this.Context.Tracer.RelatedInfo(this.Area + ": Skipping fetch since most-recent fetch ({0}) is too close to now ({1})", lastDateTime, now);
                 return;
