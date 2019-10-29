@@ -1,7 +1,6 @@
 using Moq;
 using NUnit.Framework;
 using Scalar.Service;
-using Scalar.Service.Handlers;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.FileSystem;
@@ -15,21 +14,18 @@ namespace Scalar.UnitTests.Service
     [TestFixture]
     public class RepoRegistryTests
     {
-        private Mock<IRepoMounter> mockRepoMounter;
-        private Mock<INotificationHandler> mockNotificationHandler;
+        private Mock<IScalarVerbRunner> mockRepoMounter;
 
         [SetUp]
         public void Setup()
         {
-            this.mockRepoMounter = new Mock<IRepoMounter>(MockBehavior.Strict);
-            this.mockNotificationHandler = new Mock<INotificationHandler>(MockBehavior.Strict);
+            this.mockRepoMounter = new Mock<IScalarVerbRunner>(MockBehavior.Strict);
         }
 
         [TearDown]
         public void TearDown()
         {
             this.mockRepoMounter.VerifyAll();
-            this.mockNotificationHandler.VerifyAll();
         }
 
         [TestCase]
@@ -42,8 +38,7 @@ namespace Scalar.UnitTests.Service
                 new MockTracer(),
                 fileSystem,
                 dataLocation,
-                this.mockRepoMounter.Object,
-                this.mockNotificationHandler.Object);
+                this.mockRepoMounter.Object);
 
             string repoRoot = Path.Combine("c:", "test");
             string ownerSID = Guid.NewGuid().ToString();
@@ -57,55 +52,6 @@ namespace Scalar.UnitTests.Service
         }
 
         [TestCase]
-        public void ReadRegistry_Upgrade_ExistingVersion1()
-        {
-            string dataLocation = Path.Combine("mock:", "registryDataFolder");
-            MockFileSystem fileSystem = new MockFileSystem(new MockDirectory(dataLocation, null, null));
-
-            string repo1 = Path.Combine("mock:", "code", "repo1");
-            string repo2 = Path.Combine("mock:", "code", "repo2");
-
-            // Create a version 1 registry file
-            fileSystem.WriteAllText(
-                Path.Combine(dataLocation, RepoRegistry.RegistryName),
-$@"1
-{{""EnlistmentRoot"":""{repo1.Replace("\\", "\\\\")}"",""IsActive"":false}}
-{{""EnlistmentRoot"":""{repo2.Replace("\\", "\\\\")}"",""IsActive"":true}}
-");
-
-            RepoRegistry registry = new RepoRegistry(
-                new MockTracer(),
-                fileSystem,
-                dataLocation,
-                this.mockRepoMounter.Object,
-                this.mockNotificationHandler.Object);
-            registry.Upgrade();
-
-            Dictionary<string, RepoRegistration> repos = registry.ReadRegistry();
-            repos.Count.ShouldEqual(2);
-
-            this.VerifyRepo(repos[repo1], expectedOwnerSID: null, expectedIsActive: false);
-            this.VerifyRepo(repos[repo2], expectedOwnerSID: null, expectedIsActive: true);
-        }
-
-        [TestCase]
-        public void ReadRegistry_Upgrade_NoRegistry()
-        {
-            string dataLocation = Path.Combine("mock:", "registryDataFolder");
-            MockFileSystem fileSystem = new MockFileSystem(new MockDirectory(dataLocation, null, null));
-            RepoRegistry registry = new RepoRegistry(
-                new MockTracer(),
-                fileSystem,
-                dataLocation,
-                this.mockRepoMounter.Object,
-                this.mockNotificationHandler.Object);
-            registry.Upgrade();
-
-            Dictionary<string, RepoRegistration> repos = registry.ReadRegistry();
-            repos.Count.ShouldEqual(0);
-        }
-
-        [TestCase]
         public void TryGetActiveRepos_BeforeAndAfterActivateAndDeactivate()
         {
             string dataLocation = Path.Combine("mock:", "registryDataFolder");
@@ -114,8 +60,7 @@ $@"1
                 new MockTracer(),
                 fileSystem,
                 dataLocation,
-                this.mockRepoMounter.Object,
-                this.mockNotificationHandler.Object);
+                this.mockRepoMounter.Object);
 
             string repo1Root = Path.Combine("mock:", "test", "repo1");
             string owner1SID = Guid.NewGuid().ToString();
@@ -167,8 +112,7 @@ $@"1
                 new MockTracer(),
                 fileSystem,
                 dataLocation,
-                this.mockRepoMounter.Object,
-                this.mockNotificationHandler.Object);
+                this.mockRepoMounter.Object);
 
             string repo1Root = Path.Combine("mock:", "test", "repo1");
             string owner1SID = Guid.NewGuid().ToString();
@@ -211,8 +155,7 @@ $@"1
                 tracer,
                 fileSystem,
                 dataLocation,
-                this.mockRepoMounter.Object,
-                this.mockNotificationHandler.Object);
+                this.mockRepoMounter.Object);
 
             string repo1Root = Path.Combine("mock:", "test", "repo1");
             string owner1SID = Guid.NewGuid().ToString();

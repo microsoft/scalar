@@ -1,7 +1,6 @@
 using Scalar.Common.FileSystem;
-using Scalar.Common.NamedPipes;
+using Scalar.Common.Maintenance;
 using Scalar.Common.Tracing;
-using Scalar.Service.Handlers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,37 +19,24 @@ namespace Scalar.Service
         private ITracer tracer;
         private PhysicalFileSystem fileSystem;
         private object repoLock = new object();
-        private IRepoMounter repoMounter;
-        private INotificationHandler notificationHandler;
+        private IScalarVerbRunner scalarVerb;
 
         public RepoRegistry(
             ITracer tracer,
             PhysicalFileSystem fileSystem,
             string serviceDataLocation,
-            IRepoMounter repoMounter,
-            INotificationHandler notificationHandler)
+            IScalarVerbRunner scalarVerbRunner)
         {
             this.tracer = tracer;
             this.fileSystem = fileSystem;
             this.registryParentFolderPath = serviceDataLocation;
-            this.repoMounter = repoMounter;
-            this.notificationHandler = notificationHandler;
+            this.scalarVerb = scalarVerbRunner;
 
             EventMetadata metadata = new EventMetadata();
             metadata.Add("Area", EtwArea);
             metadata.Add("registryParentFolderPath", this.registryParentFolderPath);
             metadata.Add(TracingConstants.MessageKey.InfoMessage, "RepoRegistry created");
             this.tracer.RelatedEvent(EventLevel.Informational, "RepoRegistry_Created", metadata);
-        }
-
-        public void Upgrade()
-        {
-            // Version 1 to Version 2, added OwnerSID
-            Dictionary<string, RepoRegistration> allRepos = this.ReadRegistry();
-            if (allRepos.Any())
-            {
-                this.WriteRegistry(allRepos);
-            }
         }
 
         public bool TryRegisterRepo(string repoRoot, string ownerSID, out string errorMessage)
@@ -170,29 +156,39 @@ namespace Scalar.Service
             return false;
         }
 
-        public void AutoMountRepos(string userId, int sessionId)
+        public void RunMaintenanceTaskForRepos(MaintenanceTasks.Task task, string userId, int sessionId)
         {
-            using (ITracer activity = this.tracer.StartActivity("AutoMount", EventLevel.Informational))
+            EventMetadata metadata = CreateEventMetadata();
+            metadata.Add(nameof(task), MaintenanceTasks.GetVerbTaskName(task));
+            metadata.Add(nameof(userId), userId);
+            metadata.Add(nameof(sessionId), sessionId);
+
+            List<RepoRegistration> activeRepos = this.GetActiveReposForUser(userId);
+            if (activeRepos.Count == 0)
             {
-                List<RepoRegistration> activeRepos = this.GetActiveReposForUser(userId);
-                if (activeRepos.Count > 0)
-                {
-                    this.SendNotification(
-                    sessionId,
-                    NamedPipeMessages.Notification.Request.Identifier.AutomountStart,
-                    enlistment: null,
-                    enlistmentCount: activeRepos.Count);
-                }
+                metadata.Add(TracingConstants.MessageKey.InfoMessage, "No active repos for user");
+                this.tracer.RelatedEvent(
+                    EventLevel.Informational,
+                    $"{nameof(this.RunMaintenanceTaskForRepos)}_NoRepos",
+                    metadata);
+            }
+            else
+            {
+                metadata.Add(TracingConstants.MessageKey.InfoMessage, "Calling maintenance verb");
 
                 foreach (RepoRegistration repo in activeRepos)
                 {
-                    // TODO #1089: We need to respect the elevation level of the original mount
-                    if (!this.repoMounter.MountRepository(repo.EnlistmentRoot, sessionId))
+                    metadata[nameof(repo.EnlistmentRoot)] = repo.EnlistmentRoot;
+                    metadata[nameof(task)] = task;
+                    this.tracer.RelatedEvent(
+                        EventLevel.Informational,
+                        $"{nameof(this.RunMaintenanceTaskForRepos)}_CallingMaintenance",
+                        metadata);
+
+                    if (!this.scalarVerb.CallMaintenance(task, repo.EnlistmentRoot, sessionId))
                     {
-                        this.SendNotification(
-                            sessionId,
-                            NamedPipeMessages.Notification.Request.Identifier.MountFailure,
-                            repo.EnlistmentRoot);
+                        // TODO: #111 - If the maintenance verb failed because the repo is no longer
+                        // on disk, it should be removed from the registry
                     }
                 }
             }
@@ -218,8 +214,7 @@ namespace Scalar.Service
                     {
                         if (versionString != null)
                         {
-                            EventMetadata metadata = new EventMetadata();
-                            metadata.Add("Area", EtwArea);
+                            EventMetadata metadata = CreateEventMetadata();
                             metadata.Add("OnDiskVersion", versionString);
                             metadata.Add("ExpectedVersion", versionString);
                             this.tracer.RelatedError(metadata, "ReadRegistry: Unsupported version");
@@ -243,7 +238,7 @@ namespace Scalar.Service
                                 {
                                     if (!normalizedEnlistmentRootPath.Equals(registration.EnlistmentRoot, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        EventMetadata metadata = new EventMetadata();
+                                        EventMetadata metadata = CreateEventMetadata();
                                         metadata.Add("registration.EnlistmentRoot", registration.EnlistmentRoot);
                                         metadata.Add(nameof(normalizedEnlistmentRootPath), normalizedEnlistmentRootPath);
                                         metadata.Add(TracingConstants.MessageKey.InfoMessage, $"{nameof(this.ReadRegistry)}: Mapping registered enlistment root to final path");
@@ -252,7 +247,7 @@ namespace Scalar.Service
                                 }
                                 else
                                 {
-                                    EventMetadata metadata = new EventMetadata();
+                                    EventMetadata metadata = CreateEventMetadata();
                                     metadata.Add("registration.EnlistmentRoot", registration.EnlistmentRoot);
                                     metadata.Add("NormalizedEnlistmentRootPath", normalizedEnlistmentRootPath);
                                     metadata.Add("ErrorMessage", errorMessage);
@@ -266,10 +261,8 @@ namespace Scalar.Service
                             }
                             catch (Exception e)
                             {
-                                EventMetadata metadata = new EventMetadata();
-                                metadata.Add("Area", EtwArea);
+                                EventMetadata metadata = CreateEventMetadata(e);
                                 metadata.Add("entry", entry);
-                                metadata.Add("Exception", e.ToString());
                                 this.tracer.RelatedError(metadata, "ReadRegistry: Failed to read entry");
                             }
                         }
@@ -304,6 +297,18 @@ namespace Scalar.Service
             }
         }
 
+        private static EventMetadata CreateEventMetadata(Exception e = null)
+        {
+            EventMetadata metadata = new EventMetadata();
+            metadata.Add("Area", EtwArea);
+            if (e != null)
+            {
+                metadata.Add("Exception", e.ToString());
+            }
+
+            return metadata;
+        }
+
         private List<RepoRegistration> GetActiveReposForUser(string ownerSID)
         {
             lock (this.repoLock)
@@ -323,20 +328,6 @@ namespace Scalar.Service
                     return new List<RepoRegistration>();
                 }
             }
-        }
-
-        private void SendNotification(
-            int sessionId,
-            NamedPipeMessages.Notification.Request.Identifier requestId,
-            string enlistment = null,
-            int enlistmentCount = 0)
-        {
-            NamedPipeMessages.Notification.Request request = new NamedPipeMessages.Notification.Request();
-            request.Id = requestId;
-            request.Enlistment = enlistment;
-            request.EnlistmentCount = enlistmentCount;
-
-            this.notificationHandler.SendNotification(request);
         }
 
         private void WriteRegistry(Dictionary<string, RepoRegistration> registry)

@@ -1,9 +1,8 @@
 using Moq;
 using NUnit.Framework;
 using Scalar.Common;
-using Scalar.Common.NamedPipes;
+using Scalar.Common.Maintenance;
 using Scalar.Service;
-using Scalar.Service.Handlers;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.FileSystem;
 using System.IO;
@@ -13,7 +12,6 @@ namespace Scalar.UnitTests.Service.Mac
     [TestFixture]
     public class MacServiceTests
     {
-        private const string ScalarServiceName = "Scalar.Service";
         private const int ExpectedActiveUserId = 502;
         private const int ExpectedSessionId = 502;
         private static readonly string ExpectedActiveRepoPath = Path.Combine("mock:", "code", "repo2");
@@ -33,31 +31,12 @@ namespace Scalar.UnitTests.Service.Mac
         }
 
         [TestCase]
-        public void ServiceStartTriggersAutoMountForCurrentUser()
+        public void RepoRegistryCallsMaintenanceVerbOnlyForRegisteredRepos()
         {
-            Mock<IRepoRegistry> repoRegistry = new Mock<IRepoRegistry>(MockBehavior.Strict);
-            repoRegistry.Setup(r => r.AutoMountRepos(ExpectedActiveUserId.ToString(), ExpectedSessionId));
-            repoRegistry.Setup(r => r.TraceStatus());
+            Mock<IScalarVerbRunner> repoMounterMock = new Mock<IScalarVerbRunner>(MockBehavior.Strict);
 
-            ScalarService service = new ScalarService(
-                this.tracer,
-                serviceName: null,
-                repoRegistry: repoRegistry.Object);
-
-            service.Run();
-
-            repoRegistry.VerifyAll();
-        }
-
-        [TestCase]
-        public void RepoRegistryMountsOnlyRegisteredRepos()
-        {
-            Mock<IRepoMounter> repoMounterMock = new Mock<IRepoMounter>(MockBehavior.Strict);
-            Mock<INotificationHandler> notificationHandlerMock = new Mock<INotificationHandler>(MockBehavior.Strict);
-
-            repoMounterMock.Setup(mp => mp.MountRepository(ExpectedActiveRepoPath, ExpectedActiveUserId)).Returns(true);
-            notificationHandlerMock.Setup(nh => nh.SendNotification(
-                It.Is<NamedPipeMessages.Notification.Request>(rq => rq.Id == NamedPipeMessages.Notification.Request.Identifier.AutomountStart)));
+            MaintenanceTasks.Task task = MaintenanceTasks.Task.FetchCommitsAndTrees;
+            repoMounterMock.Setup(mp => mp.CallMaintenance(task, ExpectedActiveRepoPath, ExpectedActiveUserId)).Returns(true);
 
             this.CreateTestRepos(ServiceDataLocation);
 
@@ -65,39 +44,32 @@ namespace Scalar.UnitTests.Service.Mac
                 this.tracer,
                 this.fileSystem,
                 ServiceDataLocation,
-                repoMounterMock.Object,
-                notificationHandlerMock.Object);
+                repoMounterMock.Object);
 
-            repoRegistry.AutoMountRepos(ExpectedActiveUserId.ToString(), ExpectedSessionId);
+            repoRegistry.RunMaintenanceTaskForRepos(task, ExpectedActiveUserId.ToString(), ExpectedSessionId);
 
             repoMounterMock.VerifyAll();
-            notificationHandlerMock.VerifyAll();
         }
 
         [TestCase]
-        public void MountProcessLaunchedUsingCorrectArgs()
+        public void MaintenanceVerbLaunchedUsingCorrectArgs()
         {
+            MaintenanceTasks.Task task = MaintenanceTasks.Task.FetchCommitsAndTrees;
+            string taskVerbName = MaintenanceTasks.GetVerbTaskName(task);
             string executable = @"/bin/launchctl";
             string scalarBinPath = Path.Combine(this.scalarPlatform.Constants.ScalarBinDirectoryPath, this.scalarPlatform.Constants.ScalarExecutableName);
-            string expectedArgs = $"asuser {ExpectedActiveUserId} {scalarBinPath} mount {ExpectedActiveRepoPath}";
+            string expectedArgs =
+                $"asuser {ExpectedActiveUserId} {scalarBinPath} maintenance \"{ExpectedActiveRepoPath}\" --{ScalarConstants.VerbParameters.Maintenance.Task} {taskVerbName} --{ScalarConstants.VerbParameters.InternalUseOnly} {new InternalVerbParameters(startedByService: true).ToJson()}";
 
-            Mock<ScalarMountProcess.MountLauncher> mountLauncherMock = new Mock<ScalarMountProcess.MountLauncher>(MockBehavior.Strict, this.tracer);
+            Mock<ScalarVerbRunner.ScalarProcessLauncher> mountLauncherMock = new Mock<ScalarVerbRunner.ScalarProcessLauncher>(MockBehavior.Strict, this.tracer);
             mountLauncherMock.Setup(mp => mp.LaunchProcess(
                 executable,
                 expectedArgs,
                 ExpectedActiveRepoPath))
-                .Returns(true);
+                .Returns(new ProcessResult(output: string.Empty, errors: string.Empty, exitCode: 0));
 
-            string errorString = null;
-            mountLauncherMock.Setup(mp => mp.WaitUntilMounted(
-                this.tracer,
-                ExpectedActiveRepoPath,
-                It.IsAny<bool>(),
-                out errorString))
-                .Returns(true);
-
-            ScalarMountProcess mountProcess = new ScalarMountProcess(this.tracer, mountLauncherMock.Object);
-            mountProcess.MountRepository(ExpectedActiveRepoPath, ExpectedActiveUserId);
+            ScalarVerbRunner verbProcess = new ScalarVerbRunner(this.tracer, mountLauncherMock.Object);
+            verbProcess.CallMaintenance(task, ExpectedActiveRepoPath, ExpectedActiveUserId);
 
             mountLauncherMock.VerifyAll();
         }

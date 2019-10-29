@@ -52,8 +52,7 @@ namespace Scalar.Service
                 tracer,
                 new PhysicalFileSystem(),
                 serviceDataLocation,
-                new ScalarMountProcess(tracer),
-                new NotificationHandler(tracer));
+                new ScalarVerbRunner(tracer));
 
             return new ScalarService(tracer, serviceName, repoRegistry);
         }

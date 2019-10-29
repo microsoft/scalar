@@ -263,7 +263,7 @@ namespace Scalar.CommandLine
                         this.enlistment,
                         verb =>
                         {
-                            verb.MaintenanceTask = MaintenanceVerb.FetchCommitsAndTreesTaskName;
+                            verb.MaintenanceTask = ScalarConstants.VerbParameters.Maintenance.FetchCommitsAndTreesTaskName;
                             verb.SkipVersionCheck = true;
                             verb.ResolvedCacheServer = this.cacheServer;
                             verb.ServerScalarConfig = this.serverScalarConfig;
