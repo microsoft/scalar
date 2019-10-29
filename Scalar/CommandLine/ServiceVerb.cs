@@ -14,24 +14,10 @@ namespace Scalar.CommandLine
         private const string ServiceVerbName = "service";
 
         [Option(
-            "mount-all",
+            "list-registered",
             Default = false,
             Required = false,
-            HelpText = "Mounts all repos")]
-        public bool MountAll { get; set; }
-
-        [Option(
-            "unmount-all",
-            Default = false,
-            Required = false,
-            HelpText = "Unmounts all repos")]
-        public bool UnmountAll { get; set; }
-
-        [Option(
-            "list-mounted",
-            Default = false,
-            Required = false,
-            HelpText = "Prints a list of all mounted repos")]
+            HelpText = "Prints a list of all repos registered with the service")]
         public bool List { get; set; }
 
         protected override string VerbName
@@ -41,7 +27,7 @@ namespace Scalar.CommandLine
 
         public override void Execute()
         {
-            int optionCount = new[] { this.MountAll, this.UnmountAll, this.List }.Count(flag => flag);
+            int optionCount = new[] { this.List }.Count(flag => flag);
             if (optionCount == 0)
             {
                 this.ReportErrorAndExit($"Error: You must specify an argument.  Run 'scalar {ServiceVerbName} --help' for details.");
@@ -62,66 +48,7 @@ namespace Scalar.CommandLine
             {
                 foreach (string repoRoot in repoList)
                 {
-                    if (this.IsRepoMounted(repoRoot))
-                    {
-                        this.Output.WriteLine(repoRoot);
-                    }
-                }
-            }
-            else if (this.MountAll)
-            {
-                List<string> failedRepoRoots = new List<string>();
-
-                foreach (string repoRoot in repoList)
-                {
-                    if (!this.IsRepoMounted(repoRoot))
-                    {
-                        this.Output.WriteLine("\r\nMounting repo at " + repoRoot);
-                        ReturnCode result = this.Execute<MountVerb>(repoRoot);
-
-                        if (result != ReturnCode.Success)
-                        {
-                            failedRepoRoots.Add(repoRoot);
-                        }
-                    }
-                }
-
-                if (failedRepoRoots.Count() > 0)
-                {
-                    string errorString = $"The following repos failed to mount:{Environment.NewLine}{string.Join("\r\n", failedRepoRoots.ToArray())}";
-                    Console.Error.WriteLine(errorString);
-                    this.ReportErrorAndExit(Environment.NewLine + errorString);
-                }
-            }
-            else if (this.UnmountAll)
-            {
-                List<string> failedRepoRoots = new List<string>();
-
-                foreach (string repoRoot in repoList)
-                {
-                    if (this.IsRepoMounted(repoRoot))
-                    {
-                        this.Output.WriteLine("\r\nUnmounting repo at " + repoRoot);
-                        ReturnCode result = this.Execute<UnmountVerb>(
-                            repoRoot,
-                            verb =>
-                            {
-                                verb.SkipUnregister = true;
-                                verb.SkipLock = true;
-                            });
-
-                        if (result != ReturnCode.Success)
-                        {
-                            failedRepoRoots.Add(repoRoot);
-                        }
-                    }
-                }
-
-                if (failedRepoRoots.Count() > 0)
-                {
-                    string errorString = $"The following repos failed to unmount:{Environment.NewLine}{string.Join(Environment.NewLine, failedRepoRoots.ToArray())}";
-                    Console.Error.WriteLine(errorString);
-                    this.ReportErrorAndExit(Environment.NewLine + errorString);
+                    this.Output.WriteLine(repoRoot);
                 }
             }
         }
@@ -178,25 +105,6 @@ namespace Scalar.CommandLine
 
                 return false;
             }
-        }
-
-        private bool IsRepoMounted(string repoRoot)
-        {
-            // Hide the output of status
-            StringWriter statusOutput = new StringWriter();
-            ReturnCode result = this.Execute<StatusVerb>(
-                repoRoot,
-                verb =>
-                {
-                    verb.Output = statusOutput;
-                });
-
-            if (result == ReturnCode.Success)
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }

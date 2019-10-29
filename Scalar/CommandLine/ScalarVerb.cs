@@ -436,19 +436,6 @@ namespace Scalar.CommandLine
             return vstsInfo;
         }
 
-        protected bool IsExistingPipeListening(string enlistmentRoot)
-        {
-            using (NamedPipeClient pipeClient = new NamedPipeClient(ScalarPlatform.Instance.GetNamedPipeName(enlistmentRoot)))
-            {
-                if (pipeClient.Connect(500))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         protected void ValidateClientVersions(ITracer tracer, ScalarEnlistment enlistment, ServerScalarConfig scalarConfig, bool showWarnings)
         {
             this.CheckGitVersion(tracer, enlistment, out string gitVersion);

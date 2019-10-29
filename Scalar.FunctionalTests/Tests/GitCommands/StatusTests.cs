@@ -210,7 +210,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
         private void ValidGitStatusWithRetry(string srcPath)
         {
-            this.Enlistment.WaitForBackgroundOperations();
             try
             {
                 this.ValidateGitCommand("status");

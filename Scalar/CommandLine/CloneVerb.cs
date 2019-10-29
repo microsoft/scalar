@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace Scalar.CommandLine
 {
-    [Verb(CloneVerb.CloneVerbName, HelpText = "Clone a git repo and mount it as a Scalar virtual repo")]
+    [Verb(CloneVerb.CloneVerbName, HelpText = "Clone a git repo and register it with the service as a Scalar repo")]
     public class CloneVerb : ScalarVerb
     {
         private const string CloneVerbName = "clone";
@@ -279,16 +279,6 @@ namespace Scalar.CommandLine
 
                 this.ConfigureWatchmanIntegration();
 
-                this.Execute<MountVerb>(
-                   this.enlistment,
-                    verb =>
-                    {
-                        verb.SkipMountedCheck = true;
-                        verb.SkipVersionCheck = true;
-                        verb.ResolvedCacheServer = this.cacheServer;
-                        verb.DownloadedScalarConfig = this.serverScalarConfig;
-                    });
-
                 cloneResult = this.CheckoutRepo();
 
                 this.RegisterWithService();
@@ -473,11 +463,6 @@ namespace Scalar.CommandLine
             if (ScalarPlatform.Instance.TryGetScalarEnlistmentRoot(normalizedEnlistmentRootPath, out existingEnlistmentRoot, out errorMessage))
             {
                 this.ReportErrorAndExit("Error: You can't clone inside an existing Scalar repo ({0})", existingEnlistmentRoot);
-            }
-
-            if (this.IsExistingPipeListening(normalizedEnlistmentRootPath))
-            {
-                this.ReportErrorAndExit($"Error: There is currently a Scalar.Mount process running for '{normalizedEnlistmentRootPath}'. This process must be stopped before cloning.");
             }
         }
 

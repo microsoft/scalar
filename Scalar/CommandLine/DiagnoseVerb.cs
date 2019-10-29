@@ -78,12 +78,7 @@ namespace Scalar.CommandLine
 
                 this.RecordVersionInformation();
 
-                this.ShowStatusWhileRunning(
-                    () =>
-                        this.RunAndRecordScalarVerb<StatusVerb>(archiveFolderPath, "scalar_status.txt") != ReturnCode.Success ||
-                        this.RunAndRecordScalarVerb<UnmountVerb>(archiveFolderPath, "scalar_unmount.txt", verb => verb.SkipLock = true) == ReturnCode.Success,
-                    "Unmounting",
-                    suppressGvfsLogMessage: true);
+                this.RunAndRecordScalarVerb<StatusVerb>(archiveFolderPath, "scalar_status.txt");
 
                 this.ShowStatusWhileRunning(
                     () =>
@@ -156,11 +151,6 @@ namespace Scalar.CommandLine
                         return true;
                     },
                     "Copying logs");
-
-                this.ShowStatusWhileRunning(
-                    () => this.RunAndRecordScalarVerb<MountVerb>(archiveFolderPath, "scalar_mount.txt") == ReturnCode.Success,
-                    "Mounting",
-                    suppressGvfsLogMessage: true);
 
                 this.CopyAllFiles(enlistment.DotScalarRoot, Path.Combine(archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot), "logs", copySubFolders: false);
             }

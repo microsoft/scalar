@@ -330,66 +330,36 @@ begin
   DeleteFile(TempFilename);
 end;
 
-procedure UnmountRepos();
+procedure StopMaintenanceTasks();
 var
   ResultCode: integer;
 begin
-  Exec('scalar.exe', 'service --unmount-all', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  // TODO: #185 Instead of calling --help, use the correct action for stopping the
+  // maintenance task
+  Exec('scalar.exe', 'service --help', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
-procedure MountRepos();
+procedure RegisterUserWithService();
 var
   StatusText: string;
-  MountOutput: ansiString;
+  RegisterOutput: ansiString;
   ResultCode: integer;
   MsgBoxText: string;
 begin
   StatusText := WizardForm.StatusLabel.Caption;
-  WizardForm.StatusLabel.Caption := 'Mounting Repos.';
+  WizardForm.StatusLabel.Caption := 'Registering with service.';
   WizardForm.ProgressGauge.Style := npbstMarquee;
 
-  ExecWithResult(ExpandConstant('{app}') + '\scalar.exe', 'service --mount-all', '', SW_HIDE, ewWaitUntilTerminated, ResultCode, MountOutput);
+  // TODO: #190 Instead of --help use the service action that will register the user with the service
+  ExecWithResult(ExpandConstant('{app}') + '\scalar.exe', 'service --help', '', SW_HIDE, ewWaitUntilTerminated, ResultCode, RegisterOutput);
   WizardForm.StatusLabel.Caption := StatusText;
   WizardForm.ProgressGauge.Style := npbstNormal;
 
   if (ResultCode <> 0) then
     begin
-      MsgBoxText := 'Mounting one or more repos failed:' + #13#10 + MountOutput;
+      MsgBoxText := 'Registering with service failed:' + #13#10 + RegisterOutput;
       SuppressibleMsgBox(MsgBoxText, mbConfirmation, MB_OK, IDOK);
       ExitCode := 17;
-    end;
-end;
-
-function ConfirmUnmountAll(): Boolean;
-var
-  MsgBoxResult: integer;
-  Repos: ansiString;
-  ResultCode: integer;
-  MsgBoxText: string;
-begin
-  Result := False;
-  if ExecWithResult('scalar.exe', 'service --list-mounted', '', SW_HIDE, ewWaitUntilTerminated, ResultCode, Repos) then
-    begin
-      if Repos = '' then
-        begin
-          Result := False;
-        end
-      else
-        begin
-          if ResultCode = 0 then
-            begin
-              MsgBoxText := 'The following repos are currently mounted:' + #13#10 + Repos + #13#10 + 'Setup needs to unmount all repos before it can proceed, and those repos will be unavailable while setup is running. Do you want to continue?';
-              MsgBoxResult := SuppressibleMsgBox(MsgBoxText, mbConfirmation, MB_OKCANCEL, IDOK);
-              if (MsgBoxResult = IDOK) then
-                begin
-                  Result := True;
-                end
-              else
-                begin
-                  Abort();
-                end;
-            end;
-        end;
     end;
 end;
 
@@ -419,7 +389,7 @@ end;
 
 function InitializeUninstall(): Boolean;
 begin
-  UnmountRepos();
+  StopMaintenanceTasks();
   Result := EnsureScalarNotRunning();
 end;
 
@@ -443,11 +413,7 @@ begin
       end;
     ssPostInstall:
       begin
-        if ExpandConstant('{param:REMOUNTREPOS|true}') = 'true' then
-          begin
-            StartScalarServiceUI();
-            MountRepos();
-          end
+        RegisterUserWithService();
       end;
     end;
 end;
@@ -473,13 +439,7 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   NeedsRestart := False;
   Result := '';
-  if ConfirmUnmountAll() then
-    begin
-      if ExpandConstant('{param:REMOUNTREPOS|true}') = 'true' then
-        begin
-          UnmountRepos();
-        end
-    end;
+  StopMaintenanceTasks();
   if not EnsureScalarNotRunning() then
     begin
       Abort();

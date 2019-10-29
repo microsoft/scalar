@@ -104,7 +104,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(4)]
         public void FetchCommitsAndTreesCleansUpOldPrefetchPack()
         {
-            this.Enlistment.UnmountScalar();
+            this.Enlistment.UnregisterRepo();
 
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
             long oldestPackTimestamp = this.GetOldestPackTimestamp(prefetchPacks);
@@ -135,7 +135,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
         public void FetchCommitsAndTreesFailsWhenItCannotRemoveABadPrefetchPack()
         {
-            this.Enlistment.UnmountScalar();
+            this.Enlistment.UnregisterRepo();
 
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
             long mostRecentPackTimestamp = this.GetMostRecentPackTimestamp(prefetchPacks);
@@ -168,7 +168,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
         public void FetchCommitsAndTreesFailsWhenItCannotRemoveAPrefetchPackNewerThanBadPrefetchPack()
         {
-            this.Enlistment.UnmountScalar();
+            this.Enlistment.UnregisterRepo();
 
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
             long oldestPackTimestamp = this.GetOldestPackTimestamp(prefetchPacks);
@@ -202,7 +202,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
         public void FetchCommitsAndTreesFailsWhenItCannotRemoveAPrefetchIdxNewerThanBadPrefetchPack()
         {
-            this.Enlistment.UnmountScalar();
+            this.Enlistment.UnregisterRepo();
 
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
             long oldestPackTimestamp = this.GetOldestPackTimestamp(prefetchPacks);
@@ -239,7 +239,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(8)]
         public void FetchCommitsAndTreesCleansUpStaleTempPrefetchPacks()
         {
-            this.Enlistment.UnmountScalar();
+            this.Enlistment.UnregisterRepo();
 
             // Create stale packs and idxs  in the temp folder
             string stalePackContents = "StalePack";

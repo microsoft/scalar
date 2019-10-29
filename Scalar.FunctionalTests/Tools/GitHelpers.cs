@@ -7,48 +7,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Scalar.FunctionalTests.Tools
 {
     public static class GitHelpers
     {
-        /// <summary>
-        /// This string must match the command name provided in the
-        /// Scalar.FunctionalTests.LockHolder program.
-        /// </summary>
-        private const string LockHolderCommandName = @"Scalar.FunctionalTests.LockHolder";
-        private const string LockHolderCommand = @"Scalar.FunctionalTests.LockHolder.dll";
-
         private const string WindowsPathSeparator = "\\";
         private const string GitPathSeparator = "/";
-
-        private static string LockHolderCommandPath
-        {
-            get
-            {
-                // On OSX functional tests are run from inside Publish directory. Dependent
-                // assemblies including LockHolder test are available at the same level in
-                // the same directory.
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    return Path.Combine(
-                        Settings.Default.CurrentDirectory,
-                        LockHolderCommand);
-                }
-                else
-                {
-                    // On Windows, FT is run from the Output directory of Scalar.FunctionalTest project.
-                    // LockHolder is a .netcore assembly and can be found inside netcoreapp2.1
-                    // subdirectory of Scalar.FunctionalTest Output directory.
-                    return Path.Combine(
-                        Settings.Default.CurrentDirectory,
-                        "netcoreapp2.1",
-                        LockHolderCommand);
-                }
-            }
-        }
 
         public static string ConvertPathToGitFormat(string relativePath)
         {
@@ -138,131 +102,10 @@ namespace Scalar.FunctionalTests.Tools
             }
         }
 
-        /// <summary>
-        /// Acquire the ScalarLock. This method will return once the ScalarLock has been acquired.
-        /// </summary>
-        /// <param name="processId">The ID of the process that acquired the lock.</param>
-        /// <returns><see cref="ManualResetEvent"/> that can be signaled to exit the lock acquisition program.</returns>
-        public static ManualResetEventSlim AcquireScalarLock(
-            ScalarFunctionalTestEnlistment enlistment,
-            out int processId,
-            int resetTimeout = Timeout.Infinite,
-            bool skipReleaseLock = false)
-        {
-            string args = LockHolderCommandPath;
-            if (skipReleaseLock)
-            {
-                args += " --skip-release-lock";
-            }
-
-            return RunCommandWithWaitAndStdIn(
-                enlistment,
-                resetTimeout,
-                "dotnet",
-                args,
-                GitHelpers.LockHolderCommandName,
-                "done",
-                out processId);
-        }
-
-        /// <summary>
-        /// Run the specified Git command. This method will return once the ScalarLock has been acquired.
-        /// </summary>
-        /// <param name="processId">The ID of the process that acquired the lock.</param>
-        /// <returns><see cref="ManualResetEvent"/> that can be signaled to exit the lock acquisition program.</returns>
-        public static ManualResetEventSlim RunGitCommandWithWaitAndStdIn(
-            ScalarFunctionalTestEnlistment enlistment,
-            int resetTimeout,
-            string command,
-            string stdinToQuit,
-            out int processId)
-        {
-            return
-                RunCommandWithWaitAndStdIn(
-                    enlistment,
-                    resetTimeout,
-                    Properties.Settings.Default.PathToGit,
-                    command,
-                    "git " + command,
-                    stdinToQuit,
-                    out processId);
-        }
-
         public static void ErrorsShouldMatch(string command, ProcessResult expectedResult, ProcessResult actualResult)
         {
             actualResult.Errors.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                 .ShouldMatchInOrder(expectedResult.Errors.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries), LinesAreEqual, command + " Errors Lines");
-        }
-
-        /// <summary>
-        /// Run the specified command as an external program. This method will return once the ScalarLock has been acquired.
-        /// </summary>
-        /// <param name="processId">The ID of the process that acquired the lock.</param>
-        /// <returns><see cref="ManualResetEvent"/> that can be signaled to exit the lock acquisition program.</returns>
-        private static ManualResetEventSlim RunCommandWithWaitAndStdIn(
-            ScalarFunctionalTestEnlistment enlistment,
-            int resetTimeout,
-            string pathToCommand,
-            string args,
-            string lockingProcessCommandName,
-            string stdinToQuit,
-            out int processId)
-        {
-            ManualResetEventSlim resetEvent = new ManualResetEventSlim(initialState: false);
-
-            ProcessStartInfo processInfo = new ProcessStartInfo(pathToCommand);
-            processInfo.WorkingDirectory = enlistment.RepoRoot;
-            processInfo.UseShellExecute = false;
-            processInfo.RedirectStandardOutput = true;
-            processInfo.RedirectStandardError = true;
-            processInfo.RedirectStandardInput = true;
-            processInfo.Arguments = args;
-
-            Process holdingProcess = Process.Start(processInfo);
-            StreamWriter stdin = holdingProcess.StandardInput;
-            processId = holdingProcess.Id;
-
-            enlistment.WaitForLock(lockingProcessCommandName);
-
-            Task.Run(
-                () =>
-                {
-                    resetEvent.Wait(resetTimeout);
-
-                    try
-                    {
-                        // Make sure to let the holding process end.
-                        if (stdin != null)
-                        {
-                            stdin.WriteLine(stdinToQuit);
-                            stdin.Close();
-                        }
-
-                        if (holdingProcess != null)
-                        {
-                            bool holdingProcessHasExited = holdingProcess.WaitForExit(10000);
-
-                            if (!holdingProcess.HasExited)
-                            {
-                                holdingProcess.Kill();
-                            }
-
-                            holdingProcess.Dispose();
-
-                            holdingProcessHasExited.ShouldBeTrue("Locking process did not exit in time.");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Assert.Fail($"{nameof(RunCommandWithWaitAndStdIn)} exception closing stdin {ex.ToString()}");
-                    }
-                    finally
-                    {
-                        resetEvent.Set();
-                    }
-                });
-
-            return resetEvent;
         }
 
         private static bool LinesAreEqual(string actualLine, string expectedLine)

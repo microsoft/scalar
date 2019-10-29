@@ -13,7 +13,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         {
             foreach (ScalarFunctionalTestEnlistment enlistment in this.enlistmentsToDelete)
             {
-                enlistment.UnmountAndDeleteAll();
+                enlistment.DeleteAll();
             }
 
             this.OnTearDownEnlistmentsDeleted();
@@ -33,7 +33,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             string branch = null,
             bool skipFetchCommitsAndTrees = false)
         {
-            ScalarFunctionalTestEnlistment output = ScalarFunctionalTestEnlistment.CloneAndMount(
+            ScalarFunctionalTestEnlistment output = ScalarFunctionalTestEnlistment.Clone(
                 ScalarTestConfig.PathToScalar,
                 branch,
                 localCacheRoot,

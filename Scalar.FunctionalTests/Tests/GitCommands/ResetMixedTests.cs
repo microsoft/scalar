@@ -44,19 +44,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         }
 
         [TestCase]
-        public void ResetMixedAndRemount()
-        {
-            this.ValidateGitCommand("checkout " + GitRepoTests.ConflictTargetBranch);
-            this.ValidateGitCommand("reset --mixed HEAD~1");
-            this.FilesShouldMatchCheckoutOfTargetBranch();
-
-            this.Enlistment.UnmountScalar();
-            this.Enlistment.MountScalar();
-            this.ValidateGitCommand("status");
-            this.FilesShouldMatchCheckoutOfTargetBranch();
-        }
-
-        [TestCase]
         public void ResetMixedThenCheckoutWithConflicts()
         {
             this.ValidateGitCommand("checkout " + GitRepoTests.ConflictTargetBranch);

@@ -206,7 +206,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
         protected void CreateEnlistment(string commitish = null)
         {
-            this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMount(
+            this.Enlistment = ScalarFunctionalTestEnlistment.Clone(
                                                                 ScalarTestConfig.PathToScalar,
                                                                 commitish: commitish,
                                                                 fullClone: this.validateWorkingTree != Settings.ValidateWorkingTreeMode.SparseMode);
@@ -219,7 +219,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         {
             if (this.Enlistment != null)
             {
-                this.Enlistment.UnmountAndDeleteAll();
+                this.Enlistment.DeleteAll();
             }
 
             if (this.ControlGitRepo != null)

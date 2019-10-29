@@ -27,13 +27,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             if (this.forcePerRepoObjectCache)
             {
-                this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMountWithPerRepoCache(
+                this.Enlistment = ScalarFunctionalTestEnlistment.CloneWithPerRepoCache(
                     ScalarTestConfig.PathToScalar,
                     this.skipFetchCommitsAndTreesDuringClone);
             }
             else
             {
-                this.Enlistment = ScalarFunctionalTestEnlistment.CloneAndMount(ScalarTestConfig.PathToScalar, fullClone: this.fullClone);
+                this.Enlistment = ScalarFunctionalTestEnlistment.Clone(ScalarTestConfig.PathToScalar, fullClone: this.fullClone);
             }
         }
 
@@ -42,7 +42,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             if (this.Enlistment != null)
             {
-                this.Enlistment.UnmountAndDeleteAll();
+                this.Enlistment.DeleteAll();
             }
         }
     }
