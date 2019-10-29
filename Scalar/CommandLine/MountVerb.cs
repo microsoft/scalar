@@ -166,23 +166,6 @@ namespace Scalar.CommandLine
                 {
                     this.ReportErrorAndExit(tracer, errorMessage);
                 }
-
-                if (!this.Unattended)
-                {
-                    tracer.RelatedInfo($"{nameof(this.Execute)}: Registering for automount");
-
-                    if (this.ShowStatusWhileRunning(
-                        () => { return this.RegisterMount(enlistment, out errorMessage); },
-                        "Registering for automount"))
-                    {
-                        tracer.RelatedInfo($"{nameof(this.Execute)}: Registered for automount");
-                    }
-                    else
-                    {
-                        this.Output.WriteLine("    WARNING: " + errorMessage);
-                        tracer.RelatedInfo($"{nameof(this.Execute)}: Failed to register for automount");
-                    }
-                }
             }
         }
 
@@ -250,61 +233,6 @@ namespace Scalar.CommandLine
 
             tracer.RelatedInfo($"{nameof(this.TryMount)}: Waiting for repo to be mounted");
             return ScalarEnlistment.WaitUntilMounted(tracer, enlistment.EnlistmentRoot, this.Unattended, out errorMessage);
-        }
-
-        private bool RegisterMount(ScalarEnlistment enlistment, out string errorMessage)
-        {
-            errorMessage = string.Empty;
-
-            NamedPipeMessages.RegisterRepoRequest request = new NamedPipeMessages.RegisterRepoRequest();
-            request.EnlistmentRoot = enlistment.EnlistmentRoot;
-
-            request.OwnerSID = ScalarPlatform.Instance.GetCurrentUser();
-
-            using (NamedPipeClient client = new NamedPipeClient(this.ServicePipeName))
-            {
-                if (!client.Connect())
-                {
-                    errorMessage = "Unable to register repo because Scalar.Service is not responding.";
-                    return false;
-                }
-
-                try
-                {
-                    client.SendRequest(request.ToMessage());
-                    NamedPipeMessages.Message response = client.ReadResponse();
-                    if (response.Header == NamedPipeMessages.RegisterRepoRequest.Response.Header)
-                    {
-                        NamedPipeMessages.RegisterRepoRequest.Response message = NamedPipeMessages.RegisterRepoRequest.Response.FromMessage(response);
-
-                        if (!string.IsNullOrEmpty(message.ErrorMessage))
-                        {
-                            errorMessage = message.ErrorMessage;
-                            return false;
-                        }
-
-                        if (message.State != NamedPipeMessages.CompletionState.Success)
-                        {
-                            errorMessage = "Unable to register repo. " + errorMessage;
-                            return false;
-                        }
-                        else
-                        {
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        errorMessage = string.Format("Scalar.Service responded with unexpected message: {0}", response);
-                        return false;
-                    }
-                }
-                catch (BrokenPipeException e)
-                {
-                    errorMessage = "Unable to communicate with Scalar.Service: " + e.ToString();
-                    return false;
-                }
-            }
         }
 
         private void ParseEnumArgs(out EventLevel verbosity, out Keywords keywords)
