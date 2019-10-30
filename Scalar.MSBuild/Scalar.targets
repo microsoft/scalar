@@ -20,32 +20,4 @@
       <FileWrites Include="$(IntermediateOutputPath)app.manifest" />
     </ItemGroup>
   </Target>
-
-  <!-- Location to cache GitHub assets -->
-  <PropertyGroup>
-    <GitHubAssetsPath Condition="'$(GitHubAssetsPath)' == '' AND '$(OS)' != 'Windows_NT'">$(HOME)\.githubassets\</GitHubAssetsPath>
-    <GitHubAssetsPath Condition="'$(GitHubAssetsPath)' == '' AND '$(OS)' == 'Windows_NT'">$(USERPROFILE)\.githubassets\</GitHubAssetsPath>
-  </PropertyGroup>
-
-  <!-- Download GitHub assets before build -->
-  <Target Name="DownloadGitHubReleaseAssets"
-          AfterTargets="BeforeBuild"
-          Inputs="@(GitHubAssetReference)"
-          Outputs="%(GitHubAssetReference.PropertyName);$(GitHubAssetsPath)\%(GitHubAssetReference.Identity)\%(GitHubAssetReference.Version)\*">
-    <CreateProperty Value="$(GitHubAssetsPath)\%(GitHubAssetReference.Identity)\%(GitHubAssetReference.Version)\">
-      <Output TaskParameter="Value" PropertyName="%(GitHubAssetReference.PropertyName)" />
-    </CreateProperty>
-
-    <GetGitHubReleaseAssets Repository="%(GitHubAssetReference.Identity)"
-                            Version="%(GitHubAssetReference.Version)"
-                            Filter="%(GitHubAssetReference.Filter)">
-      <Output TaskParameter="Assets" ItemName="_Asset" />
-    </GetGitHubReleaseAssets>
-
-    <DownloadFile DestinationFolder="$(GitHubAssetsPath)\%(_Asset.Repository)\%(_Asset.Version)"
-                  SourceUrl="%(_Asset.Url)"
-                  SkipUnchangedFiles="true">
-      <Output TaskParameter="DownloadedFile" ItemName="GitHubAsset" />
-    </DownloadFile>
-  </Target>
 </Project>
