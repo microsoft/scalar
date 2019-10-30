@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Scalar.Common;
 using Scalar.Common.Maintenance;
 using Scalar.Service;
+using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common;
 using Scalar.UnitTests.Mock.FileSystem;
 using System.IO;
@@ -31,9 +32,33 @@ namespace Scalar.UnitTests.Service.Mac
         }
 
         [TestCase]
+        public void RepoRegistryRemovesRegisteredRepoIfMissingFromDisk()
+        {
+            Mock<IScalarVerbRunner> repoMounterMock = new Mock<IScalarVerbRunner>(MockBehavior.Strict);
+
+            this.fileSystem.DirectoryExists(ExpectedActiveRepoPath).ShouldBeFalse($"{ExpectedActiveRepoPath} should not exist");
+
+            MaintenanceTasks.Task task = MaintenanceTasks.Task.FetchCommitsAndTrees;
+
+            this.CreateTestRepos(ServiceDataLocation);
+            RepoRegistry repoRegistry = new RepoRegistry(
+                this.tracer,
+                this.fileSystem,
+                ServiceDataLocation,
+                repoMounterMock.Object);
+
+            repoRegistry.RunMaintenanceTaskForRepos(task, ExpectedActiveUserId.ToString(), ExpectedSessionId);
+            repoMounterMock.VerifyAll();
+
+            repoRegistry.ReadRegistry().ShouldNotContain(entry => entry.Key.Equals(ExpectedActiveRepoPath));
+        }
+
+        [TestCase]
         public void RepoRegistryCallsMaintenanceVerbOnlyForRegisteredRepos()
         {
             Mock<IScalarVerbRunner> repoMounterMock = new Mock<IScalarVerbRunner>(MockBehavior.Strict);
+
+            this.fileSystem.CreateDirectory(ExpectedActiveRepoPath);
 
             MaintenanceTasks.Task task = MaintenanceTasks.Task.FetchCommitsAndTrees;
             repoMounterMock.Setup(mp => mp.CallMaintenance(task, ExpectedActiveRepoPath, ExpectedActiveUserId)).Returns(true);

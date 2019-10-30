@@ -174,22 +174,59 @@ namespace Scalar.Service
             }
             else
             {
-                metadata.Add(TracingConstants.MessageKey.InfoMessage, "Calling maintenance verb");
+                string rootPath;
+                string errorMessage;
 
                 foreach (RepoRegistration repo in activeRepos)
                 {
+                    rootPath = Path.GetPathRoot(repo.EnlistmentRoot);
+
                     metadata[nameof(repo.EnlistmentRoot)] = repo.EnlistmentRoot;
                     metadata[nameof(task)] = task;
-                    this.tracer.RelatedEvent(
-                        EventLevel.Informational,
-                        $"{nameof(this.RunMaintenanceTaskForRepos)}_CallingMaintenance",
-                        metadata);
+                    metadata[nameof(rootPath)] = rootPath;
+                    metadata.Remove(nameof(errorMessage));
 
-                    if (!this.scalarVerb.CallMaintenance(task, repo.EnlistmentRoot, sessionId))
+                    if (!string.IsNullOrWhiteSpace(rootPath) && !this.fileSystem.DirectoryExists(rootPath))
                     {
-                        // TODO: #111 - If the maintenance verb failed because the repo is no longer
-                        // on disk, it should be removed from the registry
+                        // If the volume does not exist we'll assume the drive was removed or is encrypted,
+                        // and we'll leave the repo in the registry (but we won't run maintenance on it).
+                        this.tracer.RelatedEvent(
+                            EventLevel.Informational,
+                            $"{nameof(this.RunMaintenanceTaskForRepos)}_SkippedRepoWithMissingVolume",
+                            metadata);
+
+                        continue;
                     }
+
+                    if (!this.fileSystem.DirectoryExists(repo.EnlistmentRoot))
+                    {
+                        // The repo is no longer on disk (but its volume is present)
+                        // Unregister the repo
+                        if (this.TryRemoveRepo(repo.EnlistmentRoot, out errorMessage))
+                        {
+                            this.tracer.RelatedEvent(
+                                EventLevel.Informational,
+                                $"{nameof(this.RunMaintenanceTaskForRepos)}_RemovedMissingRepo",
+                                metadata);
+                        }
+                        else
+                        {
+                            metadata[nameof(errorMessage)] = errorMessage;
+                            this.tracer.RelatedEvent(
+                                EventLevel.Informational,
+                                $"{nameof(this.RunMaintenanceTaskForRepos)}_FailedToRemoveRepo",
+                                metadata);
+                        }
+
+                        continue;
+                    }
+
+                    this.tracer.RelatedEvent(
+                                EventLevel.Informational,
+                                $"{nameof(this.RunMaintenanceTaskForRepos)}_CallingMaintenance",
+                                metadata);
+
+                    this.scalarVerb.CallMaintenance(task, repo.EnlistmentRoot, sessionId);
                 }
             }
         }
