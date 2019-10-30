@@ -15,17 +15,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         private const int ScalarGenericError = 3;
 
         [TestCase]
-        public void CloneInsideMountedEnlistment()
+        public void CloneInsideExistingEnlistment()
         {
             this.SubfolderCloneShouldFail();
-        }
-
-        [TestCase]
-        public void CloneInsideUnmountedEnlistment()
-        {
-            this.Enlistment.UnmountScalar();
-            this.SubfolderCloneShouldFail();
-            this.Enlistment.MountScalar();
         }
 
         [TestCase]
@@ -53,20 +45,19 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             try
             {
-                enlistment = ScalarFunctionalTestEnlistment.CloneAndMountWithPerRepoCache(ScalarTestConfig.PathToScalar, skipFetchCommitsAndTrees: true);
+                enlistment = ScalarFunctionalTestEnlistment.CloneWithPerRepoCache(ScalarTestConfig.PathToScalar, skipFetchCommitsAndTrees: true);
 
                 ProcessResult result = GitProcess.InvokeProcess(enlistment.RepoRoot, "status");
                 result.ExitCode.ShouldEqual(0, result.Errors);
             }
             finally
             {
-                enlistment?.UnmountAndDeleteAll();
+                enlistment?.DeleteAll();
             }
         }
 
         [TestCase]
         [Category(Categories.MacOnly)]
-        [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
         public void CloneWithDefaultLocalCacheLocation()
         {
             FileSystemRunner fileSystem = FileSystemRunner.DefaultRunner;
@@ -77,8 +68,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             ProcessStartInfo processInfo = new ProcessStartInfo(ScalarTestConfig.PathToScalar);
 
-            // Needs update for non-virtualized mode: this used to have --no-mount to avoid an issue
-            // with registering the mount with the service.
             processInfo.Arguments = $"clone {Properties.Settings.Default.RepoToClone} {newEnlistmentRoot} --no-fetch-commits-and-trees";
             processInfo.WindowStyle = ProcessWindowStyle.Hidden;
             processInfo.CreateNoWindow = true;
@@ -102,14 +91,14 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase]
         public void CloneToPathWithSpaces()
         {
-            ScalarFunctionalTestEnlistment enlistment = ScalarFunctionalTestEnlistment.CloneAndMountEnlistmentWithSpacesInPath(ScalarTestConfig.PathToScalar);
-            enlistment.UnmountAndDeleteAll();
+            ScalarFunctionalTestEnlistment enlistment = ScalarFunctionalTestEnlistment.CloneEnlistmentWithSpacesInPath(ScalarTestConfig.PathToScalar);
+            enlistment.DeleteAll();
         }
 
         [TestCase]
         public void CloneCreatesCorrectFilesInRoot()
         {
-            ScalarFunctionalTestEnlistment enlistment = ScalarFunctionalTestEnlistment.CloneAndMount(ScalarTestConfig.PathToScalar);
+            ScalarFunctionalTestEnlistment enlistment = ScalarFunctionalTestEnlistment.Clone(ScalarTestConfig.PathToScalar);
             try
             {
                 Directory.GetFiles(enlistment.EnlistmentRoot).ShouldBeEmpty("There should be no files in the enlistment root after cloning");
@@ -120,7 +109,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             }
             finally
             {
-                enlistment.UnmountAndDeleteAll();
+                enlistment.DeleteAll();
             }
         }
 

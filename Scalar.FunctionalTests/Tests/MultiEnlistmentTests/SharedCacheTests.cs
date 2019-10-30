@@ -38,13 +38,13 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void ParallelDownloadsInSharedCache()
         {
-            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
-            ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment1 = this.CloneEnlistment();
+            ScalarFunctionalTestEnlistment enlistment2 = this.CloneEnlistment();
             ScalarFunctionalTestEnlistment enlistment3 = null;
 
             Task task1 = Task.Run(() => this.LoadBlobsViaGit(enlistment1));
             Task task2 = Task.Run(() => this.LoadBlobsViaGit(enlistment2));
-            Task task3 = Task.Run(() => enlistment3 = this.CloneAndMountEnlistment());
+            Task task3 = Task.Run(() => enlistment3 = this.CloneEnlistment());
 
             task1.Wait();
             task2.Wait();
@@ -54,67 +54,30 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             task2.Exception.ShouldBeNull();
             task3.Exception.ShouldBeNull();
 
-            enlistment1.Status().ShouldContain("Mount status: Ready");
-            enlistment2.Status().ShouldContain("Mount status: Ready");
-            enlistment3.Status().ShouldContain("Mount status: Ready");
-
             this.AlternatesFileShouldHaveGitObjectsRoot(enlistment1);
             this.AlternatesFileShouldHaveGitObjectsRoot(enlistment2);
             this.AlternatesFileShouldHaveGitObjectsRoot(enlistment3);
         }
 
         [TestCase]
-        [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
-        public void DeleteObjectsCacheBeforeMount()
-        {
-            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
-            ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment();
-
-            enlistment1.UnmountScalar();
-
-            string objectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(enlistment1.RepoRoot);
-            objectsRoot.ShouldBeADirectory(this.fileSystem);
-            RepositoryHelpers.DeleteTestDirectory(objectsRoot);
-
-            enlistment1.MountScalar();
-
-            Task task1 = Task.Run(() => this.LoadBlobsViaGit(enlistment1));
-            Task task2 = Task.Run(() => this.LoadBlobsViaGit(enlistment2));
-            task1.Wait();
-            task2.Wait();
-            task1.Exception.ShouldBeNull();
-            task2.Exception.ShouldBeNull();
-
-            enlistment1.Status().ShouldContain("Mount status: Ready");
-            enlistment2.Status().ShouldContain("Mount status: Ready");
-
-            this.AlternatesFileShouldHaveGitObjectsRoot(enlistment1);
-            this.AlternatesFileShouldHaveGitObjectsRoot(enlistment2);
-        }
-
-        [TestCase]
         public void DownloadingACommitWithoutTreesDoesntBreakNextClone()
         {
-            ScalarFunctionalTestEnlistment enlistment1 = this.CloneAndMountEnlistment();
+            ScalarFunctionalTestEnlistment enlistment1 = this.CloneEnlistment();
             GitProcess.Invoke(enlistment1.RepoRoot, "cat-file -s " + WellKnownCommitSha).ShouldEqual("293\n");
 
-            ScalarFunctionalTestEnlistment enlistment2 = this.CloneAndMountEnlistment(WellKnownBranch);
-            enlistment2.Status().ShouldContain("Mount status: Ready");
+            ScalarFunctionalTestEnlistment enlistment2 = this.CloneEnlistment(WellKnownBranch);
         }
 
         [TestCase]
-        public void MountReusesLocalCacheKeyWhenGitObjectsRootDeleted()
+        public void GitObjectsRecreatedWhenDownloadingObjects()
         {
-            ScalarFunctionalTestEnlistment enlistment = this.CloneAndMountEnlistment();
-
-            enlistment.UnmountScalar();
+            ScalarFunctionalTestEnlistment enlistment = this.CloneEnlistment();
 
             // Find the current git objects root and ensure it's on disk
             string objectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(enlistment.RepoRoot);
             objectsRoot.ShouldBeADirectory(this.fileSystem);
 
             RepositoryHelpers.DeleteTestDirectory(objectsRoot);
-            enlistment.MountScalar();
 
             ScalarHelpers.GetObjectsRootFromGitConfig(enlistment.RepoRoot).ShouldEqual(objectsRoot);
 
@@ -155,7 +118,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             RepositoryHelpers.DeleteTestDirectory(this.localCacheParentPath);
         }
 
-        private ScalarFunctionalTestEnlistment CloneAndMountEnlistment(string branch = null)
+        private ScalarFunctionalTestEnlistment CloneEnlistment(string branch = null)
         {
             return this.CreateNewEnlistment(this.localCachePath, branch);
         }

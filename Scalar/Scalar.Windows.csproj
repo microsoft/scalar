@@ -116,11 +116,9 @@
     <Compile Include="CommandLine\DiagnoseVerb.cs" />
     <Compile Include="CommandLine\MaintenanceVerb.cs" />
     <Compile Include="CommandLine\ScalarVerb.cs" />
-    <Compile Include="CommandLine\MountVerb.cs" />
     <Compile Include="CommandLine\UpgradeVerb.cs" />
     <Compile Include="CommandLine\ServiceVerb.cs" />
     <Compile Include="CommandLine\StatusVerb.cs" />
-    <Compile Include="CommandLine\UnmountVerb.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="..\Scalar.PlatformLoader\PlatformLoader.Windows.cs">
       <Link>PlatformLoader.Windows.cs</Link>

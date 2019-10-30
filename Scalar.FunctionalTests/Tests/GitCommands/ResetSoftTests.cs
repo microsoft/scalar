@@ -21,19 +21,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         }
 
         [TestCase]
-        public void ResetSoftThenRemount()
-        {
-            this.ValidateGitCommand("checkout " + GitRepoTests.ConflictTargetBranch);
-            this.ValidateGitCommand("reset --soft HEAD~1");
-            this.FilesShouldMatchCheckoutOfTargetBranch();
-
-            this.Enlistment.UnmountScalar();
-            this.Enlistment.MountScalar();
-            this.ValidateGitCommand("status");
-            this.FilesShouldMatchCheckoutOfTargetBranch();
-        }
-
-        [TestCase]
         public void ResetSoftThenCheckoutWithConflicts()
         {
             this.ValidateGitCommand("checkout " + GitRepoTests.ConflictTargetBranch);

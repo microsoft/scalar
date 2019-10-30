@@ -9,16 +9,6 @@ ScalarCOMMANDPATH="/usr/local/bin/scalar"
 UNINSTALLERCOMMANDPATH="/usr/local/bin/uninstall_scalar.sh"
 INSTALLERPACKAGEID="com.scalar.pkg"
 
-function UnloadKext()
-{
-    kextLoaded=`/usr/sbin/kextstat -b "$KEXTID" | wc -l`
-    if [ $kextLoaded -eq "2" ]; then
-        unloadCmd="sudo /sbin/kextunload -b $KEXTID"
-        echo "$unloadCmd..."
-        eval $unloadCmd || exit 1
-    fi
-}
-
 function UnInstallScalar()
 {           
     if [ -f "${LAUNCHDAEMONDIRECTORY}/$LOGDAEMONLAUNCHDFILENAME" ]; then
@@ -82,7 +72,6 @@ function ForgetPackage()
 
 function Run()
 {
-    UnloadKext
     UnInstallScalar
     ForgetPackage
     echo "Successfully uninstalled Scalar"

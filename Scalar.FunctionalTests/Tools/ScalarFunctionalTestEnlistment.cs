@@ -80,14 +80,14 @@ namespace Scalar.FunctionalTests.Tools
             get; private set;
         }
 
-        public static ScalarFunctionalTestEnlistment CloneAndMountWithPerRepoCache(string pathToGvfs, bool skipFetchCommitsAndTrees)
+        public static ScalarFunctionalTestEnlistment CloneWithPerRepoCache(string pathToGvfs, bool skipFetchCommitsAndTrees)
         {
             string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
             string localCache = ScalarFunctionalTestEnlistment.GetRepoSpecificLocalCacheRoot(enlistmentRoot);
-            return CloneAndMount(pathToGvfs, enlistmentRoot, null, localCacheRoot: localCache, skipFetchCommitsAndTrees: skipFetchCommitsAndTrees);
+            return Clone(pathToGvfs, enlistmentRoot, null, localCacheRoot: localCache, skipFetchCommitsAndTrees: skipFetchCommitsAndTrees);
         }
 
-        public static ScalarFunctionalTestEnlistment CloneAndMount(
+        public static ScalarFunctionalTestEnlistment Clone(
             string pathToGvfs,
             string commitish = null,
             string localCacheRoot = null,
@@ -95,14 +95,14 @@ namespace Scalar.FunctionalTests.Tools
             bool fullClone = true)
         {
             string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
-            return CloneAndMount(pathToGvfs, enlistmentRoot, commitish, localCacheRoot, skipFetchCommitsAndTrees, fullClone);
+            return Clone(pathToGvfs, enlistmentRoot, commitish, localCacheRoot, skipFetchCommitsAndTrees, fullClone);
         }
 
-        public static ScalarFunctionalTestEnlistment CloneAndMountEnlistmentWithSpacesInPath(string pathToGvfs, string commitish = null)
+        public static ScalarFunctionalTestEnlistment CloneEnlistmentWithSpacesInPath(string pathToGvfs, string commitish = null)
         {
             string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRootWithSpaces();
             string localCache = ScalarFunctionalTestEnlistment.GetRepoSpecificLocalCacheRoot(enlistmentRoot);
-            return CloneAndMount(pathToGvfs, enlistmentRoot, commitish, localCache);
+            return Clone(pathToGvfs, enlistmentRoot, commitish, localCache);
         }
 
         public static string GetUniqueEnlistmentRoot()
@@ -126,7 +126,7 @@ namespace Scalar.FunctionalTests.Tools
             RepositoryHelpers.DeleteTestDirectory(this.EnlistmentRoot);
         }
 
-        public void CloneAndMount(bool skipFetchCommitsAndTrees)
+        public void Clone(bool skipFetchCommitsAndTrees)
         {
             this.scalarProcess.Clone(this.RepoUrl, this.Commitish, skipFetchCommitsAndTrees, fullClone: this.fullClone);
 
@@ -149,25 +149,14 @@ namespace Scalar.FunctionalTests.Tools
             }
         }
 
-        public void MountScalar()
-        {
-            this.scalarProcess.Mount();
-        }
-
-        public bool TryMountScalar()
-        {
-            string output;
-            return this.TryMountScalar(out output);
-        }
-
-        public bool TryMountScalar(out string output)
-        {
-            return this.scalarProcess.TryMount(out output);
-        }
-
         public string FetchCommitsAndTrees(bool failOnError = true, string standardInput = null)
         {
             return this.scalarProcess.FetchCommitsAndTrees(failOnError, standardInput);
+        }
+
+        public void UnregisterRepo()
+        {
+            // TODO: #111: Unregister the repo from the service
         }
 
         public void Repair(bool confirm)
@@ -200,21 +189,6 @@ namespace Scalar.FunctionalTests.Tools
             return this.scalarProcess.Status(trace);
         }
 
-        public bool WaitForBackgroundOperations(int maxWaitMilliseconds = DefaultMaxWaitMSForStatusCheck)
-        {
-            return this.WaitForStatus(maxWaitMilliseconds, ZeroBackgroundOperations).ShouldBeTrue("Background operations failed to complete.");
-        }
-
-        public bool WaitForLock(string lockCommand, int maxWaitMilliseconds = DefaultMaxWaitMSForStatusCheck)
-        {
-            return this.WaitForStatus(maxWaitMilliseconds, string.Format(LockHeldByGit, lockCommand));
-        }
-
-        public void UnmountScalar()
-        {
-            this.scalarProcess.Unmount();
-        }
-
         public string GetCacheServer()
         {
             return this.scalarProcess.CacheServer("--get");
@@ -225,9 +199,8 @@ namespace Scalar.FunctionalTests.Tools
             return this.scalarProcess.CacheServer("--set " + arg);
         }
 
-        public void UnmountAndDeleteAll()
+        public void DeleteAll()
         {
-            this.UnmountScalar();
             this.DeleteEnlistment();
         }
 
@@ -252,7 +225,7 @@ namespace Scalar.FunctionalTests.Tools
                 objectHash.Substring(2));
         }
 
-        private static ScalarFunctionalTestEnlistment CloneAndMount(
+        private static ScalarFunctionalTestEnlistment Clone(
             string pathToGvfs,
             string enlistmentRoot,
             string commitish,
@@ -270,11 +243,11 @@ namespace Scalar.FunctionalTests.Tools
 
             try
             {
-                enlistment.CloneAndMount(skipFetchCommitsAndTrees);
+                enlistment.Clone(skipFetchCommitsAndTrees);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Unhandled exception in CloneAndMount: " + e.ToString());
+                Console.WriteLine($"Unhandled exception in {nameof(ScalarFunctionalTestEnlistment.Clone)}: " + e.ToString());
                 TestResultsHelper.OutputScalarLogs(enlistment);
                 throw;
             }
@@ -285,20 +258,6 @@ namespace Scalar.FunctionalTests.Tools
         private static string GetRepoSpecificLocalCacheRoot(string enlistmentRoot)
         {
             return Path.Combine(enlistmentRoot, ScalarTestConfig.DotScalarRoot, ".scalarCache");
-        }
-
-        private bool WaitForStatus(int maxWaitMilliseconds, string statusShouldContain)
-        {
-            string status = null;
-            int totalWaitMilliseconds = 0;
-            while (totalWaitMilliseconds <= maxWaitMilliseconds && (status == null || !status.Contains(statusShouldContain)))
-            {
-                Thread.Sleep(SleepMSWaitingForStatusCheck);
-                status = this.Status();
-                totalWaitMilliseconds += SleepMSWaitingForStatusCheck;
-            }
-
-            return totalWaitMilliseconds <= maxWaitMilliseconds;
         }
     }
 }

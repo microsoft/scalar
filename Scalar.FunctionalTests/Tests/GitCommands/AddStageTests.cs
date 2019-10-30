@@ -1,8 +1,5 @@
 using NUnit.Framework;
 using Scalar.FunctionalTests.Properties;
-using Scalar.FunctionalTests.Tools;
-using System.IO;
-using System.Threading;
 
 namespace Scalar.FunctionalTests.Tests.GitCommands
 {
@@ -41,29 +38,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             this.CreateHardLink("AuthoringTestsLink.md", "AuthoringTests.md");
             this.ValidateGitCommand("stage AuthoringTestsLink.md");
             this.RunGitCommand("commit -m \"Created AuthoringTestsLink.md\"");
-        }
-
-        [TestCase, Order(4)]
-        public void AddAllowsPlaceholderCreation()
-        {
-            this.CommandAllowsPlaceholderCreation("add", "GVFS", "GVFS", "Program.cs");
-        }
-
-        [TestCase, Order(5)]
-        public void StageAllowsPlaceholderCreation()
-        {
-            this.CommandAllowsPlaceholderCreation("stage", "GVFS", "GVFS", "App.config");
-        }
-
-        private void CommandAllowsPlaceholderCreation(string command, params string[] fileToReadPathParts)
-        {
-            string fileToRead = Path.Combine(fileToReadPathParts);
-            this.EditFile($"Some new content for {command}.", "Protocol.md");
-            ManualResetEventSlim resetEvent = GitHelpers.RunGitCommandWithWaitAndStdIn(this.Enlistment, resetTimeout: 3000, command: $"{command} -p", stdinToQuit: "q", processId: out _);
-            this.FileContentsShouldMatch(fileToRead);
-            this.ValidateGitCommand("--no-optional-locks status");
-            resetEvent.Wait();
-            this.RunGitCommand("reset --hard");
         }
     }
 }
