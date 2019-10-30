@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,7 +28,11 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(1)]
         public void RepackAllToOnePack()
         {
-            this.GetPackSizes(out int beforeFetchCommitsAndTreesPackCount, out long maxSize, out long totalSize);
+            this.GetPackSizes(
+                    out int beforeFetchCommitsAndTreesPackCount,
+                    out long maxSize,
+                    out long minSize,
+                    out long totalSize);
 
             // Cannot be sure of the count, but there should be two from the inital clone
             beforeFetchCommitsAndTreesPackCount.ShouldBeAtLeast(2);
@@ -41,13 +46,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Run the step to ensure we don't have any packs that will be expired during the repack step
             this.Enlistment.PackfileMaintenanceStep();
 
-            this.GetPackSizes(out int afterPrefetchPackCount, out maxSize, out totalSize);
+            this.GetPackSizes(out int afterPrefetchPackCount, out maxSize, out minSize, out totalSize);
 
             // Cannot be sure of the count, as the fetch-commits-and-trees uses parallel threads to get multiple packs
             afterPrefetchPackCount.ShouldBeAtLeast(2);
 
-            this.Enlistment.PackfileMaintenanceStep(batchSize: totalSize - 1);
-            this.GetPackSizes(out int packCount, out maxSize, out totalSize);
+            this.Enlistment.PackfileMaintenanceStep(batchSize: totalSize - minSize + 1);
+            this.GetPackSizes(out int packCount, out maxSize, out minSize, out totalSize);
 
             // We should not have expired any packs, but created a new one with repack
             packCount.ShouldEqual(afterPrefetchPackCount + 1, $"incorrect number of packs after repack step: {packCount}");
@@ -76,10 +81,11 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             return Directory.GetFiles(this.PackRoot, "*.pack").ToList();
         }
 
-        private void GetPackSizes(out int packCount, out long maxSize, out long totalSize)
+        private void GetPackSizes(out int packCount, out long maxSize, out long minSize, out long totalSize)
         {
             totalSize = 0;
             maxSize = 0;
+            minSize = long.MaxValue;
             packCount = 0;
 
             foreach (string file in this.GetPackfiles())
@@ -91,6 +97,11 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 if (size > maxSize)
                 {
                     maxSize = size;
+                }
+
+                if (size < minSize)
+                {
+                    minSize = size;
                 }
             }
         }
