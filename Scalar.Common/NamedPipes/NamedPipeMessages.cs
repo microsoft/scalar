@@ -6,11 +6,7 @@ namespace Scalar.Common.NamedPipes
     /// <summary>
     /// Define messages used to communicate via the named-pipe in Scalar.
     /// </summary>
-    /// <remarks>
-    /// This class is defined as partial so that Scalar.Hooks
-    /// can compile the portions of it that it cares about (see LockedNamedPipeMessages).
-    /// </remarks>
-    public static partial class NamedPipeMessages
+    public static class NamedPipeMessages
     {
         public const string UnknownRequest = "UnknownRequest";
         public const string UnknownScalarState = "UnknownScalarState";
@@ -24,36 +20,6 @@ namespace Scalar.Common.NamedPipes
             NotCompleted,
             Success,
             Failure
-        }
-
-        public static class GetStatus
-        {
-            public const string Request = "GetStatus";
-            public const string Mounting = "Mounting";
-            public const string Ready = "Ready";
-            public const string Unmounting = "Unmounting";
-            public const string MountFailed = "MountFailed";
-
-            public class Response
-            {
-                public string MountStatus { get; set; }
-                public string EnlistmentRoot { get; set; }
-                public string LocalCacheRoot { get; set; }
-                public string RepoUrl { get; set; }
-                public string CacheServer { get; set; }
-                public int BackgroundOperationCount { get; set; }
-                public string DiskLayoutVersion { get; set; }
-
-                public static Response FromJson(string json)
-                {
-                    return JsonConvert.DeserializeObject<Response>(json);
-                }
-
-                public string ToJson()
-                {
-                    return JsonConvert.SerializeObject(this);
-                }
-            }
         }
 
         public static class Unmount

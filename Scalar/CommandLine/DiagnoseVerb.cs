@@ -78,8 +78,6 @@ namespace Scalar.CommandLine
 
                 this.RecordVersionInformation();
 
-                this.RunAndRecordScalarVerb<StatusVerb>(archiveFolderPath, "scalar_status.txt");
-
                 this.ShowStatusWhileRunning(
                     () =>
                     {
