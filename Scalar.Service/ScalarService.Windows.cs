@@ -1,6 +1,7 @@
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.NamedPipes;
+using Scalar.Common.RepoRegistry;
 using Scalar.Common.Tracing;
 using Scalar.Platform.Windows;
 using Scalar.Service.Handlers;
@@ -24,7 +25,8 @@ namespace Scalar.Service
         private ManualResetEvent serviceStopped;
         private string serviceName;
         private string serviceDataLocation;
-        private RepoRegistry repoRegistry;
+        private string repoRegistryLocation;
+        private ScalarRepoRegistry repoRegistry;
         private ProductUpgradeTimer productUpgradeTimer;
         private RequestHandler requestHandler;
         private MaintenanceTaskScheduler maintenanceTaskScheduler;
@@ -47,15 +49,15 @@ namespace Scalar.Service
                 metadata.Add("Version", ProcessHelper.GetCurrentProcessVersion());
                 this.tracer.RelatedEvent(EventLevel.Informational, $"{nameof(ScalarService)}_{nameof(this.Run)}", metadata);
 
-                this.repoRegistry = new RepoRegistry(
+                PhysicalFileSystem fileSystem = new PhysicalFileSystem();
+                this.repoRegistry = new ScalarRepoRegistry(
                     this.tracer,
-                    new PhysicalFileSystem(),
-                    this.serviceDataLocation,
-                    new ScalarVerbRunner(this.tracer));
+                    fileSystem,
+                    this.repoRegistryLocation);
 
-                this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.tracer, this.repoRegistry);
+                this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.tracer, fileSystem, new ScalarVerbRunner(this.tracer), this.repoRegistry);
 
-                this.requestHandler = new RequestHandler(this.tracer, EtwArea, this.repoRegistry);
+                this.requestHandler = new RequestHandler(this.tracer, EtwArea);
 
                 string pipeName = ScalarPlatform.Instance.GetScalarServiceNamedPipeName(this.serviceName);
                 this.tracer.RelatedInfo("Starting pipe server with name: " + pipeName);
@@ -187,6 +189,7 @@ namespace Scalar.Service
             try
             {
                 this.serviceDataLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(this.serviceName);
+                this.repoRegistryLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
                 this.CreateAndConfigureProgramDataDirectories();
                 this.Start();
             }
@@ -257,11 +260,12 @@ namespace Scalar.Service
 
         private void CreateAndConfigureProgramDataDirectories()
         {
-            string serviceDataRootPath = Path.GetDirectoryName(this.serviceDataLocation);
+            string serviceDataRootPath = ScalarPlatform.Instance.GetDataRootForScalar();
 
             DirectorySecurity serviceDataRootSecurity = this.GetServiceDirectorySecurity(serviceDataRootPath);
 
-            // Create Scalar.Service and Scalar.Upgrade related directories (if they don't already exist)
+            // Create Scalar, Scalar.Service, and Scalar.Upgrade related directories (if they don't already exist)
+            // TODO #136: Determine if we still should be creating Scalar.Service here
             Directory.CreateDirectory(serviceDataRootPath, serviceDataRootSecurity);
             Directory.CreateDirectory(this.serviceDataLocation, serviceDataRootSecurity);
             Directory.CreateDirectory(ProductUpgraderInfo.GetUpgradeProtectedDataDirectory(), serviceDataRootSecurity);
@@ -269,12 +273,13 @@ namespace Scalar.Service
             // Ensure the ACLs are set correctly on any files or directories that were already created (e.g. after upgrading Scalar)
             Directory.SetAccessControl(serviceDataRootPath, serviceDataRootSecurity);
 
-            // Special rules for the upgrader logs, as non-elevated users need to be be able to write
-            this.CreateAndConfigureLogDirectory(ProductUpgraderInfo.GetLogDirectoryPath());
-            this.CreateAndConfigureLogDirectory(ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.Service.UIName));
+            // Special rules for the upgrader logs and registry, as non-elevated users need to be be able to write
+            this.CreateAndConfigureUserWriteableDirectory(this.repoRegistryLocation);
+            this.CreateAndConfigureUserWriteableDirectory(ProductUpgraderInfo.GetLogDirectoryPath());
+            this.CreateAndConfigureUserWriteableDirectory(ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.Service.UIName));
         }
 
-        private void CreateAndConfigureLogDirectory(string path)
+        private void CreateAndConfigureUserWriteableDirectory(string path)
         {
             string upgradeLogsPath = ProductUpgraderInfo.GetLogDirectoryPath();
 
@@ -287,7 +292,7 @@ namespace Scalar.Service
                 metadata.Add(nameof(error), error);
                 this.tracer.RelatedWarning(
                     metadata,
-                    $"{nameof(this.CreateAndConfigureLogDirectory)}: Failed to create upgrade logs directory",
+                    $"{nameof(this.CreateAndConfigureUserWriteableDirectory)}: Failed to create upgrade logs directory",
                     Keywords.Telemetry);
             }
         }

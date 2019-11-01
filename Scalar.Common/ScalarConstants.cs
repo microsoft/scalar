@@ -54,6 +54,11 @@ namespace Scalar.Common
             public const string UIName = "Scalar.Service.UI";
         }
 
+        public static class RepoRegistry
+        {
+            public const string RegistryDirectoryName = "Scalar.RepoRegistry";
+        }
+
         public static class MediaTypes
         {
             public const string PrefetchPackFilesAndIndexesMediaType = "application/x-gvfs-timestamped-packfiles-indexes";

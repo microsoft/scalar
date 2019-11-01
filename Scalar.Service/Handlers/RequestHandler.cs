@@ -7,29 +7,20 @@ namespace Scalar.Service.Handlers
     /// <summary>
     /// RequestHandler - Routes client requests that reach Scalar.Service to
     /// appropriate MessageHandler object.
-    /// Example requests - scalar mount/unmount command sends requests to
-    /// register/un-register repositories for automount. RequestHandler
-    /// routes them to RegisterRepoHandler and UnRegisterRepoHandler
-    /// respectively.
     /// </summary>
     public class RequestHandler
     {
         protected string requestDescription;
 
-        private const string MountRequestDescription = "mount";
-        private const string UnmountRequestDescription = "unmount";
-        private const string RepoListRequestDescription = "repo list";
         private const string UnknownRequestDescription = "unknown";
 
         private string etwArea;
         private ITracer tracer;
-        private IRepoRegistry repoRegistry;
 
-        public RequestHandler(ITracer tracer, string etwArea, IRepoRegistry repoRegistry)
+        public RequestHandler(ITracer tracer, string etwArea)
         {
             this.tracer = tracer;
             this.etwArea = etwArea;
-            this.repoRegistry = repoRegistry;
         }
 
         public void HandleRequest(ITracer tracer, string request, NamedPipeServer.Connection connection)
@@ -65,30 +56,6 @@ namespace Scalar.Service.Handlers
         {
             switch (message.Header)
             {
-                case NamedPipeMessages.RegisterRepoRequest.Header:
-                    this.requestDescription = MountRequestDescription;
-                    NamedPipeMessages.RegisterRepoRequest mountRequest = NamedPipeMessages.RegisterRepoRequest.FromMessage(message);
-                    RegisterRepoHandler mountHandler = new RegisterRepoHandler(tracer, this.repoRegistry, connection, mountRequest);
-                    mountHandler.Run();
-
-                    break;
-
-                case NamedPipeMessages.UnregisterRepoRequest.Header:
-                    this.requestDescription = UnmountRequestDescription;
-                    NamedPipeMessages.UnregisterRepoRequest unmountRequest = NamedPipeMessages.UnregisterRepoRequest.FromMessage(message);
-                    UnregisterRepoHandler unmountHandler = new UnregisterRepoHandler(tracer, this.repoRegistry, connection, unmountRequest);
-                    unmountHandler.Run();
-
-                    break;
-
-                case NamedPipeMessages.GetActiveRepoListRequest.Header:
-                    this.requestDescription = RepoListRequestDescription;
-                    NamedPipeMessages.GetActiveRepoListRequest repoListRequest = NamedPipeMessages.GetActiveRepoListRequest.FromMessage(message);
-                    GetActiveRepoListHandler excludeHandler = new GetActiveRepoListHandler(tracer, this.repoRegistry, connection, repoListRequest);
-                    excludeHandler.Run();
-
-                    break;
-
                 default:
                     this.requestDescription = UnknownRequestDescription;
                     EventMetadata metadata = new EventMetadata();

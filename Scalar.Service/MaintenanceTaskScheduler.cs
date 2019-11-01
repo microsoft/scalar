@@ -1,8 +1,11 @@
 ﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
 using Scalar.Common.Maintenance;
+using Scalar.Common.RepoRegistry;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 
 namespace Scalar.Service
@@ -21,15 +24,25 @@ namespace Scalar.Service
         private readonly TimeSpan fetchCommitsAndTreesPeriod = TimeSpan.FromMinutes(15);
 
         private readonly ITracer tracer;
+        private readonly PhysicalFileSystem fileSystem;
+        private readonly IScalarVerbRunner scalarVerb;
+        private readonly IScalarRepoRegistry repoRegistry;
         private ServiceTaskQueue taskQueue;
         private List<Timer> taskTimers;
 
-        public MaintenanceTaskScheduler(ITracer tracer, IRepoRegistry repoRegistry)
+        public MaintenanceTaskScheduler(
+            ITracer tracer,
+            PhysicalFileSystem fileSystem,
+            IScalarVerbRunner scalarVerb,
+            IScalarRepoRegistry repoRegistry)
         {
             this.tracer = tracer;
+            this.fileSystem = fileSystem;
+            this.scalarVerb = scalarVerb;
+            this.repoRegistry = repoRegistry;
             this.taskTimers = new List<Timer>();
             this.taskQueue = new ServiceTaskQueue(this.tracer);
-            this.ScheduleRecurringTasks(repoRegistry);
+            this.ScheduleRecurringTasks();
         }
 
         public UserAndSession RegisteredUser { get; private set; }
@@ -64,7 +77,7 @@ namespace Scalar.Service
             this.taskTimers = null;
         }
 
-        private void ScheduleRecurringTasks(IRepoRegistry repoRegistry)
+        private void ScheduleRecurringTasks()
         {
             if (ScalarEnlistment.IsUnattended(this.tracer))
             {
@@ -98,7 +111,9 @@ namespace Scalar.Service
                 (state) => this.taskQueue.TryEnqueue(
                     new MaintenanceTask(
                         this.tracer,
-                        repoRegistry,
+                        this.fileSystem,
+                        this.scalarVerb,
+                        this.repoRegistry,
                         this,
                         schedule.Task)),
                 state: null,
@@ -123,18 +138,24 @@ namespace Scalar.Service
 
         private class MaintenanceTask : IServiceTask
         {
-            private readonly MaintenanceTasks.Task task;
-            private readonly IRepoRegistry repoRegistry;
             private readonly ITracer tracer;
+            private readonly PhysicalFileSystem fileSystem;
+            private readonly IScalarVerbRunner scalarVerb;
+            private readonly IScalarRepoRegistry repoRegistry;
             private readonly IRegisteredUserStore registeredUserStore;
+            private readonly MaintenanceTasks.Task task;
 
             public MaintenanceTask(
                 ITracer tracer,
-                IRepoRegistry repoRegistry,
+                PhysicalFileSystem fileSystem,
+                IScalarVerbRunner scalarVerb,
+                IScalarRepoRegistry repoRegistry,
                 IRegisteredUserStore registeredUserStore,
                 MaintenanceTasks.Task task)
             {
                 this.tracer = tracer;
+                this.fileSystem = fileSystem;
+                this.scalarVerb = scalarVerb;
                 this.repoRegistry = repoRegistry;
                 this.registeredUserStore = registeredUserStore;
                 this.task = task;
@@ -155,8 +176,9 @@ namespace Scalar.Service
                         $"{nameof(MaintenanceTaskScheduler)}.{nameof(this.Execute)}",
                         metadata);
 
-                    this.repoRegistry.RunMaintenanceTaskForRepos(
+                    this.RunMaintenanceTaskForRepos(
                         this.task,
+                        this.repoRegistry,
                         registeredUser.UserId,
                         registeredUser.SessionId);
                 }
@@ -169,6 +191,85 @@ namespace Scalar.Service
             public void Stop()
             {
                 // TODO: #185 - Kill the currently running maintenance verb
+            }
+
+            public void RunMaintenanceTaskForRepos(
+                MaintenanceTasks.Task task,
+                IScalarRepoRegistry repoRegistry,
+                string userId,
+                int sessionId)
+            {
+                EventMetadata metadata = new EventMetadata();
+                metadata.Add(nameof(task), MaintenanceTasks.GetVerbTaskName(task));
+                metadata.Add(nameof(userId), userId);
+                metadata.Add(nameof(sessionId), sessionId);
+
+                List<ScalarRepoRegistration> activeRepos = repoRegistry.GetRegisteredReposForUser(userId);
+                if (activeRepos.Count == 0)
+                {
+                    metadata.Add(TracingConstants.MessageKey.InfoMessage, "No active repos for user");
+                    this.tracer.RelatedEvent(
+                        EventLevel.Informational,
+                        $"{nameof(this.RunMaintenanceTaskForRepos)}_NoRepos",
+                        metadata);
+                }
+                else
+                {
+                    string rootPath;
+                    string errorMessage;
+
+                    foreach (ScalarRepoRegistration repo in activeRepos)
+                    {
+                        rootPath = Path.GetPathRoot(repo.EnlistmentRoot);
+
+                        metadata[nameof(repo.EnlistmentRoot)] = repo.EnlistmentRoot;
+                        metadata[nameof(task)] = task;
+                        metadata[nameof(rootPath)] = rootPath;
+                        metadata.Remove(nameof(errorMessage));
+
+                        if (!string.IsNullOrWhiteSpace(rootPath) && !this.fileSystem.DirectoryExists(rootPath))
+                        {
+                            // If the volume does not exist we'll assume the drive was removed or is encrypted,
+                            // and we'll leave the repo in the registry (but we won't run maintenance on it).
+                            this.tracer.RelatedEvent(
+                                EventLevel.Informational,
+                                $"{nameof(this.RunMaintenanceTaskForRepos)}_SkippedRepoWithMissingVolume",
+                                metadata);
+
+                            continue;
+                        }
+
+                        if (!this.fileSystem.DirectoryExists(repo.EnlistmentRoot))
+                        {
+                            // The repo is no longer on disk (but its volume is present)
+                            // Unregister the repo
+                            if (repoRegistry.TryRemoveRepo(repo.EnlistmentRoot, out errorMessage))
+                            {
+                                this.tracer.RelatedEvent(
+                                    EventLevel.Informational,
+                                    $"{nameof(this.RunMaintenanceTaskForRepos)}_RemovedMissingRepo",
+                                    metadata);
+                            }
+                            else
+                            {
+                                metadata[nameof(errorMessage)] = errorMessage;
+                                this.tracer.RelatedEvent(
+                                    EventLevel.Informational,
+                                    $"{nameof(this.RunMaintenanceTaskForRepos)}_FailedToRemoveRepo",
+                                    metadata);
+                            }
+
+                            continue;
+                        }
+
+                        this.tracer.RelatedEvent(
+                                    EventLevel.Informational,
+                                    $"{nameof(this.RunMaintenanceTaskForRepos)}_CallingMaintenance",
+                                    metadata);
+
+                        this.scalarVerb.CallMaintenance(task, repo.EnlistmentRoot, sessionId);
+                    }
+                }
             }
         }
     }

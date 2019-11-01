@@ -1,27 +1,25 @@
 using Newtonsoft.Json;
 
-namespace Scalar.Service
+namespace Scalar.Common.RepoRegistry
 {
-    public class RepoRegistration
+    public class ScalarRepoRegistration
     {
-        public RepoRegistration()
+        public ScalarRepoRegistration()
         {
         }
 
-        public RepoRegistration(string enlistmentRoot, string ownerSID)
+        public ScalarRepoRegistration(string enlistmentRoot, string ownerSID)
         {
             this.EnlistmentRoot = enlistmentRoot;
             this.OwnerSID = ownerSID;
-            this.IsActive = true;
         }
 
         public string EnlistmentRoot { get; set; }
         public string OwnerSID { get; set; }
-        public bool IsActive { get; set; }
 
-        public static RepoRegistration FromJson(string json)
+        public static ScalarRepoRegistration FromJson(string json)
         {
-            return JsonConvert.DeserializeObject<RepoRegistration>(
+            return JsonConvert.DeserializeObject<ScalarRepoRegistration>(
                 json,
                 new JsonSerializerSettings
                 {
@@ -31,12 +29,7 @@ namespace Scalar.Service
 
         public override string ToString()
         {
-            return
-                string.Format(
-                    "({0} - {1}) {2}",
-                    this.IsActive ? "Active" : "Inactive",
-                    this.OwnerSID,
-                    this.EnlistmentRoot);
+            return $"({this.OwnerSID}) {this.EnlistmentRoot}";
         }
 
         public string ToJson()

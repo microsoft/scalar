@@ -1,9 +1,9 @@
 using CommandLine;
 using Scalar.Common;
-using Scalar.Common.NamedPipes;
-using System;
+using Scalar.Common.FileSystem;
+using Scalar.Common.RepoRegistry;
+using Scalar.Common.Tracing;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace Scalar.CommandLine
@@ -37,73 +37,25 @@ namespace Scalar.CommandLine
                 this.ReportErrorAndExit($"Error: You cannot specify multiple arguments.  Run 'scalar {ServiceVerbName} --help' for details.");
             }
 
-            string errorMessage;
-            List<string> repoList;
-            if (!this.TryGetRepoList(out repoList, out errorMessage))
+            List<string> repoList = this.GetRepoList();
+            foreach (string repoRoot in repoList)
             {
-                this.ReportErrorAndExit("Error getting repo list: " + errorMessage);
-            }
-
-            if (this.List)
-            {
-                foreach (string repoRoot in repoList)
-                {
-                    this.Output.WriteLine(repoRoot);
-                }
+                this.Output.WriteLine(repoRoot);
             }
         }
 
-        private bool TryGetRepoList(out List<string> repoList, out string errorMessage)
+        private List<string> GetRepoList()
         {
-            repoList = null;
-            errorMessage = string.Empty;
-
-            NamedPipeMessages.GetActiveRepoListRequest request = new NamedPipeMessages.GetActiveRepoListRequest();
-
-            using (NamedPipeClient client = new NamedPipeClient(this.ServicePipeName))
+            string repoRegistryLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
+            using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "ServiceVerb"))
             {
-                if (!client.Connect())
-                {
-                    errorMessage = "Scalar.Service is not responding.";
-                    return false;
-                }
+                ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
+                tracer,
+                new PhysicalFileSystem(),
+                repoRegistryLocation);
 
-                try
-                {
-                    client.SendRequest(request.ToMessage());
-                    NamedPipeMessages.Message response = client.ReadResponse();
-                    if (response.Header == NamedPipeMessages.GetActiveRepoListRequest.Response.Header)
-                    {
-                        NamedPipeMessages.GetActiveRepoListRequest.Response message = NamedPipeMessages.GetActiveRepoListRequest.Response.FromMessage(response);
-
-                        if (!string.IsNullOrEmpty(message.ErrorMessage))
-                        {
-                            errorMessage = message.ErrorMessage;
-                        }
-                        else
-                        {
-                            if (message.State != NamedPipeMessages.CompletionState.Success)
-                            {
-                                errorMessage = "Unable to retrieve repo list.";
-                            }
-                            else
-                            {
-                                repoList = message.RepoList;
-                                return true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        errorMessage = string.Format("Scalar.Service responded with unexpected message: {0}", response);
-                    }
-                }
-                catch (BrokenPipeException e)
-                {
-                    errorMessage = "Unable to communicate with Scalar.Service: " + e.ToString();
-                }
-
-                return false;
+                List<ScalarRepoRegistration> registeredRepos = repoRegistry.GetRegisteredRepos();
+                return registeredRepos.Select(x => x.EnlistmentRoot).ToList();
             }
         }
     }
