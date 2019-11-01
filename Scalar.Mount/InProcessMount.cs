@@ -186,10 +186,6 @@ namespace Scalar.Mount
 
             switch (message.Header)
             {
-                case NamedPipeMessages.GetStatus.Request:
-                    this.HandleGetStatusRequest(connection);
-                    break;
-
                 case NamedPipeMessages.Unmount.Request:
                     this.HandleUnmountRequest(connection);
                     break;
@@ -203,41 +199,6 @@ namespace Scalar.Mount
                     connection.TrySendResponse(NamedPipeMessages.UnknownRequest);
                     break;
             }
-        }
-
-        private void HandleGetStatusRequest(NamedPipeServer.Connection connection)
-        {
-            NamedPipeMessages.GetStatus.Response response = new NamedPipeMessages.GetStatus.Response();
-            response.EnlistmentRoot = this.enlistment.EnlistmentRoot;
-            response.LocalCacheRoot = !string.IsNullOrWhiteSpace(this.enlistment.LocalCacheRoot) ? this.enlistment.LocalCacheRoot : this.enlistment.GitObjectsRoot;
-            response.RepoUrl = this.enlistment.RepoUrl;
-            response.CacheServer = this.cacheServer.ToString();
-            response.DiskLayoutVersion = $"{ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMajorVersion}.{ScalarPlatform.Instance.DiskLayoutUpgrade.Version.CurrentMinorVersion}";
-
-            switch (this.currentState)
-            {
-                case MountState.Mounting:
-                    response.MountStatus = NamedPipeMessages.GetStatus.Mounting;
-                    break;
-
-                case MountState.Ready:
-                    response.MountStatus = NamedPipeMessages.GetStatus.Ready;
-                    break;
-
-                case MountState.Unmounting:
-                    response.MountStatus = NamedPipeMessages.GetStatus.Unmounting;
-                    break;
-
-                case MountState.MountFailed:
-                    response.MountStatus = NamedPipeMessages.GetStatus.MountFailed;
-                    break;
-
-                default:
-                    response.MountStatus = NamedPipeMessages.UnknownScalarState;
-                    break;
-            }
-
-            connection.TrySendResponse(response.ToJson());
         }
 
         private void HandleUnmountRequest(NamedPipeServer.Connection connection)

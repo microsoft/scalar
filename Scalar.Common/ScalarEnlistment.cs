@@ -1,11 +1,7 @@
-using Newtonsoft.Json;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
-using Scalar.Common.NamedPipes;
-using Scalar.Common.Tracing;
 using System;
 using System.IO;
-using System.Threading;
 
 namespace Scalar.Common
 {
@@ -105,69 +101,6 @@ namespace Scalar.Common
                 "scalar_" + logFileType,
                 logId: null,
                 fileSystem: fileSystem);
-        }
-
-        public static bool WaitUntilMounted(ITracer tracer, string enlistmentRoot, bool unattended, out string errorMessage)
-        {
-            string pipeName = ScalarPlatform.Instance.GetNamedPipeName(enlistmentRoot);
-            tracer.RelatedInfo($"{nameof(WaitUntilMounted)}: Creating NamedPipeClient for pipe '{pipeName}'");
-
-            errorMessage = null;
-            using (NamedPipeClient pipeClient = new NamedPipeClient(pipeName))
-            {
-                tracer.RelatedInfo($"{nameof(WaitUntilMounted)}: Connecting to '{pipeName}'");
-
-                int timeout = unattended ? 300000 : 60000;
-                if (!pipeClient.Connect(timeout))
-                {
-                    tracer.RelatedError($"{nameof(WaitUntilMounted)}: Failed to connect to '{pipeName}' after {timeout} ms");
-                    errorMessage = "Unable to mount because the Scalar.Mount process is not responding.";
-                    return false;
-                }
-
-                tracer.RelatedInfo($"{nameof(WaitUntilMounted)}: Connected to '{pipeName}'");
-
-                while (true)
-                {
-                    string response = string.Empty;
-                    try
-                    {
-                        pipeClient.SendRequest(NamedPipeMessages.GetStatus.Request);
-                        response = pipeClient.ReadRawResponse();
-                        NamedPipeMessages.GetStatus.Response getStatusResponse =
-                            NamedPipeMessages.GetStatus.Response.FromJson(response);
-
-                        if (getStatusResponse.MountStatus == NamedPipeMessages.GetStatus.Ready)
-                        {
-                            tracer.RelatedInfo($"{nameof(WaitUntilMounted)}: Mount process ready");
-                            return true;
-                        }
-                        else if (getStatusResponse.MountStatus == NamedPipeMessages.GetStatus.MountFailed)
-                        {
-                            errorMessage = string.Format("Failed to mount at {0}", enlistmentRoot);
-                            tracer.RelatedError($"{nameof(WaitUntilMounted)}: Mount failed: {errorMessage}");
-                            return false;
-                        }
-                        else
-                        {
-                            tracer.RelatedInfo($"{nameof(WaitUntilMounted)}: Waiting 500ms for mount process to be ready");
-                            Thread.Sleep(500);
-                        }
-                    }
-                    catch (BrokenPipeException e)
-                    {
-                        errorMessage = string.Format("Could not connect to Scalar.Mount: {0}", e);
-                        tracer.RelatedError($"{nameof(WaitUntilMounted)}: {errorMessage}");
-                        return false;
-                    }
-                    catch (JsonReaderException e)
-                    {
-                        errorMessage = string.Format("Failed to parse response from Scalar.Mount.\n {0}", e);
-                        tracer.RelatedError($"{nameof(WaitUntilMounted)}: {errorMessage}");
-                        return false;
-                    }
-                }
-            }
         }
 
         public void SetGitVersion(string gitVersion)
