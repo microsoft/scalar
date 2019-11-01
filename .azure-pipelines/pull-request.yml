@@ -59,6 +59,19 @@ jobs:
       - checkout: none # Use the drop from macOS_Build_and_UnitTests job
       - template: templates/macos-functional-test.yml
 
+  - job: macOS_FunctionalTests_watchman
+    variables:
+      platformFriendlyName: macOS
+      configuration: Release
+    timeoutInMinutes: 30
+    pool:
+      name: 'Hosted macOS'
+    dependsOn: macOS_Build_and_UnitTests
+    condition: succeeded()
+    steps:
+      - checkout: none # Use the drop from macOS_Build_and_UnitTests job
+      - template: templates/macos-functional-test-watchman.yml
+
   - job: Windows_FunctionalTests
     timeoutInMinutes: 30
     variables:

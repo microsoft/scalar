@@ -1,0 +1,60 @@
+steps:
+
+  - task: DotNetCoreInstaller@0
+    displayName: Use .NET Core SDK 2.1.301
+    inputs:
+      packageType: sdk
+      version: '2.1.301'
+
+  - bash: rm -rf $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/BuildOutput/Git/*
+    displayName: Clean previous Git installations
+
+  - bash: brew install watchman
+    displayName: Install watchman
+
+  - task: DownloadBuildArtifacts@0
+    displayName: Download functional test drop
+    inputs:
+      buildType: current
+      downloadType: specific
+      artifactName: FunctionalTests_$(platformFriendlyName)_$(configuration)
+      downloadPath: $(Build.BinariesDirectory)
+
+  - bash: |
+      chmod +x $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/*.sh
+      chmod +x $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/Publish/*
+    displayName: Ensure tests assets are executable
+
+  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/CleanupFunctionalTests.sh
+    displayName: Clean environment
+
+  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/PrepFunctionalTests.sh
+    displayName: Prep functional tests
+
+  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --trace2-output=$(Build.ArtifactStagingDirectory)/trace2-event-mac.txt
+    displayName: Run functional tests
+
+  - task: PublishTestResults@2
+    displayName: Publish functional test results
+    inputs:
+      testRunner: NUnit
+      testResultsFiles: "**\\TestResult*.xml"
+      searchFolder: $(System.DefaultWorkingDirectory)
+      testRunTitle: macOS $(configuration) Functional Tests
+      publishRunAttachments: true
+    condition: succeededOrFailed()
+    
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Git trace2 log
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: trace2-event-mac.txt
+
+  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/CleanupFunctionalTests.sh
+    displayName: Cleanup
+    condition: always()
+
+  - bash: sudo rm -rf $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)
+    displayName: Cleanup phase 2
+    condition: always()
+
