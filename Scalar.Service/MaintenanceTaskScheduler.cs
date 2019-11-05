@@ -204,71 +204,71 @@ namespace Scalar.Service
                 metadata.Add(nameof(userId), userId);
                 metadata.Add(nameof(sessionId), sessionId);
 
-                List<ScalarRepoRegistration> activeRepos = repoRegistry.GetRegisteredReposForUser(userId);
-                if (activeRepos.Count == 0)
+                int reposForUserCount = 0;
+                string rootPath;
+                string errorMessage;
+
+                foreach (ScalarRepoRegistration repoRegistration in repoRegistry.GetRegisteredReposForUser(userId))
+                {
+                    ++reposForUserCount;
+
+                    rootPath = Path.GetPathRoot(repoRegistration.EnlistmentRoot);
+
+                    metadata[nameof(repoRegistration.EnlistmentRoot)] = repoRegistration.EnlistmentRoot;
+                    metadata[nameof(task)] = task;
+                    metadata[nameof(rootPath)] = rootPath;
+                    metadata.Remove(nameof(errorMessage));
+
+                    if (!string.IsNullOrWhiteSpace(rootPath) && !this.fileSystem.DirectoryExists(rootPath))
+                    {
+                        // If the volume does not exist we'll assume the drive was removed or is encrypted,
+                        // and we'll leave the repo in the registry (but we won't run maintenance on it).
+                        this.tracer.RelatedEvent(
+                            EventLevel.Informational,
+                            $"{nameof(this.RunMaintenanceTaskForRepos)}_SkippedRepoWithMissingVolume",
+                            metadata);
+
+                        continue;
+                    }
+
+                    if (!this.fileSystem.DirectoryExists(repoRegistration.EnlistmentRoot))
+                    {
+                        // The repo is no longer on disk (but its volume is present)
+                        // Unregister the repo
+                        if (repoRegistry.TryRemoveRepo(repoRegistration.EnlistmentRoot, out errorMessage))
+                        {
+                            this.tracer.RelatedEvent(
+                                EventLevel.Informational,
+                                $"{nameof(this.RunMaintenanceTaskForRepos)}_RemovedMissingRepo",
+                                metadata);
+                        }
+                        else
+                        {
+                            metadata[nameof(errorMessage)] = errorMessage;
+                            this.tracer.RelatedEvent(
+                                EventLevel.Informational,
+                                $"{nameof(this.RunMaintenanceTaskForRepos)}_FailedToRemoveRepo",
+                                metadata);
+                        }
+
+                        continue;
+                    }
+
+                    this.tracer.RelatedEvent(
+                                EventLevel.Informational,
+                                $"{nameof(this.RunMaintenanceTaskForRepos)}_CallingMaintenance",
+                                metadata);
+
+                    this.scalarVerb.CallMaintenance(task, repoRegistration.EnlistmentRoot, sessionId);
+                }
+
+                if (reposForUserCount == 0)
                 {
                     metadata.Add(TracingConstants.MessageKey.InfoMessage, "No active repos for user");
                     this.tracer.RelatedEvent(
                         EventLevel.Informational,
                         $"{nameof(this.RunMaintenanceTaskForRepos)}_NoRepos",
                         metadata);
-                }
-                else
-                {
-                    string rootPath;
-                    string errorMessage;
-
-                    foreach (ScalarRepoRegistration repo in activeRepos)
-                    {
-                        rootPath = Path.GetPathRoot(repo.EnlistmentRoot);
-
-                        metadata[nameof(repo.EnlistmentRoot)] = repo.EnlistmentRoot;
-                        metadata[nameof(task)] = task;
-                        metadata[nameof(rootPath)] = rootPath;
-                        metadata.Remove(nameof(errorMessage));
-
-                        if (!string.IsNullOrWhiteSpace(rootPath) && !this.fileSystem.DirectoryExists(rootPath))
-                        {
-                            // If the volume does not exist we'll assume the drive was removed or is encrypted,
-                            // and we'll leave the repo in the registry (but we won't run maintenance on it).
-                            this.tracer.RelatedEvent(
-                                EventLevel.Informational,
-                                $"{nameof(this.RunMaintenanceTaskForRepos)}_SkippedRepoWithMissingVolume",
-                                metadata);
-
-                            continue;
-                        }
-
-                        if (!this.fileSystem.DirectoryExists(repo.EnlistmentRoot))
-                        {
-                            // The repo is no longer on disk (but its volume is present)
-                            // Unregister the repo
-                            if (repoRegistry.TryRemoveRepo(repo.EnlistmentRoot, out errorMessage))
-                            {
-                                this.tracer.RelatedEvent(
-                                    EventLevel.Informational,
-                                    $"{nameof(this.RunMaintenanceTaskForRepos)}_RemovedMissingRepo",
-                                    metadata);
-                            }
-                            else
-                            {
-                                metadata[nameof(errorMessage)] = errorMessage;
-                                this.tracer.RelatedEvent(
-                                    EventLevel.Informational,
-                                    $"{nameof(this.RunMaintenanceTaskForRepos)}_FailedToRemoveRepo",
-                                    metadata);
-                            }
-
-                            continue;
-                        }
-
-                        this.tracer.RelatedEvent(
-                                    EventLevel.Informational,
-                                    $"{nameof(this.RunMaintenanceTaskForRepos)}_CallingMaintenance",
-                                    metadata);
-
-                        this.scalarVerb.CallMaintenance(task, repo.EnlistmentRoot, sessionId);
-                    }
                 }
             }
         }

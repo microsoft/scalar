@@ -196,6 +196,11 @@ namespace Scalar.Common.FileSystem
             return Directory.EnumerateDirectories(path);
         }
 
+        public virtual IEnumerable<string> EnumerateFiles(string path, string searchPattern)
+        {
+            return Directory.EnumerateFiles(path, searchPattern);
+        }
+
         public virtual FileProperties GetFileProperties(string path)
         {
             FileInfo entry = new FileInfo(path);

@@ -37,25 +37,23 @@ namespace Scalar.CommandLine
                 this.ReportErrorAndExit($"Error: You cannot specify multiple arguments.  Run 'scalar {ServiceVerbName} --help' for details.");
             }
 
-            List<string> repoList = this.GetRepoList();
-            foreach (string repoRoot in repoList)
+            foreach (string repoRoot in this.GetRepoList())
             {
                 this.Output.WriteLine(repoRoot);
             }
         }
 
-        private List<string> GetRepoList()
+        private IEnumerable<string> GetRepoList()
         {
             string repoRegistryLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
             using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "ServiceVerb"))
             {
                 ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
-                tracer,
-                new PhysicalFileSystem(),
-                repoRegistryLocation);
+                    tracer,
+                    new PhysicalFileSystem(),
+                    repoRegistryLocation);
 
-                List<ScalarRepoRegistration> registeredRepos = repoRegistry.GetRegisteredRepos();
-                return registeredRepos.Select(x => x.EnlistmentRoot).ToList();
+                return repoRegistry.GetRegisteredRepos().Select(x => x.EnlistmentRoot);
             }
         }
     }

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 
 namespace Scalar.Common.RepoRegistry
 {
@@ -146,51 +145,34 @@ namespace Scalar.Common.RepoRegistry
             return true;
         }
 
-        public List<ScalarRepoRegistration> GetRegisteredRepos()
+        public IEnumerable<ScalarRepoRegistration> GetRegisteredRepos()
         {
-            List<ScalarRepoRegistration>  repoList = new List<ScalarRepoRegistration>();
-            if (!this.fileSystem.DirectoryExists(this.registryFolderPath))
+            if (this.fileSystem.DirectoryExists(this.registryFolderPath))
             {
-                return repoList;
-            }
+                IEnumerable<string> registryFilePaths = this.fileSystem.EnumerateFiles(this.registryFolderPath, $"*{RegistryFileExtension}");
+                foreach (string registryFilePath in registryFilePaths)
+                {
+                    ScalarRepoRegistration registration = null;
+                    try
+                    {
+                        string repoData = this.fileSystem.ReadAllText(registryFilePath);
+                        registration = ScalarRepoRegistration.FromJson(repoData);
+                    }
+                    catch (Exception e)
+                    {
+                        EventMetadata metadata = CreateEventMetadata(e);
+                        metadata.Add(nameof(registryFilePath), registryFilePath);
+                        this.tracer.RelatedWarning(
+                            metadata,
+                            $"{nameof(this.GetRegisteredRepos)}: Failed to read registry file");
+                    }
 
-            IEnumerable<DirectoryItemInfo> registryDirContents = this.fileSystem.ItemsInDirectory(this.registryFolderPath);
-            foreach (DirectoryItemInfo dirItem in registryDirContents)
-            {
-                if (dirItem.IsDirectory)
-                {
-                    continue;
-                }
-
-                if (!Path.GetExtension(dirItem.Name).Equals(RegistryFileExtension, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                try
-                {
-                    string repoData = this.fileSystem.ReadAllText(dirItem.FullName);
-                    ScalarRepoRegistration registration = ScalarRepoRegistration.FromJson(repoData);
-                    repoList.Add(registration);
-                }
-                catch (Exception e)
-                {
-                    EventMetadata metadata = CreateEventMetadata(e);
-                    metadata.Add(nameof(dirItem.FullName), dirItem.FullName);
-                    this.tracer.RelatedWarning(
-                        metadata,
-                        $"{nameof(this.GetRegisteredRepos)}: Failed to read registry file");
+                    if (registration != null)
+                    {
+                        yield return registration;
+                    }
                 }
             }
-
-            return repoList;
-        }
-
-        public List<ScalarRepoRegistration> GetRegisteredReposForUser(string ownerSID)
-        {
-            List<ScalarRepoRegistration> registeredRepos = this.GetRegisteredRepos();
-            IEnumerable<DirectoryItemInfo> registryDirContents = this.fileSystem.ItemsInDirectory(this.registryFolderPath);
-            return registeredRepos.Where(x => x.OwnerSID.Equals(ownerSID, StringComparison.CurrentCultureIgnoreCase)).ToList();
         }
 
         internal static string GetRepoRootSha(string repoRoot)

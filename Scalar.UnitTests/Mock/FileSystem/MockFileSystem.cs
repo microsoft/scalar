@@ -284,6 +284,51 @@ namespace Scalar.UnitTests.Mock.FileSystem
             }
         }
 
+        public override IEnumerable<string> EnumerateFiles(string path, string searchPattern)
+        {
+            string searchSuffix = null;
+            bool matchAll = string.IsNullOrEmpty(searchPattern) || searchPattern == "*";
+
+            if (!matchAll)
+            {
+                // Only support matching "*<pattern>"
+                if (!searchPattern.StartsWith("*", StringComparison.Ordinal))
+                {
+                    throw new NotImplementedException("Unsupported search pattern");
+                }
+
+                if (searchPattern.IndexOf('*', startIndex: 1) != -1)
+                {
+                    throw new NotImplementedException("Unsupported search pattern");
+                }
+
+                if (searchPattern.Contains("?"))
+                {
+                    throw new NotImplementedException("Unsupported search pattern");
+                }
+
+                searchSuffix = searchPattern.Substring(1);
+            }
+
+            MockDirectory directory = this.RootDirectory.FindDirectory(path);
+            directory.ShouldNotBeNull();
+
+            if (directory != null)
+            {
+                foreach (MockFile file in directory.Files.Values)
+                {
+                    if (matchAll)
+                    {
+                        yield return file.Name;
+                    }
+                    else if (file.Name.EndsWith(searchSuffix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        yield return file.Name;
+                    }
+                }
+            }
+        }
+
         public override FileProperties GetFileProperties(string path)
         {
             MockFile file = this.RootDirectory.FindFile(path);
