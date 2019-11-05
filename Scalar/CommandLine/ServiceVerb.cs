@@ -53,7 +53,7 @@ namespace Scalar.CommandLine
                     new PhysicalFileSystem(),
                     repoRegistryLocation);
 
-                return repoRegistry.GetRegisteredRepos().Select(x => x.EnlistmentRoot);
+                return repoRegistry.GetRegisteredRepos().Select(x => x.NormalizedRepoRoot);
             }
         }
     }

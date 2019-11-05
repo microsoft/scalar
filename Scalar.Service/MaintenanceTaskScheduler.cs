@@ -212,9 +212,9 @@ namespace Scalar.Service
                 {
                     ++reposForUserCount;
 
-                    rootPath = Path.GetPathRoot(repoRegistration.EnlistmentRoot);
+                    rootPath = Path.GetPathRoot(repoRegistration.NormalizedRepoRoot);
 
-                    metadata[nameof(repoRegistration.EnlistmentRoot)] = repoRegistration.EnlistmentRoot;
+                    metadata[nameof(repoRegistration.NormalizedRepoRoot)] = repoRegistration.NormalizedRepoRoot;
                     metadata[nameof(task)] = task;
                     metadata[nameof(rootPath)] = rootPath;
                     metadata.Remove(nameof(errorMessage));
@@ -231,11 +231,11 @@ namespace Scalar.Service
                         continue;
                     }
 
-                    if (!this.fileSystem.DirectoryExists(repoRegistration.EnlistmentRoot))
+                    if (!this.fileSystem.DirectoryExists(repoRegistration.NormalizedRepoRoot))
                     {
                         // The repo is no longer on disk (but its volume is present)
                         // Unregister the repo
-                        if (repoRegistry.TryRemoveRepo(repoRegistration.EnlistmentRoot, out errorMessage))
+                        if (repoRegistry.TryRemoveRepo(repoRegistration.NormalizedRepoRoot, out errorMessage))
                         {
                             this.tracer.RelatedEvent(
                                 EventLevel.Informational,
@@ -259,12 +259,12 @@ namespace Scalar.Service
                                 $"{nameof(this.RunMaintenanceTaskForRepos)}_CallingMaintenance",
                                 metadata);
 
-                    this.scalarVerb.CallMaintenance(task, repoRegistration.EnlistmentRoot, sessionId);
+                    this.scalarVerb.CallMaintenance(task, repoRegistration.NormalizedRepoRoot, sessionId);
                 }
 
                 if (reposForUserCount == 0)
                 {
-                    metadata.Add(TracingConstants.MessageKey.InfoMessage, "No active repos for user");
+                    metadata.Add(TracingConstants.MessageKey.InfoMessage, "No registered repos for user");
                     this.tracer.RelatedEvent(
                         EventLevel.Informational,
                         $"{nameof(this.RunMaintenanceTaskForRepos)}_NoRepos",

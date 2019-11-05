@@ -8,14 +8,14 @@ namespace Scalar.Common.RepoRegistry
         {
         }
 
-        public ScalarRepoRegistration(string enlistmentRoot, string ownerSID)
+        public ScalarRepoRegistration(string normalizedRepoRoot, string userId)
         {
-            this.EnlistmentRoot = enlistmentRoot;
-            this.OwnerSID = ownerSID;
+            this.NormalizedRepoRoot = normalizedRepoRoot;
+            this.UserId = userId;
         }
 
-        public string EnlistmentRoot { get; set; }
-        public string OwnerSID { get; set; }
+        public string NormalizedRepoRoot { get; set; }
+        public string UserId { get; set; }
 
         public static ScalarRepoRegistration FromJson(string json)
         {
@@ -29,7 +29,7 @@ namespace Scalar.Common.RepoRegistry
 
         public override string ToString()
         {
-            return $"({this.OwnerSID}) {this.EnlistmentRoot}";
+            return $"({this.UserId}) {this.NormalizedRepoRoot}";
         }
 
         public string ToJson()

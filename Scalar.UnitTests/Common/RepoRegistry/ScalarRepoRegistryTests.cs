@@ -45,10 +45,10 @@ namespace Scalar.UnitTests.Common.RepoRegistry
         ////    this.VerifyRepo(verifiableRegistry[repoRoot], ownerSID);
         ////}
 
-        private void VerifyRepo(ScalarRepoRegistration repo, string expectedOwnerSID)
+        private void VerifyRepo(ScalarRepoRegistration repo, string expectedUserId)
         {
             repo.ShouldNotBeNull();
-            repo.OwnerSID.ShouldEqual(expectedOwnerSID);
+            repo.UserId.ShouldEqual(expectedUserId);
         }
     }
 }

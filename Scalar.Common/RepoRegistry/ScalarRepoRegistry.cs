@@ -27,7 +27,7 @@ namespace Scalar.Common.RepoRegistry
             this.registryFolderPath = repoRegistryLocation;
         }
 
-        public bool TryRegisterRepo(string repoRoot, string ownerSID, out string errorMessage)
+        public bool TryRegisterRepo(string normalizedRepoRoot, string userId, out string errorMessage)
         {
             try
             {
@@ -49,17 +49,17 @@ namespace Scalar.Common.RepoRegistry
                 errorMessage = $"Error while ensuring registry directory '{this.registryFolderPath}' exists: {e.Message}";
 
                 EventMetadata metadata = CreateEventMetadata(e);
-                metadata.Add(nameof(repoRoot), repoRoot);
+                metadata.Add(nameof(normalizedRepoRoot), normalizedRepoRoot);
                 metadata.Add(nameof(this.registryFolderPath), this.registryFolderPath);
                 this.tracer.RelatedError(metadata, $"{nameof(this.TryRegisterRepo)}: Exception while ensuring registry directory exists");
                 return false;
             }
 
-            string tempRegistryPath = this.GetRepoRegistryTempFilePath(repoRoot);
+            string tempRegistryPath = this.GetRepoRegistryTempFilePath(normalizedRepoRoot);
 
             try
             {
-                ScalarRepoRegistration repoRegistration = new ScalarRepoRegistration(repoRoot, ownerSID);
+                ScalarRepoRegistration repoRegistration = new ScalarRepoRegistration(normalizedRepoRoot, userId);
                 string registryFileContents = repoRegistration.ToJson();
 
                 using (Stream tempFile = this.fileSystem.OpenFileStream(
@@ -76,26 +76,26 @@ namespace Scalar.Common.RepoRegistry
             }
             catch (Exception e)
             {
-                errorMessage = $"Error while registering repo {repoRoot}: {e.Message}";
+                errorMessage = $"Error while registering repo {normalizedRepoRoot}: {e.Message}";
 
                 EventMetadata metadata = CreateEventMetadata(e);
-                metadata.Add(nameof(repoRoot), repoRoot);
+                metadata.Add(nameof(normalizedRepoRoot), normalizedRepoRoot);
                 metadata.Add(nameof(tempRegistryPath), tempRegistryPath);
                 this.tracer.RelatedError(metadata, $"{nameof(this.TryRegisterRepo)}: Exception while writing temp registry file");
                 return false;
             }
 
-            string registryFilePath = this.GetRepoRegistryFilePath(repoRoot);
+            string registryFilePath = this.GetRepoRegistryFilePath(normalizedRepoRoot);
             try
             {
                 this.fileSystem.MoveAndOverwriteFile(tempRegistryPath, registryFilePath);
             }
             catch (Win32Exception e)
             {
-                errorMessage = $"Error while registering repo {repoRoot}: {e.Message}";
+                errorMessage = $"Error while registering repo {normalizedRepoRoot}: {e.Message}";
 
                 EventMetadata metadata = CreateEventMetadata(e);
-                metadata.Add(nameof(repoRoot), repoRoot);
+                metadata.Add(nameof(normalizedRepoRoot), normalizedRepoRoot);
                 metadata.Add(nameof(tempRegistryPath), tempRegistryPath);
                 metadata.Add(nameof(registryFilePath), registryFilePath);
                 this.tracer.RelatedError(metadata, $"{nameof(this.TryRegisterRepo)}: Exception while renaming temp registry file");
@@ -106,15 +106,15 @@ namespace Scalar.Common.RepoRegistry
             return true;
         }
 
-        public bool TryRemoveRepo(string repoRoot, out string errorMessage)
+        public bool TryRemoveRepo(string normalizedRepoRoot, out string errorMessage)
         {
-            string registryPath = this.GetRepoRegistryFilePath(repoRoot);
+            string registryPath = this.GetRepoRegistryFilePath(normalizedRepoRoot);
             if (!this.fileSystem.FileExists(registryPath))
             {
-                errorMessage = $"Attempted to remove non-existent repo '{repoRoot}'";
+                errorMessage = $"Attempted to remove non-existent repo '{normalizedRepoRoot}'";
 
                 EventMetadata metadata = CreateEventMetadata();
-                metadata.Add(nameof(repoRoot), repoRoot);
+                metadata.Add(nameof(normalizedRepoRoot), normalizedRepoRoot);
                 metadata.Add(nameof(registryPath), registryPath);
                 this.tracer.RelatedWarning(
                     metadata,
@@ -129,10 +129,10 @@ namespace Scalar.Common.RepoRegistry
             }
             catch (Exception e)
             {
-                errorMessage = $"Error while removing repo {repoRoot}: {e.Message}";
+                errorMessage = $"Error while removing repo {normalizedRepoRoot}: {e.Message}";
 
                 EventMetadata metadata = CreateEventMetadata(e);
-                metadata.Add(nameof(repoRoot), repoRoot);
+                metadata.Add(nameof(normalizedRepoRoot), normalizedRepoRoot);
                 metadata.Add(nameof(registryPath), registryPath);
                 this.tracer.RelatedWarning(
                     metadata,
@@ -175,20 +175,20 @@ namespace Scalar.Common.RepoRegistry
             }
         }
 
-        internal static string GetRepoRootSha(string repoRoot)
+        internal static string GetRepoRootSha(string normalizedRepoRoot)
         {
-            return SHA1Util.SHA1HashStringForUTF8String(repoRoot.ToLowerInvariant());
+            return SHA1Util.SHA1HashStringForUTF8String(normalizedRepoRoot.ToLowerInvariant());
         }
 
-        internal string GetRepoRegistryTempFilePath(string repoRoot)
+        internal string GetRepoRegistryTempFilePath(string normalizedRepoRoot)
         {
-            string repoTempFilename = $"{GetRepoRootSha(repoRoot)}{RegistryTempFileExtension}";
+            string repoTempFilename = $"{GetRepoRootSha(normalizedRepoRoot)}{RegistryTempFileExtension}";
             return Path.Combine(this.registryFolderPath, repoTempFilename);
         }
 
-        internal string GetRepoRegistryFilePath(string repoRoot)
+        internal string GetRepoRegistryFilePath(string normalizedRepoRoot)
         {
-            string repoFilename = $"{GetRepoRootSha(repoRoot)}{RegistryFileExtension}";
+            string repoFilename = $"{GetRepoRootSha(normalizedRepoRoot)}{RegistryFileExtension}";
             return Path.Combine(this.registryFolderPath, repoFilename);
         }
 

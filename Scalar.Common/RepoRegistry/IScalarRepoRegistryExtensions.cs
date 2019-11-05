@@ -6,9 +6,9 @@ namespace Scalar.Common.RepoRegistry
 {
     public static class IScalarRepoRegistryExtensions
     {
-        public static IEnumerable<ScalarRepoRegistration> GetRegisteredReposForUser(this IScalarRepoRegistry registry, string ownerSID)
+        public static IEnumerable<ScalarRepoRegistration> GetRegisteredReposForUser(this IScalarRepoRegistry registry, string userId)
         {
-            return registry.GetRegisteredRepos().Where(x => x.OwnerSID.Equals(ownerSID, StringComparison.CurrentCultureIgnoreCase));
+            return registry.GetRegisteredRepos().Where(x => x.UserId.Equals(userId, StringComparison.CurrentCultureIgnoreCase));
         }
     }
 }
