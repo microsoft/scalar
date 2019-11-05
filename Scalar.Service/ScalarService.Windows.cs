@@ -26,7 +26,7 @@ namespace Scalar.Service
         private string serviceName;
         private string serviceDataLocation;
         private string repoRegistryLocation;
-        private ScalarRepoRegistry repoRegistry;
+        private IScalarRepoRegistry repoRegistry;
         private ProductUpgradeTimer productUpgradeTimer;
         private RequestHandler requestHandler;
         private MaintenanceTaskScheduler maintenanceTaskScheduler;
