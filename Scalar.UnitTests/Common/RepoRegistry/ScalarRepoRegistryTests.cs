@@ -13,42 +13,39 @@ namespace Scalar.UnitTests.Common.RepoRegistry
     [TestFixture]
     public class ScalarRepoRegistryTests
     {
-        [SetUp]
-        public void Setup()
+        [TestCase]
+        public void TryRegisterRepo_CreatesMissingRegistryDirectory()
         {
+            string registryFolderPath = Path.Combine("mock:", "root", "UnitTests.RepoRegistry");
+
+            MockFileSystem fileSystem = new MockFileSystem(new MockDirectory(Path.GetDirectoryName(registryFolderPath), null, null));
+            ScalarRepoRegistry registry = new ScalarRepoRegistry(
+                new MockTracer(),
+                fileSystem,
+                registryFolderPath);
+
+            string testRepoRoot = Path.Combine("mock:", "Repos", "Repo1");
+            string testUserId = "testUser";
+
+            fileSystem.DirectoryExists(registryFolderPath).ShouldBeFalse();
+            registry.TryRegisterRepo(testRepoRoot, testUserId, out string errorMessage).ShouldBeTrue();
+            errorMessage.ShouldBeNull();
+            fileSystem.DirectoryExists(registryFolderPath).ShouldBeTrue("Registering a repo should have created the missing registry directory");
+
+            List<ScalarRepoRegistration> expectedRegistrations = new List<ScalarRepoRegistration>
+            {
+                new ScalarRepoRegistration(testRepoRoot, testUserId)
+            };
+
+            registry.GetRegisteredRepos().ShouldMatchInOrder(expectedRegistrations, RepoRegistrationsEqual);
+            registry.GetRegisteredReposForUser(testUserId).ShouldMatchInOrder(expectedRegistrations, RepoRegistrationsEqual);
         }
 
-        [TearDown]
-        public void TearDown()
+        private static bool RepoRegistrationsEqual(ScalarRepoRegistration repo1, ScalarRepoRegistration repo2)
         {
-        }
-
-        ////[TestCase]
-        ////public void TryRegisterRepo_EmptyRegistry()
-        ////{
-        ////    string dataLocation = Path.Combine("mock:", "registryDataFolder");
-        ////
-        ////    MockFileSystem fileSystem = new MockFileSystem(new MockDirectory(dataLocation, null, null));
-        ////    RepoRegistry registry = new RepoRegistry(
-        ////        new MockTracer(),
-        ////        fileSystem,
-        ////        dataLocation);
-        ////
-        ////    string repoRoot = Path.Combine("c:", "test");
-        ////    string ownerSID = Guid.NewGuid().ToString();
-        ////
-        ////    string errorMessage;
-        ////    registry.TryRegisterRepo(repoRoot, ownerSID, out errorMessage).ShouldEqual(true);
-        ////
-        ////    Dictionary<string, RepoRegistration> verifiableRegistry = registry.ReadRegistry();
-        ////    verifiableRegistry.Count.ShouldEqual(1);
-        ////    this.VerifyRepo(verifiableRegistry[repoRoot], ownerSID);
-        ////}
-
-        private void VerifyRepo(ScalarRepoRegistration repo, string expectedUserId)
-        {
-            repo.ShouldNotBeNull();
-            repo.UserId.ShouldEqual(expectedUserId);
+            return
+                repo1.NormalizedRepoRoot.Equals(repo2.NormalizedRepoRoot, StringComparison.Ordinal) &&
+                repo1.UserId.Equals(repo2.UserId, StringComparison.Ordinal);
         }
     }
 }

@@ -148,7 +148,10 @@ namespace Scalar.Tests.Should
 
             public int GetHashCode(T obj)
             {
-                return obj.GetHashCode();
+                // Return a constant to force Equals(...) to be called.
+                // This is required for custom T types that do not implement
+                // GetHashCode
+                return 1;
             }
         }
     }

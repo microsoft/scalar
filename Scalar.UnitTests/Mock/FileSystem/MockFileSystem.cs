@@ -319,11 +319,11 @@ namespace Scalar.UnitTests.Mock.FileSystem
                 {
                     if (matchAll)
                     {
-                        yield return file.Name;
+                        yield return file.FullName;
                     }
                     else if (file.Name.EndsWith(searchSuffix, StringComparison.OrdinalIgnoreCase))
                     {
-                        yield return file.Name;
+                        yield return file.FullName;
                     }
                 }
             }
