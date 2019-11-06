@@ -10,7 +10,9 @@ sed -i "" -E "s@<ScalarVersion>[0-9]+(\.[0-9]+)*</ScalarVersion>@<ScalarVersion>
 # Then generate CommonAssemblyVersion.cs
 cat >$Scalar_OUTPUTDIR/CommonAssemblyVersion.cs <<TEMPLATE
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 [assembly: AssemblyVersion("$1")]
 [assembly: AssemblyFileVersion("$1")]
+[assembly: InternalsVisibleTo("Scalar.UnitTests")]
 TEMPLATE

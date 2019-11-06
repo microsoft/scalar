@@ -27,9 +27,11 @@ namespace Scalar.PreBuild
                 this.AssemblyVersion,
                 string.Format(
 @"using System.Reflection;
+using System.Runtime.CompilerServices;
 
 [assembly: AssemblyVersion(""{0}"")]
 [assembly: AssemblyFileVersion(""{0}"")]
+[assembly: InternalsVisibleTo(""Scalar.UnitTests"")]
 ",
                 this.Version));
 

@@ -43,8 +43,7 @@ namespace Scalar.UnitTests.Common.RepoRegistry
         [Category(CategoryConstants.ExceptionExpected)]
         public void TryRegisterRepo_FailsIfMissingRegistryDirectoryCantBeCreated()
         {
-            Mock<PhysicalFileSystem> mockFileSystem;
-            mockFileSystem = new Mock<PhysicalFileSystem>(MockBehavior.Strict);
+            Mock<PhysicalFileSystem> mockFileSystem = new Mock<PhysicalFileSystem>(MockBehavior.Strict);
             mockFileSystem.Setup(fileSystem => fileSystem.DirectoryExists(this.registryFolderPath)).Returns(false);
             mockFileSystem.Setup(fileSystem => fileSystem.CreateDirectory(this.registryFolderPath)).Throws(new UnauthorizedAccessException());
 
@@ -197,8 +196,7 @@ namespace Scalar.UnitTests.Common.RepoRegistry
             string repoPath = Path.Combine("mock:", "Repos", "Repo1");
             string registrationFilePath = Path.Combine("mock:", "root", "UnitTests.RepoRegistry", ScalarRepoRegistry.GetRepoRootSha(repoPath) + ".repo");
 
-            Mock<PhysicalFileSystem> mockFileSystem;
-            mockFileSystem = new Mock<PhysicalFileSystem>(MockBehavior.Strict);
+            Mock<PhysicalFileSystem> mockFileSystem = new Mock<PhysicalFileSystem>(MockBehavior.Strict);
             mockFileSystem.Setup(fileSystem => fileSystem.FileExists(registrationFilePath)).Returns(true);
             mockFileSystem.Setup(fileSystem => fileSystem.DeleteFile(registrationFilePath)).Throws(new UnauthorizedAccessException());
 

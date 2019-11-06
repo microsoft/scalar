@@ -122,21 +122,7 @@ namespace Scalar.Service
             }
         }
 
-        private class MaintenanceSchedule
-        {
-            public MaintenanceSchedule(MaintenanceTasks.Task task, TimeSpan dueTime, TimeSpan period)
-            {
-                this.Task = task;
-                this.DueTime = dueTime;
-                this.Period = period;
-            }
-
-            public MaintenanceTasks.Task Task { get; }
-            public TimeSpan DueTime { get; }
-            public TimeSpan Period { get; }
-        }
-
-        private class MaintenanceTask : IServiceTask
+        internal class MaintenanceTask : IServiceTask
         {
             private readonly ITracer tracer;
             private readonly PhysicalFileSystem fileSystem;
@@ -176,11 +162,7 @@ namespace Scalar.Service
                         $"{nameof(MaintenanceTaskScheduler)}.{nameof(this.Execute)}",
                         metadata);
 
-                    this.RunMaintenanceTaskForRepos(
-                        this.task,
-                        this.repoRegistry,
-                        registeredUser.UserId,
-                        registeredUser.SessionId);
+                    this.RunMaintenanceTaskForRepos(registeredUser);
                 }
                 else
                 {
@@ -193,29 +175,24 @@ namespace Scalar.Service
                 // TODO: #185 - Kill the currently running maintenance verb
             }
 
-            public void RunMaintenanceTaskForRepos(
-                MaintenanceTasks.Task task,
-                IScalarRepoRegistry repoRegistry,
-                string userId,
-                int sessionId)
+            public void RunMaintenanceTaskForRepos(UserAndSession registeredUser)
             {
                 EventMetadata metadata = new EventMetadata();
-                metadata.Add(nameof(task), MaintenanceTasks.GetVerbTaskName(task));
-                metadata.Add(nameof(userId), userId);
-                metadata.Add(nameof(sessionId), sessionId);
+                metadata.Add(nameof(this.task), MaintenanceTasks.GetVerbTaskName(this.task));
+                metadata.Add(nameof(registeredUser.UserId), registeredUser.UserId);
+                metadata.Add(nameof(registeredUser.SessionId), registeredUser.SessionId);
 
                 int reposForUserCount = 0;
                 string rootPath;
                 string errorMessage;
 
-                foreach (ScalarRepoRegistration repoRegistration in repoRegistry.GetRegisteredReposForUser(userId))
+                foreach (ScalarRepoRegistration repoRegistration in this.repoRegistry.GetRegisteredReposForUser(registeredUser.UserId))
                 {
                     ++reposForUserCount;
 
                     rootPath = Path.GetPathRoot(repoRegistration.NormalizedRepoRoot);
 
                     metadata[nameof(repoRegistration.NormalizedRepoRoot)] = repoRegistration.NormalizedRepoRoot;
-                    metadata[nameof(task)] = task;
                     metadata[nameof(rootPath)] = rootPath;
                     metadata.Remove(nameof(errorMessage));
 
@@ -235,7 +212,7 @@ namespace Scalar.Service
                     {
                         // The repo is no longer on disk (but its volume is present)
                         // Unregister the repo
-                        if (repoRegistry.TryUnregisterRepo(repoRegistration.NormalizedRepoRoot, out errorMessage))
+                        if (this.repoRegistry.TryUnregisterRepo(repoRegistration.NormalizedRepoRoot, out errorMessage))
                         {
                             this.tracer.RelatedEvent(
                                 EventLevel.Informational,
@@ -259,7 +236,7 @@ namespace Scalar.Service
                                 $"{nameof(this.RunMaintenanceTaskForRepos)}_CallingMaintenance",
                                 metadata);
 
-                    this.scalarVerb.CallMaintenance(task, repoRegistration.NormalizedRepoRoot, sessionId);
+                    this.scalarVerb.CallMaintenance(this.task, repoRegistration.NormalizedRepoRoot, registeredUser.SessionId);
                 }
 
                 if (reposForUserCount == 0)
@@ -271,6 +248,20 @@ namespace Scalar.Service
                         metadata);
                 }
             }
+        }
+
+        private class MaintenanceSchedule
+        {
+            public MaintenanceSchedule(MaintenanceTasks.Task task, TimeSpan dueTime, TimeSpan period)
+            {
+                this.Task = task;
+                this.DueTime = dueTime;
+                this.Period = period;
+            }
+
+            public MaintenanceTasks.Task Task { get; }
+            public TimeSpan DueTime { get; }
+            public TimeSpan Period { get; }
         }
     }
 }

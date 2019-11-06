@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Tracing;
@@ -38,6 +39,22 @@ namespace Scalar.UnitTests.Mock.FileSystem
         /// is to throw. This flag allows consumers to control this behavior.
         /// </summary>
         public bool DeleteNonExistentFileThrowsException { get; set; }
+
+        public static string GetTestRoot()
+        {
+            switch (Path.DirectorySeparatorChar)
+            {
+                case '/':
+                    return "/mock";
+
+                case '\\':
+                    return "B:";
+
+                default:
+                    Assert.Fail($"Unknown DirectorySeparatorChar '{Path.DirectorySeparatorChar}'");
+                    return null;
+            }
+        }
 
         public override void DeleteDirectory(string path, bool recursive = true)
         {

@@ -13,6 +13,7 @@ namespace Scalar.UnitTests.Mock.Common
         public MockTracer()
         {
             this.waitEvent = new AutoResetEvent(false);
+            this.RelatedEvents = new List<string>();
             this.RelatedInfoEvents = new List<string>();
             this.RelatedWarningEvents = new List<string>();
             this.RelatedErrorEvents = new List<string>();
@@ -21,6 +22,7 @@ namespace Scalar.UnitTests.Mock.Common
         public MockTracer StartActivityTracer { get; private set; }
         public string WaitRelatedEventName { get; set; }
 
+        public List<string> RelatedEvents { get; }
         public List<string> RelatedInfoEvents { get; }
         public List<string> RelatedWarningEvents { get; }
         public List<string> RelatedErrorEvents { get; }
@@ -36,6 +38,8 @@ namespace Scalar.UnitTests.Mock.Common
             {
                 this.waitEvent.Set();
             }
+
+            this.RelatedEvents.Add($"EventName:'{eventName}', metadata: {JsonConvert.SerializeObject(metadata)}");
         }
 
         public void RelatedEvent(EventLevel error, string eventName, EventMetadata metadata, Keywords keyword)
@@ -44,6 +48,8 @@ namespace Scalar.UnitTests.Mock.Common
             {
                 this.waitEvent.Set();
             }
+
+            this.RelatedEvents.Add($"EventName:'{eventName}', metadata: {JsonConvert.SerializeObject(metadata)}");
         }
 
         public void RelatedInfo(string message)
