@@ -106,7 +106,7 @@ namespace Scalar.Common.RepoRegistry
             return true;
         }
 
-        public bool TryRemoveRepo(string normalizedRepoRoot, out string errorMessage)
+        public bool TryUnregisterRepo(string normalizedRepoRoot, out string errorMessage)
         {
             string registryPath = this.GetRepoRegistryFilePath(normalizedRepoRoot);
             if (!this.fileSystem.FileExists(registryPath))
@@ -118,7 +118,7 @@ namespace Scalar.Common.RepoRegistry
                 metadata.Add(nameof(registryPath), registryPath);
                 this.tracer.RelatedWarning(
                     metadata,
-                    $"{nameof(this.TryRemoveRepo)}: Attempted to remove non-existent repo");
+                    $"{nameof(this.TryUnregisterRepo)}: Attempted to remove non-existent repo");
 
                 return false;
             }
@@ -136,7 +136,7 @@ namespace Scalar.Common.RepoRegistry
                 metadata.Add(nameof(registryPath), registryPath);
                 this.tracer.RelatedWarning(
                     metadata,
-                    $"{nameof(this.TryRemoveRepo)}: Exception while removing repo");
+                    $"{nameof(this.TryUnregisterRepo)}: Exception while removing repo");
 
                 return false;
             }
@@ -180,18 +180,6 @@ namespace Scalar.Common.RepoRegistry
             return SHA1Util.SHA1HashStringForUTF8String(normalizedRepoRoot.ToLowerInvariant());
         }
 
-        internal string GetRepoRegistryTempFilePath(string normalizedRepoRoot)
-        {
-            string repoTempFilename = $"{GetRepoRootSha(normalizedRepoRoot)}{RegistryTempFileExtension}";
-            return Path.Combine(this.registryFolderPath, repoTempFilename);
-        }
-
-        internal string GetRepoRegistryFilePath(string normalizedRepoRoot)
-        {
-            string repoFilename = $"{GetRepoRootSha(normalizedRepoRoot)}{RegistryFileExtension}";
-            return Path.Combine(this.registryFolderPath, repoFilename);
-        }
-
         private static EventMetadata CreateEventMetadata(Exception e = null)
         {
             EventMetadata metadata = new EventMetadata();
@@ -202,6 +190,18 @@ namespace Scalar.Common.RepoRegistry
             }
 
             return metadata;
+        }
+
+        private string GetRepoRegistryTempFilePath(string normalizedRepoRoot)
+        {
+            string repoTempFilename = $"{GetRepoRootSha(normalizedRepoRoot)}{RegistryTempFileExtension}";
+            return Path.Combine(this.registryFolderPath, repoTempFilename);
+        }
+
+        private string GetRepoRegistryFilePath(string normalizedRepoRoot)
+        {
+            string repoFilename = $"{GetRepoRootSha(normalizedRepoRoot)}{RegistryFileExtension}";
+            return Path.Combine(this.registryFolderPath, repoFilename);
         }
     }
 }

@@ -235,7 +235,7 @@ namespace Scalar.Service
                     {
                         // The repo is no longer on disk (but its volume is present)
                         // Unregister the repo
-                        if (repoRegistry.TryRemoveRepo(repoRegistration.NormalizedRepoRoot, out errorMessage))
+                        if (repoRegistry.TryUnregisterRepo(repoRegistration.NormalizedRepoRoot, out errorMessage))
                         {
                             this.tracer.RelatedEvent(
                                 EventLevel.Informational,
