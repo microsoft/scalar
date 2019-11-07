@@ -3,18 +3,15 @@
 . "$(dirname ${BASH_SOURCE[0]})/../InitializeEnvironment.sh"
 
 CONFIGURATION=$1
-BUILDDROP_ROOT=$2
-if [ -z $BUILDDROP_ROOT ] || [ -z $CONFIGURATION ]; then
+SCALAR_STAGEDIR=$2
+if [ -z $SCALAR_STAGEDIR ] || [ -z $CONFIGURATION ]; then
   echo 'ERROR: Usage: CreateInstallerDrop.sh [configuration] [build drop root directory]'
   exit 1
 fi
 
 # Set up the installer directory structure
-rm -rf $BUILDDROP_ROOT
-mkdir -p $BUILDDROP_ROOT
+rm -rf $SCALAR_STAGEDIR
+mkdir -p $SCALAR_STAGEDIR
 
-# Generate Scalar Distribution
-$Scalar_SCRIPTDIR/CreateScalarDistribution.sh $CONFIGURATION
-
-# Copy to the build drop, retaining directory structure.
-cp -Rf $Scalar_OUTPUTDIR/Scalar.Distribution $BUILDDROP_ROOT
+# Copy to the build drop, retaining directory structure
+cp -Rf $SCALAR_OUTPUTDIR/Scalar.Distribution.Mac/dist/$CONFIGURATION/ $SCALAR_STAGEDIR

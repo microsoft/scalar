@@ -9,7 +9,7 @@ namespace Scalar.Upgrader
 #elif WINDOWS_BUILD
             return new WindowsUpgradeOrchestrator(options);
 #else
-            throw new NotImplementedException();
+            throw new System.NotImplementedException();
 #endif
             }
     }

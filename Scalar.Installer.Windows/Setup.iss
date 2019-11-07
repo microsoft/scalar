@@ -3,15 +3,7 @@
 
 ; General documentation on how to use InnoSetup scripts: http://www.jrsoftware.org/ishelp/index.php
 
-#define ScalarDir BuildOutputDir + "\Scalar.Windows\bin\" + PlatformAndConfiguration
-#define ScalarCommonDir BuildOutputDir + "\Scalar.Common\bin\" + PlatformAndConfiguration + "\netstandard2.0"
-#define ServiceDir BuildOutputDir + "\Scalar.Service.Windows\bin\" + PlatformAndConfiguration
-#define ServiceUIDir BuildOutputDir + "\Scalar.Service.UI\bin\" + PlatformAndConfiguration
-#define ScalarMountDir BuildOutputDir + "\Scalar.Mount.Windows\bin\" + PlatformAndConfiguration
-#define ScalarUpgraderDir BuildOutputDir + "\Scalar.Upgrader\bin\" + PlatformAndConfiguration + "\net461"
-
 #define MyAppName "Scalar"
-#define MyAppInstallerVersion GetFileVersion(ScalarDir + "\Scalar.exe")
 #define MyAppPublisher "Microsoft Corporation"
 #define MyAppPublisherURL "http://www.microsoft.com"
 #define MyAppURL "https://github.com/microsoft/Scalar"
@@ -22,13 +14,13 @@
 [Setup]
 AppId={{82F731CB-1CFC-406D-8D84-8467BF6040C7}
 AppName={#MyAppName}
-AppVersion={#MyAppInstallerVersion}
-VersionInfoVersion={#MyAppInstallerVersion}
+AppVersion={#ScalarVersion}
+VersionInfoVersion={#ScalarVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppPublisherURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-AppCopyright=Copyright � Microsoft 2019
+AppCopyright=Copyright © Microsoft 2019
 BackColor=clWhite
 BackSolid=yes
 DefaultDirName={pf}\{#MyAppName}
@@ -40,14 +32,14 @@ SolidCompression=yes
 MinVersion=10.0.14374
 DisableDirPage=yes
 DisableReadyPage=yes
-SetupIconFile="{#ScalarDir}\Images\scalar.ico"
+SetupIconFile="{#LayoutPath}\Images\scalar.ico"
 ArchitecturesInstallIn64BitMode=x64
 ArchitecturesAllowed=x64
 WizardImageStretch=no
 WindowResizable=no
 CloseApplications=yes
 ChangesEnvironment=yes
-RestartIfNeededByRun=yes   
+RestartIfNeededByRun=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl";
@@ -62,59 +54,8 @@ Name: "full"; Description: "Full installation"; Flags: iscustom;
 Type: files; Name: "{app}\ucrtbase.dll"
 
 [Files]
-
-; Scalar.Mount Files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarMountDir}\Scalar.Mount.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarMountDir}\Scalar.Mount.exe"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarMountDir}\Scalar.Mount.exe.config"
-
-; Scalar.Upgrader Files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarUpgraderDir}\Scalar.Upgrader.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarUpgraderDir}\Scalar.Upgrader.exe"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarUpgraderDir}\Scalar.Upgrader.exe.config"
-
-; Scalar PDB's
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.Common.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.Platform.Windows.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.pdb"
-
-; Scalar.Service.UI Files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\Scalar.Service.UI.exe" 
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\Scalar.Service.UI.exe.config" 
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\Scalar.Service.UI.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\scalar.ico"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\System.Runtime.dll"
-
-; Scalar Files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\CommandLine.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.Common.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.Platform.Windows.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Newtonsoft.Json.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.exe.config"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Images\scalar.ico"  
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\Scalar.exe" 
-
-; NuGet support DLLs
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Commands.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Common.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Configuration.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Frameworks.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Packaging.Core.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Packaging.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Protocol.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\NuGet.Versioning.dll"
-
-; .NET Standard Files
-; See https://github.com/dotnet/standard/issues/415 for a discussion on why this are copied
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\netstandard.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\System.Net.Http.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\System.ValueTuple.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ScalarDir}\System.IO.Compression.dll"
-
-; Scalar.Service Files and PDB's
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceDir}\Scalar.Service.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceDir}\Scalar.Service.exe.config"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceDir}\Scalar.Service.exe"; AfterInstall: InstallScalarService
+; Include all files (recursively) from the layout directory
+DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Source:"{#LayoutPath}\*";
 
 [Icons]
 Name: "{commonstartmenu}\{#ServiceUIName}"; Filename: "{app}\Scalar.Service.UI.exe"; AppUserModelID: "Scalar"
@@ -145,7 +86,7 @@ begin
     exit;
   end;
   // look for the path with leading and trailing semicolon
-  // Pos() returns 0 if not found    
+  // Pos() returns 0 if not found
   Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
 end;
 
@@ -240,11 +181,11 @@ var
   InstallSuccessful: Boolean;
 begin
   InstallSuccessful := False;
-  
+
   StatusText := WizardForm.StatusLabel.Caption;
   WizardForm.StatusLabel.Caption := 'Installing Scalar.Service.';
   WizardForm.ProgressGauge.Style := npbstMarquee;
-  
+
   try
     if Exec(ExpandConstant('{sys}\SC.EXE'), ExpandConstant('create Scalar.Service binPath="{app}\Scalar.Service.exe" start=auto'), '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0) then
       begin
@@ -384,7 +325,7 @@ begin
   Result := True;
 end;
 
-// Below are EVENT FUNCTIONS -> The main entry points of InnoSetup into the code region 
+// Below are EVENT FUNCTIONS -> The main entry points of InnoSetup into the code region
 // Documentation : http://www.jrsoftware.org/ishelp/index.php?topic=scriptevents
 
 function InitializeUninstall(): Boolean;
@@ -413,6 +354,7 @@ begin
       end;
     ssPostInstall:
       begin
+        InstallScalarService();
         RegisterUserWithService();
       end;
     end;

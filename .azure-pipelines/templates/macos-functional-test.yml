@@ -1,45 +1,67 @@
+parameters:
+  useWatchman: true
+
 steps:
 
-  - task: DotNetCoreInstaller@0
-    displayName: Use .NET Core SDK 2.1.301
+  - task: UseDotNet@2
+    displayName: Use .NET Core SDK 3.0.100
     inputs:
       packageType: sdk
-      version: '2.1.301'
-
-  - bash: rm -rf $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/BuildOutput/Git/*
-    displayName: Clean previous Git installations
+      version: 3.0.100
 
   - task: DownloadBuildArtifacts@0
-    displayName: Download functional test drop
+    displayName: Download functional tests drop
     inputs:
       buildType: current
       downloadType: specific
       artifactName: FunctionalTests_$(platformFriendlyName)_$(configuration)
       downloadPath: $(Build.BinariesDirectory)
 
+  - task: DownloadBuildArtifacts@0
+    displayName: Download installers drop
+    inputs:
+      buildType: current
+      downloadType: specific
+      artifactName: Installers_$(platformFriendlyName)_$(configuration)
+      downloadPath: $(Build.BinariesDirectory)
+
   - bash: |
       chmod +x $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/*.sh
-      chmod +x $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/Publish/*
-    displayName: Ensure tests assets are executable
+      chmod +x $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/*.sh
+    displayName: Ensure all scripts are executable
 
-  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/CleanupFunctionalTests.sh
-    displayName: Clean environment
+  - ${{ if eq(parameters.useWatchman, 'true') }}:
+    - bash: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.sh
+      displayName: Install product (with watchman)
 
-  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/PrepFunctionalTests.sh
-    displayName: Prep functional tests
+  - ${{ if ne(parameters.useWatchman, 'true') }}:
+    - bash: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.sh --no-watchman
+      displayName: Install product (without watchman)
 
-  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --trace2-output=$(Build.ArtifactStagingDirectory)/trace2-event-mac.txt
+  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --test-scalar-on-path --trace2-output=$(Build.ArtifactStagingDirectory)/trace2-event-mac.txt
     displayName: Run functional tests
 
-  - task: PublishTestResults@2
-    displayName: Publish functional test results
-    inputs:
-      testRunner: NUnit
-      testResultsFiles: "**\\TestResult*.xml"
-      searchFolder: $(System.DefaultWorkingDirectory)
-      testRunTitle: macOS $(configuration) Functional Tests
-      publishRunAttachments: true
-    condition: succeededOrFailed()
+  - ${{ if eq(parameters.useWatchman, 'true') }}:
+    - task: PublishTestResults@2
+      displayName: Publish functional tests results
+      inputs:
+        testRunner: NUnit
+        testResultsFiles: "**\\TestResult*.xml"
+        searchFolder: $(System.DefaultWorkingDirectory)
+        testRunTitle: macOS $(configuration) Functional Tests (with watchman)
+        publishRunAttachments: true
+      condition: succeededOrFailed()
+
+  - ${{ if ne(parameters.useWatchman, 'true') }}:
+    - task: PublishTestResults@2
+      displayName: Publish functional tests results
+      inputs:
+        testRunner: NUnit
+        testResultsFiles: "**\\TestResult*.xml"
+        searchFolder: $(System.DefaultWorkingDirectory)
+        testRunTitle: macOS $(configuration) Functional Tests (without watchman)
+        publishRunAttachments: true
+      condition: succeededOrFailed()
     
   - task: PublishBuildArtifacts@1
     displayName: Publish Git trace2 log

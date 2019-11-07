@@ -1,0 +1,23 @@
+<Project>
+  <!-- Load custom build tasks -->
+  <Import Project="Scalar.tasks" />
+
+  <!-- Windows application manifest generation -->
+  <PropertyGroup Condition="'$(GenerateWindowsAppManifest)' == 'true'">
+    <ApplicationManifest>$(IntermediateOutputPath)app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <!-- Generate the manifest file before we set the win32 manifest properties -->
+  <Target Name="GenerateWindowsAppManifest"
+          BeforeTargets="SetWin32ManifestProperties"
+          Condition="'$(GenerateWindowsAppManifest)' == 'true'"
+          Inputs="$(Version);$(AssemblyName)"
+          Outputs="$(IntermediateOutputPath)app.manifest">
+    <GenerateWindowsAppManifest Version="$(Version)"
+                                ApplicationName="$(AssemblyName)"
+                                OutputFile="$(IntermediateOutputPath)app.manifest"/>
+    <ItemGroup>
+      <FileWrites Include="$(IntermediateOutputPath)app.manifest" />
+    </ItemGroup>
+  </Target>
+</Project>

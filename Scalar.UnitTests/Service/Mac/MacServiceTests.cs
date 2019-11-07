@@ -86,14 +86,14 @@ namespace Scalar.UnitTests.Service.Mac
             string expectedArgs =
                 $"asuser {ExpectedActiveUserId} {scalarBinPath} maintenance \"{ExpectedActiveRepoPath}\" --{ScalarConstants.VerbParameters.Maintenance.Task} {taskVerbName} --{ScalarConstants.VerbParameters.InternalUseOnly} {new InternalVerbParameters(startedByService: true).ToJson()}";
 
-            Mock<ScalarVerbRunner.ScalarProcessLauncher> mountLauncherMock = new Mock<ScalarVerbRunner.ScalarProcessLauncher>(MockBehavior.Strict, this.tracer);
+            Mock<MacScalarVerbRunner.ScalarProcessLauncher> mountLauncherMock = new Mock<MacScalarVerbRunner.ScalarProcessLauncher>(MockBehavior.Strict, this.tracer);
             mountLauncherMock.Setup(mp => mp.LaunchProcess(
                 executable,
                 expectedArgs,
                 ExpectedActiveRepoPath))
                 .Returns(new ProcessResult(output: string.Empty, errors: string.Empty, exitCode: 0));
 
-            ScalarVerbRunner verbProcess = new ScalarVerbRunner(this.tracer, mountLauncherMock.Object);
+            MacScalarVerbRunner verbProcess = new MacScalarVerbRunner(this.tracer, mountLauncherMock.Object);
             verbProcess.CallMaintenance(task, ExpectedActiveRepoPath, ExpectedActiveUserId);
 
             mountLauncherMock.VerifyAll();

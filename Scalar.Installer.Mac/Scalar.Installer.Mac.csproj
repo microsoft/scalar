@@ -1,37 +1,32 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\Scalar.Build\Scalar.cs.props" />
-  
+<Project Sdk="Microsoft.Build.NoTargets">
+
   <PropertyGroup>
-    <AssemblyName>Scalar.Installer.Mac</AssemblyName>
-    <RootNamespace>Scalar.Installer.Mac</RootNamespace>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <Platforms>x64</Platforms>
-    <RunTimeIdentifiers>osx-x64</RunTimeIdentifiers>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
+    <LayoutPath>$(ProjectOutPath)layout\$(Configuration)\</LayoutPath>
+    <InstallerOutputPath>$(ProjectOutPath)installer\$(Configuration)\</InstallerOutputPath>
   </PropertyGroup>
-    
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Version>$(ScalarVersion)</Version>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Version>$(ScalarVersion)</Version>
-  </PropertyGroup>
-  
-  <!-- Reference: https://stackoverflow.com/questions/47179705/net-core-override-default-build-targets -->
-  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
-  
-  <Target Name="Build" />
-  <Target Name="Rebuild" />
-  <Target Name="Publish" />
-  
-  <Target Name="DeleteInstaller" AfterTargets="Clean">
-    <Message Text="Deleting $(TargetDir)" Importance="high"></Message>
-    <RemoveDir Directories="$(TargetDir)" />
+
+  <ItemDefinitionGroup>
+    <ProjectReference ReferenceOutputAssembly="false" Private="false" />
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Scalar\Scalar.csproj" />
+    <ProjectReference Include="..\Scalar.Mount\Scalar.Mount.csproj" />
+    <ProjectReference Include="..\Scalar.Service\Scalar.Service.csproj" />
+    <ProjectReference Include="..\Scalar.Upgrader\Scalar.Upgrader.csproj" />
+    <ProjectReference Include="..\Scalar.Notifications.Mac\Scalar.Notifications.Mac.csproj" />
+  </ItemGroup>
+
+  <!-- Only create the installer on 'publish' and when running on macOS -->
+  <Target Name="PublishInstaller" AfterTargets="Publish" Condition="'$(OSPlatform)' == 'osx'" >
+    <Exec Command="$(MSBuildProjectDirectory)/layout.sh '$(Configuration)' '$(TargetFramework)' '$(RuntimeIdentifier)' '$(RepoSrcPath)' '$(RepoOutPath)' '$(LayoutPath)'"/>
+    <Exec Command="$(MSBuildProjectDirectory)/pack.sh '$(ScalarVersion)' '$(RepoSrcPath)' '$(LayoutPath)' '$(InstallerOutputPath)'"/>
   </Target>
 
-  <Target Name="AfterAllPublishing" AfterTargets="Publish">
-    <Message Text="$(ProjectDir)/CreateMacInstaller.sh $(MSBuildProjectDirectory) $(Configuration) $(ScalarVersion) $(OutputPath)" Importance="high"></Message>
-    <Exec Command="$(ProjectDir)/CreateMacInstaller.sh $(MSBuildProjectDirectory) $(Configuration) $(ScalarVersion) $(OutputPath)" />
+  <Target Name="_Clean" AfterTargets="Clean">
+    <RemoveDir Directories="$(ProjectOutPath)" />
   </Target>
+
 </Project>
