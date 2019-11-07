@@ -41,41 +41,9 @@ namespace Scalar.UnitTests.Windows.ServiceUI
         }
 
         [TestCase]
-        public void MountFailureToastIsActionableAndContainEnlistmentInfo()
-        {
-            const string enlistmentRoot = "D:\\Work\\OS";
-
-            this.request.Id = NamedPipeMessages.Notification.Request.Identifier.MountFailure;
-            this.request.Enlistment = enlistmentRoot;
-
-            this.VerifyToastMessage(
-                expectedTitle: "Scalar Automount",
-                expectedMessage: enlistmentRoot,
-                expectedButtonTitle: "Retry",
-                expectedScalarCmd: "scalar mount " + enlistmentRoot);
-        }
-
-        [TestCase]
-        public void MountStartIsNotActionableAndContainsEnlistmentCount()
-        {
-            const int enlistmentCount = 10;
-
-            this.request.Id = NamedPipeMessages.Notification.Request.Identifier.AutomountStart;
-            this.request.EnlistmentCount = enlistmentCount;
-
-            this.VerifyToastMessage(
-                expectedTitle: "Scalar Automount",
-                expectedMessage: "mount " + enlistmentCount.ToString() + " Scalar repos",
-                expectedButtonTitle: null,
-                expectedScalarCmd: null);
-        }
-
-        [TestCase]
         public void UnknownToastRequestGetsIgnored()
         {
             this.request.Id = (NamedPipeMessages.Notification.Request.Identifier)10;
-            this.request.EnlistmentCount = 232;
-            this.request.Enlistment = "C:\\OS";
 
             this.toastHandler.HandleToastRequest(this.tracer, this.request);
 

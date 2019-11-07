@@ -170,7 +170,7 @@ namespace Scalar.Common.Git
             }
         }
 
-        public virtual string WriteLooseObject(Stream responseStream, string sha, bool overwriteExistingObject, byte[] bufToCopyWith)
+        public virtual string WriteLooseObject(Stream responseStream, string sha,byte[] bufToCopyWith)
         {
             try
             {
@@ -181,7 +181,7 @@ namespace Scalar.Common.Git
                     StreamUtil.CopyToWithBuffer(responseStream, fileStream, bufToCopyWith);
                 }
 
-                this.FinalizeTempFile(sha, toWrite, overwriteExistingObject);
+                this.FinalizeTempFile(sha, toWrite);
 
                 return toWrite.ActualFile;
             }
@@ -810,26 +810,13 @@ namespace Scalar.Common.Git
             }
         }
 
-        private void FinalizeTempFile(string sha, LooseObjectToWrite toWrite, bool overwriteExistingObject)
+        private void FinalizeTempFile(string sha, LooseObjectToWrite toWrite)
         {
             try
             {
-                // Checking for existence reduces warning outputs when a streamed download tries.
-                if (this.fileSystem.FileExists(toWrite.ActualFile))
-                {
-                    if (overwriteExistingObject)
-                    {
-                        EventMetadata metadata = CreateEventMetadata();
-                        metadata.Add("file", toWrite.ActualFile);
-                        metadata.Add("tempFile", toWrite.TempFile);
-                        metadata.Add(TracingConstants.MessageKey.InfoMessage, $"{nameof(this.FinalizeTempFile)}: Overwriting existing loose object");
-                        this.Tracer.RelatedEvent(EventLevel.Informational, $"{nameof(this.FinalizeTempFile)}_OverwriteExistingObject", metadata);
-
-                        this.ValidateTempFile(toWrite.TempFile, sha);
-                        this.fileSystem.MoveAndOverwriteFile(toWrite.TempFile, toWrite.ActualFile);
-                    }
-                }
-                else
+                // Checking for existence reduces warning outputs when the same object is being downloaded
+                // concurrently
+                if (!this.fileSystem.FileExists(toWrite.ActualFile))
                 {
                     this.ValidateTempFile(toWrite.TempFile, sha);
 
@@ -900,7 +887,7 @@ namespace Scalar.Common.Git
                 // To reduce allocations, reuse the same buffer when writing objects in this batch
                 byte[] bufToCopyWith = new byte[StreamUtil.DefaultCopyBufferSize];
 
-                this.WriteLooseObject(responseData.Stream, objectShaList[0], overwriteExistingObject: false, bufToCopyWith: bufToCopyWith);
+                this.WriteLooseObject(responseData.Stream, objectShaList[0], bufToCopyWith: bufToCopyWith);
             }
             else if (responseData.ContentType == GitObjectContentType.BatchedLooseObjects)
             {
@@ -909,7 +896,7 @@ namespace Scalar.Common.Git
 
                 BatchedLooseObjectDeserializer deserializer = new BatchedLooseObjectDeserializer(
                     responseData.Stream,
-                    (stream, sha) => this.WriteLooseObject(stream, sha, overwriteExistingObject: false, bufToCopyWith: bufToCopyWith));
+                    (stream, sha) => this.WriteLooseObject(stream, sha, bufToCopyWith: bufToCopyWith));
                 deserializer.ProcessObjects();
             }
             else

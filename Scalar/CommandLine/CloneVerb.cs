@@ -188,7 +188,6 @@ namespace Scalar.CommandLine
                     { nameof(this.NoFetchCommitsAndTrees), this.NoFetchCommitsAndTrees },
                     { nameof(this.Unattended), this.Unattended },
                     { nameof(ScalarPlatform.Instance.IsElevated), ScalarPlatform.Instance.IsElevated() },
-                    { nameof(this.enlistment.NamedPipeName), this.enlistment.NamedPipeName },
                     { "ProcessID", Process.GetCurrentProcess().Id },
                     { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
                     { nameof(fullEnlistmentRootPathParameter), fullEnlistmentRootPathParameter },

@@ -210,11 +210,6 @@ namespace Scalar.Platform.Windows
             running = service != null ? service.Status == ServiceControllerStatus.Running : false;
         }
 
-        public override string GetNamedPipeName(string enlistmentRoot)
-        {
-            return WindowsPlatform.GetNamedPipeNameImplementation(enlistmentRoot);
-        }
-
         public override string GetScalarServiceNamedPipeName(string serviceName)
         {
             return serviceName + ".pipe";

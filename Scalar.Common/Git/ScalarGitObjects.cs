@@ -19,26 +19,16 @@ namespace Scalar.Common.Git
             this.objectNegativeCache = new ConcurrentDictionary<string, DateTime>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public enum RequestSource
-        {
-            Invalid = 0,
-            FileStreamCallback,
-            ScalarVerb,
-            NamedPipeMessage,
-            SymLinkCreation,
-        }
-
         protected ScalarContext Context { get; private set; }
 
-        public DownloadAndSaveObjectResult TryDownloadAndSaveObject(string objectId, RequestSource requestSource)
+        public DownloadAndSaveObjectResult TryDownloadAndSaveObject(string objectId)
         {
-            return this.TryDownloadAndSaveObject(objectId, CancellationToken.None, requestSource, retryOnFailure: true);
+            return this.TryDownloadAndSaveObject(objectId, CancellationToken.None, retryOnFailure: true);
         }
 
         private DownloadAndSaveObjectResult TryDownloadAndSaveObject(
             string objectId,
             CancellationToken cancellationToken,
-            RequestSource requestSource,
             bool retryOnFailure)
         {
             if (objectId == ScalarConstants.AllZeroSha)
@@ -64,7 +54,6 @@ namespace Scalar.Common.Git
                 objectId,
                 retryOnFailure,
                 cancellationToken,
-                requestSource.ToString(),
                 onSuccess: (tryCount, response) =>
                 {
                     // If the request is from git.exe (i.e. NamedPipeMessage) then we should assume that if there is an
@@ -72,7 +61,6 @@ namespace Scalar.Common.Git
                     this.WriteLooseObject(
                         response.Stream,
                         objectId,
-                        overwriteExistingObject: requestSource == RequestSource.NamedPipeMessage,
                         bufToCopyWith: bufToCopyWith);
 
                     return new RetryWrapper<GitObjectsHttpRequestor.GitObjectTaskResult>.CallbackResult(new GitObjectsHttpRequestor.GitObjectTaskResult(true));

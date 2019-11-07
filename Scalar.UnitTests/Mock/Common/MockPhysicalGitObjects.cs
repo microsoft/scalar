@@ -15,7 +15,7 @@ namespace Scalar.UnitTests.Mock.Common
         {
         }
 
-        public override string WriteLooseObject(Stream responseStream, string sha, bool overwriteExisting, byte[] sharedBuf = null)
+        public override string WriteLooseObject(Stream responseStream, string sha, byte[] sharedBuf = null)
         {
             using (StreamReader reader = new StreamReader(responseStream))
             {

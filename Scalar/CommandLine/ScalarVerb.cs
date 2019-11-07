@@ -586,7 +586,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                 return false;
             }
 
-            if (gitObjects.TryDownloadAndSaveObject(gitAttributes.TargetSha, ScalarGitObjects.RequestSource.ScalarVerb) != GitObjects.DownloadAndSaveObjectResult.Success)
+            if (gitObjects.TryDownloadAndSaveObject(gitAttributes.TargetSha) != GitObjects.DownloadAndSaveObjectResult.Success)
             {
                 error = "Could not download " + ScalarConstants.SpecialGitFiles.GitAttributes + " file";
                 return false;

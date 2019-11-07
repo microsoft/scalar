@@ -21,7 +21,6 @@ namespace Scalar.Common
                   flushFileBuffersForPacks: true,
                   authentication: authentication)
         {
-            this.NamedPipeName = ScalarPlatform.Instance.GetNamedPipeName(this.EnlistmentRoot);
             this.DotScalarRoot = Path.Combine(this.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot);
             this.GitStatusCacheFolder = Path.Combine(this.DotScalarRoot, ScalarConstants.DotScalar.GitStatusCache.Name);
             this.GitStatusCachePath = Path.Combine(this.DotScalarRoot, ScalarConstants.DotScalar.GitStatusCache.CachePath);
@@ -38,8 +37,6 @@ namespace Scalar.Common
                   authentication)
         {
         }
-
-        public string NamedPipeName { get; }
 
         public string DotScalarRoot { get; }
 

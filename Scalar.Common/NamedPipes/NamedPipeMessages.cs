@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace Scalar.Common.NamedPipes
 {
@@ -9,9 +8,6 @@ namespace Scalar.Common.NamedPipes
     public static class NamedPipeMessages
     {
         public const string UnknownRequest = "UnknownRequest";
-        public const string UnknownScalarState = "UnknownScalarState";
-        public const string MountNotReadyResult = "MountNotReady";
-
         private const string ResponseSuffix = "Response";
         private const char MessageSeparator = '|';
 
@@ -22,16 +18,6 @@ namespace Scalar.Common.NamedPipes
             Failure
         }
 
-        public static class Unmount
-        {
-            public const string Request = "Unmount";
-            public const string NotMounted = "NotMounted";
-            public const string Acknowledged = "Ack";
-            public const string Completed = "Complete";
-            public const string AlreadyUnmounting = "AlreadyUnmounting";
-            public const string MountFailed = "MountFailed";
-        }
-
         public static class Notification
         {
             public class Request
@@ -40,9 +26,6 @@ namespace Scalar.Common.NamedPipes
 
                 public enum Identifier
                 {
-                    AutomountStart,
-                    MountSuccess,
-                    MountFailure,
                     UpgradeAvailable
                 }
 
@@ -51,10 +34,6 @@ namespace Scalar.Common.NamedPipes
                 public string Title { get; set; }
 
                 public string Message { get; set; }
-
-                public string Enlistment { get; set; }
-
-                public int EnlistmentCount { get; set; }
 
                 public string NewVersion { get; set; }
 
