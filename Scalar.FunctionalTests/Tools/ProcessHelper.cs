@@ -1,5 +1,8 @@
+using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Scalar.FunctionalTests.Tools
 {
@@ -50,6 +53,45 @@ namespace Scalar.FunctionalTests.Tools
                 }
 
                 return new ProcessResult(output.ToString(), errors.ToString(), executingProcess.ExitCode);
+            }
+        }
+
+        public static string GetProgramLocation(string processName)
+        {
+            ProcessResult result = ProcessHelper.Run(GetProgramLocator(), processName);
+            if (result.ExitCode != 0)
+            {
+                return null;
+            }
+
+            string firstPath =
+                string.IsNullOrWhiteSpace(result.Output)
+                ? null
+                : result.Output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+            if (firstPath == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return Path.GetDirectoryName(firstPath);
+            }
+            catch (IOException)
+            {
+                return null;
+            }
+        }
+
+        private static string GetProgramLocator()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return "where";
+            }
+            else
+            {
+                return "which";
             }
         }
 
