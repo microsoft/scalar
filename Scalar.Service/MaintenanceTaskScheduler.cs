@@ -155,14 +155,12 @@ namespace Scalar.Service
                     EventMetadata metadata = new EventMetadata();
                     metadata.Add(nameof(registeredUser.UserId), registeredUser.UserId);
                     metadata.Add(nameof(registeredUser.SessionId), registeredUser.SessionId);
-                    metadata.Add(nameof(this.task), this.task);
+                    metadata.Add(nameof(this.task), this.task.ToString());
                     metadata.Add(TracingConstants.MessageKey.InfoMessage, "Executing maintenance task");
-                    this.tracer.RelatedEvent(
-                        EventLevel.Informational,
-                        $"{nameof(MaintenanceTaskScheduler)}.{nameof(this.Execute)}",
-                        metadata);
-
-                    this.RunMaintenanceTaskForRepos(registeredUser);
+                    using (ITracer activity = this.tracer.StartActivity($"{nameof(MaintenanceTask)}.{nameof(this.Execute)}", EventLevel.Informational, metadata))
+                    {
+                        this.RunMaintenanceTaskForRepos(registeredUser);
+                    }
                 }
                 else
                 {
