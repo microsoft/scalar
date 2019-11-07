@@ -3,7 +3,7 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
-using Scalar.Common.NamedPipes;
+using Scalar.Common.RepoRegistry;
 using Scalar.Common.Tracing;
 using System;
 using System.Diagnostics;
@@ -280,8 +280,11 @@ namespace Scalar.CommandLine
                 this.ConfigureWatchmanIntegration();
 
                 cloneResult = this.CheckoutRepo();
+            }
 
-                this.RegisterWithService();
+            if (cloneResult.Success)
+            {
+                cloneResult = this.TryRegisterRepo();
             }
 
             return cloneResult;
@@ -575,80 +578,37 @@ namespace Scalar.CommandLine
             return new Result(true);
         }
 
-        private void RegisterWithService()
+        private Result TryRegisterRepo()
         {
-            if (!this.Unattended)
+            if (this.Unattended)
             {
-                this.tracer.RelatedInfo($"{nameof(this.Execute)}: Registering with service");
-
-                string errorMessage = string.Empty;
-                if (this.ShowStatusWhileRunning(
-                    () => { return this.RegisterRepoWithService(out errorMessage); },
-                    "Registering with service"))
-                {
-                    this.tracer.RelatedInfo($"{nameof(this.Execute)}: Registered with service");
-                }
-                else
-                {
-                    this.Output.WriteLine("    WARNING: " + errorMessage);
-                    this.tracer.RelatedInfo($"{nameof(this.Execute)}: Failed to register with service");
-                }
+                this.tracer.RelatedInfo($"{nameof(this.Execute)}: Skipping repo registration (running Unattended)");
+                return new Result(true);
             }
+
+            string errorMessage = string.Empty;
+            if (this.ShowStatusWhileRunning(
+                () => { return this.TryRegisterRepo(out errorMessage); },
+                "Registering repo"))
+            {
+                this.tracer.RelatedInfo($"{nameof(this.Execute)}: Registration succeeded");
+                return new Result(true);
+            }
+
+            this.tracer.RelatedError($"{nameof(this.Execute)}: Failed to register repo: {errorMessage}");
+            return new Result($"Failed to register repo: {errorMessage}");
         }
 
-        private bool RegisterRepoWithService(out string errorMessage)
+        private bool TryRegisterRepo(out string errorMessage)
         {
-            errorMessage = string.Empty;
+            string repoRegistryLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
+            ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
+                this.tracer,
+                this.fileSystem,
+                repoRegistryLocation);
 
-            NamedPipeMessages.RegisterRepoRequest request = new NamedPipeMessages.RegisterRepoRequest();
-            request.EnlistmentRoot = this.enlistment.EnlistmentRoot;
-
-            request.OwnerSID = ScalarPlatform.Instance.GetCurrentUser();
-
-            using (NamedPipeClient client = new NamedPipeClient(this.ServicePipeName))
-            {
-                if (!client.Connect())
-                {
-                    errorMessage = "Unable to register repo because Scalar.Service is not responding.";
-                    return false;
-                }
-
-                try
-                {
-                    client.SendRequest(request.ToMessage());
-                    NamedPipeMessages.Message response = client.ReadResponse();
-                    if (response.Header == NamedPipeMessages.RegisterRepoRequest.Response.Header)
-                    {
-                        NamedPipeMessages.RegisterRepoRequest.Response message = NamedPipeMessages.RegisterRepoRequest.Response.FromMessage(response);
-
-                        if (!string.IsNullOrEmpty(message.ErrorMessage))
-                        {
-                            errorMessage = message.ErrorMessage;
-                            return false;
-                        }
-
-                        if (message.State != NamedPipeMessages.CompletionState.Success)
-                        {
-                            errorMessage = "Unable to register repo. " + errorMessage;
-                            return false;
-                        }
-                        else
-                        {
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        errorMessage = string.Format("Scalar.Service responded with unexpected message: {0}", response);
-                        return false;
-                    }
-                }
-                catch (BrokenPipeException e)
-                {
-                    errorMessage = "Unable to communicate with Scalar.Service: " + e.ToString();
-                    return false;
-                }
-            }
+            this.tracer.RelatedInfo($"{nameof(this.Execute)}: Registering repo '{this.enlistment.EnlistmentRoot}'");
+            return repoRegistry.TryRegisterRepo(this.enlistment.EnlistmentRoot, ScalarPlatform.Instance.GetCurrentUser(), out errorMessage);
         }
 
         private Result TryInitRepo()

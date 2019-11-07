@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Tracing;
@@ -38,6 +39,32 @@ namespace Scalar.UnitTests.Mock.FileSystem
         /// is to throw. This flag allows consumers to control this behavior.
         /// </summary>
         public bool DeleteNonExistentFileThrowsException { get; set; }
+
+        /// <summary>
+        /// Returns the root of the mock filesystem
+        /// </summary>
+        /// <remarks>
+        /// The paths returned are highly unlikely to be used on a real machine,
+        /// making it easier to catch product code that is (incorrectly)
+        /// interacting directly with the file system via System.IO or PInvoke.
+        /// </remarks>
+        public static string GetMockRoot()
+        {
+            switch (Path.DirectorySeparatorChar)
+            {
+                case '/':
+                    return "/scalar_ut";
+
+                case '\\':
+                    // Use a single letter (rather than something like "mock:") so
+                    // that helper methods like Path.GetPathRoot work correctly
+                    return "B:"; // Second floppy drive
+
+                default:
+                    Assert.Fail($"Unknown DirectorySeparatorChar '{Path.DirectorySeparatorChar}'");
+                    return null;
+            }
+        }
 
         public override void DeleteDirectory(string path, bool recursive = true)
         {
@@ -280,6 +307,51 @@ namespace Scalar.UnitTests.Mock.FileSystem
                 foreach (MockDirectory subDirectory in directory.Directories.Values)
                 {
                     yield return subDirectory.FullName;
+                }
+            }
+        }
+
+        public override IEnumerable<string> EnumerateFiles(string path, string searchPattern)
+        {
+            string searchSuffix = null;
+            bool matchAll = string.IsNullOrEmpty(searchPattern) || searchPattern == "*";
+
+            if (!matchAll)
+            {
+                // Only support matching "*<pattern>"
+                if (!searchPattern.StartsWith("*", StringComparison.Ordinal))
+                {
+                    throw new NotImplementedException("Unsupported search pattern");
+                }
+
+                if (searchPattern.IndexOf('*', startIndex: 1) != -1)
+                {
+                    throw new NotImplementedException("Unsupported search pattern");
+                }
+
+                if (searchPattern.Contains("?"))
+                {
+                    throw new NotImplementedException("Unsupported search pattern");
+                }
+
+                searchSuffix = searchPattern.Substring(1);
+            }
+
+            MockDirectory directory = this.RootDirectory.FindDirectory(path);
+            directory.ShouldNotBeNull();
+
+            if (directory != null)
+            {
+                foreach (MockFile file in directory.Files.Values)
+                {
+                    if (matchAll)
+                    {
+                        yield return file.FullName;
+                    }
+                    else if (file.Name.EndsWith(searchSuffix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        yield return file.FullName;
+                    }
                 }
             }
         }

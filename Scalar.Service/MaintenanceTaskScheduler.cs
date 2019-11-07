@@ -1,8 +1,12 @@
 ﻿using Scalar.Common;
+using Scalar.Common.FileSystem;
 using Scalar.Common.Maintenance;
+using Scalar.Common.RepoRegistry;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace Scalar.Service
@@ -21,15 +25,25 @@ namespace Scalar.Service
         private readonly TimeSpan fetchCommitsAndTreesPeriod = TimeSpan.FromMinutes(15);
 
         private readonly ITracer tracer;
+        private readonly PhysicalFileSystem fileSystem;
+        private readonly IScalarVerbRunner scalarVerb;
+        private readonly IScalarRepoRegistry repoRegistry;
         private ServiceTaskQueue taskQueue;
         private List<Timer> taskTimers;
 
-        public MaintenanceTaskScheduler(ITracer tracer, IRepoRegistry repoRegistry)
+        public MaintenanceTaskScheduler(
+            ITracer tracer,
+            PhysicalFileSystem fileSystem,
+            IScalarVerbRunner scalarVerb,
+            IScalarRepoRegistry repoRegistry)
         {
             this.tracer = tracer;
+            this.fileSystem = fileSystem;
+            this.scalarVerb = scalarVerb;
+            this.repoRegistry = repoRegistry;
             this.taskTimers = new List<Timer>();
             this.taskQueue = new ServiceTaskQueue(this.tracer);
-            this.ScheduleRecurringTasks(repoRegistry);
+            this.ScheduleRecurringTasks();
         }
 
         public UserAndSession RegisteredUser { get; private set; }
@@ -64,7 +78,7 @@ namespace Scalar.Service
             this.taskTimers = null;
         }
 
-        private void ScheduleRecurringTasks(IRepoRegistry repoRegistry)
+        private void ScheduleRecurringTasks()
         {
             if (ScalarEnlistment.IsUnattended(this.tracer))
             {
@@ -98,12 +112,153 @@ namespace Scalar.Service
                 (state) => this.taskQueue.TryEnqueue(
                     new MaintenanceTask(
                         this.tracer,
-                        repoRegistry,
+                        this.fileSystem,
+                        this.scalarVerb,
+                        this.repoRegistry,
                         this,
                         schedule.Task)),
                 state: null,
                 dueTime: schedule.DueTime,
                 period: schedule.Period));
+            }
+        }
+
+        internal class MaintenanceTask : IServiceTask
+        {
+            private readonly ITracer tracer;
+            private readonly PhysicalFileSystem fileSystem;
+            private readonly IScalarVerbRunner scalarVerb;
+            private readonly IScalarRepoRegistry repoRegistry;
+            private readonly IRegisteredUserStore registeredUserStore;
+            private readonly MaintenanceTasks.Task task;
+
+            public MaintenanceTask(
+                ITracer tracer,
+                PhysicalFileSystem fileSystem,
+                IScalarVerbRunner scalarVerb,
+                IScalarRepoRegistry repoRegistry,
+                IRegisteredUserStore registeredUserStore,
+                MaintenanceTasks.Task task)
+            {
+                this.tracer = tracer;
+                this.fileSystem = fileSystem;
+                this.scalarVerb = scalarVerb;
+                this.repoRegistry = repoRegistry;
+                this.registeredUserStore = registeredUserStore;
+                this.task = task;
+            }
+
+            public void Execute()
+            {
+                UserAndSession registeredUser = this.registeredUserStore.RegisteredUser;
+                if (registeredUser != null)
+                {
+                    EventMetadata metadata = new EventMetadata();
+                    metadata.Add(nameof(registeredUser.UserId), registeredUser.UserId);
+                    metadata.Add(nameof(registeredUser.SessionId), registeredUser.SessionId);
+                    metadata.Add(nameof(this.task), this.task.ToString());
+                    metadata.Add(TracingConstants.MessageKey.InfoMessage, "Executing maintenance task");
+                    using (ITracer activity = this.tracer.StartActivity($"{nameof(MaintenanceTask)}.{nameof(this.Execute)}", EventLevel.Informational, metadata))
+                    {
+                        this.RunMaintenanceTaskForRepos(registeredUser);
+                    }
+                }
+                else
+                {
+                    this.tracer.RelatedInfo($"{nameof(MaintenanceTask)}: Skipping '{this.task}', no registered user");
+                }
+            }
+
+            public void Stop()
+            {
+                // TODO: #185 - Kill the currently running maintenance verb
+            }
+
+            private void RunMaintenanceTaskForRepos(UserAndSession registeredUser)
+            {
+                EventMetadata metadata = new EventMetadata();
+                metadata.Add(nameof(this.task), MaintenanceTasks.GetVerbTaskName(this.task));
+                metadata.Add(nameof(registeredUser.UserId), registeredUser.UserId);
+                metadata.Add(nameof(registeredUser.SessionId), registeredUser.SessionId);
+
+                int reposSkipped = 0;
+                int reposSuccessfullyRemoved = 0;
+                int repoRemovalFailures = 0;
+                int reposMaintained = 0;
+                int reposInRegistryForUser = 0;
+
+                string rootPath;
+                string errorMessage;
+
+                IEnumerable<ScalarRepoRegistration> reposForUser = this.repoRegistry.GetRegisteredRepos().Where(
+                    x => x.UserId.Equals(registeredUser.UserId, StringComparison.InvariantCultureIgnoreCase));
+
+                foreach (ScalarRepoRegistration repoRegistration in reposForUser)
+                {
+                    ++reposInRegistryForUser;
+                    rootPath = Path.GetPathRoot(repoRegistration.NormalizedRepoRoot);
+
+                    metadata[nameof(repoRegistration.NormalizedRepoRoot)] = repoRegistration.NormalizedRepoRoot;
+                    metadata[nameof(rootPath)] = rootPath;
+                    metadata.Remove(nameof(errorMessage));
+
+                    if (!string.IsNullOrWhiteSpace(rootPath) && !this.fileSystem.DirectoryExists(rootPath))
+                    {
+                        ++reposSkipped;
+
+                        // If the volume does not exist we'll assume the drive was removed or is encrypted,
+                        // and we'll leave the repo in the registry (but we won't run maintenance on it).
+                        this.tracer.RelatedEvent(
+                            EventLevel.Informational,
+                            $"{nameof(this.RunMaintenanceTaskForRepos)}_SkippedRepoWithMissingVolume",
+                            metadata);
+
+                        continue;
+                    }
+
+                    if (!this.fileSystem.DirectoryExists(repoRegistration.NormalizedRepoRoot))
+                    {
+                        // The repo is no longer on disk (but its volume is present)
+                        // Unregister the repo
+                        if (this.repoRegistry.TryUnregisterRepo(repoRegistration.NormalizedRepoRoot, out errorMessage))
+                        {
+                            ++reposSuccessfullyRemoved;
+                            this.tracer.RelatedEvent(
+                                EventLevel.Informational,
+                                $"{nameof(this.RunMaintenanceTaskForRepos)}_RemovedMissingRepo",
+                                metadata);
+                        }
+                        else
+                        {
+                            ++repoRemovalFailures;
+                            metadata[nameof(errorMessage)] = errorMessage;
+                            this.tracer.RelatedEvent(
+                                EventLevel.Warning,
+                                $"{nameof(this.RunMaintenanceTaskForRepos)}_FailedToRemoveRepo",
+                                metadata);
+                        }
+
+                        continue;
+                    }
+
+                    ++reposMaintained;
+                    this.tracer.RelatedEvent(
+                                EventLevel.Informational,
+                                $"{nameof(this.RunMaintenanceTaskForRepos)}_CallingMaintenance",
+                                metadata);
+
+                    this.scalarVerb.CallMaintenance(this.task, repoRegistration.NormalizedRepoRoot, registeredUser.SessionId);
+                }
+
+                metadata.Add(nameof(reposInRegistryForUser), reposInRegistryForUser);
+                metadata.Add(nameof(reposSkipped), reposSkipped);
+                metadata.Add(nameof(reposSuccessfullyRemoved), reposSuccessfullyRemoved);
+                metadata.Add(nameof(repoRemovalFailures), repoRemovalFailures);
+                metadata.Add(nameof(reposMaintained), reposMaintained);
+                this.tracer.RelatedEvent(
+                    EventLevel.Informational,
+                    $"{nameof(this.RunMaintenanceTaskForRepos)}_MaintenanceSummary",
+                    metadata);
             }
         }
 
@@ -119,57 +274,6 @@ namespace Scalar.Service
             public MaintenanceTasks.Task Task { get; }
             public TimeSpan DueTime { get; }
             public TimeSpan Period { get; }
-        }
-
-        private class MaintenanceTask : IServiceTask
-        {
-            private readonly MaintenanceTasks.Task task;
-            private readonly IRepoRegistry repoRegistry;
-            private readonly ITracer tracer;
-            private readonly IRegisteredUserStore registeredUserStore;
-
-            public MaintenanceTask(
-                ITracer tracer,
-                IRepoRegistry repoRegistry,
-                IRegisteredUserStore registeredUserStore,
-                MaintenanceTasks.Task task)
-            {
-                this.tracer = tracer;
-                this.repoRegistry = repoRegistry;
-                this.registeredUserStore = registeredUserStore;
-                this.task = task;
-            }
-
-            public void Execute()
-            {
-                UserAndSession registeredUser = this.registeredUserStore.RegisteredUser;
-                if (registeredUser != null)
-                {
-                    EventMetadata metadata = new EventMetadata();
-                    metadata.Add(nameof(registeredUser.UserId), registeredUser.UserId);
-                    metadata.Add(nameof(registeredUser.SessionId), registeredUser.SessionId);
-                    metadata.Add(nameof(this.task), this.task);
-                    metadata.Add(TracingConstants.MessageKey.InfoMessage, "Executing maintenance task");
-                    this.tracer.RelatedEvent(
-                        EventLevel.Informational,
-                        $"{nameof(MaintenanceTaskScheduler)}.{nameof(this.Execute)}",
-                        metadata);
-
-                    this.repoRegistry.RunMaintenanceTaskForRepos(
-                        this.task,
-                        registeredUser.UserId,
-                        registeredUser.SessionId);
-                }
-                else
-                {
-                    this.tracer.RelatedInfo($"{nameof(MaintenanceTask)}: Skipping '{this.task}', no registered user");
-                }
-            }
-
-            public void Stop()
-            {
-                // TODO: #185 - Kill the currently running maintenance verb
-            }
         }
     }
 }

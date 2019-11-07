@@ -90,6 +90,36 @@ namespace Scalar.Tests.Should
 
         public static IEnumerable<T> ShouldMatchInOrder<T>(this IEnumerable<T> group, IEnumerable<T> expectedValues, Func<T, T, bool> equals, string message = "")
         {
+            return group.ShouldMatch(expectedValues, equals, shouldMatchInOrder: true, message: message);
+        }
+
+        public static IEnumerable<T> ShouldMatchInOrder<T>(this IEnumerable<T> group, params T[] expectedValues)
+        {
+            return group.ShouldMatchInOrder((IEnumerable<T>)expectedValues);
+        }
+
+        public static IEnumerable<T> ShouldMatchInOrder<T>(this IEnumerable<T> group, IEnumerable<T> expectedValues)
+        {
+            return group.ShouldMatchInOrder(expectedValues, (t1, t2) => t1.Equals(t2));
+        }
+
+        public static IEnumerable<T> ShouldMatch<T>(this IEnumerable<T> group, IEnumerable<T> expectedValues, Func<T, T, bool> equals, string message = "")
+        {
+            return group.ShouldMatch(expectedValues, equals, shouldMatchInOrder: false, message: message);
+        }
+
+        public static IEnumerable<T> ShouldMatch<T>(this IEnumerable<T> group, params T[] expectedValues)
+        {
+            return group.ShouldMatch((IEnumerable<T>)expectedValues);
+        }
+
+        public static IEnumerable<T> ShouldMatch<T>(this IEnumerable<T> group, IEnumerable<T> expectedValues)
+        {
+            return group.ShouldMatch(expectedValues, (t1, t2) => t1.Equals(t2));
+        }
+
+        private static IEnumerable<T> ShouldMatch<T>(this IEnumerable<T> group, IEnumerable<T> expectedValues, Func<T, T, bool> equals, bool shouldMatchInOrder, string message = "")
+        {
             List<T> groupList = new List<T>(group);
             List<T> expectedValuesList = new List<T>(expectedValues);
 
@@ -114,22 +144,23 @@ namespace Scalar.Tests.Should
                 errorMessage.AppendLine(string.Format("Missing: {0}", groupMissingItem));
             }
 
+            if (shouldMatchInOrder)
+            {
+                for (int i = 0; i < groupList.Count; ++i)
+                {
+                    if (!equals(groupList[i], expectedValuesList[i]))
+                    {
+                        errorMessage.AppendLine($"Items ordered differently, found: {groupList[i]} expected: {expectedValuesList[i]}");
+                    }
+                }
+            }
+
             if (errorMessage.Length > 0)
             {
                 Assert.Fail("{0}\r\n{1}", message, errorMessage);
             }
 
             return group;
-        }
-
-        public static IEnumerable<T> ShouldMatchInOrder<T>(this IEnumerable<T> group, params T[] expectedValues)
-        {
-            return group.ShouldMatchInOrder((IEnumerable<T>)expectedValues);
-        }
-
-        public static IEnumerable<T> ShouldMatchInOrder<T>(this IEnumerable<T> group, IEnumerable<T> expectedValues)
-        {
-            return group.ShouldMatchInOrder(expectedValues, (t1, t2) => t1.Equals(t2));
         }
 
         private class Comparer<T> : IEqualityComparer<T>
@@ -148,7 +179,10 @@ namespace Scalar.Tests.Should
 
             public int GetHashCode(T obj)
             {
-                return obj.GetHashCode();
+                // Return a constant to force Equals(...) to be called.
+                // This is required for custom T types that do not implement
+                // GetHashCode
+                return 1;
             }
         }
     }

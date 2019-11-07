@@ -1,5 +1,6 @@
 using Scalar.Common;
 using Scalar.Common.FileSystem;
+using Scalar.Common.RepoRegistry;
 using Scalar.Common.Tracing;
 using Scalar.PlatformLoader;
 using Scalar.Service.Handlers;
@@ -68,12 +69,11 @@ namespace Scalar.Service
                 EventLevel.Informational,
                 Keywords.Any);
 
-            string serviceDataLocation = scalarPlatform.GetDataRootForScalarComponent(serviceName);
-            RepoRegistry repoRegistry = new RepoRegistry(
+            string repoRegistryLocation = scalarPlatform.GetDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
+            ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
                 tracer,
                 new PhysicalFileSystem(),
-                serviceDataLocation,
-                new MacScalarVerbRunner(tracer));
+                repoRegistryLocation);
 
             return new MacScalarService(tracer, serviceName, repoRegistry);
         }

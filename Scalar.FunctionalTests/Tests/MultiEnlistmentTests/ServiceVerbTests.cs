@@ -5,24 +5,11 @@ using Scalar.Tests.Should;
 namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {
     [TestFixture]
-    [NonParallelizable]
     [Category(Categories.ExtraCoverage)]
-    [Category(Categories.MacTODO.NeedsServiceVerb)]
-    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class ServiceVerbTests : TestsWithMultiEnlistment
     {
-        private static readonly string[] EmptyRepoList = new string[] { };
-
         [TestCase]
-        public void ServiceCommandsWithNoRepos()
-        {
-            this.RunServiceCommandAndCheckOutput("--unmount-all", EmptyRepoList);
-            this.RunServiceCommandAndCheckOutput("--mount-all", EmptyRepoList);
-            this.RunServiceCommandAndCheckOutput("--list-mounted", EmptyRepoList);
-        }
-
-        [TestCase]
-        public void ServiceCommandsWithMultipleRepos()
+        public void ServiceListRegistered()
         {
             ScalarFunctionalTestEnlistment enlistment1 = this.CreateNewEnlistment();
             ScalarFunctionalTestEnlistment enlistment2 = this.CreateNewEnlistment();
@@ -39,51 +26,9 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
                 enlistment2.EnlistmentRoot,
                 enlistment2.LocalCacheRoot);
 
-            this.RunServiceCommandAndCheckOutput("--list-mounted", expectedRepoRoots: repoRootList);
-            this.RunServiceCommandAndCheckOutput("--unmount-all", expectedRepoRoots: repoRootList);
-
-            // Check both are unmounted
-            scalarProcess1.IsEnlistmentMounted().ShouldEqual(false);
-            scalarProcess2.IsEnlistmentMounted().ShouldEqual(false);
-
-            this.RunServiceCommandAndCheckOutput("--list-mounted", EmptyRepoList);
-            this.RunServiceCommandAndCheckOutput("--unmount-all", EmptyRepoList);
-            this.RunServiceCommandAndCheckOutput("--mount-all", expectedRepoRoots: repoRootList);
-
-            // Check both are mounted
-            scalarProcess1.IsEnlistmentMounted().ShouldEqual(true);
-            scalarProcess2.IsEnlistmentMounted().ShouldEqual(true);
-
-            this.RunServiceCommandAndCheckOutput("--list-mounted", expectedRepoRoots: repoRootList);
-        }
-
-        [TestCase]
-        public void ServiceCommandsWithMountAndUnmount()
-        {
-            ScalarFunctionalTestEnlistment enlistment1 = this.CreateNewEnlistment();
-
-            string[] repoRootList = new string[] { enlistment1.EnlistmentRoot };
-
-            ScalarProcess scalarProcess1 = new ScalarProcess(
-                ScalarTestConfig.PathToScalar,
-                enlistment1.EnlistmentRoot,
-                enlistment1.LocalCacheRoot);
-
-            this.RunServiceCommandAndCheckOutput("--list-mounted", expectedRepoRoots: repoRootList);
-
-            scalarProcess1.Unmount();
-
-            this.RunServiceCommandAndCheckOutput("--list-mounted", EmptyRepoList, unexpectedRepoRoots: repoRootList);
-            this.RunServiceCommandAndCheckOutput("--unmount-all", EmptyRepoList, unexpectedRepoRoots: repoRootList);
-            this.RunServiceCommandAndCheckOutput("--mount-all", EmptyRepoList, unexpectedRepoRoots: repoRootList);
-
-            // Check that it is still unmounted
-            scalarProcess1.IsEnlistmentMounted().ShouldEqual(false);
-
-            scalarProcess1.Mount();
-
-            this.RunServiceCommandAndCheckOutput("--unmount-all", expectedRepoRoots: repoRootList);
-            this.RunServiceCommandAndCheckOutput("--mount-all", expectedRepoRoots: repoRootList);
+            // Do not check for unexpected repos, as other repos on the machine may be registered while
+            // this test is running
+            this.RunServiceCommandAndCheckOutput("--list-registered", expectedRepoRoots: repoRootList);
         }
 
         private void RunServiceCommandAndCheckOutput(string argument, string[] expectedRepoRoots, string[] unexpectedRepoRoots = null)

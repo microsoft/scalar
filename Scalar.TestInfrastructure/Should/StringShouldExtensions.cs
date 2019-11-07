@@ -64,5 +64,11 @@ namespace Scalar.Tests.Should
             Assert.Fail("No expected substrings found in '{0}'", actualValue);
             return actualValue;
         }
+
+        public static string ShouldNotBeNullOrEmpty(this string value)
+        {
+            Assert.IsFalse(string.IsNullOrEmpty(value));
+            return value;
+        }
     }
 }

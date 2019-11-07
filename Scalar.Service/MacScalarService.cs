@@ -1,5 +1,7 @@
 using Scalar.Common;
+using Scalar.Common.FileSystem;
 using Scalar.Common.NamedPipes;
+using Scalar.Common.RepoRegistry;
 using Scalar.Common.Tracing;
 using Scalar.Service.Handlers;
 using System;
@@ -17,14 +19,14 @@ namespace Scalar.Service
         private Thread serviceThread;
         private ManualResetEvent serviceStopped;
         private string serviceName;
-        private IRepoRegistry repoRegistry;
+        private IScalarRepoRegistry repoRegistry;
         private RequestHandler requestHandler;
         private MaintenanceTaskScheduler maintenanceTaskScheduler;
 
         public MacScalarService(
             ITracer tracer,
             string serviceName,
-            IRepoRegistry repoRegistry)
+            IScalarRepoRegistry repoRegistry)
         {
             this.tracer = tracer;
             this.repoRegistry = repoRegistry;
@@ -32,7 +34,7 @@ namespace Scalar.Service
 
             this.serviceStopped = new ManualResetEvent(false);
             this.serviceThread = new Thread(this.ServiceThreadMain);
-            this.requestHandler = new RequestHandler(this.tracer, EtwArea, this.repoRegistry);
+            this.requestHandler = new RequestHandler(this.tracer, EtwArea);
         }
 
         public void Run()
@@ -91,7 +93,11 @@ namespace Scalar.Service
                 {
                     try
                     {
-                        this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.tracer, this.repoRegistry);
+                        this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(
+                            this.tracer,
+                            new PhysicalFileSystem(),
+                            new MacScalarVerbRunner(this.tracer),
+                            this.repoRegistry);
 
                         // On Mac, there is no separate session Id. currentUser is used as sessionId
                         this.maintenanceTaskScheduler.RegisterUser(new UserAndSession(currentUser, sessionId));
