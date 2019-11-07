@@ -306,7 +306,7 @@ namespace Scalar.UnitTests.Mock.FileSystem
             {
                 foreach (MockDirectory subDirectory in directory.Directories.Values)
                 {
-                    yield return subDirectory.Name;
+                    yield return subDirectory.FullName;
                 }
             }
         }

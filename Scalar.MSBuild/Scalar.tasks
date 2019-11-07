@@ -1,0 +1,31 @@
+<Project>
+  <PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Mono'">
+    <_TaskAssembly>$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll</_TaskAssembly>
+    <_TaskFactory>CodeTaskFactory</_TaskFactory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildRuntimeType)' != 'Mono'">
+    <_TaskAssembly>$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll</_TaskAssembly>
+    <_TaskFactory>RoslynCodeTaskFactory</_TaskFactory>
+  </PropertyGroup>
+
+  <UsingTask TaskName="GenerateWindowsAppManifest" TaskFactory="$(_TaskFactory)" AssemblyFile="$(_TaskAssembly)">
+    <Task>
+      <Code Type="Class" Source="$(MSBuildThisFileDirectory)GenerateWindowsAppManifest.cs" />
+    </Task>
+  </UsingTask>
+  <UsingTask TaskName="GetGitInstallerVersion" TaskFactory="$(_TaskFactory)" AssemblyFile="$(_TaskAssembly)">
+    <Task>
+      <Code Type="Class" Source="$(MSBuildThisFileDirectory)GetGitInstallerVersion.cs" />
+    </Task>
+  </UsingTask>
+  <UsingTask TaskName="GenerateScalarConstants" TaskFactory="$(_TaskFactory)" AssemblyFile="$(_TaskAssembly)">
+    <Task>
+      <Code Type="Class" Source="$(MSBuildThisFileDirectory)GenerateScalarConstants.cs" />
+    </Task>
+  </UsingTask>
+  <UsingTask TaskName="CompileTemplatedFile" TaskFactory="$(_TaskFactory)" AssemblyFile="$(_TaskAssembly)">
+    <Task>
+      <Code Type="Class" Source="$(MSBuildThisFileDirectory)CompileTemplatedFile.cs" />
+    </Task>
+  </UsingTask>
+</Project>

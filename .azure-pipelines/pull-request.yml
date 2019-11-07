@@ -23,7 +23,7 @@ jobs:
         release:
           configuration: Release
     pool:
-      vmImage: vs2017-win2016
+      vmImage: windows-2019
     steps:
     - powershell: $(Build.Repository.LocalPath)/Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
       displayName: "Compute product version"
@@ -58,6 +58,23 @@ jobs:
     steps:
       - checkout: none # Use the drop from macOS_Build_and_UnitTests job
       - template: templates/macos-functional-test.yml
+        parameters:
+          useWatchman: false
+
+  - job: macOS_FunctionalTests_watchman
+    variables:
+      platformFriendlyName: macOS
+      configuration: Release
+    timeoutInMinutes: 30
+    pool:
+      name: 'Hosted macOS'
+    dependsOn: macOS_Build_and_UnitTests
+    condition: succeeded()
+    steps:
+      - checkout: none # Use the drop from macOS_Build_and_UnitTests job
+      - template: templates/macos-functional-test.yml
+        parameters:
+          useWatchman: true
 
   - job: Windows_FunctionalTests
     timeoutInMinutes: 30
@@ -65,7 +82,7 @@ jobs:
       platformFriendlyName: Windows
       configuration: Release
     pool:
-      vmImage: vs2017-win2016
+      vmImage: windows-2019
     dependsOn: Windows_Build_and_UnitTests
     condition: succeeded()
     steps:
