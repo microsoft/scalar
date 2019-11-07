@@ -246,14 +246,6 @@ namespace Scalar.UnitTests.Common.RepoRegistry
         private void RegistryShouldContainRegistrations(ScalarRepoRegistry registry, IEnumerable<ScalarRepoRegistration> registrations)
         {
             registry.GetRegisteredRepos().ShouldMatch(registrations, RepoRegistrationsEqual);
-
-            IEnumerable<string> registeredUsers = registrations.Select(r => r.UserId).Distinct();
-            foreach (string user in registeredUsers)
-            {
-                registry.GetRegisteredReposForUser(user).ShouldMatch(
-                    registrations.Where(x => x.UserId.Equals(user)),
-                    RepoRegistrationsEqual);
-            }
         }
     }
 }

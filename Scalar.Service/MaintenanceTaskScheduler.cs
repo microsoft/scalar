@@ -6,6 +6,7 @@ using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace Scalar.Service
@@ -184,7 +185,10 @@ namespace Scalar.Service
                 string rootPath;
                 string errorMessage;
 
-                foreach (ScalarRepoRegistration repoRegistration in this.repoRegistry.GetRegisteredReposForUser(registeredUser.UserId))
+                IEnumerable<ScalarRepoRegistration> reposForUser = this.repoRegistry.GetRegisteredRepos().Where(
+                    x => x.UserId.Equals(registeredUser.UserId, StringComparison.InvariantCultureIgnoreCase));
+
+                foreach (ScalarRepoRegistration repoRegistration in reposForUser)
                 {
                     ++reposForUserCount;
 
