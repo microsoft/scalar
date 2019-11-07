@@ -23,7 +23,7 @@ jobs:
         release:
           configuration: Release
     pool:
-      vmImage: vs2017-win2016
+      vmImage: windows-2019
     steps:
     - powershell: $(Build.Repository.LocalPath)/Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
       displayName: "Compute product version"
@@ -82,7 +82,7 @@ jobs:
       platformFriendlyName: Windows
       configuration: Release
     pool:
-      vmImage: vs2017-win2016
+      vmImage: windows-2019
     dependsOn: Windows_Build_and_UnitTests
     condition: succeeded()
     steps:

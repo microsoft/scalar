@@ -1,5 +1,9 @@
 steps:
 
+  - task: NuGetToolInstaller@0
+    inputs:
+      versionSpec: '>=5.1'
+
   - task: UseDotNet@2
     displayName: Use .NET Core SDK 3.0.100
     inputs:

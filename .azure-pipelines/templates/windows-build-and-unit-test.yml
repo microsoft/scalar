@@ -1,5 +1,9 @@
 steps:
 
+  - task: NuGetToolInstaller@0
+    inputs:
+      versionSpec: '>=5.1'
+
   - task: UseDotNet@2
     displayName: Use .NET Core SDK 3.0.100
     inputs:
@@ -9,11 +13,6 @@ steps:
   - script: $(Build.Repository.LocalPath)\\Scripts\\NukeBuildOutputs.bat
     displayName: Delete previous build outputs
     continueOnError: true
-
-  - powershell: |
-      & 'C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\sn.exe' -Vr *,31bf3856ad364e35
-      & 'C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\x64\sn.exe' -Vr *,31bf3856ad364e35
-    displayName: Disable strong name validation for MS delay-signed assemblies
 
   - script: $(Build.Repository.LocalPath)\Scripts\BuildScalarForWindows.bat $(configuration) $(majorAndMinorVersion).$(revision)
     displayName: Build Scalar ($(configuration))
