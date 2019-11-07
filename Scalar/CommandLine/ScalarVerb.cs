@@ -809,10 +809,7 @@ You can specify a URL, a name of a configured cache server, or the special names
 
             protected void InitializeLocalCacheAndObjectsPaths(
                 ITracer tracer,
-                ScalarEnlistment enlistment,
-                RetryConfig retryConfig,
-                ServerScalarConfig serverScalarConfig,
-                CacheServerInfo cacheServer)
+                ScalarEnlistment enlistment)
             {
                 string error;
                 if (!RepoMetadata.TryInitialize(tracer, Path.Combine(enlistment.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot), out error))
