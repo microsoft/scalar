@@ -31,14 +31,13 @@ namespace Scalar.UnitTests.Service.Mac
         {
             MaintenanceTasks.Task task = MaintenanceTasks.Task.FetchCommitsAndTrees;
             string taskVerbName = MaintenanceTasks.GetVerbTaskName(task);
-            string executable = @"/bin/launchctl";
             string scalarBinPath = Path.Combine(this.scalarPlatform.Constants.ScalarBinDirectoryPath, this.scalarPlatform.Constants.ScalarExecutableName);
             string expectedArgs =
-                $"asuser {ExpectedActiveUserId} {scalarBinPath} maintenance \"{ExpectedActiveRepoPath}\" --{ScalarConstants.VerbParameters.Maintenance.Task} {taskVerbName} --{ScalarConstants.VerbParameters.InternalUseOnly} {new InternalVerbParameters(startedByService: true).ToJson()}";
+                $"maintenance \"{ExpectedActiveRepoPath}\" --{ScalarConstants.VerbParameters.Maintenance.Task} {taskVerbName} --{ScalarConstants.VerbParameters.InternalUseOnly} {new InternalVerbParameters(startedByService: true).ToJson()}";
 
             Mock<MacScalarVerbRunner.ScalarProcessLauncher> mountLauncherMock = new Mock<MacScalarVerbRunner.ScalarProcessLauncher>(MockBehavior.Strict, this.tracer);
             mountLauncherMock.Setup(mp => mp.LaunchProcess(
-                executable,
+                scalarBinPath,
                 expectedArgs,
                 ExpectedActiveRepoPath))
                 .Returns(new ProcessResult(output: string.Empty, errors: string.Empty, exitCode: 0));
