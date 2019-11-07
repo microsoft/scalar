@@ -78,7 +78,6 @@ namespace Scalar.UnitTests.Mock.Upgrader
             bool isRunning = this.FakedResultOfCheck(FailOnCheckType.BlockingProcessesRunning);
             if (isRunning)
             {
-                processes.Add("Scalar.Mount");
                 processes.Add("git");
             }
 

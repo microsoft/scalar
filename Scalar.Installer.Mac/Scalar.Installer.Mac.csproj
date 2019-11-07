@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Scalar\Scalar.csproj" />
-    <ProjectReference Include="..\Scalar.Mount\Scalar.Mount.csproj" />
     <ProjectReference Include="..\Scalar.Service\Scalar.Service.csproj" />
     <ProjectReference Include="..\Scalar.Upgrader\Scalar.Upgrader.csproj" />
     <ProjectReference Include="..\Scalar.Notifications.Mac\Scalar.Notifications.Mac.csproj" />

@@ -214,7 +214,7 @@ namespace Scalar.UnitTests.Mock.Common
 
             public override HashSet<string> UpgradeBlockingProcesses
             {
-                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Scalar", "Scalar.Mount", "git", "wish", "bash" }; }
+                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Scalar", "git", "wish", "bash" }; }
             }
 
             public override bool SupportsUpgradeWhileRunning => false;

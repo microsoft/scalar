@@ -61,9 +61,6 @@ function CopyScalar()
     copyCmd="cp -Rf \"${OUT_DIR}/Scalar/${PUBPATH_FRAGMENT}\" \"${SCALAR_DESTINATION}\"" || exit 1
     eval $copyCmd || exit 1
 
-    copyCmd="cp -Rf \"${OUT_DIR}/Scalar.Mount/${PUBPATH_FRAGMENT}\" \"${SCALAR_DESTINATION}\"" || exit 1
-    eval $copyCmd || exit 1
-
     copyCmd="cp -Rf \"${OUT_DIR}/Scalar.Service/${PUBPATH_FRAGMENT}\" \"${SCALAR_DESTINATION}\"" || exit 1
     eval $copyCmd || exit 1
 

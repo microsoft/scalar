@@ -164,11 +164,6 @@ namespace Scalar.Common
             /// </summary>
             public abstract HashSet<string> UpgradeBlockingProcesses { get; }
 
-            public string MountExecutableName
-            {
-                get { return "Scalar.Mount" + this.ExecutableExtension; }
-            }
-
             public string ScalarUpgraderExecutableName
             {
                 get { return "Scalar.Upgrader" + this.ExecutableExtension; }
