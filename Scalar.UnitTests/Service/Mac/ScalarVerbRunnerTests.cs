@@ -4,6 +4,7 @@ using Scalar.Common;
 using Scalar.Common.Maintenance;
 using Scalar.Service;
 using Scalar.UnitTests.Mock.Common;
+using Scalar.UnitTests.Mock.FileSystem;
 using System.IO;
 
 namespace Scalar.UnitTests.Service.Mac
@@ -12,7 +13,7 @@ namespace Scalar.UnitTests.Service.Mac
     public class ScalarVerbRunnerTests
     {
         private const int ExpectedActiveUserId = 502;
-        private static readonly string ExpectedActiveRepoPath = Path.Combine("mock:", "code", "repo2");
+        private static readonly string ExpectedActiveRepoPath = Path.Combine(MockFileSystem.GetMockRoot(), "code", "repo2");
 
         private MockTracer tracer;
         private MockPlatform scalarPlatform;

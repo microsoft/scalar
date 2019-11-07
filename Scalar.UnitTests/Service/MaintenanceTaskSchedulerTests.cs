@@ -94,8 +94,8 @@ namespace Scalar.UnitTests.Service
             this.mockRepoRegistry.Setup(reg => reg.GetRegisteredRepos()).Returns(
                 new List<ScalarRepoRegistration>
                 {
-                    new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetTestRoot(), "Repos", "repoRoot"), "nonMatchingUser"),
-                    new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetTestRoot(), "Repos", "repoRoot2"), "nonMatchingUser2")
+                    new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "repoRoot"), "nonMatchingUser"),
+                    new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "repoRoot2"), "nonMatchingUser2")
                 });
 
             MaintenanceTaskScheduler.MaintenanceTask maintenanceTask = new MaintenanceTaskScheduler.MaintenanceTask(
@@ -111,12 +111,14 @@ namespace Scalar.UnitTests.Service
         }
 
         [TestCase]
-        public void MaintenanceTask_RunMaintenanceTaskForRepos_SkipsRegisteredRepoIfVolumeDoesNotExist()
+        public void MaintenanceTask_Execute_SkipsRegisteredRepoIfVolumeDoesNotExist()
         {
             MaintenanceTasks.Task task = MaintenanceTasks.Task.PackFiles;
 
             UserAndSession testUser = new UserAndSession("testUserId", sessionId: 1);
-            string repoPath = Path.Combine(MockFileSystem.GetTestRoot(), "Repos", "repoRoot");
+            this.mockRegisteredUserStore.SetupGet(mrus => mrus.RegisteredUser).Returns(testUser);
+
+            string repoPath = Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "repoRoot");
             this.mockRepoRegistry.Setup(reg => reg.GetRegisteredRepos()).Returns(
                 new List<ScalarRepoRegistration>
                 {
@@ -133,17 +135,19 @@ namespace Scalar.UnitTests.Service
                 this.mockRegisteredUserStore.Object,
                 task);
 
-            maintenanceTask.RunMaintenanceTaskForRepos(testUser);
+            maintenanceTask.Execute();
             this.mockTracer.RelatedEvents.ShouldContain(entry => entry.Contains("SkippedRepoWithMissingVolume"));
         }
 
         [TestCase]
-        public void MaintenanceTask_RunMaintenanceTaskForRepos_UnregistersRepoIfMissing()
+        public void MaintenanceTask_Execute_UnregistersRepoIfMissing()
         {
             MaintenanceTasks.Task task = MaintenanceTasks.Task.PackFiles;
 
             UserAndSession testUser = new UserAndSession("testUserId", sessionId: 1);
-            string repoPath = Path.Combine(MockFileSystem.GetTestRoot(), "Repos", "repoRoot");
+            this.mockRegisteredUserStore.SetupGet(mrus => mrus.RegisteredUser).Returns(testUser);
+
+            string repoPath = Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "repoRoot");
             this.mockRepoRegistry.Setup(reg => reg.GetRegisteredRepos()).Returns(
                 new List<ScalarRepoRegistration>
                 {
@@ -168,20 +172,22 @@ namespace Scalar.UnitTests.Service
                 this.mockRegisteredUserStore.Object,
                 task);
 
-            maintenanceTask.RunMaintenanceTaskForRepos(testUser);
+            maintenanceTask.Execute();
             this.mockTracer.RelatedEvents.ShouldContain(entry => entry.Contains("RemovedMissingRepo"));
         }
 
         [TestCase]
-        public void MaintenanceTask_RunMaintenanceTaskForRepos_CallsMaintenanceVerbOnlyForRegisteredRepos()
+        public void MaintenanceTask_Execute_CallsMaintenanceVerbOnlyForRegisteredRepos()
         {
             MaintenanceTasks.Task task = MaintenanceTasks.Task.PackFiles;
 
             UserAndSession testUser = new UserAndSession("testUserId", sessionId: 1);
             UserAndSession secondUser = new UserAndSession("testUserId2", sessionId: 1);
-            string repoPath1 = Path.Combine(MockFileSystem.GetTestRoot(), "Repos", "repoRoot");
-            string repoPath2 = Path.Combine(MockFileSystem.GetTestRoot(), "Repos", "repoRoot2");
-            string secondUsersRepoPath = Path.Combine(MockFileSystem.GetTestRoot(), "Repos", "secondUsersRepo");
+            string repoPath1 = Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "repoRoot");
+            string repoPath2 = Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "repoRoot2");
+            string secondUsersRepoPath = Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "secondUsersRepo");
+
+            this.mockRegisteredUserStore.SetupGet(mrus => mrus.RegisteredUser).Returns(testUser);
 
             this.mockRepoRegistry.Setup(reg => reg.GetRegisteredRepos()).Returns(
                 new List<ScalarRepoRegistration>
@@ -207,7 +213,7 @@ namespace Scalar.UnitTests.Service
                 this.mockRegisteredUserStore.Object,
                 task);
 
-            maintenanceTask.RunMaintenanceTaskForRepos(testUser);
+            maintenanceTask.Execute();
         }
     }
 }

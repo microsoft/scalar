@@ -65,7 +65,7 @@ namespace Scalar.Tests.Should
             return actualValue;
         }
 
-        public static string ShouldBeNonEmpty(this string value)
+        public static string ShouldNotBeNullOrEmpty(this string value)
         {
             Assert.IsFalse(string.IsNullOrEmpty(value));
             return value;

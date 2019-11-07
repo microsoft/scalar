@@ -32,6 +32,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyVersion(""{0}"")]
 [assembly: AssemblyFileVersion(""{0}"")]
 [assembly: InternalsVisibleTo(""Scalar.UnitTests"")]
+[assembly: InternalsVisibleTo(""Scalar.UnitTests.Windows"")]
 ",
                 this.Version));
 

@@ -40,15 +40,25 @@ namespace Scalar.UnitTests.Mock.FileSystem
         /// </summary>
         public bool DeleteNonExistentFileThrowsException { get; set; }
 
-        public static string GetTestRoot()
+        /// <summary>
+        /// Returns the root of the mock filesystem
+        /// </summary>
+        /// <remarks>
+        /// The paths returned are highly unlikely to be used on a real machine,
+        /// making it easier to catch product code that is (incorrectly)
+        /// interacting directly with the file system via System.IO or PInvoke.
+        /// </remarks>
+        public static string GetMockRoot()
         {
             switch (Path.DirectorySeparatorChar)
             {
                 case '/':
-                    return "/mock";
+                    return "/vfs4g_ut";
 
                 case '\\':
-                    return "B:";
+                    // Use a single letter (rather than something like "mock:") so
+                    // that helper methods like Path.GetPathRoot work correctly
+                    return "B:"; // Second floppy drive
 
                 default:
                     Assert.Fail($"Unknown DirectorySeparatorChar '{Path.DirectorySeparatorChar}'");

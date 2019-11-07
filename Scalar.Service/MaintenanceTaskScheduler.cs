@@ -174,7 +174,7 @@ namespace Scalar.Service
                 // TODO: #185 - Kill the currently running maintenance verb
             }
 
-            public void RunMaintenanceTaskForRepos(UserAndSession registeredUser)
+            private void RunMaintenanceTaskForRepos(UserAndSession registeredUser)
             {
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add(nameof(this.task), MaintenanceTasks.GetVerbTaskName(this.task));

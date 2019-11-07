@@ -34,12 +34,7 @@ namespace Scalar.UnitTests.Mock.Common
 
         public void RelatedEvent(EventLevel error, string eventName, EventMetadata metadata)
         {
-            if (eventName == this.WaitRelatedEventName)
-            {
-                this.waitEvent.Set();
-            }
-
-            this.RelatedEvents.Add($"EventName:'{eventName}', metadata: {JsonConvert.SerializeObject(metadata)}");
+            this.RelatedEvent(error, eventName, metadata, Keywords.None);
         }
 
         public void RelatedEvent(EventLevel error, string eventName, EventMetadata metadata, Keywords keyword)

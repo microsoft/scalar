@@ -16,7 +16,7 @@ namespace Scalar.UnitTests.Common.RepoRegistry
     [TestFixture]
     public class ScalarRepoRegistryTests
     {
-        private readonly string registryFolderPath = Path.Combine("mock:", "root", "UnitTests.RepoRegistry");
+        private readonly string registryFolderPath = Path.Combine(MockFileSystem.GetMockRoot(), "Scalar", "UnitTests.RepoRegistry");
 
         [TestCase]
         public void TryRegisterRepo_CreatesMissingRegistryDirectory()
@@ -29,7 +29,7 @@ namespace Scalar.UnitTests.Common.RepoRegistry
 
             List<ScalarRepoRegistration> registrations = new List<ScalarRepoRegistration>
             {
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos", "Repo1"), "testUser")
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "Repo1"), "testUser")
             };
 
             fileSystem.DirectoryExists(this.registryFolderPath).ShouldBeFalse();
@@ -52,11 +52,11 @@ namespace Scalar.UnitTests.Common.RepoRegistry
                 mockFileSystem.Object,
                 this.registryFolderPath);
 
-            string testRepoRoot = Path.Combine("mock:", "Repos", "Repo1");
+            string testRepoRoot = Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "Repo1");
             string testUserId = "testUser";
 
             registry.TryRegisterRepo(testRepoRoot, testUserId, out string errorMessage).ShouldBeFalse();
-            errorMessage.ShouldBeNonEmpty();
+            errorMessage.ShouldNotBeNullOrEmpty();
 
             mockFileSystem.VerifyAll();
         }
@@ -72,13 +72,13 @@ namespace Scalar.UnitTests.Common.RepoRegistry
 
             List<ScalarRepoRegistration> repoRegistrations = new List<ScalarRepoRegistration>
             {
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos", "Repo1"), "testUser"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos", "Repo2"), "testUser"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "MoreRepos", "Repo1"), "user2"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "MoreRepos", "Repo2"), "user2"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos2", "Repo1"), "testUser"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos3", "Repo1"), "ThirdUser"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos3", "Repo2"), "ThirdUser")
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "Repo1"), "testUser"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "Repo2"), "testUser"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "MoreRepos", "Repo1"), "user2"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "MoreRepos", "Repo2"), "user2"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos2", "Repo1"), "testUser"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos3", "Repo1"), "ThirdUser"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos3", "Repo2"), "ThirdUser")
             };
 
             this.RegisterRepos(registry, repoRegistrations);
@@ -96,17 +96,17 @@ namespace Scalar.UnitTests.Common.RepoRegistry
 
             List<ScalarRepoRegistration> registrationsPart1 = new List<ScalarRepoRegistration>
             {
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos", "Repo1"), "testUser"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "MoreRepos", "Repo1"), "user2"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos2", "Repo1"), "testUser")
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "Repo1"), "testUser"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "MoreRepos", "Repo1"), "user2"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos2", "Repo1"), "testUser")
             };
 
             List<ScalarRepoRegistration> registrationsPart2 = new List<ScalarRepoRegistration>
             {
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos", "Repo2"), "testUser"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "MoreRepos", "Repo2"), "user2"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos3", "Repo1"), "ThirdUser"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos3", "Repo2"), "ThirdUser")
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "Repo2"), "testUser"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "MoreRepos", "Repo2"), "user2"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos3", "Repo1"), "ThirdUser"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos3", "Repo2"), "ThirdUser")
             };
 
             this.RegisterRepos(registry, registrationsPart1.Concat(registrationsPart2));
@@ -136,17 +136,17 @@ namespace Scalar.UnitTests.Common.RepoRegistry
 
             List<ScalarRepoRegistration> registrationsPart1 = new List<ScalarRepoRegistration>
             {
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos", "Repo1"), "testUser"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "MoreRepos", "Repo1"), "user2"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos2", "Repo1"), "testUser")
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "Repo1"), "testUser"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "MoreRepos", "Repo1"), "user2"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos2", "Repo1"), "testUser")
             };
 
             List<ScalarRepoRegistration> registrationsPart2 = new List<ScalarRepoRegistration>
             {
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos", "Repo2"), "testUser"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "MoreRepos", "Repo2"), "user2"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos3", "Repo1"), "ThirdUser"),
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos3", "Repo2"), "ThirdUser")
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "Repo2"), "testUser"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "MoreRepos", "Repo2"), "user2"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos3", "Repo1"), "ThirdUser"),
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos3", "Repo2"), "ThirdUser")
             };
 
             this.RegisterRepos(registry, registrationsPart1.Concat(registrationsPart2));
@@ -164,8 +164,8 @@ namespace Scalar.UnitTests.Common.RepoRegistry
                 fileSystem,
                 this.registryFolderPath);
             fileSystem.DirectoryExists(this.registryFolderPath).ShouldBeFalse();
-            registry.TryUnregisterRepo(Path.Combine("mock:", "Repos", "Repo1"), out string errorMessage).ShouldBeFalse();
-            errorMessage.ShouldBeNonEmpty();
+            registry.TryUnregisterRepo(Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "Repo1"), out string errorMessage).ShouldBeFalse();
+            errorMessage.ShouldNotBeNullOrEmpty();
             fileSystem.DirectoryExists(this.registryFolderPath).ShouldBeFalse();
         }
 
@@ -180,12 +180,12 @@ namespace Scalar.UnitTests.Common.RepoRegistry
 
             List<ScalarRepoRegistration> registrations = new List<ScalarRepoRegistration>
             {
-                new ScalarRepoRegistration(Path.Combine("mock:", "Repos", "Repo1"), "testUser")
+                new ScalarRepoRegistration(Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "Repo1"), "testUser")
             };
 
             this.RegisterRepos(registry, registrations);
-            registry.TryUnregisterRepo(Path.Combine("mock:", "Repos", "Repo2"), out string errorMessage).ShouldBeFalse();
-            errorMessage.ShouldBeNonEmpty();
+            registry.TryUnregisterRepo(Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "Repo2"), out string errorMessage).ShouldBeFalse();
+            errorMessage.ShouldNotBeNullOrEmpty();
             this.RegistryShouldContainRegistrations(registry, registrations);
         }
 
@@ -193,8 +193,8 @@ namespace Scalar.UnitTests.Common.RepoRegistry
         [Category(CategoryConstants.ExceptionExpected)]
         public void TryUnregisterRepo_FailsIfDeleteFails()
         {
-            string repoPath = Path.Combine("mock:", "Repos", "Repo1");
-            string registrationFilePath = Path.Combine("mock:", "root", "UnitTests.RepoRegistry", ScalarRepoRegistry.GetRepoRootSha(repoPath) + ".repo");
+            string repoPath = Path.Combine(MockFileSystem.GetMockRoot(), "Repos", "Repo1");
+            string registrationFilePath = Path.Combine(this.registryFolderPath, ScalarRepoRegistry.GetRepoRootSha(repoPath) + ".repo");
 
             Mock<PhysicalFileSystem> mockFileSystem = new Mock<PhysicalFileSystem>(MockBehavior.Strict);
             mockFileSystem.Setup(fileSystem => fileSystem.FileExists(registrationFilePath)).Returns(true);
@@ -206,7 +206,7 @@ namespace Scalar.UnitTests.Common.RepoRegistry
                 this.registryFolderPath);
 
             registry.TryUnregisterRepo(repoPath, out string errorMessage).ShouldBeFalse();
-            errorMessage.ShouldBeNonEmpty();
+            errorMessage.ShouldNotBeNullOrEmpty();
 
             mockFileSystem.VerifyAll();
         }
@@ -214,8 +214,10 @@ namespace Scalar.UnitTests.Common.RepoRegistry
         [TestCase]
         public void GetRepoRootSha_IsStable()
         {
-            ScalarRepoRegistry.GetRepoRootSha("mock:/Repos/Repo1").ShouldEqual("7fe00a3479e25557a439fc5a2b19a1ec2605fb59");
-            ScalarRepoRegistry.GetRepoRootSha("mock:/folder/repoRoot").ShouldEqual("7e83aa2e7baab0b4bcd39eaeb3c8b189e5167297");
+            // Don't use MockFileSystem.GetMockRoot() as the SHA is tied to the specific string
+            // passed to GetRepoRootSha
+            ScalarRepoRegistry.GetRepoRootSha(@"B:\Repos\Repo1").ShouldEqual("f42a90ef8218f011c5dbcb642bd8eb6c08add452");
+            ScalarRepoRegistry.GetRepoRootSha(@"B:\folder\repoRoot").ShouldEqual("5a3c2a461d342525a532b03479e6cdeb775fa497");
         }
 
         private static bool RepoRegistrationsEqual(ScalarRepoRegistration repo1, ScalarRepoRegistration repo2)
