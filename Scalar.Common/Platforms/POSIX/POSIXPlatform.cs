@@ -259,7 +259,7 @@ namespace Scalar.Platform.POSIX
 
             public override HashSet<string> UpgradeBlockingProcesses
             {
-                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Scalar.Mount", "git", "wish" }; }
+                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "git", "wish" }; }
             }
 
             public override bool SupportsUpgradeWhileRunning => true;

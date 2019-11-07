@@ -18,7 +18,6 @@ ECHO *******************************
 REM Copy most recently build Scalar binaries
 SET copyOptions=/s /njh /njs /nfl /ndl
 robocopy %SCALAR_OUTPUTDIR%\Scalar\%publishFragment% %functionalTestsDir% %copyOptions%
-robocopy %SCALAR_OUTPUTDIR%\Scalar.Mount\%publishFragment% %functionalTestsDir% %copyOptions%
 robocopy %SCALAR_OUTPUTDIR%\Scalar.Service\%publishFragment% %functionalTestsDir% %copyOptions%
 robocopy %SCALAR_OUTPUTDIR%\Scalar.Service.UI\%publishFragment% %functionalTestsDir% %copyOptions%
 robocopy %SCALAR_OUTPUTDIR%\Scalar.Upgrader\%publishFragment% %functionalTestsDir% %copyOptions%

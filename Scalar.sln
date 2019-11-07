@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar", "Scalar\Scalar.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Common", "Scalar.Common\Scalar.Common.csproj", "{179EAE33-265B-4698-BBC7-130F28F6D768}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Mount", "Scalar.Mount\Scalar.Mount.csproj", "{829C7E6B-ABD7-4CE5-8076-FB28821368C5}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Service", "Scalar.Service\Scalar.Service.csproj", "{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Upgrader", "Scalar.Upgrader\Scalar.Upgrader.csproj", "{424D0102-50EE-4CA6-A937-C8A89CE10103}"

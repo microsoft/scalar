@@ -441,7 +441,7 @@ namespace Scalar.Platform.Windows
 
             public override HashSet<string> UpgradeBlockingProcesses
             {
-                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Scalar", "Scalar.Mount", "git", "ssh-agent", "wish", "bash" }; }
+                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Scalar", "git", "ssh-agent", "wish", "bash" }; }
             }
 
             // Tests show that 250 is the max supported pipe name length

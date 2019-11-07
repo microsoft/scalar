@@ -3,7 +3,6 @@ CALL %~dp0\InitializeEnvironment.bat || EXIT /b 10
 
 taskkill /F /T /FI "IMAGENAME eq git.exe"
 taskkill /F /T /FI "IMAGENAME eq Scalar.exe"
-taskkill /F /T /FI "IMAGENAME eq Scalar.Mount.exe"
 
 if not exist "C:\Program Files\Scalar" goto :end
 

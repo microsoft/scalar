@@ -74,11 +74,8 @@ namespace Scalar.Upgrader
         {
             consoleError = null;
 
-            // While checking for blocking processes like Scalar.Mount immediately after un-mounting,
-            // then sometimes Scalar.Mount shows up as running. But if the check is done after waiting
-            // for some time, then eventually Scalar.Mount goes away. The retry loop below is to help
-            // account for this delay between the time un-mount call returns and when Scalar.Mount
-            // actually quits.
+            // The retry loop below is to help account for the delay between calls to stop Scalar
+            // processes and those processes exiting.
             this.tracer.RelatedInfo("Checking if Scalar or dependent processes are running.");
             int retryCount = 10;
             HashSet<string> processList = null;

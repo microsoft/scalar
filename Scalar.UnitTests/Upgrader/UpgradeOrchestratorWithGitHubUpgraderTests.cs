@@ -65,12 +65,12 @@ namespace Scalar.UnitTests.Upgrader
                 expectedOutput: new List<string>
                 {
                     "ERROR: Blocking processes are running.",
-                    $"Run `scalar upgrade --confirm` again after quitting these processes - Scalar.Mount, git"
+                    $"Run `scalar upgrade --confirm` again after quitting these processes - git"
                 },
                 expectedErrors: null,
                 expectedWarnings: new List<string>
                 {
-                    $"Run `scalar upgrade --confirm` again after quitting these processes - Scalar.Mount, git"
+                    $"Run `scalar upgrade --confirm` again after quitting these processes - git"
                 });
         }
 

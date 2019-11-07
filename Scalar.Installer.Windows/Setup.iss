@@ -241,7 +241,7 @@ function IsScalarRunning(): Boolean;
 var
   ResultCode: integer;
 begin
-  if Exec('powershell.exe', '-NoProfile "Get-Process scalar,scalar.mount | foreach {exit 10}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  if Exec('powershell.exe', '-NoProfile "Get-Process scalar | foreach {exit 10}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     begin
       if ResultCode = 10 then
         begin

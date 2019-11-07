@@ -1,7 +1,5 @@
 @ECHO OFF
 CALL %~dp0\InitializeEnvironment.bat || EXIT /b 10
-
-taskkill /f /im Scalar.Mount.exe 2>&1
 verify >nul
 
 powershell -NonInteractive -NoProfile -Command "& { (Get-MpPreference).ExclusionPath | ? {$_.StartsWith('C:\Repos\')} | %%{Remove-MpPreference -ExclusionPath $_} }"
