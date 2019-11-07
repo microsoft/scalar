@@ -53,7 +53,7 @@ namespace Scalar.UnitTests.Mock.FileSystem
             switch (Path.DirectorySeparatorChar)
             {
                 case '/':
-                    return "/vfs4g_ut";
+                    return "/scalar_ut";
 
                 case '\\':
                     // Use a single letter (rather than something like "mock:") so
