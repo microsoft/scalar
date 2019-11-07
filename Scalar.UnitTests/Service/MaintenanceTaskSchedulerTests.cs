@@ -107,7 +107,7 @@ namespace Scalar.UnitTests.Service
                 task);
 
             maintenanceTask.Execute();
-            this.mockTracer.RelatedEvents.ShouldContain(entry => entry.Contains("No registered repos for user"));
+            this.mockTracer.RelatedEvents.ShouldContain(entry => entry.Contains("\"reposInRegistryForUser\":0"));
         }
 
         [TestCase]

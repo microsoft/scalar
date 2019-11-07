@@ -181,7 +181,12 @@ namespace Scalar.Service
                 metadata.Add(nameof(registeredUser.UserId), registeredUser.UserId);
                 metadata.Add(nameof(registeredUser.SessionId), registeredUser.SessionId);
 
-                int reposForUserCount = 0;
+                int reposSkipped = 0;
+                int reposSuccessfullyRemoved = 0;
+                int repoRemovalFailures = 0;
+                int reposMaintained = 0;
+                int reposInRegistryForUser = 0;
+
                 string rootPath;
                 string errorMessage;
 
@@ -190,8 +195,7 @@ namespace Scalar.Service
 
                 foreach (ScalarRepoRegistration repoRegistration in reposForUser)
                 {
-                    ++reposForUserCount;
-
+                    ++reposInRegistryForUser;
                     rootPath = Path.GetPathRoot(repoRegistration.NormalizedRepoRoot);
 
                     metadata[nameof(repoRegistration.NormalizedRepoRoot)] = repoRegistration.NormalizedRepoRoot;
@@ -200,6 +204,8 @@ namespace Scalar.Service
 
                     if (!string.IsNullOrWhiteSpace(rootPath) && !this.fileSystem.DirectoryExists(rootPath))
                     {
+                        ++reposSkipped;
+
                         // If the volume does not exist we'll assume the drive was removed or is encrypted,
                         // and we'll leave the repo in the registry (but we won't run maintenance on it).
                         this.tracer.RelatedEvent(
@@ -216,6 +222,7 @@ namespace Scalar.Service
                         // Unregister the repo
                         if (this.repoRegistry.TryUnregisterRepo(repoRegistration.NormalizedRepoRoot, out errorMessage))
                         {
+                            ++reposSuccessfullyRemoved;
                             this.tracer.RelatedEvent(
                                 EventLevel.Informational,
                                 $"{nameof(this.RunMaintenanceTaskForRepos)}_RemovedMissingRepo",
@@ -223,9 +230,10 @@ namespace Scalar.Service
                         }
                         else
                         {
+                            ++repoRemovalFailures;
                             metadata[nameof(errorMessage)] = errorMessage;
                             this.tracer.RelatedEvent(
-                                EventLevel.Informational,
+                                EventLevel.Warning,
                                 $"{nameof(this.RunMaintenanceTaskForRepos)}_FailedToRemoveRepo",
                                 metadata);
                         }
@@ -233,6 +241,7 @@ namespace Scalar.Service
                         continue;
                     }
 
+                    ++reposMaintained;
                     this.tracer.RelatedEvent(
                                 EventLevel.Informational,
                                 $"{nameof(this.RunMaintenanceTaskForRepos)}_CallingMaintenance",
@@ -241,14 +250,15 @@ namespace Scalar.Service
                     this.scalarVerb.CallMaintenance(this.task, repoRegistration.NormalizedRepoRoot, registeredUser.SessionId);
                 }
 
-                if (reposForUserCount == 0)
-                {
-                    metadata.Add(TracingConstants.MessageKey.InfoMessage, "No registered repos for user");
-                    this.tracer.RelatedEvent(
-                        EventLevel.Informational,
-                        $"{nameof(this.RunMaintenanceTaskForRepos)}_NoRepos",
-                        metadata);
-                }
+                metadata.Add(nameof(reposInRegistryForUser), reposInRegistryForUser);
+                metadata.Add(nameof(reposSkipped), reposSkipped);
+                metadata.Add(nameof(reposSuccessfullyRemoved), reposSuccessfullyRemoved);
+                metadata.Add(nameof(repoRemovalFailures), repoRemovalFailures);
+                metadata.Add(nameof(reposMaintained), reposMaintained);
+                this.tracer.RelatedEvent(
+                    EventLevel.Informational,
+                    $"{nameof(this.RunMaintenanceTaskForRepos)}_MaintenanceSummary",
+                    metadata);
             }
         }
 
