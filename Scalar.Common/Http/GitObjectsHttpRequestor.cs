@@ -129,7 +129,6 @@ namespace Scalar.Common.Http
             string objectId,
             bool retryOnFailure,
             CancellationToken cancellationToken,
-            string requestSource,
             Func<int, GitEndPointResponseData, RetryWrapper<GitObjectTaskResult>.CallbackResult> onSuccess)
         {
             long requestId = HttpRequestor.GetNewRequestId();
@@ -137,7 +136,6 @@ namespace Scalar.Common.Http
             metadata.Add("objectId", objectId);
             metadata.Add("retryOnFailure", retryOnFailure);
             metadata.Add("requestId", requestId);
-            metadata.Add("requestSource", requestSource);
             this.Tracer.RelatedEvent(EventLevel.Informational, "DownloadLooseObject", metadata, Keywords.Network);
 
             return this.TrySendProtocolRequest(

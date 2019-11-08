@@ -43,11 +43,6 @@ namespace Scalar.UnitTests.Mock.Common
             throw new NotImplementedException();
         }
 
-        public override string GetNamedPipeName(string enlistmentRoot)
-        {
-            return "Scalar_Mock_PipeName";
-        }
-
         public override string GetScalarServiceNamedPipeName(string serviceName)
         {
             return Path.Combine("Scalar_Mock_ServicePipeName", serviceName);

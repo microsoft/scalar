@@ -43,36 +43,9 @@ namespace Scalar.Service.UI
             string message = null;
             string buttonTitle = null;
             string args = null;
-            string path = null;
 
             switch (request.Id)
             {
-                case NamedPipeMessages.Notification.Request.Identifier.AutomountStart:
-                    string reposSuffix = request.EnlistmentCount <= 1 ? ScalarSingleRepo : ScalarMultipleRepos;
-                    title = ScalarAutomountStartTitle;
-                    message = string.Format(ScalarAutomountStartMessageFormat, request.EnlistmentCount, reposSuffix);
-                    break;
-
-                case NamedPipeMessages.Notification.Request.Identifier.MountSuccess:
-                    if (this.TryValidatePath(request.Enlistment, out path, this.tracer))
-                    {
-                        title = ScalarAutomountSuccessTitle;
-                        message = string.Format(ScalarAutomountSuccessMessageFormat, Environment.NewLine, path);
-                    }
-
-                    break;
-
-                case NamedPipeMessages.Notification.Request.Identifier.MountFailure:
-                    if (this.TryValidatePath(request.Enlistment, out path, this.tracer))
-                    {
-                        title = ScalarAutomountErrorTitle;
-                        message = string.Format(ScalarAutomountErrorMessageFormat, Environment.NewLine, path);
-                        buttonTitle = ScalarAutomountButtonTitle;
-                        args = $"{ScalarRemountActionPrefix} {path}";
-                    }
-
-                    break;
-
                 case NamedPipeMessages.Notification.Request.Identifier.UpgradeAvailable:
                     title = string.Format(ScalarUpgradeTitleFormat, request.NewVersion);
                     message = string.Format(ScalarUpgradeMessage);

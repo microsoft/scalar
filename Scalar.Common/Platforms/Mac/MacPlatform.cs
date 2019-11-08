@@ -57,11 +57,6 @@ namespace Scalar.Platform.Mac
             return MacPlatform.TryGetScalarEnlistmentRootImplementation(directory, out enlistmentRoot, out errorMessage);
         }
 
-        public override string GetNamedPipeName(string enlistmentRoot)
-        {
-            return MacPlatform.GetNamedPipeNameImplementation(enlistmentRoot);
-        }
-
         public override FileBasedLock CreateFileBasedLock(
             PhysicalFileSystem fileSystem,
             ITracer tracer,

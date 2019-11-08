@@ -37,7 +37,7 @@ namespace Scalar.UnitTests.Git
                 httpObjects.MediaType = ScalarConstants.MediaTypes.LooseObjectMediaType;
                 ScalarGitObjects dut = this.CreateTestableScalarGitObjects(httpObjects, fileSystem);
 
-                dut.TryDownloadAndSaveObject(ValidTestObjectFileContents, ScalarGitObjects.RequestSource.FileStreamCallback)
+                dut.TryDownloadAndSaveObject(ValidTestObjectFileContents)
                     .ShouldEqual(GitObjects.DownloadAndSaveObjectResult.Success);
             }
         }
@@ -49,7 +49,7 @@ namespace Scalar.UnitTests.Git
             this.AssertRetryableExceptionOnDownload(
                 new MemoryStream(),
                 ScalarConstants.MediaTypes.LooseObjectMediaType,
-                gitObjects => gitObjects.TryDownloadAndSaveObject("aabbcc", ScalarGitObjects.RequestSource.FileStreamCallback));
+                gitObjects => gitObjects.TryDownloadAndSaveObject("aabbcc"));
         }
 
         [TestCase]
@@ -59,7 +59,7 @@ namespace Scalar.UnitTests.Git
             this.AssertRetryableExceptionOnDownload(
                 new MemoryStream(new byte[256]),
                 ScalarConstants.MediaTypes.LooseObjectMediaType,
-                gitObjects => gitObjects.TryDownloadAndSaveObject("aabbcc", ScalarGitObjects.RequestSource.FileStreamCallback));
+                gitObjects => gitObjects.TryDownloadAndSaveObject("aabbcc"));
         }
 
         [TestCase]
@@ -153,7 +153,6 @@ namespace Scalar.UnitTests.Git
                 string objectId,
                 bool retryOnFailure,
                 CancellationToken cancellationToken,
-                string requestSource,
                 Func<int, GitEndPointResponseData, RetryWrapper<GitObjectTaskResult>.CallbackResult> onSuccess)
             {
                 return this.TryDownloadObjects(new[] { objectId }, onSuccess, null, false);
