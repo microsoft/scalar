@@ -12,7 +12,7 @@
   <!--
     Only build and test the native bits when running on macOS.
     -->
-  <Target Name="_XcodeBuild" AfterTargets="AfterBuild" Condition="'$(OSPlatform)' == 'osx'">
+  <Target Name="_XcodeBuild" AfterTargets="Publish" Condition="'$(OSPlatform)' == 'osx'">
     <Exec Command="$(MSBuildProjectDirectory)\build.sh $(Configuration) '$(ProjectOutPath)xcodebuild' '$(ProjectOutPath)bin\$(Configuration)\native\$(RuntimeIdentifier)' $(Version)" />
     <Exec Command="$(MSBuildProjectDirectory)\test.sh $(Configuration) '$(ProjectOutPath)xcodebuild.test'" />
   </Target>

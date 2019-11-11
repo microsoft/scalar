@@ -18,9 +18,20 @@
     <ProjectReference Include="..\Scalar.Notifications.Mac\Scalar.Notifications.Mac.csproj" />
   </ItemGroup>
 
-  <!-- Only create the installer on 'publish' and when running on macOS -->
-  <Target Name="PublishInstaller" AfterTargets="Publish" Condition="'$(OSPlatform)' == 'osx'" >
+  <!-- Only create the installer when running on macOS -->
+  <Target Name="BuildInstaller" AfterTargets="Publish" Condition="'$(OSPlatform)' == 'osx'" >
+    <!-- Ensure all projects have been published with the correct runtime identifier and configuration -->
+    <MSBuild Projects="@(ProjectReference)"
+             Targets="Publish"
+             Properties="
+             Configuration=$(Configuration);
+             RuntimeIdentifier=$(RuntimeIdentifier);"
+             BuildInParallel="true" />
+
+    <!-- Bring together all published binaries and native applications/plists -->
     <Exec Command="$(MSBuildProjectDirectory)/layout.sh '$(Configuration)' '$(TargetFramework)' '$(RuntimeIdentifier)' '$(RepoSrcPath)' '$(RepoOutPath)' '$(LayoutPath)'"/>
+
+    <!-- Build the installer package(s) -->
     <Exec Command="$(MSBuildProjectDirectory)/pack.sh '$(ScalarVersion)' '$(RepoSrcPath)' '$(LayoutPath)' '$(InstallerOutputPath)'"/>
   </Target>
 
