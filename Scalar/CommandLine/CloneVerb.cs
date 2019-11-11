@@ -548,11 +548,6 @@ namespace Scalar.CommandLine
                 Path.Combine(this.enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Head),
                 "ref: refs/heads/" + this.Branch);
 
-            if (!this.TryDownloadRootGitAttributes(this.enlistment, this.gitObjects, out errorMessage))
-            {
-                return new Result(errorMessage);
-            }
-
             if (!RepoMetadata.TryInitialize(this.tracer, this.enlistment.DotScalarRoot, out errorMessage))
             {
                 this.tracer.RelatedError(errorMessage);

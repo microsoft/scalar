@@ -564,38 +564,6 @@ You can specify a URL, a name of a configured cache server, or the special names
             return true;
         }
 
-        protected bool TryDownloadRootGitAttributes(ScalarEnlistment enlistment, ScalarGitObjects gitObjects, out string error)
-        {
-            List<DiffTreeResult> rootEntries = new List<DiffTreeResult>();
-            GitProcess git = new GitProcess(enlistment);
-            GitProcess.Result result = git.LsTree(
-                ScalarConstants.DotGit.HeadName,
-                line => rootEntries.Add(DiffTreeResult.ParseFromLsTreeLine(line)),
-                recursive: false);
-
-            if (result.ExitCodeIsFailure)
-            {
-                error = "Error returned from ls-tree to find " + ScalarConstants.SpecialGitFiles.GitAttributes + " file: " + result.Errors;
-                return false;
-            }
-
-            DiffTreeResult gitAttributes = rootEntries.FirstOrDefault(entry => entry.TargetPath.Equals(ScalarConstants.SpecialGitFiles.GitAttributes));
-            if (gitAttributes == null)
-            {
-                error = "This branch does not contain a " + ScalarConstants.SpecialGitFiles.GitAttributes + " file in the root folder.  This file is required by Scalar clone";
-                return false;
-            }
-
-            if (gitObjects.TryDownloadAndSaveObject(gitAttributes.TargetSha) != GitObjects.DownloadAndSaveObjectResult.Success)
-            {
-                error = "Could not download " + ScalarConstants.SpecialGitFiles.GitAttributes + " file";
-                return false;
-            }
-
-            error = null;
-            return true;
-        }
-
         protected void LogEnlistmentInfoAndSetConfigValues(ITracer tracer, GitProcess git, ScalarEnlistment enlistment)
         {
             string mountId = CreateMountId();
