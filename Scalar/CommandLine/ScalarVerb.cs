@@ -550,18 +550,14 @@ You can specify a URL, a name of a configured cache server, or the special names
 
         protected bool TryDownloadCommit(
             string commitId,
-            GitObjectsHttpRequestor objectRequestor,
-            ScalarGitObjects gitObjects,
+            Enlistment enlistment,
             out string error)
         {
-            if (!gitObjects.TryDownloadCommit(commitId))
-            {
-                error = "Could not download commit " + commitId + " from: " + Uri.EscapeUriString(objectRequestor.CacheServer.ObjectsEndpointUrl);
-                return false;
-            }
+            GitProcess process = new GitProcess(enlistment);
+            GitProcess.Result downloadResult = process.GvfsHelperDownloadCommit(commitId);
 
-            error = null;
-            return true;
+            error = downloadResult.Errors;
+            return downloadResult.ExitCodeIsSuccess;
         }
 
         protected void LogEnlistmentInfoAndSetConfigValues(ITracer tracer, GitProcess git, ScalarEnlistment enlistment)

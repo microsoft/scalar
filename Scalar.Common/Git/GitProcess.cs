@@ -438,6 +438,17 @@ namespace Scalar.Common.Git
                 });
         }
 
+        public Result GvfsHelperDownloadCommit(string commitId)
+        {
+            return this.InvokeGitInWorkingDirectoryRoot(
+                $"gvfs-helper -f post",
+                fetchMissingObjects: false,
+                writeStdIn: writer =>
+                {
+                    writer.Write($"{commitId}\n");
+                });
+        }
+
         public Result Status(bool allowObjectDownloads, bool useStatusCache, bool showUntracked = false)
         {
             string command = "status";
