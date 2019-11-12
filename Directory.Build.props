@@ -36,7 +36,7 @@
 
     <!-- Version information -->
     <ScalarVersion>0.2.173.2</ScalarVersion>
-    <GitPackageVersion>2.20191111.3-sc</GitPackageVersion>
+    <GitPackageVersion>2.20191112.2-pr</GitPackageVersion>
 
     <!-- Signing certificates -->
     <AuthenticodeCert>Microsoft400</AuthenticodeCert>
