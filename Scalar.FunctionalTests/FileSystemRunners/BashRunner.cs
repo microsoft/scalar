@@ -309,7 +309,7 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             throw new NotImplementedException();
         }
 
-        public override void OpenFileAndWriteWithoutClose(string path, string data)
+        public override IDisposable OpenFileAndWrite(string path, string data)
         {
             throw new NotImplementedException();
         }

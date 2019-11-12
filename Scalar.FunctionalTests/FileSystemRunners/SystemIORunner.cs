@@ -26,10 +26,11 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             File.Create(path);
         }
 
-        public override void OpenFileAndWriteWithoutClose(string path, string content)
+        public override IDisposable OpenFileAndWrite(string path, string content)
         {
             StreamWriter file = new StreamWriter(path);
             file.Write(content);
+            return file;
         }
 
         public override void MoveFileShouldFail(string sourcePath, string targetPath)
