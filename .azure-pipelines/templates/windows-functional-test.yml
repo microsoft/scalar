@@ -26,13 +26,13 @@ steps:
       artifactName: Installers_$(platformFriendlyName)_$(configuration)
       downloadPath: $(Build.BinariesDirectory)
 
-  - script: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.bat
+  - script: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.bat $(Build.ArtifactStagingDirectory)\logs
     displayName: Install product
 
   - script: git config --global credential.interactive never
     displayName: Disable interactive auth
 
-  - script: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/RunFunctionalTests.bat $(configuration) --test-scalar-on-path "--trace2-output=$(Build.ArtifactStagingDirectory)\trace2-event-windows.txt"
+  - script: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/RunFunctionalTests.bat $(configuration) --test-scalar-on-path "--trace2-output=$(Build.ArtifactStagingDirectory)\logs\trace2-event.log"
     displayName: Run functional tests
 
   - task: PublishTestResults@2
@@ -46,8 +46,8 @@ steps:
     condition: succeededOrFailed()
 
   - task: PublishBuildArtifacts@1
-    displayName: Publish Git trace2 log
+    displayName: Publish test and installation logs
     inputs:
-      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: trace2-event-windows.txt
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)\logs'
+      artifactName: Logs_$(platformFriendlyName)
     condition: failed()

@@ -30,6 +30,9 @@ steps:
       chmod +x $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/*.sh
     displayName: Ensure all scripts are executable
 
+  - bash: mkdir -p $(Build.ArtifactStagingDirectory)/logs
+    displayName: Create logs directory
+
   - ${{ if eq(parameters.useWatchman, 'true') }}:
     - bash: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.sh
       displayName: Install product (with watchman)
@@ -38,7 +41,7 @@ steps:
     - bash: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.sh --no-watchman
       displayName: Install product (without watchman)
 
-  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --test-scalar-on-path --trace2-output=$(Build.ArtifactStagingDirectory)/trace2-event-mac.txt
+  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --test-scalar-on-path --trace2-output=$(Build.ArtifactStagingDirectory)/logs/trace2-event.log
     displayName: Run functional tests
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
@@ -63,11 +66,21 @@ steps:
         publishRunAttachments: true
       condition: succeededOrFailed()
     
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Git trace2 log
-    inputs:
-      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: trace2-event-mac.txt
+  - ${{ if eq(parameters.useWatchman, 'true') }}:
+    - task: PublishBuildArtifacts@1
+      displayName: Publish test and installation logs
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)/logs'
+        artifactName: Logs_$(platformFriendlyName)_Watchman
+      condition: failed()
+
+  - ${{ if ne(parameters.useWatchman, 'true') }}:
+    - task: PublishBuildArtifacts@1
+      displayName: Publish test and installation logs
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)/logs'
+        artifactName: Logs_$(platformFriendlyName)
+      condition: failed()
 
   - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/CleanupFunctionalTests.sh
     displayName: Cleanup
