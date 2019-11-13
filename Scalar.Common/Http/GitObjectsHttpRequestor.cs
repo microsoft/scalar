@@ -2,7 +2,6 @@ using Scalar.Common.Git;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -143,36 +142,6 @@ namespace Scalar.Common.Http
                         return onSuccess(tryCount, response);
                     }
                 });
-        }
-
-        private static string ToJsonList(IEnumerable<string> strings)
-        {
-            return "[\"" + string.Join("\",\"", strings) + "\"]";
-        }
-
-        private static string CreateObjectIdJson(IEnumerable<string> strings)
-        {
-            return "{\"commitDepth\": 1, \"objectIds\":" + ToJsonList(strings) + "}";
-        }
-
-        private string ObjectIdsJsonGenerator(long requestId, Func<IEnumerable<string>> objectIdGenerator)
-        {
-            IEnumerable<string> objectIds = objectIdGenerator();
-            string objectIdsJson = CreateObjectIdJson(objectIds);
-            int objectCount = objectIds.Count();
-            EventMetadata metadata = new EventMetadata();
-            metadata.Add("RequestId", requestId);
-            if (objectCount < 10)
-            {
-                metadata.Add("ObjectIds", string.Join(", ", objectIds));
-            }
-            else
-            {
-                metadata.Add("ObjectIdCount", objectCount);
-            }
-
-            this.Tracer.RelatedEvent(EventLevel.Informational, "DownloadObjects", metadata, Keywords.Network);
-            return objectIdsJson;
         }
 
         public class GitObjectTaskResult
