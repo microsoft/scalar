@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Scalar.Common.Git
 {
-    public abstract class GitObjects
+    public class GitObjects
     {
         protected readonly ITracer Tracer;
         protected readonly GitObjectsHttpRequestor GitObjectRequestor;
@@ -45,35 +45,6 @@ namespace Scalar.Common.Git
         public static bool IsLooseObjectsDirectory(string value)
         {
             return value.Length == 2 && value.All(c => Uri.IsHexDigit(c));
-        }
-
-        public virtual bool TryDownloadCommit(string commitSha)
-        {
-            const bool PreferLooseObjects = false;
-            IEnumerable<string> objectIds = new[] { commitSha };
-
-            GitProcess gitProcess = new GitProcess(this.Enlistment);
-            RetryWrapper<GitObjectsHttpRequestor.GitObjectTaskResult>.InvocationResult output = this.GitObjectRequestor.TryDownloadObjects(
-                objectIds,
-                onSuccess: (tryCount, response) => this.TrySavePackOrLooseObject(objectIds, PreferLooseObjects, response, gitProcess),
-                onFailure: (eArgs) =>
-                {
-                    EventMetadata metadata = CreateEventMetadata(eArgs.Error);
-                    metadata.Add("Operation", "DownloadAndSaveObjects");
-                    metadata.Add("WillRetry", eArgs.WillRetry);
-
-                    if (eArgs.WillRetry)
-                    {
-                        this.Tracer.RelatedWarning(metadata, eArgs.Error.ToString(), Keywords.Network | Keywords.Telemetry);
-                    }
-                    else
-                    {
-                        this.Tracer.RelatedError(metadata, eArgs.Error.ToString(), Keywords.Network);
-                    }
-                },
-                preferBatchedLooseObjects: PreferLooseObjects);
-
-            return output.Succeeded && output.Result.Success;
         }
 
         public virtual void DeleteStaleTempPrefetchPackAndIdxs()
@@ -170,7 +141,7 @@ namespace Scalar.Common.Git
             }
         }
 
-        public virtual string WriteLooseObject(Stream responseStream, string sha,byte[] bufToCopyWith)
+        public virtual string WriteLooseObject(Stream responseStream, string sha, byte[] bufToCopyWith)
         {
             try
             {

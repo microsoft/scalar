@@ -51,7 +51,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Cannot be sure of the count, as the fetch-commits-and-trees uses parallel threads to get multiple packs
             afterPrefetchPackCount.ShouldBeAtLeast(2);
 
-            this.Enlistment.PackfileMaintenanceStep(batchSize: totalSize - minSize + 1);
+            // Batch size 0 tells Git to repack everything into a single pack!
+            this.Enlistment.PackfileMaintenanceStep(batchSize: 0);
             this.GetPackSizes(out int packCount, out maxSize, out minSize, out totalSize);
 
             // We should not have expired any packs, but created a new one with repack

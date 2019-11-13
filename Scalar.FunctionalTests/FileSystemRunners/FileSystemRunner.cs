@@ -76,7 +76,7 @@ namespace Scalar.FunctionalTests.FileSystemRunners
         /// <param name="contents">File contents</param>
         public abstract void WriteAllText(string path, string contents);
         public abstract void CreateFileWithoutClose(string path);
-        public abstract void OpenFileAndWriteWithoutClose(string path, string data);
+        public abstract IDisposable OpenFileAndWrite(string path, string data);
 
         /// <summary>
         /// Append the specified contents to the specified file.  By calling this method the caller is

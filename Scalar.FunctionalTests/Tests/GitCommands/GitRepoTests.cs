@@ -4,6 +4,8 @@ using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Should;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -311,14 +313,17 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             this.FileSystem.CreateFileWithoutClose(controlFile);
         }
 
-        protected void ReadFileAndWriteWithoutClose(string path, string contents)
+        protected IDisposable ReadFileAndWriteWithoutClose(string path, string contents)
         {
             string virtualFile = Path.Combine(this.Enlistment.RepoRoot, path);
             string controlFile = Path.Combine(this.ControlGitRepo.RootPath, path);
             this.FileSystem.ReadAllText(virtualFile);
             this.FileSystem.ReadAllText(controlFile);
-            this.FileSystem.OpenFileAndWriteWithoutClose(virtualFile, contents);
-            this.FileSystem.OpenFileAndWriteWithoutClose(controlFile, contents);
+
+            DisposeList list = new DisposeList();
+            list.Items.Add(this.FileSystem.OpenFileAndWrite(virtualFile, contents));
+            list.Items.Add(this.FileSystem.OpenFileAndWrite(controlFile, contents));
+            return list;
         }
 
         protected void CreateFolder(string folderPath)
@@ -634,6 +639,19 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             this.FileContentsShouldMatch("Test_ConflictTests", "ModifiedFiles", "ConflictingChange.txt");
             this.FileContentsShouldMatch("Test_ConflictTests", "ModifiedFiles", "SameChange.txt");
             this.FileContentsShouldMatch("Test_ConflictTests", "ModifiedFiles", "SuccessfulMerge.txt");
+        }
+
+        private class DisposeList : IDisposable
+        {
+            public readonly List<IDisposable> Items = new List<IDisposable>();
+
+            public void Dispose()
+            {
+                foreach (IDisposable item in this.Items)
+                {
+                    item.Dispose();
+                }
+            }
         }
     }
 }

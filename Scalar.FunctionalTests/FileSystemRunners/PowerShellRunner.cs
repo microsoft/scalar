@@ -1,4 +1,5 @@
 using Scalar.Tests.Should;
+using System;
 using System.IO;
 
 namespace Scalar.FunctionalTests.FileSystemRunners
@@ -215,7 +216,7 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             throw new System.NotSupportedException();
         }
 
-        public override void OpenFileAndWriteWithoutClose(string path, string data)
+        public override IDisposable OpenFileAndWrite(string path, string data)
         {
             throw new System.NotSupportedException();
         }

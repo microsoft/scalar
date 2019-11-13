@@ -53,8 +53,10 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         public void WriteWithoutClose()
         {
             string srcPath = @"Readme.md";
-            this.ReadFileAndWriteWithoutClose(srcPath, "More Stuff");
-            this.ValidGitStatusWithRetry(srcPath);
+            using (IDisposable file = this.ReadFileAndWriteWithoutClose(srcPath, "More Stuff"))
+            {
+                this.ValidGitStatusWithRetry(srcPath);
+            }
         }
 
         [TestCase]

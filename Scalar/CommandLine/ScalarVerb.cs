@@ -550,50 +550,14 @@ You can specify a URL, a name of a configured cache server, or the special names
 
         protected bool TryDownloadCommit(
             string commitId,
-            GitObjectsHttpRequestor objectRequestor,
-            ScalarGitObjects gitObjects,
+            Enlistment enlistment,
             out string error)
         {
-            if (!gitObjects.TryDownloadCommit(commitId))
-            {
-                error = "Could not download commit " + commitId + " from: " + Uri.EscapeUriString(objectRequestor.CacheServer.ObjectsEndpointUrl);
-                return false;
-            }
+            GitProcess process = new GitProcess(enlistment);
+            GitProcess.Result downloadResult = process.GvfsHelperDownloadCommit(commitId);
 
-            error = null;
-            return true;
-        }
-
-        protected bool TryDownloadRootGitAttributes(ScalarEnlistment enlistment, ScalarGitObjects gitObjects, out string error)
-        {
-            List<DiffTreeResult> rootEntries = new List<DiffTreeResult>();
-            GitProcess git = new GitProcess(enlistment);
-            GitProcess.Result result = git.LsTree(
-                ScalarConstants.DotGit.HeadName,
-                line => rootEntries.Add(DiffTreeResult.ParseFromLsTreeLine(line)),
-                recursive: false);
-
-            if (result.ExitCodeIsFailure)
-            {
-                error = "Error returned from ls-tree to find " + ScalarConstants.SpecialGitFiles.GitAttributes + " file: " + result.Errors;
-                return false;
-            }
-
-            DiffTreeResult gitAttributes = rootEntries.FirstOrDefault(entry => entry.TargetPath.Equals(ScalarConstants.SpecialGitFiles.GitAttributes));
-            if (gitAttributes == null)
-            {
-                error = "This branch does not contain a " + ScalarConstants.SpecialGitFiles.GitAttributes + " file in the root folder.  This file is required by Scalar clone";
-                return false;
-            }
-
-            if (gitObjects.TryDownloadAndSaveObject(gitAttributes.TargetSha) != GitObjects.DownloadAndSaveObjectResult.Success)
-            {
-                error = "Could not download " + ScalarConstants.SpecialGitFiles.GitAttributes + " file";
-                return false;
-            }
-
-            error = null;
-            return true;
+            error = downloadResult.Errors;
+            return downloadResult.ExitCodeIsSuccess;
         }
 
         protected void LogEnlistmentInfoAndSetConfigValues(ITracer tracer, GitProcess git, ScalarEnlistment enlistment)

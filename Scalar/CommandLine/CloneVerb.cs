@@ -24,7 +24,6 @@ namespace Scalar.CommandLine
         private ServerScalarConfig serverScalarConfig;
         private RetryConfig retryConfig;
         private GitObjectsHttpRequestor objectRequestor;
-        private ScalarGitObjects gitObjects;
         private GitProcess git;
         private GitRefs refs;
         private ScalarContext context;
@@ -513,16 +512,6 @@ namespace Scalar.CommandLine
             }
 
             this.context = new ScalarContext(this.tracer, this.fileSystem, this.enlistment);
-            this.gitObjects = new ScalarGitObjects(this.context, this.objectRequestor);
-
-            if (!this.TryDownloadCommit(
-                this.refs.GetTipCommitId(this.Branch),
-                this.objectRequestor,
-                this.gitObjects,
-                out errorMessage))
-            {
-                return new Result(errorMessage);
-            }
 
             if (!ScalarVerb.TrySetRequiredGitConfigSettings(this.enlistment) ||
                 !ScalarVerb.TrySetOptionalGitConfigSettings(this.enlistment))
@@ -531,9 +520,17 @@ namespace Scalar.CommandLine
             }
 
             CacheServerResolver cacheServerResolver = new CacheServerResolver(this.tracer, this.enlistment);
-            if (!cacheServerResolver.TrySaveUrlToLocalConfig(this.objectRequestor.CacheServer, out errorMessage))
+            if (!cacheServerResolver.TrySaveUrlToLocalConfig(this.cacheServer, out errorMessage))
             {
                 return new Result("Unable to configure cache server: " + errorMessage);
+            }
+
+            if (!this.TryDownloadCommit(
+                this.refs.GetTipCommitId(this.Branch),
+                this.enlistment,
+                out errorMessage))
+            {
+                return new Result(errorMessage);
             }
 
             this.git = new GitProcess(this.enlistment);
@@ -547,11 +544,6 @@ namespace Scalar.CommandLine
             File.WriteAllText(
                 Path.Combine(this.enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Head),
                 "ref: refs/heads/" + this.Branch);
-
-            if (!this.TryDownloadRootGitAttributes(this.enlistment, this.gitObjects, out errorMessage))
-            {
-                return new Result(errorMessage);
-            }
 
             if (!RepoMetadata.TryInitialize(this.tracer, this.enlistment.DotScalarRoot, out errorMessage))
             {

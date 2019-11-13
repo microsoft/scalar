@@ -197,11 +197,11 @@ namespace Scalar.CommandLine
             string error = string.Empty;
             PhysicalFileSystem fileSystem = new PhysicalFileSystem();
             ScalarContext context = new ScalarContext(tracer, fileSystem, enlistment);
-            GitObjects gitObjects = new ScalarGitObjects(context, objectRequestor);
+            GitObjects gitObjects = new GitObjects(tracer, enlistment, objectRequestor, fileSystem);
 
             success = this.ShowStatusWhileRunning(
                 () => new FetchCommitsAndTreesStep(context, gitObjects, requireCacheLock: false).TryFetchCommitsAndTrees(out error),
-            "Fetching commits and trees " + this.GetCacheServerDisplay(cacheServer, enlistment.RepoUrl));
+                                                   "Fetching commits and trees " + this.GetCacheServerDisplay(cacheServer, enlistment.RepoUrl));
 
             if (!success)
             {
