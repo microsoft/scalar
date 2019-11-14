@@ -33,7 +33,7 @@ namespace Scalar.CommandLine
 
         protected override void Execute(ScalarEnlistment enlistment)
         {
-            string diagnosticsRoot = Path.Combine(enlistment.DotScalarRoot, "diagnostics");
+            string diagnosticsRoot = Path.Combine(enlistment.EnlistmentRoot, ".scalarDiagnostics");
 
             if (!Directory.Exists(diagnosticsRoot))
             {
