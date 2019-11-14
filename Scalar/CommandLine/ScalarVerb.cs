@@ -4,7 +4,6 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
-using Scalar.Common.NamedPipes;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
@@ -562,10 +561,8 @@ You can specify a URL, a name of a configured cache server, or the special names
 
         protected void LogEnlistmentInfoAndSetConfigValues(ITracer tracer, GitProcess git, ScalarEnlistment enlistment)
         {
-            string mountId = CreateMountId();
             EventMetadata metadata = this.CreateEventMetadata();
             metadata.Add(nameof(RepoMetadata.Instance.EnlistmentId), RepoMetadata.Instance.EnlistmentId);
-            metadata.Add(nameof(mountId), mountId);
             metadata.Add("Enlistment", enlistment);
             metadata.Add("PhysicalDiskInfo", ScalarPlatform.Instance.GetPhysicalDiskInfo(enlistment.WorkingDirectoryRoot, sizeStatsOnly: false));
             tracer.RelatedEvent(EventLevel.Informational, "EnlistmentInfo", metadata, Keywords.Telemetry);
@@ -576,20 +573,7 @@ You can specify a URL, a name of a configured cache server, or the special names
                 string error = "Could not update config with enlistment id, error: " + configResult.Errors;
                 tracer.RelatedWarning(error);
             }
-
-            configResult = git.SetInLocalConfig(ScalarConstants.GitConfig.MountId, mountId, replaceAll: true);
-            if (configResult.ExitCodeIsFailure)
-            {
-                string error = "Could not update config with mount id, error: " + configResult.Errors;
-                tracer.RelatedWarning(error);
-            }
         }
-
-        private static string CreateMountId()
-        {
-            return Guid.NewGuid().ToString("N");
-        }
-
         private static bool TrySetConfig(Enlistment enlistment, Dictionary<string, string> configSettings, bool isRequired)
         {
             GitProcess git = new GitProcess(enlistment);
