@@ -266,10 +266,6 @@ namespace Scalar.CommandLine
             {
                 this.WriteMessage(string.Format("Failed to determine local cache path and git objects root, Exception: {0}", e));
             }
-            finally
-            {
-                RepoMetadata.Shutdown();
-            }
         }
 
         private void CopyLocalCacheData(string archiveFolderPath, string gitObjectsRoot)
