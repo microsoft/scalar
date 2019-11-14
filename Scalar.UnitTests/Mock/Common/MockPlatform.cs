@@ -126,11 +126,6 @@ namespace Scalar.UnitTests.Mock.Common
             throw new NotSupportedException();
         }
 
-        public override bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage)
-        {
-            throw new NotSupportedException();
-        }
-
         public override bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError)
         {
             throw new NotImplementedException();

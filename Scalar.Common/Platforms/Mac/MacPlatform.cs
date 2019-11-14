@@ -52,11 +52,6 @@ namespace Scalar.Platform.Mac
             return MacPlatform.GetDataRootForScalarComponentImplementation(componentName);
         }
 
-        public override bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage)
-        {
-            return MacPlatform.TryGetScalarEnlistmentRootImplementation(directory, out enlistmentRoot, out errorMessage);
-        }
-
         public override FileBasedLock CreateFileBasedLock(
             PhysicalFileSystem fileSystem,
             ITracer tracer,

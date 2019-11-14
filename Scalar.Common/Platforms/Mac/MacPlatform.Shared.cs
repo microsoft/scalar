@@ -23,11 +23,6 @@ namespace Scalar.Platform.Mac
             return Path.Combine(GetDataRootForScalarImplementation(), componentName);
         }
 
-        public static bool TryGetScalarEnlistmentRootImplementation(string directory, out string enlistmentRoot, out string errorMessage)
-        {
-            return POSIXPlatform.TryGetScalarEnlistmentRootImplementation(directory, DotScalarRoot, out enlistmentRoot, out errorMessage);
-        }
-
         public static string GetUpgradeHighestAvailableVersionDirectoryImplementation()
         {
             return GetUpgradeNonProtectedDirectoryImplementation();

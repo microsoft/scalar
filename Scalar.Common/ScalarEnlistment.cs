@@ -69,11 +69,11 @@ namespace Scalar.Common
         {
             if (Directory.Exists(directory))
             {
-                string errorMessage;
                 string enlistmentRoot;
-                if (!ScalarPlatform.Instance.TryGetScalarEnlistmentRoot(directory, out enlistmentRoot, out errorMessage))
+
+                if (!TryGetScalarEnlistmentRoot(directory, out enlistmentRoot))
                 {
-                    throw new InvalidRepoException($"Could not get enlistment root. Error: {errorMessage}");
+                    throw new InvalidRepoException($"Could not get enlistment root.");
                 }
 
                 if (createWithoutRepoURL)
@@ -98,6 +98,41 @@ namespace Scalar.Common
                 "scalar_" + logFileType,
                 logId: null,
                 fileSystem: fileSystem);
+        }
+
+        public static bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot)
+        {
+            // First, find a parent folder that exists.
+            while (!Directory.Exists(directory))
+            {
+                directory = Path.GetDirectoryName(directory);
+            }
+
+            // Second, check all parent folders to see if they
+            // contain a "src/.git" or ".git" folder.
+            while (!string.IsNullOrEmpty(directory))
+            {
+                string srcDir = Path.Combine(directory, ScalarConstants.WorkingDirectoryRootName);
+
+                if (!Directory.Exists(srcDir))
+                {
+                    srcDir = directory;
+                }
+
+                string gitDir = Path.Combine(srcDir, ScalarConstants.DotGit.Root);
+
+                if (Directory.Exists(gitDir) || File.Exists(gitDir))
+                {
+                    // We have a .git directory OR a .git file (in the case of worktrees)
+                    enlistmentRoot = directory;
+                    return true;
+                }
+
+                directory = Directory.GetParent(directory)?.FullName;
+            }
+
+            enlistmentRoot = null;
+            return false;
         }
 
         public void SetGitVersion(string gitVersion)

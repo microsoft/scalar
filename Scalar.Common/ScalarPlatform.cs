@@ -101,7 +101,6 @@ namespace Scalar.Common
 
         public abstract bool TryKillProcessTree(int processId, out int exitCode, out string error);
 
-        public abstract bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage);
         public abstract bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError);
 
         public abstract FileBasedLock CreateFileBasedLock(
