@@ -94,14 +94,8 @@ namespace Scalar.CommandLine
                         this.LogDirectoryEnumeration(enlistment.WorkingDirectoryRoot, Path.Combine(archiveFolderPath, ScalarConstants.DotGit.Objects.Root), ScalarConstants.DotGit.Objects.Pack.Root, "packs-local.txt");
                         this.LogLooseObjectCount(enlistment.WorkingDirectoryRoot, Path.Combine(archiveFolderPath, ScalarConstants.DotGit.Objects.Root), ScalarConstants.DotGit.Objects.Root, "objects-local.txt");
 
-                        // databases
-                        this.CopyAllFiles(enlistment.DotScalarRoot, Path.Combine(archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot), ScalarConstants.DotScalar.Databases.Name, copySubFolders: false);
-
                         // local cache
                         this.CopyLocalCacheData(archiveFolderPath, gitObjectsRoot);
-
-                        // corrupt objects
-                        this.CopyAllFiles(enlistment.DotScalarRoot, Path.Combine(archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot), ScalarConstants.DotScalar.CorruptObjectsName, copySubFolders: false);
 
                         // service
                         this.CopyAllFiles(
