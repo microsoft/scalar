@@ -141,11 +141,6 @@ namespace Scalar.Common
             return true;
         }
 
-        public string GetMountId()
-        {
-            return this.GetId(ScalarConstants.GitConfig.MountId);
-        }
-
         public string GetEnlistmentId()
         {
             return this.GetId(ScalarConstants.GitConfig.EnlistmentId);

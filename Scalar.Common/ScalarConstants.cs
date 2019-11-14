@@ -28,7 +28,6 @@ namespace Scalar.Common
             public const string MaxRetriesConfig = ScalarPrefix + "max-retries";
             public const string TimeoutSecondsConfig = ScalarPrefix + "timeout-seconds";
             public const string GitStatusCacheBackoffConfig = ScalarPrefix + "status-cache-backoff-seconds";
-            public const string MountId = ScalarPrefix + "mount-id";
             public const string EnlistmentId = ScalarPrefix + "enlistment-id";
             public const string CacheServer = "gvfs.cache-server";
             public const string ObjectCache = "gvfs.sharedCache";
