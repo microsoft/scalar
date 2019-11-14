@@ -70,7 +70,7 @@ namespace Scalar.FunctionalTests.Tools
 
         public string DiagnosticsRoot
         {
-            get { return Path.Combine(this.DotScalarRoot, "diagnostics"); }
+            get { return Path.Combine(this.EnlistmentRoot, ".scalarDiagnostics"); }
         }
 
         public string Commitish
