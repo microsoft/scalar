@@ -19,7 +19,6 @@ namespace Scalar.Common
         public static ScalarPlatform Instance { get; private set; }
 
         public abstract IGitInstallation GitInstallation { get; }
-        public abstract IDiskLayoutUpgradeData DiskLayoutUpgrade { get; }
         public abstract IPlatformFileSystem FileSystem { get; }
 
         public abstract ScalarPlatformConstants Constants { get; }

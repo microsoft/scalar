@@ -21,8 +21,6 @@ namespace Scalar.UnitTests.Mock.Common
 
         public override IGitInstallation GitInstallation { get; } = new MockGitInstallation();
 
-        public override IDiskLayoutUpgradeData DiskLayoutUpgrade => throw new NotSupportedException();
-
         public override IPlatformFileSystem FileSystem { get; } = new MockPlatformFileSystem();
 
         public override string Name { get => "Mock"; }
