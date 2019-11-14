@@ -175,11 +175,6 @@ namespace Scalar.UnitTests.Mock.Common
                 get { return ScalarConstants.WorkingDirectoryRootName; }
             }
 
-            public override string DotScalarRoot
-            {
-                get { return ".mockscalar"; }
-            }
-
             public override string ScalarBinDirectoryPath
             {
                 get { return Path.Combine("MockProgramFiles", this.ScalarBinDirectoryName); }

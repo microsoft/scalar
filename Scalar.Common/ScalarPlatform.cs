@@ -139,7 +139,6 @@ namespace Scalar.Common
             /// </summary>
             public abstract bool SupportsUpgradeWhileRunning { get; }
             public abstract string WorkingDirectoryBackingRootPath { get; }
-            public abstract string DotScalarRoot { get; }
 
             public abstract string ScalarBinDirectoryPath { get; }
 

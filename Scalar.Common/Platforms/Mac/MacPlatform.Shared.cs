@@ -7,8 +7,6 @@ namespace Scalar.Platform.Mac
 {
     public partial class MacPlatform
     {
-        public const string DotScalarRoot = ".scalar";
-
         public static string GetDataRootForScalarImplementation()
         {
             return Path.Combine(
@@ -31,11 +29,6 @@ namespace Scalar.Platform.Mac
         public static string GetUpgradeNonProtectedDirectoryImplementation()
         {
             return Path.Combine(GetDataRootForScalarImplementation(), ProductUpgraderInfo.UpgradeDirectoryName);
-        }
-
-        public static string GetNamedPipeNameImplementation(string enlistmentRoot)
-        {
-            return POSIXPlatform.GetNamedPipeNameImplementation(enlistmentRoot, DotScalarRoot);
         }
 
         private string GetUpgradeNonProtectedDataDirectory()

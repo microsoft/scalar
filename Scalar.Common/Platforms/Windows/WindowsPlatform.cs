@@ -397,11 +397,6 @@ namespace Scalar.Platform.Windows
                 get { return ScalarConstants.WorkingDirectoryRootName; }
             }
 
-            public override string DotScalarRoot
-            {
-                get { return WindowsPlatform.DotScalarRoot; }
-            }
-
             public override string ScalarBinDirectoryPath
             {
                 get
