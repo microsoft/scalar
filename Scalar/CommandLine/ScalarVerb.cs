@@ -274,31 +274,14 @@ namespace Scalar.CommandLine
 
         protected bool ShowStatusWhileRunning(
             Func<bool> action,
-            string message,
-            string scalarLogEnlistmentRoot)
+            string message)
         {
             return ConsoleHelper.ShowStatusWhileRunning(
                 action,
                 message,
                 this.Output,
                 showSpinner: !this.Unattended && this.Output == Console.Out && !ScalarPlatform.Instance.IsConsoleOutputRedirectedToFile(),
-                scalarLogEnlistmentRoot: scalarLogEnlistmentRoot,
                 initialDelayMs: 0);
-        }
-
-        protected bool ShowStatusWhileRunning(
-            Func<bool> action,
-            string message,
-            bool suppressGvfsLogMessage = false)
-        {
-            string scalarLogEnlistmentRoot = null;
-            if (!suppressGvfsLogMessage)
-            {
-                string errorMessage;
-                ScalarPlatform.Instance.TryGetScalarEnlistmentRoot(this.EnlistmentRootPathParameter, out scalarLogEnlistmentRoot, out errorMessage);
-            }
-
-            return this.ShowStatusWhileRunning(action, message, scalarLogEnlistmentRoot);
         }
 
         protected bool TryAuthenticate(ITracer tracer, ScalarEnlistment enlistment, out string authErrorMessage)
@@ -307,8 +290,7 @@ namespace Scalar.CommandLine
 
             bool result = this.ShowStatusWhileRunning(
                 () => enlistment.Authentication.TryInitialize(tracer, enlistment, out authError),
-                "Authenticating",
-                enlistment.EnlistmentRoot);
+                "Authenticating");
 
             authErrorMessage = authError;
             return result;
@@ -408,8 +390,7 @@ namespace Scalar.CommandLine
                         return configRequestor.TryQueryScalarConfig(LogErrors, out serverScalarConfig, out _, out errorMessage);
                     }
                 },
-                "Querying remote for config",
-                suppressGvfsLogMessage: true))
+                "Querying remote for config"))
             {
                 this.ReportErrorAndExit(tracer, "Unable to query /gvfs/config" + Environment.NewLine + errorMessage);
             }
@@ -430,8 +411,7 @@ namespace Scalar.CommandLine
                         return repoInfoRequestor.TryQueryRepoInfo(LogErrors, out vstsInfo, out errorMessage);
                     }
                 },
-                "Querying remote for repo info",
-                suppressGvfsLogMessage: true))
+                "Querying remote for repo info"))
             {
                 this.ReportErrorAndExit(tracer, $"Unable to query {ScalarConstants.Endpoints.RepoInfo}" + Environment.NewLine + errorMessage);
             }

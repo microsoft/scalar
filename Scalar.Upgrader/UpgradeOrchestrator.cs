@@ -154,8 +154,7 @@ namespace Scalar.Upgrader
                 method,
                 message,
                 this.output,
-                this.output == Console.Out && !ScalarPlatform.Instance.IsConsoleOutputRedirectedToFile(),
-                null);
+                this.output == Console.Out && !ScalarPlatform.Instance.IsConsoleOutputRedirectedToFile());
         }
 
         protected abstract bool TryMountRepositories(out string consoleError);

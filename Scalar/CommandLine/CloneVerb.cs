@@ -247,8 +247,7 @@ namespace Scalar.CommandLine
                     cloneResult = this.CreateClone();
                     return cloneResult.Success;
                 },
-                "Cloning",
-                normalizedEnlistmentRootPath);
+                "Cloning");
 
                 if (!cloneResult.Success)
                 {
