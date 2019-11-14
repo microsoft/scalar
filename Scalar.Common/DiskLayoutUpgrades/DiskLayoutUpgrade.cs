@@ -248,7 +248,7 @@ namespace Scalar.DiskLayoutUpgrades
             {
                 tracer.AddLogFileEventListener(
                     ScalarEnlistment.GetNewScalarLogFileName(
-                        Path.Combine(enlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot, ScalarConstants.DotScalar.LogName),
+                        Path.Combine(enlistmentRoot, ScalarConstants.WorkingDirectoryRootName, ScalarConstants.DotGit.Logs.Root),
                         ScalarConstants.LogFileTypes.MountUpgrade),
                     EventLevel.Informational,
                     Keywords.Any);

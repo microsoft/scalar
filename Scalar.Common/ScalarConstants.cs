@@ -141,8 +141,9 @@ namespace Scalar.Common
             public static class Logs
             {
                 public static readonly string HeadName = "HEAD";
+                public static readonly string Name = "logs";
 
-                public static readonly string Root = Path.Combine(DotGit.Root, "logs");
+                public static readonly string Root = Path.Combine(DotGit.Root, Logs.Name);
                 public static readonly string Head = Path.Combine(Logs.Root, Logs.HeadName);
             }
 

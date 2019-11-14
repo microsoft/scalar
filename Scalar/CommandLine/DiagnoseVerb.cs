@@ -150,7 +150,7 @@ namespace Scalar.CommandLine
                     },
                     "Copying logs");
 
-                this.CopyAllFiles(enlistment.DotScalarRoot, Path.Combine(archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot), "logs", copySubFolders: false);
+                this.CopyAllFiles(enlistment.DotGitRoot, archiveFolderPath, ScalarConstants.DotGit.Logs.Name, copySubFolders: false);
             }
 
             string zipFilePath = archiveFolderPath + ".zip";
