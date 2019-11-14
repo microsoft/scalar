@@ -85,9 +85,6 @@ namespace Scalar.FunctionalTests
                 includeCategories.Remove(Categories.ExtraCoverage);
             }
 
-            // Not just Mac, but no platform has status cache.
-            excludeCategories.Add(Categories.MacTODO.NeedsStatusCache);
-
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 excludeCategories.Add(Categories.MacTODO.NeedsNewFolderCreateNotification);
