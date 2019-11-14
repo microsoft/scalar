@@ -162,8 +162,7 @@ namespace Scalar.CommandLine
 
                     return true;
                 },
-                "Creating zip file",
-                suppressGvfsLogMessage: true);
+                "Creating zip file");
 
             this.Output.WriteLine();
             this.Output.WriteLine("Diagnostics complete. All of the gathered info, as well as all of the output above, is captured in");
