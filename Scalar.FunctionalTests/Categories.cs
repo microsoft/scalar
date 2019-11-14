@@ -15,9 +15,6 @@ namespace Scalar.FunctionalTests
             // Tests that require #360 (detecting/handling new empty folders)
             public const string NeedsNewFolderCreateNotification = "NeedsNewFolderCreateNotification";
 
-            // Tests that require the Status Cache to be built
-            public const string NeedsStatusCache = "NeedsStatusCache";
-
             // Tests that require Config to be built
             public const string NeedsScalarConfig = "NeedsConfig";
 
