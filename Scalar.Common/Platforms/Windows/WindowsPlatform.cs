@@ -3,7 +3,6 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Tracing;
-using Scalar.Platform.Windows.DiskLayoutUpgrades;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -30,7 +29,6 @@ namespace Scalar.Platform.Windows
         }
 
         public override IGitInstallation GitInstallation { get; } = new WindowsGitInstallation();
-        public override IDiskLayoutUpgradeData DiskLayoutUpgrade { get; } = new WindowsDiskLayoutUpgradeData();
         public override IPlatformFileSystem FileSystem { get; } = new WindowsFileSystem();
         public override string Name { get => "Windows"; }
         public override ScalarPlatformConstants Constants { get; } = new WindowsPlatformConstants();

@@ -23,7 +23,6 @@ namespace Scalar.Platform.Mac
         {
         }
 
-        public override IDiskLayoutUpgradeData DiskLayoutUpgrade { get; } = new MacDiskLayoutUpgradeData();
         public override string Name { get => "macOS"; }
         public override ScalarPlatformConstants Constants { get; } = new MacPlatformConstants();
         public override IPlatformFileSystem FileSystem { get; } = new MacFileSystem();
