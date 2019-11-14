@@ -542,25 +542,14 @@ namespace Scalar.CommandLine
                 Path.Combine(this.enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Head),
                 "ref: refs/heads/" + this.Branch);
 
-            if (!RepoMetadata.TryInitialize(this.tracer, this.enlistment.DotScalarRoot, out errorMessage))
-            {
-                this.tracer.RelatedError(errorMessage);
-                return new Result(errorMessage);
-            }
-
             try
             {
-                RepoMetadata.Instance.SaveCloneMetadata(this.tracer, this.enlistment);
                 this.LogEnlistmentInfoAndSetConfigValues(this.tracer, this.git, this.enlistment);
             }
             catch (Exception e)
             {
                 this.tracer.RelatedError(e.ToString());
                 return new Result(e.Message);
-            }
-            finally
-            {
-                RepoMetadata.Shutdown();
             }
 
             return new Result(true);

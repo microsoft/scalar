@@ -723,22 +723,7 @@ You can specify a URL, a name of a configured cache server, or the special names
 
             protected abstract void Execute(ScalarEnlistment enlistment);
 
-            protected void InitializeLocalCacheAndObjectsPaths(
-                ITracer tracer,
-                ScalarEnlistment enlistment)
-            {
-                string error;
-                if (!RepoMetadata.TryInitialize(tracer, Path.Combine(enlistment.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot), out error))
-                {
-                    this.ReportErrorAndExit(tracer, "Failed to initialize repo metadata: " + error);
-                }
-
-                this.InitializeCachePaths(tracer, enlistment);
-
-                RepoMetadata.Shutdown();
-            }
-
-            private void InitializeCachePaths(
+            protected void InitializeCachePaths(
                 ITracer tracer,
                 ScalarEnlistment enlistment)
             {
