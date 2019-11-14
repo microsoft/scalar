@@ -22,8 +22,6 @@ namespace Scalar.Common
                   authentication: authentication)
         {
             this.DotScalarRoot = Path.Combine(this.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot);
-            this.GitStatusCacheFolder = Path.Combine(this.DotScalarRoot, ScalarConstants.DotScalar.GitStatusCache.Name);
-            this.GitStatusCachePath = Path.Combine(this.DotScalarRoot, ScalarConstants.DotScalar.GitStatusCache.CachePath);
             this.ScalarLogsRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Logs.Root);
             this.LocalObjectsRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Objects.Root);
         }
@@ -47,8 +45,6 @@ namespace Scalar.Common
         public override string GitObjectsRoot { get; protected set; }
         public override string LocalObjectsRoot { get; protected set; }
         public override string GitPackRoot { get; protected set; }
-        public string GitStatusCacheFolder { get; private set; }
-        public string GitStatusCachePath { get; private set; }
 
         // These version properties are only used in logging during clone and mount to track version numbers
         public string GitVersion
