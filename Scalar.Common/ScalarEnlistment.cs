@@ -24,7 +24,7 @@ namespace Scalar.Common
             this.DotScalarRoot = Path.Combine(this.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot);
             this.GitStatusCacheFolder = Path.Combine(this.DotScalarRoot, ScalarConstants.DotScalar.GitStatusCache.Name);
             this.GitStatusCachePath = Path.Combine(this.DotScalarRoot, ScalarConstants.DotScalar.GitStatusCache.CachePath);
-            this.ScalarLogsRoot = Path.Combine(this.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot, ScalarConstants.DotScalar.LogName);
+            this.ScalarLogsRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Logs.Root);
             this.LocalObjectsRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Objects.Root);
         }
 

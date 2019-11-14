@@ -1,9 +1,7 @@
 using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Tests;
-using Scalar.Tests.Should;
 using System;
 using System.IO;
-using System.Threading;
 
 namespace Scalar.FunctionalTests.Tools
 {
@@ -67,7 +65,7 @@ namespace Scalar.FunctionalTests.Tools
 
         public string ScalarLogsRoot
         {
-            get { return Path.Combine(this.DotScalarRoot, "logs"); }
+            get { return Path.Combine(this.RepoRoot, ".git", "logs"); }
         }
 
         public string DiagnosticsRoot
