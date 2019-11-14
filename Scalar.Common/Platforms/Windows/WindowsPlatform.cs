@@ -327,11 +327,6 @@ namespace Scalar.Platform.Windows
             return new WindowsProductUpgraderPlatformStrategy(fileSystem, tracer);
         }
 
-        public override bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage)
-        {
-            return WindowsPlatform.TryGetScalarEnlistmentRootImplementation(directory, out enlistmentRoot, out errorMessage);
-        }
-
         public override bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError)
         {
             string pathRoot;

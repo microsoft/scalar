@@ -91,26 +91,6 @@ namespace Scalar.Platform.Windows
             return FileType.Disk == GetFileType(GetStdHandle(StdHandle.Stdout));
         }
 
-        public static bool TryGetScalarEnlistmentRootImplementation(string directory, out string enlistmentRoot, out string errorMessage)
-        {
-            enlistmentRoot = null;
-
-            string finalDirectory;
-            if (!WindowsFileSystem.TryGetNormalizedPathImplementation(directory, out finalDirectory, out errorMessage))
-            {
-                return false;
-            }
-
-            enlistmentRoot = Paths.GetRoot(finalDirectory, DotScalarRoot);
-            if (enlistmentRoot == null)
-            {
-                errorMessage = $"Failed to find the root directory for {DotScalarRoot} in {finalDirectory}";
-                return false;
-            }
-
-            return true;
-        }
-
         public static string GetUpgradeProtectedDataDirectoryImplementation()
         {
             return Path.Combine(GetDataRootForScalarImplementation(), ProductUpgraderInfo.UpgradeDirectoryName);

@@ -539,21 +539,6 @@ You can specify a URL, a name of a configured cache server, or the special names
             return downloadResult.ExitCodeIsSuccess;
         }
 
-        protected void LogEnlistmentInfoAndSetConfigValues(ITracer tracer, GitProcess git, ScalarEnlistment enlistment)
-        {
-            EventMetadata metadata = this.CreateEventMetadata();
-            metadata.Add(nameof(RepoMetadata.Instance.EnlistmentId), RepoMetadata.Instance.EnlistmentId);
-            metadata.Add("Enlistment", enlistment);
-            metadata.Add("PhysicalDiskInfo", ScalarPlatform.Instance.GetPhysicalDiskInfo(enlistment.WorkingDirectoryRoot, sizeStatsOnly: false));
-            tracer.RelatedEvent(EventLevel.Informational, "EnlistmentInfo", metadata, Keywords.Telemetry);
-
-            GitProcess.Result configResult = git.SetInLocalConfig(ScalarConstants.GitConfig.EnlistmentId, RepoMetadata.Instance.EnlistmentId, replaceAll: true);
-            if (configResult.ExitCodeIsFailure)
-            {
-                string error = "Could not update config with enlistment id, error: " + configResult.Errors;
-                tracer.RelatedWarning(error);
-            }
-        }
         private static bool TrySetConfig(Enlistment enlistment, Dictionary<string, string> configSettings, bool isRequired)
         {
             GitProcess git = new GitProcess(enlistment);
