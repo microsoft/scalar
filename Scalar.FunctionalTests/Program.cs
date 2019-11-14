@@ -107,8 +107,6 @@ namespace Scalar.FunctionalTests
                 excludeCategories.Add(Categories.MacOnly);
             }
 
-            ScalarTestConfig.DotScalarRoot = ".scalar";
-
             ScalarTestConfig.RepoToClone =
                 runner.GetCustomArgWithParam("--repo-to-clone")
                 ?? Properties.Settings.Default.RepoToClone;

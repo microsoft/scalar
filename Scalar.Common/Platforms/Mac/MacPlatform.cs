@@ -140,11 +140,6 @@ namespace Scalar.Platform.Mac
                 get { return ScalarConstants.WorkingDirectoryRootName; }
             }
 
-            public override string DotScalarRoot
-            {
-                get { return MacPlatform.DotScalarRoot; }
-            }
-
             public override string ScalarBinDirectoryPath
             {
                 get { return Path.Combine("/usr", "local", this.ScalarBinDirectoryName); }

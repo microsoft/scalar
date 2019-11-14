@@ -99,25 +99,6 @@ namespace Scalar.Common
             public const string UpgradeProcess = UpgradePrefix + "_process";
         }
 
-        public static class DotScalar
-        {
-            public const string CorruptObjectsName = "CorruptObjects";
-            public const string LogName = "logs";
-
-            public static class Databases
-            {
-                public const string Name = "databases";
-
-                public static readonly string RepoMetadata = Path.Combine(Name, "RepoMetadata.dat");
-            }
-
-            public static class GitStatusCache
-            {
-                public const string Name = "gitStatusCache";
-                public static readonly string CachePath = Path.Combine(Name, "GitStatusCache.dat");
-            }
-        }
-
         public static class DotGit
         {
             public const string Root = ".git";

@@ -58,11 +58,6 @@ namespace Scalar.FunctionalTests.Tools
             get { return Path.Combine(this.EnlistmentRoot, "src"); }
         }
 
-        public string DotScalarRoot
-        {
-            get { return Path.Combine(this.EnlistmentRoot, ScalarTestConfig.DotScalarRoot); }
-        }
-
         public string ScalarLogsRoot
         {
             get { return Path.Combine(this.RepoRoot, ".git", "logs"); }
@@ -268,7 +263,7 @@ namespace Scalar.FunctionalTests.Tools
 
         private static string GetRepoSpecificLocalCacheRoot(string enlistmentRoot)
         {
-            return Path.Combine(enlistmentRoot, ScalarTestConfig.DotScalarRoot, ".scalarCache");
+            return Path.Combine(enlistmentRoot, ".scalarCache");
         }
     }
 }

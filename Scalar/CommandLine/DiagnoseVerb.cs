@@ -81,9 +81,6 @@ namespace Scalar.CommandLine
                 this.ShowStatusWhileRunning(
                     () =>
                     {
-                        // .scalar
-                        this.CopyAllFiles(enlistment.EnlistmentRoot, archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot, copySubFolders: false);
-
                         // .git
                         this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, ScalarConstants.DotGit.Root, copySubFolders: false);
                         this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, ScalarConstants.DotGit.Hooks.Root, copySubFolders: false);

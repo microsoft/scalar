@@ -10,8 +10,6 @@ namespace Scalar.Platform.Windows
 {
     public partial class WindowsPlatform
     {
-        public const string DotScalarRoot = ".scalar";
-
         private const int StillActive = 259; /* from Win32 STILL_ACTIVE */
 
         private enum StdHandle
@@ -67,11 +65,6 @@ namespace Scalar.Platform.Windows
 
                 return false;
             }
-        }
-
-        public static string GetNamedPipeNameImplementation(string enlistmentRoot)
-        {
-            return "Scalar_" + enlistmentRoot.ToUpper().Replace(':', '_');
         }
 
         public static string GetDataRootForScalarImplementation()

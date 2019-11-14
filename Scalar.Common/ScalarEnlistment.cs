@@ -21,7 +21,6 @@ namespace Scalar.Common
                   flushFileBuffersForPacks: true,
                   authentication: authentication)
         {
-            this.DotScalarRoot = Path.Combine(this.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot);
             this.ScalarLogsRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Logs.Root);
             this.LocalObjectsRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Objects.Root);
         }
@@ -35,8 +34,6 @@ namespace Scalar.Common
                   authentication)
         {
         }
-
-        public string DotScalarRoot { get; }
 
         public string ScalarLogsRoot { get; }
 
@@ -162,7 +159,6 @@ namespace Scalar.Common
                 Directory.CreateDirectory(this.EnlistmentRoot);
                 ScalarPlatform.Instance.InitializeEnlistmentACLs(this.EnlistmentRoot);
                 Directory.CreateDirectory(this.WorkingDirectoryRoot);
-                this.CreateHiddenDirectory(this.DotScalarRoot);
             }
             catch (IOException)
             {

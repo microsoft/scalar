@@ -26,7 +26,5 @@ namespace Scalar.FunctionalTests
                     Path.Combine(Properties.Settings.Default.CurrentDirectory, Properties.Settings.Default.PathToScalar);
             }
         }
-
-        public static string DotScalarRoot { get; set; }
     }
 }
