@@ -36,13 +36,18 @@ namespace Scalar.CommandLine
 
             try
             {
-                // Stop watching watchman, if exists
-                ProcessResult result = ProcessHelper.Run("watchman", $"watch-del {Path.Combine(enlistmentRoot, ScalarConstants.WorkingDirectoryRootName)}");
+                string watchmanLocation = ProcessHelper.GetProgramLocation(ScalarPlatform.Instance.Constants.ProgramLocaterCommand, "watchman");
 
-                if (result.ExitCode != 0)
+                if (!string.IsNullOrEmpty(watchmanLocation))
                 {
-                    Console.Error.WriteLine($"Errors while communicating with Watchman (may not be installed):");
-                    Console.Error.WriteLine(result.Errors);
+                    // Stop watching watchman, if exists
+                    ProcessResult result = ProcessHelper.Run(watchmanLocation, $"watch-del {Path.Combine(enlistmentRoot, ScalarConstants.WorkingDirectoryRootName)}");
+
+                    if (result.ExitCode != 0)
+                    {
+                        Console.Error.WriteLine($"Errors while communicating with Watchman (may not be installed):");
+                        Console.Error.WriteLine(result.Errors);
+                    }
                 }
             }
             catch (Win32Exception)
