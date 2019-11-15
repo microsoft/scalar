@@ -27,7 +27,8 @@
     <ItemGroup>
       <ScriptTemplate Include="InstallScalar.template.bat" TargetPath="InstallScalar.bat"
                       Properties="##SCALAR_INSTALLER_EXE_PLACEHOLDER##=$(ScalarPackageFilename);
-                                  ##GIT_INSTALLER_EXE_PLACEHOLDER##=$(GitPackageFilename);" />
+                                  ##GIT_INSTALLER_EXE_PLACEHOLDER##=$(GitPackageFilename);
+                                  ##WATCHMAN_CI_URL_PLACEHOLDER##=$(WatchmanPackageUrl);" />
     </ItemGroup>
     <CompileTemplatedFile Template="@(ScriptTemplate)" OutputFile="$(DistributionOutputPath)\%(TargetPath)" />
   </Target>
