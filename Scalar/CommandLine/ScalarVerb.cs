@@ -542,6 +542,34 @@ You can specify a URL, a name of a configured cache server, or the special names
             return downloadResult.ExitCodeIsSuccess;
         }
 
+        protected ScalarEnlistment CreateEnlistment(string enlistmentRootPath, GitAuthentication authentication)
+        {
+            string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+            if (string.IsNullOrWhiteSpace(gitBinPath))
+            {
+                this.ReportErrorAndExit("Error: " + ScalarConstants.GitIsNotInstalledError);
+            }
+
+            ScalarEnlistment enlistment = null;
+            try
+            {
+                enlistment = ScalarEnlistment.CreateFromDirectory(
+                    enlistmentRootPath,
+                    gitBinPath,
+                    authentication,
+                    createWithoutRepoURL: !this.validateOriginURL);
+            }
+            catch (InvalidRepoException e)
+            {
+                this.ReportErrorAndExit(
+                    "Error: '{0}' is not a valid Scalar enlistment. {1}",
+                    enlistmentRootPath,
+                    e.Message);
+            }
+
+            return enlistment;
+        }
+
         private static bool TrySetConfig(Enlistment enlistment, Dictionary<string, string> configSettings, bool isRequired)
         {
             GitProcess git = new GitProcess(enlistment);
@@ -749,34 +777,6 @@ You can specify a URL, a name of a configured cache server, or the special names
                 }
 
                 enlistment.InitializeCachePaths(localCacheRoot, gitObjectsRoot);
-            }
-
-            private ScalarEnlistment CreateEnlistment(string enlistmentRootPath, GitAuthentication authentication)
-            {
-                string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
-                if (string.IsNullOrWhiteSpace(gitBinPath))
-                {
-                    this.ReportErrorAndExit("Error: " + ScalarConstants.GitIsNotInstalledError);
-                }
-
-                ScalarEnlistment enlistment = null;
-                try
-                {
-                    enlistment = ScalarEnlistment.CreateFromDirectory(
-                        enlistmentRootPath,
-                        gitBinPath,
-                        authentication,
-                        createWithoutRepoURL: !this.validateOriginURL);
-                }
-                catch (InvalidRepoException e)
-                {
-                    this.ReportErrorAndExit(
-                        "Error: '{0}' is not a valid Scalar enlistment. {1}",
-                        enlistmentRootPath,
-                        e.Message);
-                }
-
-                return enlistment;
             }
         }
 
