@@ -178,6 +178,9 @@ namespace Scalar.CommandLine
                 { "receive.autogc", "false" },
                 { "reset.quiet", "true" },
                 { "http.version", "HTTP/1.1" },
+                { "feature.manyFiles", "false" },
+                { "feature.experimental", "false" },
+                { "fetch.writeCommitGraph", "false" },
             };
 
             if (!TrySetConfig(enlistment, requiredSettings, isRequired: true))
