@@ -135,10 +135,5 @@ namespace Scalar.Common
 
             return result;
         }
-
-        public static string GetScalarLogMessage(string enlistmentRoot)
-        {
-            return "Run 'scalar log " + enlistmentRoot + "' for more info.";
-        }
     }
 }
