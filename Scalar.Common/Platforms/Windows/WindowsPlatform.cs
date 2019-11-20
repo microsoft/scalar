@@ -3,7 +3,6 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Tracing;
-using Scalar.Platform.Windows.DiskLayoutUpgrades;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -30,7 +29,6 @@ namespace Scalar.Platform.Windows
         }
 
         public override IGitInstallation GitInstallation { get; } = new WindowsGitInstallation();
-        public override IDiskLayoutUpgradeData DiskLayoutUpgrade { get; } = new WindowsDiskLayoutUpgradeData();
         public override IPlatformFileSystem FileSystem { get; } = new WindowsFileSystem();
         public override string Name { get => "Windows"; }
         public override ScalarPlatformConstants Constants { get; } = new WindowsPlatformConstants();
@@ -327,11 +325,6 @@ namespace Scalar.Platform.Windows
             return new WindowsProductUpgraderPlatformStrategy(fileSystem, tracer);
         }
 
-        public override bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage)
-        {
-            return WindowsPlatform.TryGetScalarEnlistmentRootImplementation(directory, out enlistmentRoot, out errorMessage);
-        }
-
         public override bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError)
         {
             string pathRoot;
@@ -402,11 +395,6 @@ namespace Scalar.Platform.Windows
             public override string WorkingDirectoryBackingRootPath
             {
                 get { return ScalarConstants.WorkingDirectoryRootName; }
-            }
-
-            public override string DotScalarRoot
-            {
-                get { return WindowsPlatform.DotScalarRoot; }
             }
 
             public override string ScalarBinDirectoryPath

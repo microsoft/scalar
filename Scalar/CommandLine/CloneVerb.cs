@@ -247,8 +247,7 @@ namespace Scalar.CommandLine
                     cloneResult = this.CreateClone();
                     return cloneResult.Success;
                 },
-                "Cloning",
-                normalizedEnlistmentRootPath);
+                "Cloning");
 
                 if (!cloneResult.Success)
                 {
@@ -459,9 +458,7 @@ namespace Scalar.CommandLine
 
         private void CheckNotInsideExistingRepo(string normalizedEnlistmentRootPath)
         {
-            string errorMessage;
-            string existingEnlistmentRoot;
-            if (ScalarPlatform.Instance.TryGetScalarEnlistmentRoot(normalizedEnlistmentRootPath, out existingEnlistmentRoot, out errorMessage))
+            if (ScalarEnlistment.TryGetScalarEnlistmentRoot(normalizedEnlistmentRootPath, out string existingEnlistmentRoot))
             {
                 this.ReportErrorAndExit("Error: You can't clone inside an existing Scalar repo ({0})", existingEnlistmentRoot);
             }
@@ -545,25 +542,14 @@ namespace Scalar.CommandLine
                 Path.Combine(this.enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Head),
                 "ref: refs/heads/" + this.Branch);
 
-            if (!RepoMetadata.TryInitialize(this.tracer, this.enlistment.DotScalarRoot, out errorMessage))
-            {
-                this.tracer.RelatedError(errorMessage);
-                return new Result(errorMessage);
-            }
-
             try
             {
-                RepoMetadata.Instance.SaveCloneMetadata(this.tracer, this.enlistment);
                 this.LogEnlistmentInfoAndSetConfigValues(this.tracer, this.git, this.enlistment);
             }
             catch (Exception e)
             {
                 this.tracer.RelatedError(e.ToString());
                 return new Result(e.Message);
-            }
-            finally
-            {
-                RepoMetadata.Shutdown();
             }
 
             return new Result(true);
@@ -652,6 +638,24 @@ namespace Scalar.CommandLine
             }
 
             return new Result(true);
+        }
+
+        private void LogEnlistmentInfoAndSetConfigValues(ITracer tracer, GitProcess git, ScalarEnlistment enlistment)
+        {
+            string enlistmentId = Guid.NewGuid().ToString("N");
+            EventMetadata metadata = this.CreateEventMetadata();
+            metadata.Add("Enlistment", enlistment);
+            metadata.Add("EnlistmentId", enlistmentId);
+            metadata.Add("EnlistmentRoot", enlistment.EnlistmentRoot);
+            metadata.Add("PhysicalDiskInfo", ScalarPlatform.Instance.GetPhysicalDiskInfo(enlistment.WorkingDirectoryRoot, sizeStatsOnly: false));
+            tracer.RelatedEvent(EventLevel.Informational, "EnlistmentInfo", metadata, Keywords.Telemetry);
+
+            GitProcess.Result configResult = git.SetInLocalConfig(ScalarConstants.GitConfig.EnlistmentId, enlistmentId, replaceAll: true);
+            if (configResult.ExitCodeIsFailure)
+            {
+                string error = "Could not update config with enlistment id, error: " + configResult.Errors;
+                tracer.RelatedWarning(error);
+            }
         }
 
         private class Result

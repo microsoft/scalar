@@ -21,8 +21,6 @@ namespace Scalar.UnitTests.Mock.Common
 
         public override IGitInstallation GitInstallation { get; } = new MockGitInstallation();
 
-        public override IDiskLayoutUpgradeData DiskLayoutUpgrade => throw new NotSupportedException();
-
         public override IPlatformFileSystem FileSystem { get; } = new MockPlatformFileSystem();
 
         public override string Name { get => "Mock"; }
@@ -126,11 +124,6 @@ namespace Scalar.UnitTests.Mock.Common
             throw new NotSupportedException();
         }
 
-        public override bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage)
-        {
-            throw new NotSupportedException();
-        }
-
         public override bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError)
         {
             throw new NotImplementedException();
@@ -180,11 +173,6 @@ namespace Scalar.UnitTests.Mock.Common
             public override string WorkingDirectoryBackingRootPath
             {
                 get { return ScalarConstants.WorkingDirectoryRootName; }
-            }
-
-            public override string DotScalarRoot
-            {
-                get { return ".mockscalar"; }
             }
 
             public override string ScalarBinDirectoryPath

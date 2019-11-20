@@ -9,7 +9,6 @@ namespace Scalar.Common.Tracing
     {
         private readonly string providerName;
         private readonly string enlistmentId;
-        private readonly string mountId;
         private readonly string vfsVersion;
 
         private QueuedPipeStringWriter pipeWriter;
@@ -17,14 +16,12 @@ namespace Scalar.Common.Tracing
         private TelemetryDaemonEventListener(
             string providerName,
             string enlistmentId,
-            string mountId,
             string pipeName,
             IEventListenerEventSink eventSink)
             : base(EventLevel.Verbose, Keywords.Telemetry, eventSink)
         {
             this.providerName = providerName;
             this.enlistmentId = enlistmentId;
-            this.mountId = mountId;
             this.vfsVersion = ProcessHelper.GetCurrentProcessVersion();
 
             this.pipeWriter = new QueuedPipeStringWriter(
@@ -35,13 +32,13 @@ namespace Scalar.Common.Tracing
 
         public string GitCommandSessionId { get; set; }
 
-        public static TelemetryDaemonEventListener CreateIfEnabled(string gitBinRoot, string providerName, string enlistmentId, string mountId, IEventListenerEventSink eventSink)
+        public static TelemetryDaemonEventListener CreateIfEnabled(string gitBinRoot, string providerName, string enlistmentId, IEventListenerEventSink eventSink)
         {
             // This listener is disabled unless the user specifies the proper git config setting.
             string telemetryPipe = GetConfigValue(gitBinRoot, ScalarConstants.GitConfig.ScalarTelemetryPipe);
             if (!string.IsNullOrEmpty(telemetryPipe))
             {
-                return new TelemetryDaemonEventListener(providerName, enlistmentId, mountId, telemetryPipe, eventSink);
+                return new TelemetryDaemonEventListener(providerName, enlistmentId, telemetryPipe, eventSink);
             }
             else
             {
@@ -116,7 +113,6 @@ namespace Scalar.Common.Tracing
                 Payload = new PipeMessage.PipeMessagePayload
                 {
                     EnlistmentId = this.enlistmentId,
-                    MountId = this.mountId,
                     GitCommandSessionId = this.GitCommandSessionId,
                     Json = message.Payload
                 },
@@ -156,8 +152,6 @@ namespace Scalar.Common.Tracing
             {
                 [JsonProperty("enlistmentId")]
                 public string EnlistmentId { get; set; }
-                [JsonProperty("mountId")]
-                public string MountId { get; set; }
                 [JsonProperty("gitCommandSessionId")]
                 public string GitCommandSessionId { get; set; }
                 [JsonProperty("json")]
