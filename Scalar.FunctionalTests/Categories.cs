@@ -12,9 +12,6 @@ namespace Scalar.FunctionalTests
 
         public static class MacTODO
         {
-            // Tests that require #360 (detecting/handling new empty folders)
-            public const string NeedsNewFolderCreateNotification = "NeedsNewFolderCreateNotification";
-
             // Tests that require Config to be built
             public const string NeedsScalarConfig = "NeedsConfig";
 

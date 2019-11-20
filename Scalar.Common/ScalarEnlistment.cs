@@ -95,21 +95,27 @@ namespace Scalar.Common
 
         public static bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot)
         {
-            // First, find a parent folder that exists.
-            while (!Directory.Exists(directory))
+            if (!ScalarPlatform.Instance.FileSystem.TryGetNormalizedPath(directory, out string normalized, out string _))
             {
-                directory = Path.GetDirectoryName(directory);
+                enlistmentRoot = null;
+                return false;
+            }
+
+            // First, find a parent folder that exists.
+            while (!Directory.Exists(normalized))
+            {
+                normalized = Path.GetDirectoryName(normalized);
             }
 
             // Second, check all parent folders to see if they
             // contain a "src/.git" or ".git" folder.
-            while (!string.IsNullOrEmpty(directory))
+            while (!string.IsNullOrEmpty(normalized))
             {
-                string srcDir = Path.Combine(directory, ScalarConstants.WorkingDirectoryRootName);
+                string srcDir = Path.Combine(normalized, ScalarConstants.WorkingDirectoryRootName);
 
                 if (!Directory.Exists(srcDir))
                 {
-                    srcDir = directory;
+                    srcDir = normalized;
                 }
 
                 string gitDir = Path.Combine(srcDir, ScalarConstants.DotGit.Root);
@@ -117,11 +123,11 @@ namespace Scalar.Common
                 if (Directory.Exists(gitDir) || File.Exists(gitDir))
                 {
                     // We have a .git directory OR a .git file (in the case of worktrees)
-                    enlistmentRoot = directory;
+                    enlistmentRoot = normalized;
                     return true;
                 }
 
-                directory = Directory.GetParent(directory)?.FullName;
+                normalized = Directory.GetParent(normalized)?.FullName;
             }
 
             enlistmentRoot = null;
