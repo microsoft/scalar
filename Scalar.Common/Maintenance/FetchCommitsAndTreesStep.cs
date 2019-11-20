@@ -35,8 +35,6 @@ namespace Scalar.Common.Maintenance
                 gitProcess = new GitProcess(this.Context.Enlistment);
             }
 
-            List<string> packIndexes;
-
             // We take our own lock here to keep background and foreground fetches
             // (i.e. a user running 'scalar maintenance --fetch-commits-and-trees')
             // from running at the same time.
@@ -46,25 +44,22 @@ namespace Scalar.Common.Maintenance
                 Path.Combine(this.Context.Enlistment.GitPackRoot, FetchCommitsAndTreesLock)))
             {
                 WaitUntilLockIsAcquired(this.Context.Tracer, fetchLock);
-                long maxGoodTimeStamp;
 
                 this.GitObjects.DeleteStaleTempPrefetchPackAndIdxs();
                 this.GitObjects.DeleteTemporaryFiles();
 
-                if (!this.TryGetMaxGoodPrefetchPackTimestamp(out maxGoodTimeStamp, out error))
-                {
-                    return false;
-                }
+                GitProcess.Result result = gitProcess.GvfsHelperPrefetch();
 
-                if (!this.GitObjects.TryDownloadPrefetchPacks(gitProcess, maxGoodTimeStamp, out packIndexes))
+                if (result.ExitCodeIsFailure)
                 {
-                    error = "Failed to download prefetch packs";
+                    error = result.Errors;
                     return false;
                 }
 
                 this.UpdateKeepPacks();
             }
 
+            error = null;
             return true;
         }
 

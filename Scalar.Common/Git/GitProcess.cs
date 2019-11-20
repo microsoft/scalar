@@ -449,6 +449,11 @@ namespace Scalar.Common.Git
                 });
         }
 
+        public Result GvfsHelperPrefetch()
+        {
+            return this.InvokeGitInWorkingDirectoryRoot("gvfs-helper prefetch", fetchMissingObjects: false);
+        }
+
         public Result Status(bool allowObjectDownloads, bool useStatusCache, bool showUntracked = false)
         {
             string command = "status";
