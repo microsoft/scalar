@@ -22,8 +22,16 @@
     <PackageReference Include="Tools.InnoSetup" />
   </ItemGroup>
 
-  <!-- Only create the installer on 'publish' and when running on Windows -->
-  <Target Name="CreateInstaller" AfterTargets="Publish" Condition="'$(OSPlatform)' == 'windows'" >
+  <!-- Only create the installer when running on Windows -->
+  <Target Name="BuildInstaller" AfterTargets="Publish" Condition="'$(OSPlatform)' == 'windows'" >
+    <!-- Ensure all projects have been published with the correct runtime identifier and configuration -->
+    <MSBuild Projects="@(ProjectReference)"
+             Targets="Publish"
+             Properties="
+             Configuration=$(Configuration);
+             RuntimeIdentifier=$(RuntimeIdentifier);"
+             BuildInParallel="true" />
+
     <!-- Bring together all published binaries -->
     <PropertyGroup>
       <PublishPathFragment>bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish\</PublishPathFragment>
