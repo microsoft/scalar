@@ -28,11 +28,15 @@ namespace Scalar.CommandLine
 
         public override void Execute()
         {
-            this.enlistmentRoot = this.EnlistmentFolder;
-
-            if (!Path.IsPathRooted(enlistmentRoot))
+            if (!Path.IsPathRooted(this.EnlistmentFolder))
             {
-                this.enlistmentRoot = Path.Combine(Directory.GetCurrentDirectory(), this.EnlistmentFolder);
+                this.EnlistmentFolder = Path.Combine(Directory.GetCurrentDirectory(), this.EnlistmentFolder);
+            }
+
+            if (!ScalarPlatform.Instance.FileSystem.TryGetNormalizedPath(this.EnlistmentFolder, out this.enlistmentRoot, out string error))
+            {
+                Console.Error.WriteLine($"Error while finding normalized path for '{this.EnlistmentFolder}': {error}");
+                Environment.Exit(1);
             }
 
             // Move out of enlistment and into parent folder
@@ -40,7 +44,7 @@ namespace Scalar.CommandLine
             Directory.SetCurrentDirectory(parentDir);
 
             this.StopFileSystemWatcher();
-            this.TryUnegisterRepo();
+            this.TryUnregisterRepo();
             this.DeleteEnlistment();
         }
 
@@ -48,12 +52,16 @@ namespace Scalar.CommandLine
         {
             try
             {
-                string watchmanLocation = ProcessHelper.GetProgramLocation(ScalarPlatform.Instance.Constants.ProgramLocaterCommand, "watchman");
+                string watchmanProcess = "watchman";
+                string watchmanLocation = ProcessHelper.GetProgramLocation(ScalarPlatform.Instance.Constants.ProgramLocaterCommand, watchmanProcess);
 
                 if (!string.IsNullOrEmpty(watchmanLocation))
                 {
+                    string watchmanPath = Path.Combine(watchmanLocation, watchmanProcess);
+
                     // Stop watching watchman, if exists
-                    ProcessResult result = ProcessHelper.Run(watchmanLocation, $"watch-del {Path.Combine(this.enlistmentRoot, ScalarConstants.WorkingDirectoryRootName)}");
+                    string argument = $"watch-del {Path.Combine(this.enlistmentRoot, ScalarConstants.WorkingDirectoryRootName)}";
+                    ProcessResult result = ProcessHelper.Run(watchmanPath, argument);
 
                     if (result.ExitCode != 0)
                     {
@@ -68,7 +76,7 @@ namespace Scalar.CommandLine
             }
         }
 
-        private void TryUnegisterRepo()
+        private void TryUnregisterRepo()
         {
             string repoRegistryLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
             ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
@@ -76,7 +84,16 @@ namespace Scalar.CommandLine
                                                         new PhysicalFileSystem(),
                                                         repoRegistryLocation);
 
-            if (!repoRegistry.TryUnregisterRepo(this.enlistmentRoot, out string error))
+            bool found = false;
+            foreach (ScalarRepoRegistration registration in repoRegistry.GetRegisteredRepos())
+            {
+                if (registration.NormalizedRepoRoot.Equals(this.enlistmentRoot))
+                {
+                    found = true;
+                }
+            }
+
+            if (found && !repoRegistry.TryUnregisterRepo(this.enlistmentRoot, out string error))
             {
                 Console.Error.WriteLine($"Error while unregistering repo: {error}");
             }
