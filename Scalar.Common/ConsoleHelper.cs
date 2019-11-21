@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Scalar.Common
@@ -18,6 +19,7 @@ namespace Scalar.Common
             string message,
             TextWriter output,
             bool showSpinner,
+            string scalarLogEnlistmentRoot,
             int initialDelayMs = 0)
         {
             Func<ActionResult> actionResultAction =
@@ -31,6 +33,7 @@ namespace Scalar.Common
                 message,
                 output,
                 showSpinner,
+                scalarLogEnlistmentRoot,
                 initialDelayMs: initialDelayMs);
 
             return result == ActionResult.Success;
@@ -41,6 +44,7 @@ namespace Scalar.Common
             string message,
             TextWriter output,
             bool showSpinner,
+            string scalarLogEnlistmentRoot,
             int initialDelayMs)
         {
             ActionResult result = ActionResult.Failure;
@@ -128,12 +132,17 @@ namespace Scalar.Common
                             output.Write("\r{0}...", message);
                         }
 
-                        output.WriteLine("Failed");
+                        output.WriteLine("Failed" + (scalarLogEnlistmentRoot == null ? string.Empty : ". " + GetScalarLogMessage(scalarLogEnlistmentRoot)));
                         break;
                 }
             }
 
             return result;
+        }
+
+        public static string GetScalarLogMessage(string enlistmentRoot)
+        {
+            return "Run 'scalar log " + enlistmentRoot + "' for more info.";
         }
     }
 }

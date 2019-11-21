@@ -19,7 +19,7 @@ namespace Scalar.Common
         {
             if (ScalarEnlistment.IsUnattended(tracer: null))
             {
-                localCacheRoot = Path.Combine(enlistment.EnlistmentRoot, ScalarConstants.DefaultScalarCacheFolderName);
+                localCacheRoot = Path.Combine(enlistment.DotScalarRoot, ScalarConstants.DefaultScalarCacheFolderName);
                 localCacheRootError = null;
                 return true;
             }

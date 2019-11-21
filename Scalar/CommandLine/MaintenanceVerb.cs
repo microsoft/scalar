@@ -64,7 +64,7 @@ namespace Scalar.CommandLine
                             { nameof(this.StartedByService), this.StartedByService },
                         }));
 
-                this.InitializeCachePaths(tracer, enlistment);
+                this.InitializeLocalCacheAndObjectsPaths(tracer, enlistment);
                 PhysicalFileSystem fileSystem = new PhysicalFileSystem();
                 using (ScalarContext context = new ScalarContext(tracer, fileSystem, enlistment))
                 {
@@ -187,7 +187,7 @@ namespace Scalar.CommandLine
                 this.Output.WriteLine("Configured cache server: " + cacheServer);
             }
 
-            this.InitializeCachePaths(tracer, enlistment);
+            this.InitializeLocalCacheAndObjectsPaths(tracer, enlistment);
             objectRequestor = new GitObjectsHttpRequestor(tracer, enlistment, cacheServer, retryConfig);
         }
 

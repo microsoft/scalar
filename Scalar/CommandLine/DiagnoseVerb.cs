@@ -33,7 +33,7 @@ namespace Scalar.CommandLine
 
         protected override void Execute(ScalarEnlistment enlistment)
         {
-            string diagnosticsRoot = Path.Combine(enlistment.EnlistmentRoot, ".scalarDiagnostics");
+            string diagnosticsRoot = Path.Combine(enlistment.DotScalarRoot, "diagnostics");
 
             if (!Directory.Exists(diagnosticsRoot))
             {
@@ -81,6 +81,9 @@ namespace Scalar.CommandLine
                 this.ShowStatusWhileRunning(
                     () =>
                     {
+                        // .scalar
+                        this.CopyAllFiles(enlistment.EnlistmentRoot, archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot, copySubFolders: false);
+
                         // .git
                         this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, ScalarConstants.DotGit.Root, copySubFolders: false);
                         this.CopyAllFiles(enlistment.WorkingDirectoryRoot, archiveFolderPath, ScalarConstants.DotGit.Hooks.Root, copySubFolders: false);
@@ -91,8 +94,14 @@ namespace Scalar.CommandLine
                         this.LogDirectoryEnumeration(enlistment.WorkingDirectoryRoot, Path.Combine(archiveFolderPath, ScalarConstants.DotGit.Objects.Root), ScalarConstants.DotGit.Objects.Pack.Root, "packs-local.txt");
                         this.LogLooseObjectCount(enlistment.WorkingDirectoryRoot, Path.Combine(archiveFolderPath, ScalarConstants.DotGit.Objects.Root), ScalarConstants.DotGit.Objects.Root, "objects-local.txt");
 
+                        // databases
+                        this.CopyAllFiles(enlistment.DotScalarRoot, Path.Combine(archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot), ScalarConstants.DotScalar.Databases.Name, copySubFolders: false);
+
                         // local cache
                         this.CopyLocalCacheData(archiveFolderPath, gitObjectsRoot);
+
+                        // corrupt objects
+                        this.CopyAllFiles(enlistment.DotScalarRoot, Path.Combine(archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot), ScalarConstants.DotScalar.CorruptObjectsName, copySubFolders: false);
 
                         // service
                         this.CopyAllFiles(
@@ -141,7 +150,7 @@ namespace Scalar.CommandLine
                     },
                     "Copying logs");
 
-                this.CopyAllFiles(enlistment.DotGitRoot, archiveFolderPath, ScalarConstants.DotGit.Logs.Name, copySubFolders: false);
+                this.CopyAllFiles(enlistment.DotScalarRoot, Path.Combine(archiveFolderPath, ScalarPlatform.Instance.Constants.DotScalarRoot), "logs", copySubFolders: false);
             }
 
             string zipFilePath = archiveFolderPath + ".zip";
@@ -153,7 +162,8 @@ namespace Scalar.CommandLine
 
                     return true;
                 },
-                "Creating zip file");
+                "Creating zip file",
+                suppressGvfsLogMessage: true);
 
             this.Output.WriteLine();
             this.Output.WriteLine("Diagnostics complete. All of the gathered info, as well as all of the output above, is captured in");
@@ -262,6 +272,10 @@ namespace Scalar.CommandLine
             catch (Exception e)
             {
                 this.WriteMessage(string.Format("Failed to determine local cache path and git objects root, Exception: {0}", e));
+            }
+            finally
+            {
+                RepoMetadata.Shutdown();
             }
         }
 

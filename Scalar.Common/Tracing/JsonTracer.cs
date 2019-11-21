@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 
 namespace Scalar.Common.Tracing
 {
@@ -26,16 +27,16 @@ namespace Scalar.Common.Tracing
         private bool stopped = false;
 
         public JsonTracer(string providerName, string activityName, bool disableTelemetry = false)
-            : this(providerName, Guid.Empty, activityName, enlistmentId: null, disableTelemetry: disableTelemetry)
+            : this(providerName, Guid.Empty, activityName, enlistmentId: null, mountId: null, disableTelemetry: disableTelemetry)
         {
         }
 
-        public JsonTracer(string providerName, string activityName, string enlistmentId, bool disableTelemetry = false)
-            : this(providerName, Guid.Empty, activityName, enlistmentId, disableTelemetry)
+        public JsonTracer(string providerName, string activityName, string enlistmentId, string mountId, bool disableTelemetry = false)
+            : this(providerName, Guid.Empty, activityName, enlistmentId, mountId, disableTelemetry)
         {
         }
 
-        public JsonTracer(string providerName, Guid providerActivityId, string activityName, string enlistmentId, bool disableTelemetry = false)
+        public JsonTracer(string providerName, Guid providerActivityId, string activityName, string enlistmentId, string mountId, bool disableTelemetry = false)
             : this(
                   null,
                   providerActivityId,
@@ -54,7 +55,7 @@ namespace Scalar.Common.Tracing
                     return;
                 }
 
-                TelemetryDaemonEventListener daemonListener = TelemetryDaemonEventListener.CreateIfEnabled(gitBinRoot, providerName, enlistmentId, this);
+                TelemetryDaemonEventListener daemonListener = TelemetryDaemonEventListener.CreateIfEnabled(gitBinRoot, providerName, enlistmentId, mountId, this);
                 if (daemonListener != null)
                 {
                     this.listeners.Add(daemonListener);

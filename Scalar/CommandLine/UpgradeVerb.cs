@@ -231,7 +231,8 @@ namespace Scalar.CommandLine
                     upgradeCheckSuccess = this.TryCheckUpgradeAvailable(out version, out errorMessage);
                     return upgradeCheckSuccess;
                 },
-                 "Checking for Scalar upgrades");
+                 "Checking for Scalar upgrades",
+                suppressGvfsLogMessage: true);
 
             latestVersion = version;
             error = errorMessage;

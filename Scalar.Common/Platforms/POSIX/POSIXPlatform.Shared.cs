@@ -40,6 +40,26 @@ namespace Scalar.Platform.POSIX
             return false;
         }
 
+        public static bool TryGetScalarEnlistmentRootImplementation(string directory, string dotScalarRoot, out string enlistmentRoot, out string errorMessage)
+        {
+            enlistmentRoot = null;
+
+            string finalDirectory;
+            if (!POSIXFileSystem.TryGetNormalizedPathImplementation(directory, out finalDirectory, out errorMessage))
+            {
+                return false;
+            }
+
+            enlistmentRoot = Paths.GetRoot(finalDirectory, dotScalarRoot);
+            if (enlistmentRoot == null)
+            {
+                errorMessage = $"Failed to find the root directory for {dotScalarRoot} in {finalDirectory}";
+                return false;
+            }
+
+            return true;
+        }
+
         [DllImport("libc", EntryPoint = "geteuid", SetLastError = true)]
         private static extern int GetEuid();
     }
