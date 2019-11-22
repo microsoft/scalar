@@ -15,7 +15,7 @@ namespace Scalar.FunctionalTests.Tools
         private readonly string localCacheRoot;
 
         public ScalarProcess(ScalarFunctionalTestEnlistment enlistment)
-            : this(ScalarTestConfig.PathToScalar, enlistment.EnlistmentRoot, Path.Combine(enlistment.EnlistmentRoot, ".scalarCache"))
+            : this(ScalarTestConfig.PathToScalar, enlistment.EnlistmentRoot, Path.Combine(enlistment.EnlistmentRoot, ScalarTestConfig.DotScalarRoot))
         {
         }
 

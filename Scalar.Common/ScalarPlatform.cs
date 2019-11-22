@@ -19,6 +19,7 @@ namespace Scalar.Common
         public static ScalarPlatform Instance { get; private set; }
 
         public abstract IGitInstallation GitInstallation { get; }
+        public abstract IDiskLayoutUpgradeData DiskLayoutUpgrade { get; }
         public abstract IPlatformFileSystem FileSystem { get; }
 
         public abstract ScalarPlatformConstants Constants { get; }
@@ -100,6 +101,7 @@ namespace Scalar.Common
 
         public abstract bool TryKillProcessTree(int processId, out int exitCode, out string error);
 
+        public abstract bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage);
         public abstract bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError);
 
         public abstract FileBasedLock CreateFileBasedLock(
@@ -139,6 +141,7 @@ namespace Scalar.Common
             /// </summary>
             public abstract bool SupportsUpgradeWhileRunning { get; }
             public abstract string WorkingDirectoryBackingRootPath { get; }
+            public abstract string DotScalarRoot { get; }
 
             public abstract string ScalarBinDirectoryPath { get; }
 

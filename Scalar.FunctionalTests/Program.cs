@@ -85,8 +85,12 @@ namespace Scalar.FunctionalTests
                 includeCategories.Remove(Categories.ExtraCoverage);
             }
 
+            // Not just Mac, but no platform has status cache.
+            excludeCategories.Add(Categories.MacTODO.NeedsStatusCache);
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
+                excludeCategories.Add(Categories.MacTODO.NeedsNewFolderCreateNotification);
                 excludeCategories.Add(Categories.MacTODO.NeedsScalarConfig);
                 excludeCategories.Add(Categories.MacTODO.NeedsServiceVerb);
                 excludeCategories.Add(Categories.MacTODO.TestNeedsToLockFile);
@@ -105,6 +109,8 @@ namespace Scalar.FunctionalTests
             {
                 excludeCategories.Add(Categories.MacOnly);
             }
+
+            ScalarTestConfig.DotScalarRoot = ".scalar";
 
             ScalarTestConfig.RepoToClone =
                 runner.GetCustomArgWithParam("--repo-to-clone")

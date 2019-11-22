@@ -78,6 +78,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             ProcessResult result = ProcessHelper.Run(processInfo);
             result.ExitCode.ShouldEqual(0, result.Errors);
 
+            string dotScalarRoot = Path.Combine(newEnlistmentRoot, ScalarTestConfig.DotScalarRoot);
+            dotScalarRoot.ShouldBeADirectory(fileSystem);
             string gitObjectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(Path.Combine(newEnlistmentRoot, "src"));
 
             string defaultScalarCacheRoot = Path.Combine(homeDirectory, ".scalarCache");
@@ -101,7 +103,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             {
                 Directory.GetFiles(enlistment.EnlistmentRoot).ShouldBeEmpty("There should be no files in the enlistment root after cloning");
                 string[] directories = Directory.GetDirectories(enlistment.EnlistmentRoot);
-                directories.Length.ShouldEqual(1);
+                directories.Length.ShouldEqual(2);
+                directories.ShouldContain(x => Path.GetFileName(x).Equals(".scalar", StringComparison.Ordinal));
                 directories.ShouldContain(x => Path.GetFileName(x).Equals("src", StringComparison.Ordinal));
             }
             finally

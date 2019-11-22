@@ -10,6 +10,8 @@ namespace Scalar.Platform.Windows
 {
     public partial class WindowsPlatform
     {
+        public const string DotScalarRoot = ".scalar";
+
         private const int StillActive = 259; /* from Win32 STILL_ACTIVE */
 
         private enum StdHandle
@@ -67,6 +69,11 @@ namespace Scalar.Platform.Windows
             }
         }
 
+        public static string GetNamedPipeNameImplementation(string enlistmentRoot)
+        {
+            return "Scalar_" + enlistmentRoot.ToUpper().Replace(':', '_');
+        }
+
         public static string GetDataRootForScalarImplementation()
         {
             return Path.Combine(
@@ -82,6 +89,26 @@ namespace Scalar.Platform.Windows
         public static bool IsConsoleOutputRedirectedToFileImplementation()
         {
             return FileType.Disk == GetFileType(GetStdHandle(StdHandle.Stdout));
+        }
+
+        public static bool TryGetScalarEnlistmentRootImplementation(string directory, out string enlistmentRoot, out string errorMessage)
+        {
+            enlistmentRoot = null;
+
+            string finalDirectory;
+            if (!WindowsFileSystem.TryGetNormalizedPathImplementation(directory, out finalDirectory, out errorMessage))
+            {
+                return false;
+            }
+
+            enlistmentRoot = Paths.GetRoot(finalDirectory, DotScalarRoot);
+            if (enlistmentRoot == null)
+            {
+                errorMessage = $"Failed to find the root directory for {DotScalarRoot} in {finalDirectory}";
+                return false;
+            }
+
+            return true;
         }
 
         public static string GetUpgradeProtectedDataDirectoryImplementation()

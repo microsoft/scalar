@@ -23,6 +23,7 @@ namespace Scalar.Platform.Mac
         {
         }
 
+        public override IDiskLayoutUpgradeData DiskLayoutUpgrade { get; } = new MacDiskLayoutUpgradeData();
         public override string Name { get => "macOS"; }
         public override ScalarPlatformConstants Constants { get; } = new MacPlatformConstants();
         public override IPlatformFileSystem FileSystem { get; } = new MacFileSystem();
@@ -49,6 +50,11 @@ namespace Scalar.Platform.Mac
         public override string GetDataRootForScalarComponent(string componentName)
         {
             return MacPlatform.GetDataRootForScalarComponentImplementation(componentName);
+        }
+
+        public override bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string errorMessage)
+        {
+            return MacPlatform.TryGetScalarEnlistmentRootImplementation(directory, out enlistmentRoot, out errorMessage);
         }
 
         public override FileBasedLock CreateFileBasedLock(
@@ -138,6 +144,11 @@ namespace Scalar.Platform.Mac
             public override string WorkingDirectoryBackingRootPath
             {
                 get { return ScalarConstants.WorkingDirectoryRootName; }
+            }
+
+            public override string DotScalarRoot
+            {
+                get { return MacPlatform.DotScalarRoot; }
             }
 
             public override string ScalarBinDirectoryPath
