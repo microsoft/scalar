@@ -12,10 +12,38 @@ namespace Scalar.Common
 
         // New enlistment
         public ScalarEnlistment(string enlistmentRoot, string repoUrl, string gitBinPath, GitAuthentication authentication)
-            : base(
+            : this(
                   enlistmentRoot,
                   Path.Combine(enlistmentRoot, ScalarConstants.WorkingDirectoryRootName),
                   Path.Combine(enlistmentRoot, ScalarPlatform.Instance.Constants.WorkingDirectoryBackingRootPath),
+                  repoUrl,
+                  gitBinPath,
+                  authentication)
+        {
+        }
+
+        // Existing, configured enlistment
+        private ScalarEnlistment(string enlistmentRoot, string workingDirectory, string repoUrl, string gitBinPath, GitAuthentication authentication)
+            : this(
+                  enlistmentRoot,
+                  workingDirectory,
+                  workingDirectory,
+                  repoUrl,
+                  gitBinPath,
+                  authentication)
+        {
+        }
+
+        private ScalarEnlistment(string enlistmentRoot,
+                                 string workingDirectory,
+                                 string workingDirectoryBackingRoot,
+                                 string repoUrl,
+                                 string gitBinPath,
+                                 GitAuthentication authentication)
+            : base(
+                  enlistmentRoot,
+                  workingDirectory,
+                  workingDirectoryBackingRoot,
                   repoUrl,
                   gitBinPath,
                   flushFileBuffersForPacks: true,
@@ -23,16 +51,6 @@ namespace Scalar.Common
         {
             this.ScalarLogsRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Logs.Root);
             this.LocalObjectsRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Objects.Root);
-        }
-
-        // Existing, configured enlistment
-        private ScalarEnlistment(string enlistmentRoot, string gitBinPath, GitAuthentication authentication)
-            : this(
-                  enlistmentRoot,
-                  null,
-                  gitBinPath,
-                  authentication)
-        {
         }
 
         public string ScalarLogsRoot { get; }
@@ -63,8 +81,9 @@ namespace Scalar.Common
             if (Directory.Exists(directory))
             {
                 string enlistmentRoot;
+                string workingDirectory;
 
-                if (!TryGetScalarEnlistmentRoot(directory, out enlistmentRoot))
+                if (!TryGetScalarEnlistmentRoot(directory, out enlistmentRoot, out workingDirectory))
                 {
                     throw new InvalidRepoException($"Could not get enlistment root.");
                 }
@@ -74,7 +93,7 @@ namespace Scalar.Common
                     return new ScalarEnlistment(enlistmentRoot, string.Empty, gitBinRoot, authentication);
                 }
 
-                return new ScalarEnlistment(enlistmentRoot, gitBinRoot, authentication);
+                return new ScalarEnlistment(enlistmentRoot, workingDirectory, null, gitBinRoot, authentication);
             }
 
             throw new InvalidRepoException($"Directory '{directory}' does not exist");
@@ -93,29 +112,42 @@ namespace Scalar.Common
                 fileSystem: fileSystem);
         }
 
-        public static bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot)
+        public static bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string workingDirectoryRoot)
         {
             if (!ScalarPlatform.Instance.FileSystem.TryGetNormalizedPath(directory, out string normalized, out string _))
             {
                 enlistmentRoot = null;
+                workingDirectoryRoot = null;
                 return false;
             }
 
-            // First, find a parent folder that exists.
+            // Find a parent folder that exists.
             while (!Directory.Exists(normalized))
             {
                 normalized = Path.GetDirectoryName(normalized);
             }
 
-            // Second, check all parent folders to see if they
-            // contain a "src/.git" or ".git" folder.
-            while (!string.IsNullOrEmpty(normalized))
+            // First, try adding "src" to the end.
+            string appendedSrc = Path.Combine(normalized, ScalarConstants.WorkingDirectoryRootName);
+            if (Directory.Exists(appendedSrc))
             {
-                string srcDir = Path.Combine(normalized, ScalarConstants.WorkingDirectoryRootName);
+                enlistmentRoot = normalized;
+                workingDirectoryRoot = appendedSrc;
+                return true;
+            }
 
-                if (!Directory.Exists(srcDir))
+            // Second, look all places where "src" exists in the path and look for "src/.git"
+            int srcPos = 0;
+            string srcSearch = $"{Path.DirectorySeparatorChar}{ScalarConstants.WorkingDirectoryRootName}";
+
+            while ((srcPos = normalized.IndexOf(srcSearch, srcPos)) >= 0)
+            {
+                string srcDir = normalized.Substring(0, srcPos + srcSearch.Length);
+
+                if (!srcDir.Equals(normalized) && !normalized.StartsWith(srcDir + Path.DirectorySeparatorChar))
                 {
-                    srcDir = normalized;
+                    // the "src" that appears inside the normalized path is not a full directory name!
+                    continue;
                 }
 
                 string gitDir = Path.Combine(srcDir, ScalarConstants.DotGit.Root);
@@ -123,14 +155,36 @@ namespace Scalar.Common
                 if (Directory.Exists(gitDir) || File.Exists(gitDir))
                 {
                     // We have a .git directory OR a .git file (in the case of worktrees)
+                    enlistmentRoot = normalized.Substring(0, srcPos); ;
+                    workingDirectoryRoot = srcDir;
+                    return true;
+                }
+            }
+
+            // Finally, check all parent folders to see if they contain a ".git" folder.
+            while (true)
+            {
+                string gitDir = Path.Combine(normalized, ScalarConstants.DotGit.Root);
+
+                if (Directory.Exists(gitDir) || File.Exists(gitDir))
+                {
+                    // We have a .git directory OR a .git file (in the case of worktrees)
                     enlistmentRoot = normalized;
+                    workingDirectoryRoot = normalized;
                     return true;
                 }
 
-                normalized = Directory.GetParent(normalized)?.FullName;
+                string parent = Directory.GetParent(normalized)?.FullName;
+                if (string.IsNullOrEmpty(parent) || parent.Length >= normalized.Length)
+                {
+                    break;
+                }
+
+                normalized = parent;
             }
 
             enlistmentRoot = null;
+            workingDirectoryRoot = null;
             return false;
         }
 

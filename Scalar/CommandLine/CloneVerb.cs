@@ -458,7 +458,7 @@ namespace Scalar.CommandLine
 
         private void CheckNotInsideExistingRepo(string normalizedEnlistmentRootPath)
         {
-            if (ScalarEnlistment.TryGetScalarEnlistmentRoot(normalizedEnlistmentRootPath, out string existingEnlistmentRoot))
+            if (ScalarEnlistment.TryGetScalarEnlistmentRoot(normalizedEnlistmentRootPath, out string existingEnlistmentRoot, out string workingDirectory))
             {
                 this.ReportErrorAndExit("Error: You can't clone inside an existing Scalar repo ({0})", existingEnlistmentRoot);
             }
