@@ -41,6 +41,10 @@ steps:
     - bash: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.sh --no-watchman
       displayName: Install product (without watchman)
 
+  - ${{ if eq(parameters.useWatchman, 'true') }}:
+    - bash: watchman log-level debug
+      displayName: Set watchman log level to debug
+
   - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --test-scalar-on-path --trace2-output=$(Build.ArtifactStagingDirectory)/logs/trace2-event.log
     displayName: Run functional tests
 
@@ -65,7 +69,12 @@ steps:
         testRunTitle: macOS $(configuration) Functional Tests (without watchman)
         publishRunAttachments: true
       condition: succeededOrFailed()
-    
+
+  - ${{ if eq(parameters.useWatchman, 'true') }}:
+    - bash: cp -pf '/usr/local/var/run/watchman/runner-state/log' '$(Build.ArtifactStagingDirectory)/logs/watchman-log'
+      displayName: Copy Watchman logs
+      condition: failed()
+
   - ${{ if eq(parameters.useWatchman, 'true') }}:
     - task: PublishBuildArtifacts@1
       displayName: Publish test and installation logs
