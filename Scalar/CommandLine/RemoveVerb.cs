@@ -58,14 +58,24 @@ namespace Scalar.CommandLine
                 if (!string.IsNullOrEmpty(watchmanLocation))
                 {
                     string watchmanPath = Path.Combine(watchmanLocation, watchmanProcess);
-
+                    string workDir = Path.Combine(this.enlistmentRoot, ScalarConstants.WorkingDirectoryRootName);
                     // Stop watching watchman, if exists
-                    string argument = $"watch-del {Path.Combine(this.enlistmentRoot, ScalarConstants.WorkingDirectoryRootName)}";
+                    string argument = $"watch-del {workDir}";
                     ProcessResult result = ProcessHelper.Run(watchmanPath, argument);
 
                     if (result.ExitCode != 0)
                     {
-                        Console.Error.WriteLine($"Errors while communicating with Watchman (may not be installed):");
+                        Console.Error.WriteLine($"Errors during 'watchman {argument}':");
+                        Console.Error.WriteLine(result.Errors);
+                    }
+
+                    // Shutdown server, clearing handles (it will restart on a new query)
+                    argument = "shutdown-server";
+                    result = ProcessHelper.Run(watchmanPath, argument);
+
+                    if (result.ExitCode != 0)
+                    {
+                        Console.Error.WriteLine($"Errors during 'watchman {argument}':");
                         Console.Error.WriteLine(result.Errors);
                     }
                 }
