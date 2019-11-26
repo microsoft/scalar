@@ -35,12 +35,12 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             }
         }
 
-        public static void DeleteDirectoryWithUnlimitedRetries(string path)
+        public static void DeleteDirectoryWithLimitedRetries(string path, int maxRetries = 10)
         {
             CmdRunner runner = new CmdRunner();
             bool pathExists = Directory.Exists(path);
             int retryCount = 0;
-            while (pathExists)
+            while (pathExists && maxRetries-- > 0)
             {
                 string output = runner.DeleteDirectory(path);
                 pathExists = Directory.Exists(path);

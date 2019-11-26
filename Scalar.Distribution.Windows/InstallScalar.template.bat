@@ -9,8 +9,9 @@ REM ---------------------------------------------------------
 SET SCALAR_DISTRIBUTION_ROOT=%~dp0
 SET GIT_INSTALLER_EXE=##GIT_INSTALLER_EXE_PLACEHOLDER##
 SET SCALAR_INSTALLER_EXE=##SCALAR_INSTALLER_EXE_PLACEHOLDER##
+SET WATCHMAN_CI_URL=##WATCHMAN_CI_URL_PLACEHOLDER##
 
-IF "%1"=="" (SET "LOG_BASE=%TEMP%\scalar-install-logs") ELSE (SET "LOG_BASE=%1")
+IF "%2"=="" (SET "LOG_BASE=%TEMP%\scalar-install-logs") ELSE (SET "LOG_BASE=%2")
 SET GIT_INSTALLER_LOG=%LOG_BASE%\install-git.log
 SET SCALAR_INSTALLER_LOG=%LOG_BASE%\install-scalar.log
 
@@ -35,6 +36,18 @@ ECHO.
 ECHO ==============================
 ECHO Installing Git for Windows for Scalar
 %SCALAR_DISTRIBUTION_ROOT%\Git\%GIT_INSTALLER_EXE% /DIR="C:\Program Files\Git" /NOICONS /COMPONENTS="ext,ext\shellhere,ext\guihere,assoc,assoc_sh" /GROUP="Git" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ALLOWDOWNGRADE=1 /LOG="%GIT_INSTALLER_LOG%" || EXIT /B 1
+
+IF "%1"=="--watchman" (
+	REM Install Watchman?
+	ECHO.
+	ECHO ===============================
+	ECHO Installing Watchman for Windows
+	curl -s -L %WATCHMAN_CI_URL% >watchman.zip
+	unzip watchman.zip
+	mkdir "C:\Program Files\watchman"
+	copy watchman\windows\bin\* "C:\Program Files\watchman\"
+	setx /m PATH "C:\Program Files\watchman\;%PATH%"
+)
 
 REM Install Scalar
 ECHO.

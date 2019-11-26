@@ -19,8 +19,9 @@ namespace Scalar
                 typeof(CacheServerVerb),
                 typeof(CloneVerb),
                 typeof(ConfigVerb),
-                typeof(MaintenanceVerb),
                 typeof(DiagnoseVerb),
+                typeof(MaintenanceVerb),
+                typeof(RemoveVerb),
                 typeof(ServiceVerb),
                 typeof(UpgradeVerb),
             };

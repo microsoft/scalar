@@ -45,3 +45,5 @@ Scalar Commands
 * [`scalar maintenance`](commands/scalar-maintenance.md): Manually process
   Git data for efficiency. Normally run in the background by Scalar Service.
 
+* [`scalar remove`](commands/scalar-remove.md): Delete a Scalar enlistment.
+

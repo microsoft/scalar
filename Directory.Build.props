@@ -37,6 +37,7 @@
     <!-- Version information -->
     <ScalarVersion>0.2.173.2</ScalarVersion>
     <GitPackageVersion>2.20191121.10</GitPackageVersion>
+    <WatchmanPackageUrl>https://github.com/facebook/watchman/suites/307436006/artifacts/304557</WatchmanPackageUrl>
 
     <!-- Signing certificates -->
     <AuthenticodeCert>Microsoft400</AuthenticodeCert>
