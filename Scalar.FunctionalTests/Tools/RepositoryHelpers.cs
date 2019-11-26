@@ -10,11 +10,11 @@ namespace Scalar.FunctionalTests.Tools
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 // Use cmd.exe to delete the enlistment as it properly handles tombstones and reparse points
-                CmdRunner.DeleteDirectoryWithUnlimitedRetries(repoPath);
+                CmdRunner.DeleteDirectoryWithLimitedRetries(repoPath);
             }
             else
             {
-                BashRunner.DeleteDirectoryWithUnlimitedRetries(repoPath);
+                BashRunner.DeleteDirectoryWithLimitedRetries(repoPath);
             }
         }
     }
