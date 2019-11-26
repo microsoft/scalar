@@ -112,8 +112,17 @@ namespace Scalar.Common
                 fileSystem: fileSystem);
         }
 
-        public static bool TryGetScalarEnlistmentRoot(string directory, out string enlistmentRoot, out string workingDirectoryRoot)
+        public static bool TryGetScalarEnlistmentRoot(
+                                string directory,
+                                out string enlistmentRoot,
+                                out string workingDirectoryRoot,
+                                Func<string, bool> exists = null)
         {
+            if (exists == null)
+            {
+                exists = path => Directory.Exists(path) || File.Exists(path);
+            }
+
             if (!ScalarPlatform.Instance.FileSystem.TryGetNormalizedPath(directory, out string normalized, out string _))
             {
                 enlistmentRoot = null;
@@ -122,14 +131,15 @@ namespace Scalar.Common
             }
 
             // Find a parent folder that exists.
-            while (!Directory.Exists(normalized))
+            while (!exists(normalized))
             {
                 normalized = Path.GetDirectoryName(normalized);
             }
 
             // First, try adding "src" to the end.
             string appendedSrc = Path.Combine(normalized, ScalarConstants.WorkingDirectoryRootName);
-            if (Directory.Exists(appendedSrc))
+            string appendedSrcGit = Path.Combine(appendedSrc, ScalarConstants.DotGit.Root);
+            if (exists(appendedSrc) && exists(appendedSrcGit))
             {
                 enlistmentRoot = normalized;
                 workingDirectoryRoot = appendedSrc;
@@ -140,11 +150,12 @@ namespace Scalar.Common
             int srcPos = 0;
             string srcSearch = $"{Path.DirectorySeparatorChar}{ScalarConstants.WorkingDirectoryRootName}";
 
-            while ((srcPos = normalized.IndexOf(srcSearch, srcPos)) >= 0)
+            while ((srcPos = normalized.IndexOf(srcSearch, srcPos + 1, StringComparison.OrdinalIgnoreCase)) >= 0)
             {
                 string srcDir = normalized.Substring(0, srcPos + srcSearch.Length);
 
-                if (!srcDir.Equals(normalized) && !normalized.StartsWith(srcDir + Path.DirectorySeparatorChar))
+                if (!srcDir.Equals(normalized, StringComparison.OrdinalIgnoreCase) &&
+                    !normalized.StartsWith(srcDir + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
                 {
                     // the "src" that appears inside the normalized path is not a full directory name!
                     continue;
@@ -152,7 +163,7 @@ namespace Scalar.Common
 
                 string gitDir = Path.Combine(srcDir, ScalarConstants.DotGit.Root);
 
-                if (Directory.Exists(gitDir) || File.Exists(gitDir))
+                if (exists(gitDir))
                 {
                     // We have a .git directory OR a .git file (in the case of worktrees)
                     enlistmentRoot = normalized.Substring(0, srcPos); ;
@@ -166,7 +177,7 @@ namespace Scalar.Common
             {
                 string gitDir = Path.Combine(normalized, ScalarConstants.DotGit.Root);
 
-                if (Directory.Exists(gitDir) || File.Exists(gitDir))
+                if (exists(gitDir))
                 {
                     // We have a .git directory OR a .git file (in the case of worktrees)
                     enlistmentRoot = normalized;
