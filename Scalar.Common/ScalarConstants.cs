@@ -28,7 +28,6 @@ namespace Scalar.Common
             public const string MaxRetriesConfig = ScalarPrefix + "max-retries";
             public const string TimeoutSecondsConfig = ScalarPrefix + "timeout-seconds";
             public const string GitStatusCacheBackoffConfig = ScalarPrefix + "status-cache-backoff-seconds";
-            public const string MountId = ScalarPrefix + "mount-id";
             public const string EnlistmentId = ScalarPrefix + "enlistment-id";
             public const string CacheServer = "gvfs.cache-server";
             public const string ObjectCache = "gvfs.sharedCache";
@@ -100,25 +99,6 @@ namespace Scalar.Common
             public const string UpgradeProcess = UpgradePrefix + "_process";
         }
 
-        public static class DotScalar
-        {
-            public const string CorruptObjectsName = "CorruptObjects";
-            public const string LogName = "logs";
-
-            public static class Databases
-            {
-                public const string Name = "databases";
-
-                public static readonly string RepoMetadata = Path.Combine(Name, "RepoMetadata.dat");
-            }
-
-            public static class GitStatusCache
-            {
-                public const string Name = "gitStatusCache";
-                public static readonly string CachePath = Path.Combine(Name, "GitStatusCache.dat");
-            }
-        }
-
         public static class DotGit
         {
             public const string Root = ".git";
@@ -142,8 +122,9 @@ namespace Scalar.Common
             public static class Logs
             {
                 public static readonly string HeadName = "HEAD";
+                public static readonly string Name = "logs";
 
-                public static readonly string Root = Path.Combine(DotGit.Root, "logs");
+                public static readonly string Root = Path.Combine(DotGit.Root, Logs.Name);
                 public static readonly string Head = Path.Combine(Logs.Root, Logs.HeadName);
             }
 

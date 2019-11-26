@@ -18,7 +18,6 @@ namespace Scalar.UnitTests.Tracing
             const EventLevel level = EventLevel.Error;
             const EventOpcode opcode = EventOpcode.Start;
             const string enlistmentId = "test-enlistmentId";
-            const string mountId = "test-mountId";
             const string gitCommandSessionId = "test_sessionId";
             const string payload = "test-payload";
 
@@ -32,7 +31,6 @@ namespace Scalar.UnitTests.Tracing
                 ["payload"] = new Dictionary<string, string>
                 {
                     ["enlistmentId"] = enlistmentId,
-                    ["mountId"] = mountId,
                     ["gitCommandSessionId"] = gitCommandSessionId,
                     ["json"] = payload,
                 },
@@ -48,7 +46,6 @@ namespace Scalar.UnitTests.Tracing
                 Payload = new TelemetryDaemonEventListener.PipeMessage.PipeMessagePayload
                 {
                     EnlistmentId = enlistmentId,
-                    MountId = mountId,
                     GitCommandSessionId = gitCommandSessionId,
                     Json = payload
                 },
@@ -69,7 +66,6 @@ namespace Scalar.UnitTests.Tracing
             Dictionary<string, string> actualPayloadDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(actualDict["payload"].ToString());
             actualPayloadDict.Count.ShouldEqual(expectedPayloadDict.Count);
             actualPayloadDict["enlistmentId"].ShouldEqual(expectedPayloadDict["enlistmentId"]);
-            actualPayloadDict["mountId"].ShouldEqual(expectedPayloadDict["mountId"]);
             actualPayloadDict["gitCommandSessionId"].ShouldEqual(expectedPayloadDict["gitCommandSessionId"]);
             actualPayloadDict["json"].ShouldEqual(expectedPayloadDict["json"]);
         }

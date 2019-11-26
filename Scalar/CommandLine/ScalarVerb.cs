@@ -4,7 +4,6 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
-using Scalar.Common.NamedPipes;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
@@ -275,31 +274,14 @@ namespace Scalar.CommandLine
 
         protected bool ShowStatusWhileRunning(
             Func<bool> action,
-            string message,
-            string scalarLogEnlistmentRoot)
+            string message)
         {
             return ConsoleHelper.ShowStatusWhileRunning(
                 action,
                 message,
                 this.Output,
                 showSpinner: !this.Unattended && this.Output == Console.Out && !ScalarPlatform.Instance.IsConsoleOutputRedirectedToFile(),
-                scalarLogEnlistmentRoot: scalarLogEnlistmentRoot,
                 initialDelayMs: 0);
-        }
-
-        protected bool ShowStatusWhileRunning(
-            Func<bool> action,
-            string message,
-            bool suppressGvfsLogMessage = false)
-        {
-            string scalarLogEnlistmentRoot = null;
-            if (!suppressGvfsLogMessage)
-            {
-                string errorMessage;
-                ScalarPlatform.Instance.TryGetScalarEnlistmentRoot(this.EnlistmentRootPathParameter, out scalarLogEnlistmentRoot, out errorMessage);
-            }
-
-            return this.ShowStatusWhileRunning(action, message, scalarLogEnlistmentRoot);
         }
 
         protected bool TryAuthenticate(ITracer tracer, ScalarEnlistment enlistment, out string authErrorMessage)
@@ -308,8 +290,7 @@ namespace Scalar.CommandLine
 
             bool result = this.ShowStatusWhileRunning(
                 () => enlistment.Authentication.TryInitialize(tracer, enlistment, out authError),
-                "Authenticating",
-                enlistment.EnlistmentRoot);
+                "Authenticating");
 
             authErrorMessage = authError;
             return result;
@@ -409,8 +390,7 @@ namespace Scalar.CommandLine
                         return configRequestor.TryQueryScalarConfig(LogErrors, out serverScalarConfig, out _, out errorMessage);
                     }
                 },
-                "Querying remote for config",
-                suppressGvfsLogMessage: true))
+                "Querying remote for config"))
             {
                 this.ReportErrorAndExit(tracer, "Unable to query /gvfs/config" + Environment.NewLine + errorMessage);
             }
@@ -431,8 +411,7 @@ namespace Scalar.CommandLine
                         return repoInfoRequestor.TryQueryRepoInfo(LogErrors, out vstsInfo, out errorMessage);
                     }
                 },
-                "Querying remote for repo info",
-                suppressGvfsLogMessage: true))
+                "Querying remote for repo info"))
             {
                 this.ReportErrorAndExit(tracer, $"Unable to query {ScalarConstants.Endpoints.RepoInfo}" + Environment.NewLine + errorMessage);
             }
@@ -561,36 +540,6 @@ You can specify a URL, a name of a configured cache server, or the special names
 
             error = downloadResult.Errors;
             return downloadResult.ExitCodeIsSuccess;
-        }
-
-        protected void LogEnlistmentInfoAndSetConfigValues(ITracer tracer, GitProcess git, ScalarEnlistment enlistment)
-        {
-            string mountId = CreateMountId();
-            EventMetadata metadata = this.CreateEventMetadata();
-            metadata.Add(nameof(RepoMetadata.Instance.EnlistmentId), RepoMetadata.Instance.EnlistmentId);
-            metadata.Add(nameof(mountId), mountId);
-            metadata.Add("Enlistment", enlistment);
-            metadata.Add("PhysicalDiskInfo", ScalarPlatform.Instance.GetPhysicalDiskInfo(enlistment.WorkingDirectoryRoot, sizeStatsOnly: false));
-            tracer.RelatedEvent(EventLevel.Informational, "EnlistmentInfo", metadata, Keywords.Telemetry);
-
-            GitProcess.Result configResult = git.SetInLocalConfig(ScalarConstants.GitConfig.EnlistmentId, RepoMetadata.Instance.EnlistmentId, replaceAll: true);
-            if (configResult.ExitCodeIsFailure)
-            {
-                string error = "Could not update config with enlistment id, error: " + configResult.Errors;
-                tracer.RelatedWarning(error);
-            }
-
-            configResult = git.SetInLocalConfig(ScalarConstants.GitConfig.MountId, mountId, replaceAll: true);
-            if (configResult.ExitCodeIsFailure)
-            {
-                string error = "Could not update config with mount id, error: " + configResult.Errors;
-                tracer.RelatedWarning(error);
-            }
-        }
-
-        private static string CreateMountId()
-        {
-            return Guid.NewGuid().ToString("N");
         }
 
         private static bool TrySetConfig(Enlistment enlistment, Dictionary<string, string> configSettings, bool isRequired)
@@ -774,22 +723,7 @@ You can specify a URL, a name of a configured cache server, or the special names
 
             protected abstract void Execute(ScalarEnlistment enlistment);
 
-            protected void InitializeLocalCacheAndObjectsPaths(
-                ITracer tracer,
-                ScalarEnlistment enlistment)
-            {
-                string error;
-                if (!RepoMetadata.TryInitialize(tracer, Path.Combine(enlistment.EnlistmentRoot, ScalarPlatform.Instance.Constants.DotScalarRoot), out error))
-                {
-                    this.ReportErrorAndExit(tracer, "Failed to initialize repo metadata: " + error);
-                }
-
-                this.InitializeCachePaths(tracer, enlistment);
-
-                RepoMetadata.Shutdown();
-            }
-
-            private void InitializeCachePaths(
+            protected void InitializeCachePaths(
                 ITracer tracer,
                 ScalarEnlistment enlistment)
             {

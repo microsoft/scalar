@@ -1,9 +1,7 @@
 using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Tests;
-using Scalar.Tests.Should;
 using System;
 using System.IO;
-using System.Threading;
 
 namespace Scalar.FunctionalTests.Tools
 {
@@ -60,19 +58,14 @@ namespace Scalar.FunctionalTests.Tools
             get { return Path.Combine(this.EnlistmentRoot, "src"); }
         }
 
-        public string DotScalarRoot
-        {
-            get { return Path.Combine(this.EnlistmentRoot, ScalarTestConfig.DotScalarRoot); }
-        }
-
         public string ScalarLogsRoot
         {
-            get { return Path.Combine(this.DotScalarRoot, "logs"); }
+            get { return Path.Combine(this.RepoRoot, ".git", "logs"); }
         }
 
         public string DiagnosticsRoot
         {
-            get { return Path.Combine(this.DotScalarRoot, "diagnostics"); }
+            get { return Path.Combine(this.EnlistmentRoot, ".scalarDiagnostics"); }
         }
 
         public string Commitish
@@ -270,7 +263,7 @@ namespace Scalar.FunctionalTests.Tools
 
         private static string GetRepoSpecificLocalCacheRoot(string enlistmentRoot)
         {
-            return Path.Combine(enlistmentRoot, ScalarTestConfig.DotScalarRoot, ".scalarCache");
+            return Path.Combine(enlistmentRoot, ".scalarCache");
         }
     }
 }
