@@ -115,8 +115,21 @@ namespace Scalar.FunctionalTests.Tools
 
         public void DeleteEnlistment()
         {
+            string watchmanLocation = ProcessHelper.GetProgramLocation("watchman");
+            if (!string.IsNullOrEmpty(watchmanLocation))
+            {
+                try
+                {
+                    ProcessHelper.Run(Path.Combine(watchmanLocation, "watchman"), $"watch-del {this.RepoRoot}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to delete watch on {this.RepoRoot}. {ex.ToString()}");
+                }
+            }
+
             TestResultsHelper.OutputScalarLogs(this);
-            ProcessHelper.Run("scalar", $"remove {this.EnlistmentRoot}");
+            RepositoryHelpers.DeleteTestDirectory(this.EnlistmentRoot);
         }
 
         public void Clone(bool skipFetchCommitsAndTrees)
