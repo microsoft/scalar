@@ -36,21 +36,6 @@ jobs:
       - template: templates/osx/build-and-unit-test.yml
       - template: templates/osx/pack.unsigned.yml
 
-  - job: win_functionaltest
-    displayName: Windows Functional Test
-    timeoutInMinutes: 45
-    variables:
-      configuration: Release
-    pool:
-      vmImage: windows-2019
-    dependsOn: win_build
-    condition: succeeded()
-    steps:
-      - checkout: none
-      - template: templates/win/functional-test.yml
-        parameters:
-          useWatchman: false
-
   - job: win_functionaltest_watchman
     displayName: Windows Functional Test (with Watchman)
     timeoutInMinutes: 45
@@ -65,19 +50,6 @@ jobs:
     - template: templates/win/functional-test.yml
       parameters:
         useWatchman: true
-
-  - job: osx_functionaltest
-    displayName: macOS Functional Test
-    timeoutInMinutes: 45
-    pool:
-      name: 'Hosted macOS'
-    dependsOn: osx_build
-    condition: succeeded()
-    steps:
-      - checkout: none
-      - template: templates/osx/functional-test.yml
-        parameters:
-          useWatchman: false
 
   - job: osx_functionaltest_watchman
     displayName: macOS Functional Test (with Watchman)

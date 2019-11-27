@@ -37,7 +37,9 @@ steps:
       displayName: Install product (without watchman)
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - bash: watchman log-level debug
+    - bash: |
+        watchman shutdown-server
+        watchman watch-list --log-level=2
       displayName: Set watchman log level to debug
 
   - bash: $(Build.BinariesDirectory)/ft/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --test-scalar-on-path --trace2-output=$(Build.ArtifactStagingDirectory)/logs/trace2-event.log
