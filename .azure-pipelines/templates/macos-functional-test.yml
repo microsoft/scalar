@@ -1,6 +1,17 @@
 parameters:
   useWatchman: true
 
+variables:
+  ${{ if eq(parameters.useWatchman, 'true') }}:
+    watchmanFlag: ''
+    watchmanStatusString: 'With Watchman'
+    watchmanResultTitle: 'Watchman'
+
+  ${{ if not(eq(parameters.useWatchman, 'true') }}:
+    watchmanFlag: '--no-watchman'
+    watchmanStatusString: 'No Watchman'
+    watchmanResultTitle: 'NoWatchman'
+
 steps:
 
   - task: UseDotNet@2
@@ -33,13 +44,8 @@ steps:
   - bash: mkdir -p $(Build.ArtifactStagingDirectory)/logs
     displayName: Create logs directory
 
-  - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - bash: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.sh
-      displayName: Install product (with watchman)
-
-  - ${{ if ne(parameters.useWatchman, 'true') }}:
-    - bash: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.sh --no-watchman
-      displayName: Install product (without watchman)
+  - bash: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.sh $(watchmanFlag)
+    displayName: Install product ($(watchmanStatusString))
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
     - bash: watchman log-level debug
@@ -48,48 +54,27 @@ steps:
   - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --test-scalar-on-path --trace2-output=$(Build.ArtifactStagingDirectory)/logs/trace2-event.log
     displayName: Run functional tests
 
-  - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - task: PublishTestResults@2
-      displayName: Publish functional tests results
-      inputs:
-        testRunner: NUnit
-        testResultsFiles: "**\\TestResult*.xml"
-        searchFolder: $(System.DefaultWorkingDirectory)
-        testRunTitle: macOS $(configuration) Functional Tests (with watchman)
-        publishRunAttachments: true
-      condition: succeededOrFailed()
-
-  - ${{ if ne(parameters.useWatchman, 'true') }}:
-    - task: PublishTestResults@2
-      displayName: Publish functional tests results
-      inputs:
-        testRunner: NUnit
-        testResultsFiles: "**\\TestResult*.xml"
-        searchFolder: $(System.DefaultWorkingDirectory)
-        testRunTitle: macOS $(configuration) Functional Tests (without watchman)
-        publishRunAttachments: true
-      condition: succeededOrFailed()
+  - task: PublishTestResults@2
+    displayName: Publish functional tests results
+    inputs:
+      testRunner: NUnit
+      testResultsFiles: "**\\TestResult*.xml"
+      searchFolder: $(System.DefaultWorkingDirectory)
+      testRunTitle: macOS $(configuration) Functional Tests ($(watchmanStatusString))
+      publishRunAttachments: true
+    condition: succeededOrFailed()
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
     - bash: cp -pf '/usr/local/var/run/watchman/runner-state/log' '$(Build.ArtifactStagingDirectory)/logs/watchman-log'
       displayName: Copy Watchman logs
       condition: failed()
 
-  - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - task: PublishBuildArtifacts@1
-      displayName: Publish test and installation logs
-      inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)/logs'
-        artifactName: Logs_$(platformFriendlyName)_Watchman
-      condition: failed()
-
-  - ${{ if ne(parameters.useWatchman, 'true') }}:
-    - task: PublishBuildArtifacts@1
-      displayName: Publish test and installation logs
-      inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)/logs'
-        artifactName: Logs_$(platformFriendlyName)
-      condition: failed()
+  - task: PublishBuildArtifacts@1
+    displayName: Publish test and installation logs
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)/logs'
+      artifactName: Logs_$(platformFriendlyName)_$(watchmanResultTitle)
+    condition: failed()
 
   - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/CleanupFunctionalTests.sh
     displayName: Cleanup

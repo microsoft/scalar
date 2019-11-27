@@ -1,6 +1,17 @@
 parameters:
   useWatchman: true
 
+variables:
+  ${{ if eq(parameters.useWatchman, 'true') }}:
+    watchmanFlag: '--watchman'
+    watchmanStatusString: 'With Watchman'
+    watchmanResultTitle: 'Watchman'
+
+  ${{ if not(eq(parameters.useWatchman, 'true') }}:
+    watchmanFlag: '--no-watchman'
+    watchmanStatusString: 'No Watchman'
+    watchmanResultTitle: 'NoWatchman'
+
 steps:
 
   - task: NuGetToolInstaller@0
@@ -29,13 +40,8 @@ steps:
       artifactName: Installers_$(platformFriendlyName)_$(configuration)
       downloadPath: $(Build.BinariesDirectory)
 
-  - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - script: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.bat --watchman $(Build.ArtifactStagingDirectory)\logs
-      displayName: Install product (with watchman)
-
-  - ${{ if eq(parameters.useWatchman, 'false') }}:
-    - script: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.bat --no-watchman $(Build.ArtifactStagingDirectory)\logs
-      displayName: Install product (without watchman)
+  - script: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.bat $(watchmanFlag) $(Build.ArtifactStagingDirectory)\logs
+    displayName: Install product ($(watchmanStatusString))
 
   - script: git config --global credential.interactive never
     displayName: Disable interactive auth
@@ -43,40 +49,19 @@ steps:
   - script: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/RunFunctionalTests.bat $(configuration) --test-scalar-on-path "--trace2-output=$(Build.ArtifactStagingDirectory)\logs\trace2-event.log"
     displayName: Run functional tests
 
-  - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - task: PublishTestResults@2
-      displayName: Publish functional tests results
-      inputs:
-        testRunner: NUnit
-        testResultsFiles: "**\\TestResult*.xml"
-        searchFolder: $(System.DefaultWorkingDirectory)
-        testRunTitle: Windows $(configuration) Functional Tests (with watchman)
-        publishRunAttachments: true
-      condition: succeededOrFailed()
+  - task: PublishTestResults@2
+    displayName: Publish functional tests results
+    inputs:
+      testRunner: NUnit
+      testResultsFiles: "**\\TestResult*.xml"
+      searchFolder: $(System.DefaultWorkingDirectory)
+      testRunTitle: Windows $(configuration) Functional Tests ($(watchmanStatusString))
+      publishRunAttachments: true
+    condition: succeededOrFailed()
 
-  - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - task: PublishBuildArtifacts@1
-      displayName: Publish test and installation logs
-      inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)\logs'
-        artifactName: Logs_$(platformFriendlyName)_Watchman
-      condition: failed()
-
-  - ${{ if eq(parameters.useWatchman, 'false') }}:
-    - task: PublishTestResults@2
-      displayName: Publish functional tests results
-      inputs:
-        testRunner: NUnit
-        testResultsFiles: "**\\TestResult*.xml"
-        searchFolder: $(System.DefaultWorkingDirectory)
-        testRunTitle: Windows $(configuration) Functional Tests (without watchman)
-        publishRunAttachments: true
-      condition: succeededOrFailed()
-
-  - ${{ if eq(parameters.useWatchman, 'false') }}:
-    - task: PublishBuildArtifacts@1
-      displayName: Publish test and installation logs
-      inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)\logs'
-        artifactName: Logs_$(platformFriendlyName)
-      condition: failed()
+  - task: PublishBuildArtifacts@1
+    displayName: Publish test and installation logs
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)\logs'
+      artifactName: Logs_$(platformFriendlyName)_$(watchmanResultTitle)
+    condition: failed()
