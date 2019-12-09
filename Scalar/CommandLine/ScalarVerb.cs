@@ -4,6 +4,7 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
+using Scalar.Common.RepoRegistry;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
@@ -580,6 +581,18 @@ You can specify a URL, a name of a configured cache server, or the special names
             }
 
             return enlistment;
+        }
+
+        protected bool TryRegisterRepo(ITracer tracer, ScalarEnlistment enlistment, PhysicalFileSystem fileSystem, out string errorMessage)
+        {
+            string repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
+            ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
+                tracer,
+                fileSystem,
+                repoRegistryLocation);
+
+            tracer.RelatedInfo($"{nameof(this.Execute)}: Registering repo '{enlistment.EnlistmentRoot}'");
+            return repoRegistry.TryRegisterRepo(enlistment.EnlistmentRoot, ScalarPlatform.Instance.GetCurrentUser(), out errorMessage);
         }
 
         private static bool TrySetConfig(Enlistment enlistment, Dictionary<string, string> configSettings, bool isRequired)

@@ -3,7 +3,6 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
-using Scalar.Common.RepoRegistry;
 using Scalar.Common.Tracing;
 using System;
 using System.Diagnostics;
@@ -565,7 +564,7 @@ namespace Scalar.CommandLine
 
             string errorMessage = string.Empty;
             if (this.ShowStatusWhileRunning(
-                () => { return this.TryRegisterRepo(out errorMessage); },
+                () => { return this.TryRegisterRepo(this.tracer, this.enlistment, this.fileSystem, out errorMessage); },
                 "Registering repo"))
             {
                 this.tracer.RelatedInfo($"{nameof(this.Execute)}: Registration succeeded");
@@ -574,18 +573,6 @@ namespace Scalar.CommandLine
 
             this.tracer.RelatedError($"{nameof(this.Execute)}: Failed to register repo: {errorMessage}");
             return new Result($"Failed to register repo: {errorMessage}");
-        }
-
-        private bool TryRegisterRepo(out string errorMessage)
-        {
-            string repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
-            ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
-                this.tracer,
-                this.fileSystem,
-                repoRegistryLocation);
-
-            this.tracer.RelatedInfo($"{nameof(this.Execute)}: Registering repo '{this.enlistment.EnlistmentRoot}'");
-            return repoRegistry.TryRegisterRepo(this.enlistment.EnlistmentRoot, ScalarPlatform.Instance.GetCurrentUser(), out errorMessage);
         }
 
         private Result TryInitRepo()
