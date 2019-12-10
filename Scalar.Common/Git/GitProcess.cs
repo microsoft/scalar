@@ -498,7 +498,9 @@ namespace Scalar.Common.Git
         /// </summary>
         public Result WriteCommitGraph(string objectDir)
         {
-            string command = "commit-graph write --reachable --split --size-multiple=4 --object-dir \"" + objectDir + "\"";
+            // Do not expire commit-graph files that have been modified in the last hour.
+            // This will prevent deleting any commit-graph files that are currently in the commit-graph-chain.
+            string command = $"commit-graph write --reachable --split --size-multiple=4 --expire-time={1 * 60 * 60} --object-dir \"{objectDir}\"";
             return this.InvokeGitInWorkingDirectoryRoot(command, fetchMissingObjects: true);
         }
 
