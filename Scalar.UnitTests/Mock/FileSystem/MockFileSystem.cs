@@ -253,10 +253,10 @@ namespace Scalar.UnitTests.Mock.FileSystem
 
             if (this.TryCreateOrUpdateDirectoryToAdminModifyPermissionsShouldSucceed)
             {
-                // TryCreateOrUpdateDirectoryToAdminModifyPermissions is typically called for paths in C:\ProgramData\Scalar,
+                // TryCreateOrUpdateDirectoryToAdminModifyPermissions is typically called for paths in C:\Program Files\Scalar\Data,
                 // if it's called for one of those paths remap the paths to be inside the mock: root
                 string mockDirectoryPath = directoryPath;
-                string scalarProgramData = @"C:\ProgramData\Scalar";
+                string scalarProgramData = @"C:\Program Files\Scalar\Data";
                 if (directoryPath.StartsWith(scalarProgramData, StringComparison.OrdinalIgnoreCase))
                 {
                     mockDirectoryPath = mockDirectoryPath.Substring(scalarProgramData.Length);

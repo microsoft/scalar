@@ -14,7 +14,7 @@ for /F "delims=" %%f in ('dir "C:\Program Files\Scalar\unins*.exe" /B /S /O:-D')
 :deleteScalar
 rmdir /q/s "C:\Program Files\Scalar"
 
-REM Delete ProgramData\Scalar directory (logs, downloaded upgrades, repo-registry, scalar.config). It can affect the behavior of a future Scalar install.
-if exist "C:\ProgramData\Scalar" rmdir /q/s "C:\ProgramData\Scalar"
+REM Delete Program Files\Scalar\Data directory (logs, downloaded upgrades, repo-registry, scalar.config). It can affect the behavior of a future Scalar install.
+if exist "C:\Program Files\Scalar\Data" rmdir /q/s "C:\Program Files\Scalar\Data"
 
 :end

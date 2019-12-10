@@ -104,7 +104,7 @@ namespace Scalar.UnitTests.Mock.Upgrader
                 return false;
             }
 
-            upgradeApplicationPath = @"mock:\ProgramData\Scalar\Scalar.Upgrade\Tools\Scalar.Upgrader.exe";
+            upgradeApplicationPath = @"mock:\Program Files\Scalar\Data\Scalar.Upgrade\Tools\Scalar.Upgrader.exe";
             error = null;
             return true;
         }
@@ -147,7 +147,7 @@ namespace Scalar.UnitTests.Mock.Upgrader
 
             if (validAsset)
             {
-                string fakeDownloadDirectory = @"mock:\ProgramData\Scalar\Scalar.Upgrade\Downloads";
+                string fakeDownloadDirectory = @"mock:\Program Files\Scalar\Data\Scalar.Upgrade\Downloads";
                 asset.LocalPath = Path.Combine(fakeDownloadDirectory, asset.Name);
                 this.DownloadedFiles.Add(asset.LocalPath);
 
@@ -228,7 +228,7 @@ namespace Scalar.UnitTests.Mock.Upgrader
                 if (this.failActionTypes.HasFlag(ActionType.GitAuthenticodeCheck))
                 {
                     exitCode = -1;
-                    error = "The contents of file C:\\ProgramData\\Scalar\\Scalar.Upgrade\\Tools\\Git-2.17.1.scalar.2.1.4.g4385455-64-bit might have been changed by an unauthorized user or process, because the hash of the file does not match the hash stored in the digital signature. The script cannot run on the specified system. For more information, run Get-Help about_Signing.";
+                    error = "The contents of file C:\\Program Files\\Scalar\\Data\\Scalar.Upgrade\\Tools\\Git-2.17.1.scalar.2.1.4.g4385455-64-bit might have been changed by an unauthorized user or process, because the hash of the file does not match the hash stored in the digital signature. The script cannot run on the specified system. For more information, run Get-Help about_Signing.";
                 }
 
                 return;
@@ -247,7 +247,7 @@ namespace Scalar.UnitTests.Mock.Upgrader
                 if (this.failActionTypes.HasFlag(ActionType.ScalarAuthenticodeCheck))
                 {
                     exitCode = -1;
-                    error = "The contents of file C:\\ProgramData\\Scalar\\Scalar.Upgrade\\Tools\\SetupScalar.1.0.18297.1.exe might have been changed by an unauthorized user or process, because the hash of the file does not match the hash stored in the digital signature. The script cannot run on the specified system. For more information, run Get-Help about_Signing.";
+                    error = "The contents of file C:\\Program Files\\Scalar\\Data\\Scalar.Upgrade\\Tools\\SetupScalar.1.0.18297.1.exe might have been changed by an unauthorized user or process, because the hash of the file does not match the hash stored in the digital signature. The script cannot run on the specified system. For more information, run Get-Help about_Signing.";
                 }
 
                 return;

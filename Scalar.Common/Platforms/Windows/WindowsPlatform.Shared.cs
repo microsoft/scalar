@@ -70,8 +70,9 @@ namespace Scalar.Platform.Windows
         public static string GetDataRootForScalarImplementation()
         {
             return Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.Create),
-                "Scalar");
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolderOption.Create),
+                "Scalar",
+                "Data");
         }
 
         public static string GetDataRootForScalarComponentImplementation(string componentName)
