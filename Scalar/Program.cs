@@ -24,6 +24,7 @@ namespace Scalar
                 typeof(RemoveVerb),
                 typeof(ServiceVerb),
                 typeof(UpgradeVerb),
+                typeof(WatchVerb),
             };
 
             int consoleWidth = 80;

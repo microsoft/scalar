@@ -789,12 +789,17 @@ You can specify a URL, a name of a configured cache server, or the special names
                     this.ReportErrorAndExit("Failed to determine git objects root from git config: " + error);
                 }
 
+                string localCacheRoot;
                 if (string.IsNullOrWhiteSpace(gitObjectsRoot))
                 {
-                    this.ReportErrorAndExit(tracer, "Invalid git objects root (empty or whitespace)");
+                    // We do not have an object cache. This is a vanilla Git repo!
+                    localCacheRoot = enlistment.LocalObjectsRoot;
+                    gitObjectsRoot = enlistment.LocalObjectsRoot;
                 }
-
-                string localCacheRoot = Path.GetDirectoryName(gitObjectsRoot);
+                else
+                {
+                    localCacheRoot = Path.GetDirectoryName(gitObjectsRoot);
+                }
 
                 if (string.IsNullOrWhiteSpace(localCacheRoot))
                 {

@@ -60,6 +60,7 @@ namespace Scalar.Common
         public override string GitObjectsRoot { get; protected set; }
         public override string LocalObjectsRoot { get; protected set; }
         public override string GitPackRoot { get; protected set; }
+        public bool IsScalarRepo { get; protected set; }
 
         // These version properties are only used in logging during clone and mount to track version numbers
         public string GitVersion
@@ -221,6 +222,9 @@ namespace Scalar.Common
             this.LocalCacheRoot = localCacheRoot;
             this.GitObjectsRoot = gitObjectsRoot;
             this.GitPackRoot = Path.Combine(this.GitObjectsRoot, ScalarConstants.DotGit.Objects.Pack.Name);
+
+            // Scalar repos have a different cache location than their local objects
+            this.IsScalarRepo = !this.LocalCacheRoot.Equals(this.LocalObjectsRoot);
         }
 
         public bool TryCreateEnlistmentFolders()

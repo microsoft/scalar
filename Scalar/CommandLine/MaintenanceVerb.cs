@@ -137,6 +137,13 @@ namespace Scalar.CommandLine
         {
             GitObjectsHttpRequestor objectRequestor;
             CacheServerInfo cacheServer;
+
+            if (!enlistment.IsScalarRepo)
+            {
+                tracer.RelatedWarning("This repo is not a Scalar repo, so fetching commmits and trees does nothing");
+                return;
+            }
+
             this.InitializeServerConnection(
                 tracer,
                 enlistment,

@@ -97,6 +97,7 @@ namespace Scalar.Common
             public const string ServiceUI = "service_ui";
             public const string UpgradeVerb = UpgradePrefix + "_verb";
             public const string UpgradeProcess = UpgradePrefix + "_process";
+            public const string Watch = "watch";
         }
 
         public static class DotGit
