@@ -36,6 +36,9 @@ Scalar Commands
 * [`scalar clone`](commands/scalar-clone.md): Create a local enlistment of
   a remote repository.
 
+* [`scalar watch`](commands/scalar-watch.md): Register a Scalar or Git
+  repository with the Scalar service for background maintenance.
+
 * [`scalar upgrade`](commands/scalar-upgrade.md): Upgrade your version of
   Scalar to the latest available release.
 
