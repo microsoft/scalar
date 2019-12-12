@@ -77,7 +77,7 @@ jobs:
           useWatchman: true
 
   - job: Windows_FunctionalTests
-    timeoutInMinutes: 30
+    timeoutInMinutes: 45
     variables:
       platformFriendlyName: Windows
       configuration: Release
@@ -92,7 +92,7 @@ jobs:
         useWatchman: false
 
   - job: Windows_FunctionalTests_watchman
-    timeoutInMinutes: 30
+    timeoutInMinutes: 45
     variables:
       platformFriendlyName: Windows
       configuration: Release
