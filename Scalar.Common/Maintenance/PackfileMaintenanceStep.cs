@@ -110,7 +110,7 @@ namespace Scalar.Common.Maintenance
 
                 this.GetPackFilesInfo(out int beforeCount, out long beforeSize, out bool hasKeep);
 
-                if (!hasKeep)
+                if (!hasKeep && this.Context.Enlistment.IsScalarRepo)
                 {
                     activity.RelatedWarning(this.CreateEventMetadata(), "Skipping pack maintenance due to no .keep file.");
                     return;
