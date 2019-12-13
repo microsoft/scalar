@@ -15,16 +15,21 @@ namespace Scalar.FunctionalTests.Tools
 
         private ScalarProcess scalarProcess;
 
-        private ScalarFunctionalTestEnlistment(string pathToScalar, string enlistmentRoot, string repoUrl, string commitish, string localCacheRoot = null, bool fullClone = true)
+        private ScalarFunctionalTestEnlistment(string pathToScalar, string enlistmentRoot, string repoUrl, string commitish, string localCacheRoot = null, bool fullClone = true, bool isScalarRepo = true)
         {
             this.EnlistmentRoot = enlistmentRoot;
             this.RepoUrl = repoUrl;
             this.Commitish = commitish;
             this.fullClone = fullClone;
+            this.IsScalarRepo = IsScalarRepo;
 
             if (localCacheRoot == null)
             {
-                if (ScalarTestConfig.NoSharedCache)
+                if (!this.IsScalarRepo)
+                {
+                    localCacheRoot = Path.Combine(this.RepoRoot, ".git", "objects");
+                }
+                else if (ScalarTestConfig.NoSharedCache)
                 {
                     // eg C:\Repos\ScalarFunctionalTests\enlistment\7942ca69d7454acbb45ea39ef5be1d15\.scalar\.scalarCache
                     localCacheRoot = GetRepoSpecificLocalCacheRoot(enlistmentRoot);
@@ -51,11 +56,16 @@ namespace Scalar.FunctionalTests.Tools
             get; private set;
         }
 
+        public bool IsScalarRepo { get; }
+
         public string LocalCacheRoot { get; }
 
         public string RepoRoot
         {
-            get { return Path.Combine(this.EnlistmentRoot, "src"); }
+            get
+            {
+                return this.IsScalarRepo ? Path.Combine(this.EnlistmentRoot, "src") : this.EnlistmentRoot;
+            }
         }
 
         public string ScalarLogsRoot
@@ -81,21 +91,22 @@ namespace Scalar.FunctionalTests.Tools
         }
 
         public static ScalarFunctionalTestEnlistment Clone(
-            string pathToGvfs,
+            string pathToScalar,
             string commitish = null,
             string localCacheRoot = null,
             bool skipFetchCommitsAndTrees = false,
-            bool fullClone = true)
+            bool fullClone = true,
+            bool asGitRepo = false)
         {
             string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
-            return Clone(pathToGvfs, enlistmentRoot, commitish, localCacheRoot, skipFetchCommitsAndTrees, fullClone);
+            return Clone(pathToScalar, enlistmentRoot, commitish, localCacheRoot, skipFetchCommitsAndTrees, fullClone, isScalarRepo: !asGitRepo);
         }
 
-        public static ScalarFunctionalTestEnlistment CloneEnlistmentWithSpacesInPath(string pathToGvfs, string commitish = null)
+        public static ScalarFunctionalTestEnlistment CloneEnlistmentWithSpacesInPath(string pathToScalar, string commitish = null)
         {
             string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRootWithSpaces();
             string localCache = ScalarFunctionalTestEnlistment.GetRepoSpecificLocalCacheRoot(enlistmentRoot);
-            return Clone(pathToGvfs, enlistmentRoot, commitish, localCache);
+            return Clone(pathToScalar, enlistmentRoot, commitish, localCache);
         }
 
         public static string GetUniqueEnlistmentRoot()
@@ -134,7 +145,16 @@ namespace Scalar.FunctionalTests.Tools
 
         public void Clone(bool skipFetchCommitsAndTrees)
         {
-            this.scalarProcess.Clone(this.RepoUrl, this.Commitish, skipFetchCommitsAndTrees, fullClone: this.fullClone);
+            if (this.IsScalarRepo)
+            {
+                this.scalarProcess.Clone(this.RepoUrl, this.Commitish, skipFetchCommitsAndTrees, fullClone: this.fullClone);
+            }
+            else
+            {
+                string workDir = Directory.GetParent(this.RepoRoot).FullName;
+                Directory.CreateDirectory(workDir);
+                GitProcess.Invoke(workDir, $"clone {this.RepoUrl} repo");
+            }
 
             GitProcess.Invoke(this.RepoRoot, "checkout " + this.Commitish);
             GitProcess.Invoke(this.RepoRoot, "branch --unset-upstream");
@@ -195,6 +215,11 @@ namespace Scalar.FunctionalTests.Tools
             return this.scalarProcess.Status(trace);
         }
 
+        public string Watch()
+        {
+            return this.scalarProcess.Watch(this.EnlistmentRoot);
+        }
+
         public string GetCacheServer()
         {
             return this.scalarProcess.CacheServer("--get");
@@ -237,15 +262,24 @@ namespace Scalar.FunctionalTests.Tools
             string commitish,
             string localCacheRoot,
             bool skipFetchCommitsAndTrees = false,
-            bool fullClone = true)
+            bool fullClone = true,
+            bool isScalarRepo = true)
         {
+            enlistmentRoot = enlistmentRoot ?? GetUniqueEnlistmentRoot();
+
+            if (!isScalarRepo)
+            {
+                enlistmentRoot = Path.Combine(enlistmentRoot, "repo");
+            }
+
             ScalarFunctionalTestEnlistment enlistment = new ScalarFunctionalTestEnlistment(
                 pathToGvfs,
-                enlistmentRoot ?? GetUniqueEnlistmentRoot(),
+                enlistmentRoot,
                 ScalarTestConfig.RepoToClone,
                 commitish ?? Properties.Settings.Default.Commitish,
                 localCacheRoot ?? ScalarTestConfig.LocalCacheRoot,
-                fullClone);
+                fullClone,
+                isScalarRepo);
 
             try
             {

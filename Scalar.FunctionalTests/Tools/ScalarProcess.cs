@@ -94,6 +94,11 @@ namespace Scalar.FunctionalTests.Tools
                 expectedExitCode: SuccessExitCode);
         }
 
+        public string Watch(string enlistmentRoot)
+        {
+            return this.CallScalar("watch", expectedExitCode: SuccessExitCode, workingDirectory: enlistmentRoot);
+        }
+
         public string Diagnose()
         {
             return this.CallScalar("diagnose \"" + this.enlistmentRoot + "\"");
@@ -158,10 +163,15 @@ namespace Scalar.FunctionalTests.Tools
         /// <param name="standardInput">What to write to the standard input stream</param>
         /// <param name="internalParameter">The internal parameter to set in the arguments</param>
         /// <returns></returns>
-        private string CallScalar(string args, int expectedExitCode = DoNotCheckExitCode, string trace = null, string standardInput = null, string internalParameter = null)
+        private string CallScalar(
+                            string args,
+                            int expectedExitCode = DoNotCheckExitCode,
+                            string trace = null,
+                            string standardInput = null,
+                            string internalParameter = null,
+                            string workingDirectory = null)
         {
-            ProcessStartInfo processInfo = null;
-            processInfo = new ProcessStartInfo(this.pathToScalar);
+            ProcessStartInfo processInfo = new ProcessStartInfo(this.pathToScalar);
 
             if (internalParameter == null)
             {
@@ -169,6 +179,11 @@ namespace Scalar.FunctionalTests.Tools
             }
 
             processInfo.Arguments = args + " " + TestConstants.InternalUseOnlyFlag + " " + internalParameter;
+
+            if (!string.IsNullOrEmpty(workingDirectory))
+            {
+                processInfo.WorkingDirectory = workingDirectory;
+            }
 
             processInfo.WindowStyle = ProcessWindowStyle.Hidden;
             processInfo.UseShellExecute = false;
