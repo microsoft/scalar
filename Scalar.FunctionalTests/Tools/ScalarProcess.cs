@@ -184,6 +184,11 @@ namespace Scalar.FunctionalTests.Tools
 
             processInfo.Arguments = args + " " + TestConstants.InternalUseOnlyFlag + " " + internalParameter;
 
+            if (!string.IsNullOrEmpty(workingDirectory))
+            {
+                processInfo.WorkingDirectory = workingDirectory;
+            }
+
             processInfo.WindowStyle = ProcessWindowStyle.Hidden;
             processInfo.UseShellExecute = false;
             processInfo.RedirectStandardOutput = true;
