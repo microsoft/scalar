@@ -146,46 +146,29 @@ namespace Scalar.Common
                 return true;
             }
 
-            // Second, look all places where "src" exists in the path and look for "src/.git"
-            int srcPos = 0;
-            string srcSearch = $"{Path.DirectorySeparatorChar}{ScalarConstants.WorkingDirectoryRootName}";
-
-            while ((srcPos = normalized.IndexOf(srcSearch, srcPos + 1, StringComparison.OrdinalIgnoreCase)) >= 0)
-            {
-                string srcDir = normalized.Substring(0, srcPos + srcSearch.Length);
-
-                if (!srcDir.Equals(normalized, StringComparison.OrdinalIgnoreCase) &&
-                    !normalized.StartsWith(srcDir + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-                {
-                    // the "src" that appears inside the normalized path is not a full directory name!
-                    continue;
-                }
-
-                string gitDir = Path.Combine(srcDir, ScalarConstants.DotGit.Root);
-
-                if (exists(gitDir))
-                {
-                    // We have a .git directory OR a .git file (in the case of worktrees)
-                    enlistmentRoot = normalized.Substring(0, srcPos); ;
-                    workingDirectoryRoot = srcDir;
-                    return true;
-                }
-            }
-
             // Finally, check all parent folders to see if they contain a ".git" folder.
+            // If found, check for the parent being "src".
             while (true)
             {
                 string gitDir = Path.Combine(normalized, ScalarConstants.DotGit.Root);
+                string parent = Directory.GetParent(normalized)?.FullName;
 
                 if (exists(gitDir))
                 {
                     // We have a .git directory OR a .git file (in the case of worktrees)
-                    enlistmentRoot = normalized;
+                    if (normalized.EndsWith($"{Path.DirectorySeparatorChar}src"))
+                    {
+                        enlistmentRoot = parent;
+                    }
+                    else
+                    {
+                        enlistmentRoot = normalized;
+                    }
+
                     workingDirectoryRoot = normalized;
                     return true;
                 }
 
-                string parent = Directory.GetParent(normalized)?.FullName;
                 if (string.IsNullOrEmpty(parent) || parent.Length >= normalized.Length)
                 {
                     break;
