@@ -21,7 +21,7 @@ namespace Scalar.FunctionalTests.Tools
             this.RepoUrl = repoUrl;
             this.Commitish = commitish;
             this.fullClone = fullClone;
-            this.IsScalarRepo = IsScalarRepo;
+            this.IsScalarRepo = isScalarRepo;
 
             if (localCacheRoot == null)
             {

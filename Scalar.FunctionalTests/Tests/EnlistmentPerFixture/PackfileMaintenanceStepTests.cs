@@ -2,7 +2,6 @@ using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
