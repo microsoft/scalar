@@ -31,6 +31,7 @@ namespace Scalar.UnitTests.Common
             string a_b_src_git = Path.Combine(a_b_src, ".git");
             string a_b_src_d = Path.Combine(a_b_src, "d");
             string a_b_src_d_e = Path.Combine(a_b_src_d, "e");
+            string a_b_src_d_git = Path.Combine(a_b_src_d, ".git");
             string a_src = Path.Combine(a, "src");
             string a_src_src = Path.Combine(a_src, "src");
             string a_src_src_git = Path.Combine(a_src_src, ".git");
@@ -46,6 +47,7 @@ namespace Scalar.UnitTests.Common
                 a_b_src,
                 a_b_src_git,
                 a_b_src_d,
+                a_b_src_d_git,
                 a_src,
                 a_src_src,
                 a_src_src_git,
@@ -58,8 +60,11 @@ namespace Scalar.UnitTests.Common
             TestGetRoot(paths, false, a, null, null);
             TestGetRoot(paths, true, a_b, a_b, a_b_src);
             TestGetRoot(paths, true, a_b_src, a_b, a_b_src);
-            TestGetRoot(paths, true, a_b_src_d, a_b, a_b_src);
-            TestGetRoot(paths, true, a_b_src_d_e, a_b, a_b_src);
+
+            // The deepest Git repo should be picked.
+            TestGetRoot(paths, true, a_b_src_d, a_b_src_d, a_b_src_d);
+            TestGetRoot(paths, true, a_b_src_d_e, a_b_src_d, a_b_src_d);
+
             TestGetRoot(paths, true, a_src, a_src, a_src_src);
             TestGetRoot(paths, true, a_src_src, a_src, a_src_src);
             TestGetRoot(paths, true, a_src_src_git, a_src, a_src_src);
