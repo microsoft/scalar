@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.Build.NoTargets">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <IsSigningProject>true</IsSigningProject>
+    <!-- MicroBuild hack: override OutDir to make all files we want to sign under it. -->
+    <OutDir>$(RootDir)</OutDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FilesToSign Include="
+      $(OutDir)\scalar.dll;
+      $(OutDir)\scalar.exe;
+      $(OutDir)\scalar.common.dll;
+      $(OutDir)\scalar.service.dll;
+      $(OutDir)\scalar.service.exe;
+      $(OutDir)\scalar.service.ui.dll;
+      $(OutDir)\scalar.service.ui.exe;
+      $(OutDir)\scalar.upgrader.dll;
+      $(OutDir)\scalar.upgrader.exe;" />
+  </ItemGroup>
+
+</Project>

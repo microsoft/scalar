@@ -15,7 +15,7 @@ IF EXIST %SCALAR_STAGEDIR% (
 
 mkdir %SCALAR_STAGEDIR%
 
-xcopy %SCALAR_OUTPUTDIR%\Scalar.Distribution.Windows\dist\%Configuration%\* %SCALAR_STAGEDIR% /S /Y
+xcopy %SCALAR_OUTPUTDIR%\Scalar.Installer.Windows\dist\%Configuration%\* %SCALAR_STAGEDIR% /S /Y
 
 GOTO END
 

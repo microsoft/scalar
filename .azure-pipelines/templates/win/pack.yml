@@ -1,0 +1,20 @@
+steps:
+  - script: Scripts\CI\CreateFTDrop.bat $(configuration) $(Build.ArtifactStagingDirectory)\Tests
+    displayName: Create functional tests drop
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish functional tests drop
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)\Tests\
+      artifactName: "FunctionalTests_Windows_$(configuration)"
+    condition: succeeded()
+
+  - script: Scripts\CI\CreateInstallerDrop.bat $(configuration) $(Build.ArtifactStagingDirectory)\Installers
+    displayName: Create distribution drop
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish distribution drop
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)\Installers\
+      artifactName: "Installers_Windows_$(configuration)"
+    condition: succeeded()

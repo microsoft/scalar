@@ -38,6 +38,7 @@
     <ScalarVersion>0.2.173.2</ScalarVersion>
     <GitPackageVersion>2.20191211.2</GitPackageVersion>
     <WatchmanPackageUrl>https://github.com/facebook/watchman/suites/307436006/artifacts/304557</WatchmanPackageUrl>
+    <GcmCoreOSXPackageUrl>https://github.com/microsoft/Git-Credential-Manager-Core/releases/download/v2.0.79-beta/gcmcore-osx-2.0.79.64449.pkg</GcmCoreOSXPackageUrl>
 
     <!-- Signing certificates -->
     <AuthenticodeCert>Microsoft400</AuthenticodeCert>

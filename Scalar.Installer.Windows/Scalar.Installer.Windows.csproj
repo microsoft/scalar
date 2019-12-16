@@ -5,6 +5,7 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <LayoutPath>$(ProjectOutPath)layout\$(Configuration)\</LayoutPath>
     <InstallerOutputPath>$(ProjectOutPath)installer\$(Configuration)\</InstallerOutputPath>
+    <DistributionOutputPath>$(ProjectOutPath)dist\$(Configuration)\</DistributionOutputPath>
   </PropertyGroup>
 
   <ItemDefinitionGroup>
@@ -19,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="GitForWindows.GVFS.Installer" />
     <PackageReference Include="Tools.InnoSetup" />
   </ItemGroup>
 
@@ -44,14 +46,38 @@
           SkipUnchangedFiles="true"
           OverwriteReadOnlyFiles="true"/>
 
+    <!-- Sign the layout files -->
+    <MSBuild Projects="$(MSBuildThisProjectDirectory)..\Scalar.Signing\Scalar.SignFiles.Windows.csproj"
+             Targets="Restore;Build"
+             Properties="RootDir=$(LayoutPath);" />
+
     <!-- Run the Inno setup tool to build the installer -->
     <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe /DLayoutPath=$(LayoutPath) /DScalarVersion=$(ScalarVersion) Setup.iss /O$(InstallerOutputPath)"/>
 
-    <!-- Mark the installer file as a output for this target so that the Clean target will delete it -->
-    <ItemGroup>
-      <FileWrites Include="$(InstallerOutputPath)SetupScalar.$(ScalarVersion).exe" />
-    </ItemGroup>
+    <!-- Sign the installer file -->
+    <MSBuild Projects="$(MSBuildThisProjectDirectory)..\Scalar.Signing\Scalar.SignInstaller.Windows.csproj"
+             Targets="Restore;Build"
+             Properties="RootDir=$(InstallerOutputPath);" />
 
+    <!-- Build the distribution script -->
+    <ItemGroup>
+      <ScalarPackage Include="$(InstallerOutputPath)*.exe" LinkBase="Scalar" />
+      <GitPackage    Include="$(PkgGitForWindows_GVFS_Installer)\tools\*.exe" LinkBase="Git" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ScalarPackage);@(GitPackage)"
+          DestinationFolder="$(DistributionOutputPath)%(LinkBase)"
+          SkipUnchangedFiles="true" />
+    <PropertyGroup>
+      <ScalarPackageFilename>%(ScalarPackage.Filename)%(ScalarPackage.Extension)</ScalarPackageFilename>
+      <GitPackageFilename>%(GitPackage.Filename)%(GitPackage.Extension)</GitPackageFilename>
+    </PropertyGroup>
+    <ItemGroup>
+      <ScriptTemplate Include="InstallScalar.template.bat" TargetPath="InstallScalar.bat"
+                      Properties="##SCALAR_INSTALLER_EXE_PLACEHOLDER##=$(ScalarPackageFilename);
+                                  ##GIT_INSTALLER_EXE_PLACEHOLDER##=$(GitPackageFilename);
+                                  ##WATCHMAN_CI_URL_PLACEHOLDER##=$(WatchmanPackageUrl);" />
+    </ItemGroup>
+    <CompileTemplatedFile Template="@(ScriptTemplate)" OutputFile="$(DistributionOutputPath)\%(TargetPath)" />
   </Target>
 
 </Project>

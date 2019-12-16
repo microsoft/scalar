@@ -2,7 +2,6 @@ parameters:
   useWatchman: true
 
 steps:
-
   - task: NuGetToolInstaller@0
     inputs:
       versionSpec: '>=5.1'
@@ -13,34 +12,30 @@ steps:
       packageType: sdk
       version: 3.0.100
 
-  - task: DownloadBuildArtifacts@0
+  - task: DownloadPipelineArtifact@2
     displayName: Download functional tests drop
     inputs:
-      buildType: current
-      downloadType: specific
-      artifactName: FunctionalTests_$(platformFriendlyName)_$(configuration)
-      downloadPath: $(Build.BinariesDirectory)
+      artifact: FunctionalTests_Windows_$(configuration)
+      Path: $(Build.BinariesDirectory)\ft
 
-  - task: DownloadBuildArtifacts@0
+  - task: DownloadPipelineArtifact@2
     displayName: Download installers drop
     inputs:
-      buildType: current
-      downloadType: specific
-      artifactName: Installers_$(platformFriendlyName)_$(configuration)
-      downloadPath: $(Build.BinariesDirectory)
+      artifact: Installers_Windows_$(configuration)
+      path: $(Build.BinariesDirectory)\install
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - script: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.bat --watchman $(Build.ArtifactStagingDirectory)\logs
+    - script: $(Build.BinariesDirectory)\install\InstallScalar.bat --watchman $(Build.ArtifactStagingDirectory)\logs
       displayName: Install product (with watchman)
 
-  - ${{ if eq(parameters.useWatchman, 'false') }}:
-    - script: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.bat --no-watchman $(Build.ArtifactStagingDirectory)\logs
+  - ${{ if ne(parameters.useWatchman, 'true') }}:
+    - script: $(Build.BinariesDirectory)\install\InstallScalar.bat --no-watchman $(Build.ArtifactStagingDirectory)\logs
       displayName: Install product (without watchman)
 
   - script: git config --global credential.interactive never
     displayName: Disable interactive auth
 
-  - script: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/RunFunctionalTests.bat $(configuration) --test-scalar-on-path "--trace2-output=$(Build.ArtifactStagingDirectory)\logs\trace2-event.log"
+  - script: $(Build.BinariesDirectory)\ft\src\Scripts\RunFunctionalTests.bat $(configuration) --test-scalar-on-path "--trace2-output=$(Build.ArtifactStagingDirectory)\logs\trace2-event.log"
     displayName: Run functional tests
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
@@ -55,14 +50,14 @@ steps:
       condition: succeededOrFailed()
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - task: PublishBuildArtifacts@1
+    - task: PublishPipelineArtifact@1
       displayName: Publish test and installation logs
       inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)\logs'
-        artifactName: Logs_$(platformFriendlyName)_Watchman
+        targetPath: $(Build.ArtifactStagingDirectory)\logs
+        artifactName: Logs_Windows_Watchman
       condition: failed()
 
-  - ${{ if eq(parameters.useWatchman, 'false') }}:
+  - ${{ if ne(parameters.useWatchman, 'true') }}:
     - task: PublishTestResults@2
       displayName: Publish functional tests results
       inputs:
@@ -73,10 +68,10 @@ steps:
         publishRunAttachments: true
       condition: succeededOrFailed()
 
-  - ${{ if eq(parameters.useWatchman, 'false') }}:
-    - task: PublishBuildArtifacts@1
+  - ${{ if ne(parameters.useWatchman, 'true') }}:
+    - task: PublishPipelineArtifact@1
       displayName: Publish test and installation logs
       inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)\logs'
-        artifactName: Logs_$(platformFriendlyName)
+        targetPath: $(Build.ArtifactStagingDirectory)\logs
+        artifactName: Logs_Windows
       condition: failed()

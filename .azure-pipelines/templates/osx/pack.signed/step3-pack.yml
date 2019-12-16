@@ -1,0 +1,27 @@
+steps:
+  - task: DownloadPipelineArtifact@2
+    displayName: Download signed payload
+    inputs:
+      artifact: _osx_payload_signed
+      path: $(Build.ArtifactStagingDirectory)/layout
+
+  # Pipelines artifacts do not preserve symlinks so we must reconstruct
+  # them just before we pack the layout:
+  # https://github.com/microsoft/azure-pipelines-tasks/issues/11980
+  - script: |
+      cd $(Build.ArtifactStagingDirectory)/layout/usr/local/bin
+      rm -f scalar
+      ln -s ../scalar/scalar .
+    displayName: Recreate the Scalar symlink
+
+  - script: Scalar.Installer.Mac/pack.sh '$(fullVersion)' '$(Build.ArtifactStagingDirectory)/layout' '$(Build.ArtifactStagingDirectory)/package'
+    displayName: Create installer
+
+  - script: rm -rf '$(Build.ArtifactStagingDirectory)/package/components'
+    displayName: Delete component packages
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish unsigned installer
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)/package
+      artifactName: _osx_installer_unsigned

@@ -2,16 +2,13 @@
   <!-- Define common properties that rely on SDK/props-defined properties -->
   <PropertyGroup>
     <Version>$(ScalarVersion)</Version>
-    <MacFilesTarget>$(OutputPath)</MacFilesTarget>
   </PropertyGroup>
-
-  <!-- Include signing via MicroBuild if we have *FilesToSign -->
-  <ItemGroup Condition="@(FilesToSign->Count()) > 0 OR @(MacFilesToSign->Count()) > 0 ">
-    <PackageReference Include="MicroBuild.Core" />
-  </ItemGroup>
 
   <!-- Include custom MSBuild targets/tasks -->
   <Import Project="$(ScalarBuildTasks)Scalar.targets" />
+
+  <!-- Include signing targets -->
+  <Import Project="Signing.targets" />
 
   <!-- Unified dependency versions -->
   <Import Project="Dependencies.props" />

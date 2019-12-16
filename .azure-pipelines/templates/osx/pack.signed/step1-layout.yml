@@ -1,0 +1,27 @@
+steps:
+  - script: Scripts/Mac/CI/CreateFTDrop.sh $(configuration) $(Build.ArtifactStagingDirectory)/Tests
+    displayName: Create functional tests drop
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish functional tests drop
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)/Tests
+      artifactName: FunctionalTests_macOS_$(configuration)
+    condition: succeeded()
+
+  - script: Scalar.Installer.Mac/layout.sh $(configuration) 'netcoreapp3.0' 'osx-x64' '$(Build.SourcesDirectory)' '$(Build.SourcesDirectory)/../out' '$(Build.ArtifactStagingDirectory)/layout'
+    displayName: Layout installer payload
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish unsigned payload
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)/layout
+      artifactName: _osx_payload_unsigned
+    condition: succeeded()
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Git for Mac package content
+    inputs:
+      targetPath: ../out/Scalar.Installer.Mac/dist/$(configuration)/Git
+      artifactName: _osx_gitformac_package
+    condition: succeeded()

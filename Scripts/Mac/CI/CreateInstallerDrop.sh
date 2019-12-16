@@ -14,4 +14,4 @@ rm -rf $SCALAR_STAGEDIR
 mkdir -p $SCALAR_STAGEDIR
 
 # Copy to the build drop, retaining directory structure
-cp -Rf $SCALAR_OUTPUTDIR/Scalar.Distribution.Mac/dist/$CONFIGURATION/ $SCALAR_STAGEDIR
+cp -Rf $SCALAR_OUTPUTDIR/Scalar.Installer.Mac/dist/$CONFIGURATION/ $SCALAR_STAGEDIR
