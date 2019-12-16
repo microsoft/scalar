@@ -1,5 +1,7 @@
 trigger: none
 
+pr: none
+
 variables:
   branchCounter: $[counter(variables['Build.SourceBranch'], 0)]
   configuration: Release
