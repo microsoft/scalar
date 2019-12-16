@@ -215,9 +215,14 @@ namespace Scalar.FunctionalTests.Tools
             return this.scalarProcess.Status(trace);
         }
 
-        public string Watch()
+        public string ReposAdd()
         {
-            return this.scalarProcess.Watch(this.EnlistmentRoot);
+            return this.scalarProcess.ReposAdd(this.EnlistmentRoot);
+        }
+
+        public string ReposList()
+        {
+            return this.scalarProcess.ReposList();
         }
 
         public string GetCacheServer()

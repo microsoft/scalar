@@ -4,15 +4,16 @@ using Scalar.Tests.Should;
 namespace Scalar.FunctionalTests.Tests.GitEnlistmentPerFixture
 {
     [Category(Categories.GitRepository)]
-    public class WatchVerbTests : TestsWithGitEnlistmentPerFixture
+    public class ReposVerbTests : TestsWithGitEnlistmentPerFixture
     {
         [TestCase]
-        public void WatchVerbSucceedsInGitRepo()
+        public void ReposAddSucceedsInGitRepo()
         {
             this.Enlistment.IsScalarRepo.ShouldBeFalse();
-            this.Enlistment.Watch()
+            this.Enlistment.ReposAdd()
                            .Trim()
                            .ShouldEqual($"Successfully registered repo at '{this.Enlistment.EnlistmentRoot}'");
+            this.Enlistment.ReposList().ShouldContain(this.Enlistment.EnlistmentRoot);
         }
     }
 }

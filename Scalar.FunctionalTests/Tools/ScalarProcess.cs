@@ -94,9 +94,14 @@ namespace Scalar.FunctionalTests.Tools
                 expectedExitCode: SuccessExitCode);
         }
 
-        public string Watch(string enlistmentRoot)
+        public string ReposAdd(string enlistmentRoot)
         {
-            return this.CallScalar("watch", expectedExitCode: SuccessExitCode, workingDirectory: enlistmentRoot);
+            return this.CallScalar($"repos add", expectedExitCode: SuccessExitCode, workingDirectory: enlistmentRoot);
+        }
+
+        public string ReposList()
+        {
+            return this.CallScalar($"repos list", expectedExitCode: SuccessExitCode, workingDirectory: this.enlistmentRoot);
         }
 
         public string Diagnose()
