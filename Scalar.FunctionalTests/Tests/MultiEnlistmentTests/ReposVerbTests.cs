@@ -17,14 +17,14 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
             // Do not check for unexpected repos, as other repos on the machine may be registered while
             // this test is running
-            this.RunReposListCommand(expectedRepoRoots: repoRootList);
+            this.RunReposListCommand(enlistment1.EnlistmentRoot, expectedRepoRoots: repoRootList);
         }
 
-        private void RunReposListCommand(string[] expectedRepoRoots)
+        private void RunReposListCommand(string workdir, string[] expectedRepoRoots)
         {
             ScalarProcess scalarProcess = new ScalarProcess(
                 ScalarTestConfig.PathToScalar,
-                enlistmentRoot: null,
+                enlistmentRoot: workdir,
                 localCacheRoot: null);
 
             string result = scalarProcess.ReposList();
