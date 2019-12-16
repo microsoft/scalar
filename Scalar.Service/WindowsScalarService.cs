@@ -266,14 +266,6 @@ namespace Scalar.Service
             DirectoryEx.CreateDirectory(serviceDataRootPath, serviceDataRootSecurity);
             DirectoryEx.CreateDirectory(this.serviceDataLocation, serviceDataRootSecurity);
             DirectoryEx.CreateDirectory(ProductUpgraderInfo.GetUpgradeProtectedDataDirectory(), serviceDataRootSecurity);
-
-            // Ensure the ACLs are set correctly on any files or directories that were already created (e.g. after upgrading Scalar)
-            DirectoryEx.SetAccessControl(serviceDataRootPath, serviceDataRootSecurity);
-
-            // Special rules for the upgrader logs and registry, as non-elevated users need to be be able to write
-            this.CreateAndConfigureUserWriteableDirectory(this.repoRegistryLocation);
-            this.CreateAndConfigureUserWriteableDirectory(ProductUpgraderInfo.GetLogDirectoryPath());
-            this.CreateAndConfigureUserWriteableDirectory(ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.Service.UIName));
         }
 
         private void CreateAndConfigureUserWriteableDirectory(string path)
