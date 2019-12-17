@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace Scalar.Common.Maintenance
 {
-    public class FetchCommitsAndTreesStep : GitMaintenanceStep
+    public class FetchStep : GitMaintenanceStep
     {
         private const int IoFailureRetryDelayMS = 50;
         private const int LockWaitTimeMs = 100;
@@ -18,7 +18,7 @@ namespace Scalar.Common.Maintenance
         private readonly TimeSpan timeBetweenFetches = TimeSpan.FromMinutes(70);
         private readonly TimeSpan timeBetweenFetchesNoCacheServer = TimeSpan.FromDays(1);
 
-        public FetchCommitsAndTreesStep(ScalarContext context, GitObjects gitObjects, bool requireCacheLock = true)
+        public FetchStep(ScalarContext context, GitObjects gitObjects, bool requireCacheLock = true)
             : base(context, requireCacheLock)
         {
             this.GitObjects = gitObjects;
@@ -28,15 +28,23 @@ namespace Scalar.Common.Maintenance
 
         protected GitObjects GitObjects { get; }
 
-        public bool TryFetchCommitsAndTrees(out string error, GitProcess gitProcess = null)
+        public bool TryFetch(out string error, GitProcess gitProcess = null)
         {
             if (gitProcess == null)
             {
                 gitProcess = new GitProcess(this.Context.Enlistment);
             }
 
+            if (!this.Context.Enlistment.UsesGvfsProtocol)
+            {
+                GitProcess.Result result = gitProcess.BackgroundFetch();
+
+                error = result.Errors;
+                return result.ExitCodeIsSuccess;
+            }
+
             // We take our own lock here to keep background and foreground fetches
-            // (i.e. a user running 'scalar maintenance --fetch-commits-and-trees')
+            // (i.e. a user running 'scalar maintenance --task fetch')
             // from running at the same time.
             using (FileBasedLock fetchLock = ScalarPlatform.Instance.CreateFileBasedLock(
                 this.Context.FileSystem,
@@ -68,37 +76,40 @@ namespace Scalar.Common.Maintenance
             long last;
             string error = null;
 
-            if (!this.TryGetMaxGoodPrefetchPackTimestamp(out last, out error))
+            if (this.Context.Enlistment.UsesGvfsProtocol)
             {
-                this.Context.Tracer.RelatedError(error);
-                return;
-            }
+                if (!this.TryGetMaxGoodPrefetchPackTimestamp(out last, out error))
+                {
+                    this.Context.Tracer.RelatedError(error);
+                    return;
+                }
 
-            TimeSpan timeBetween = this.GitObjects.IsUsingCacheServer()
-                                    ? this.timeBetweenFetches
-                                    : this.timeBetweenFetchesNoCacheServer;
+                TimeSpan timeBetween = this.GitObjects.IsUsingCacheServer()
+                                        ? this.timeBetweenFetches
+                                        : this.timeBetweenFetchesNoCacheServer;
 
-            DateTime lastDateTime = EpochConverter.FromUnixEpochSeconds(last);
-            DateTime now = DateTime.UtcNow;
-            if (now <= lastDateTime + timeBetween)
-            {
-                this.Context.Tracer.RelatedInfo(this.Area + ": Skipping fetch since most-recent fetch ({0}) is too close to now ({1})", lastDateTime, now);
-                return;
+                DateTime lastDateTime = EpochConverter.FromUnixEpochSeconds(last);
+                DateTime now = DateTime.UtcNow;
+                if (now <= lastDateTime + timeBetween)
+                {
+                    this.Context.Tracer.RelatedInfo(this.Area + ": Skipping fetch since most-recent fetch ({0}) is too close to now ({1})", lastDateTime, now);
+                    return;
+                }
             }
 
             this.RunGitCommand(
                 process =>
                 {
-                    this.TryFetchCommitsAndTrees(out error, process);
+                    this.TryFetch(out error, process);
                     return null;
                 },
-                nameof(this.TryFetchCommitsAndTrees));
+                nameof(this.TryFetch));
 
             if (!string.IsNullOrEmpty(error))
             {
                 this.Context.Tracer.RelatedWarning(
                     metadata: this.CreateEventMetadata(),
-                    message: $"{nameof(this.TryFetchCommitsAndTrees)} failed with error '{error}'",
+                    message: $"{nameof(this.TryFetch)} failed with error '{error}'",
                     keywords: Keywords.Telemetry);
             }
         }

@@ -18,7 +18,7 @@ namespace Scalar.Common.Maintenance
             switch (task)
             {
                 case Task.FetchCommitsAndTrees:
-                    return ScalarConstants.VerbParameters.Maintenance.FetchCommitsAndTreesTaskName;
+                    return ScalarConstants.VerbParameters.Maintenance.FetchTaskName;
                 case Task.LooseObjects:
                     return ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName;
                 case Task.PackFiles:

@@ -91,7 +91,7 @@ namespace Scalar.CommandLine
                                         this.PackfileMaintenanceBatchSize)).Execute();
                                 return;
 
-                            case ScalarConstants.VerbParameters.Maintenance.FetchCommitsAndTreesTaskName:
+                            case ScalarConstants.VerbParameters.Maintenance.FetchTaskName:
                                 this.FailIfBatchSizeSet(tracer);
                                 this.FetchCommitsAndTrees(tracer, enlistment, cacheServerUrl);
                                 return;
@@ -138,19 +138,13 @@ namespace Scalar.CommandLine
             GitObjectsHttpRequestor objectRequestor;
             CacheServerInfo cacheServer;
 
-            if (!enlistment.UsesGvfsProtocol)
-            {
-                tracer.RelatedWarning("This repo is not a Scalar repo, so fetching commmits and trees does nothing");
-                return;
-            }
-
             this.InitializeServerConnection(
                 tracer,
                 enlistment,
                 cacheServerUrl,
                 out objectRequestor,
                 out cacheServer);
-            this.RunFetchCommitsAndTreesStep(tracer, enlistment, objectRequestor, cacheServer);
+            this.RunFetchStep(tracer, enlistment, objectRequestor, cacheServer);
         }
 
         private void FailIfBatchSizeSet(ITracer tracer)
@@ -203,7 +197,7 @@ namespace Scalar.CommandLine
             objectRequestor = new GitObjectsHttpRequestor(tracer, enlistment, cacheServer, retryConfig);
         }
 
-        private void RunFetchCommitsAndTreesStep(ITracer tracer, ScalarEnlistment enlistment, GitObjectsHttpRequestor objectRequestor, CacheServerInfo cacheServer)
+        private void RunFetchStep(ITracer tracer, ScalarEnlistment enlistment, GitObjectsHttpRequestor objectRequestor, CacheServerInfo cacheServer)
         {
             bool success;
             string error = string.Empty;
@@ -212,17 +206,22 @@ namespace Scalar.CommandLine
             GitObjects gitObjects = new GitObjects(tracer, enlistment, objectRequestor, fileSystem);
 
             success = this.ShowStatusWhileRunning(
-                () => new FetchCommitsAndTreesStep(context, gitObjects, requireCacheLock: false).TryFetchCommitsAndTrees(out error),
-                                                   "Fetching commits and trees " + this.GetCacheServerDisplay(cacheServer, enlistment.RepoUrl));
+                () => new FetchStep(context, gitObjects, requireCacheLock: false).TryFetch(out error),
+                                    "Fetching " + this.GetCacheServerDisplay(cacheServer, enlistment.RepoUrl));
 
             if (!success)
             {
-                this.ReportErrorAndExit(tracer, ReturnCode.GenericError, "Fetching commits and trees failed: " + error);
+                this.ReportErrorAndExit(tracer, ReturnCode.GenericError, "Fetch failed: " + error);
             }
         }
 
         private string GetCacheServerDisplay(CacheServerInfo cacheServer, string repoUrl)
         {
+            if (cacheServer == null)
+            {
+                return "from origin";
+            }
+
             if (!cacheServer.IsNone(repoUrl))
             {
                 return "from cache server";

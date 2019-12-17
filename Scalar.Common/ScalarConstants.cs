@@ -97,6 +97,7 @@ namespace Scalar.Common
             public const string ServiceUI = "service_ui";
             public const string UpgradeVerb = UpgradePrefix + "_verb";
             public const string UpgradeProcess = UpgradePrefix + "_process";
+            public const string Watch = "watch";
         }
 
         public static class DotGit
@@ -195,7 +196,7 @@ namespace Scalar.Common
             {
                 public const string Task = "task";
 
-                public const string FetchCommitsAndTreesTaskName = "fetch-commits-and-trees";
+                public const string FetchTaskName = "fetch";
                 public const string LooseObjectsTaskName = "loose-objects";
                 public const string PackFilesTaskName = "pack-files";
                 public const string CommitGraphTaskName = "commit-graph";

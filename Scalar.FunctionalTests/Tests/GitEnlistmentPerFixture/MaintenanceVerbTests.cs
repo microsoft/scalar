@@ -77,6 +77,15 @@ namespace Scalar.FunctionalTests.Tests.GitEnlistmentPerFixture
             this.GetLooseObjectFiles().Count.ShouldEqual(0);
         }
 
+        [TestCase]
+        [Order(4)]
+        public void FetchStep()
+        {
+            // This step deletes the loose object that is already in a pack
+            this.Enlistment.FetchStep();
+            this.GetLooseObjectFiles().Count.ShouldEqual(0);
+        }
+
         private List<string> GetPackfiles()
         {
             return Directory.GetFiles(this.PackRoot, "*.pack").ToList();
