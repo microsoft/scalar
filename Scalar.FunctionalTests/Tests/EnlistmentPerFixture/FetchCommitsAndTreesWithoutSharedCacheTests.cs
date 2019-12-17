@@ -102,36 +102,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase, Order(4)]
-        public void FetchCommitsAndTreesCleansUpOldPrefetchPack()
-        {
-            this.Enlistment.UnregisterRepo();
-
-            string[] prefetchPacks = this.ReadPrefetchPackFileNames();
-            long oldestPackTimestamp = this.GetOldestPackTimestamp(prefetchPacks);
-
-            // Create a bad pack that is older than the oldest pack
-            string badContents = "BADPACK";
-            string badPackPath = Path.Combine(this.PackRoot, $"{PrefetchPackPrefix}-{oldestPackTimestamp - 1}-{Guid.NewGuid().ToString("N")}.pack");
-            this.fileSystem.WriteAllText(badPackPath, badContents);
-            badPackPath.ShouldBeAFile(this.fileSystem).WithContents(badContents);
-
-            // fetch-commits-and-trees should delete the bad pack and all packs after it
-            this.Enlistment.FetchCommitsAndTrees();
-
-            badPackPath.ShouldNotExistOnDisk(this.fileSystem);
-            foreach (string packPath in prefetchPacks)
-            {
-                string idxPath = Path.ChangeExtension(packPath, ".idx");
-                badPackPath.ShouldNotExistOnDisk(this.fileSystem);
-                idxPath.ShouldNotExistOnDisk(this.fileSystem);
-            }
-
-            string[] newPrefetchPacks = this.ReadPrefetchPackFileNames();
-            this.AllPrefetchPacksShouldHaveIdx(newPrefetchPacks);
-            this.TempPackRoot.ShouldBeADirectory(this.fileSystem).WithNoItems();
-        }
-
-        [TestCase, Order(5)]
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
         public void FetchCommitsAndTreesFailsWhenItCannotRemoveABadPrefetchPack()
         {
@@ -164,79 +134,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.TempPackRoot.ShouldBeADirectory(this.fileSystem).WithNoItems();
         }
 
-        [TestCase, Order(6)]
-        [Category(Categories.MacTODO.TestNeedsToLockFile)]
-        public void FetchCommitsAndTreesFailsWhenItCannotRemoveAPrefetchPackNewerThanBadPrefetchPack()
-        {
-            this.Enlistment.UnregisterRepo();
-
-            string[] prefetchPacks = this.ReadPrefetchPackFileNames();
-            long oldestPackTimestamp = this.GetOldestPackTimestamp(prefetchPacks);
-
-            // Create a bad pack that is older than the oldest pack
-            string badContents = "BADPACK";
-            string badPackPath = Path.Combine(this.PackRoot, $"{PrefetchPackPrefix}-{oldestPackTimestamp - 1}-{Guid.NewGuid().ToString("N")}.pack");
-            this.fileSystem.WriteAllText(badPackPath, badContents);
-            badPackPath.ShouldBeAFile(this.fileSystem).WithContents(badContents);
-
-            // Open a handle to a good pack that is newer than the bad pack, which will prevent fetch-commits-and-trees from being able to delete it
-            using (FileStream stream = new FileStream(prefetchPacks[0], FileMode.Open, FileAccess.Read, FileShare.None))
-            {
-                string output = this.Enlistment.FetchCommitsAndTrees(failOnError: false);
-                output.ShouldContain($"Unable to delete {prefetchPacks[0]}");
-            }
-
-            // After handle is closed fetching commits and trees should succeed
-            this.Enlistment.FetchCommitsAndTrees();
-
-            // The bad pack and all packs newer than it should not be on disk
-            badPackPath.ShouldNotExistOnDisk(this.fileSystem);
-
-            string[] newPrefetchPacks = this.ReadPrefetchPackFileNames();
-            newPrefetchPacks.ShouldNotContain(prefetchPacks, (item, expectedValue) => { return string.Equals(item, expectedValue); });
-            this.AllPrefetchPacksShouldHaveIdx(newPrefetchPacks);
-            this.TempPackRoot.ShouldBeADirectory(this.fileSystem).WithNoItems();
-        }
-
-        [TestCase, Order(7)]
-        [Category(Categories.MacTODO.TestNeedsToLockFile)]
-        public void FetchCommitsAndTreesFailsWhenItCannotRemoveAPrefetchIdxNewerThanBadPrefetchPack()
-        {
-            this.Enlistment.UnregisterRepo();
-
-            string[] prefetchPacks = this.ReadPrefetchPackFileNames();
-            long oldestPackTimestamp = this.GetOldestPackTimestamp(prefetchPacks);
-
-            // Create a bad pack that is older than the oldest pack
-            string badContents = "BADPACK";
-            string badPackPath = Path.Combine(this.PackRoot, $"{PrefetchPackPrefix}-{oldestPackTimestamp - 1}-{Guid.NewGuid().ToString("N")}.pack");
-            this.fileSystem.WriteAllText(badPackPath, badContents);
-            badPackPath.ShouldBeAFile(this.fileSystem).WithContents(badContents);
-
-            string newerIdxPath = Path.ChangeExtension(prefetchPacks[0], ".idx");
-            newerIdxPath.ShouldBeAFile(this.fileSystem);
-
-            // Open a handle to a good idx that is newer than the bad pack, which will prevent fetch-commits-and-trees from being able to delete it
-            using (FileStream stream = new FileStream(newerIdxPath, FileMode.Open, FileAccess.Read, FileShare.None))
-            {
-                string output = this.Enlistment.FetchCommitsAndTrees(failOnError: false);
-                output.ShouldContain($"Unable to delete {newerIdxPath}");
-            }
-
-            // After handle is closed fetching commits and trees should succeed
-            this.Enlistment.FetchCommitsAndTrees();
-
-            // The bad pack and all packs newer than it should not be on disk
-            badPackPath.ShouldNotExistOnDisk(this.fileSystem);
-            newerIdxPath.ShouldNotExistOnDisk(this.fileSystem);
-
-            string[] newPrefetchPacks = this.ReadPrefetchPackFileNames();
-            newPrefetchPacks.ShouldNotContain(prefetchPacks, (item, expectedValue) => { return string.Equals(item, expectedValue); });
-            this.AllPrefetchPacksShouldHaveIdx(newPrefetchPacks);
-            this.TempPackRoot.ShouldBeADirectory(this.fileSystem).WithNoItems();
-        }
-
-        [TestCase, Order(8)]
+        [TestCase, Order(5)]
         public void FetchCommitsAndTreesCleansUpStaleTempPrefetchPacks()
         {
             this.Enlistment.UnregisterRepo();
