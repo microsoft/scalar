@@ -3,11 +3,17 @@ trigger: none
 pr: none
 
 variables:
-  branchCounter: $[counter(variables['Build.SourceBranch'], 0)]
-  configuration: Release
-  signPool: VSEng-MicroBuildVS2019
-  winImage: windows-2019
-  osxImage: macOS-10.14
+  - group: apple-development
+  - name: branchCounter
+    value: $[counter(variables['Build.SourceBranch'], 0)]
+  - name: configuration
+    value: Release
+  - name: signPool
+    value: VSEng-MicroBuildVS2019
+  - name: winImage
+    value: windows-2019
+  - name: osxImage
+    value: macOS-10.14
 
 jobs:
   - job: win_build

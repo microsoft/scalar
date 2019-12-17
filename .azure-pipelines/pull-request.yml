@@ -9,8 +9,11 @@ pr:
   - servicing/*
 
 variables:
-  branchCounter: $[counter(variables['Build.SourceBranch'], 0)]
-  configuration: Release
+  - group: apple-development
+  - name: branchCounter
+    value: $[counter(variables['Build.SourceBranch'], 0)]
+  - name: configuration
+    value: Release
 
 jobs:
   - job: win_build
