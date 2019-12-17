@@ -61,7 +61,7 @@ namespace Scalar.Common
         public override string LocalObjectsRoot { get; protected set; }
         public override string GitPackRoot { get; protected set; }
 
-        public bool UseGvfsProtocol { get; protected set; }
+        public bool UsesGvfsProtocol { get; protected set; }
 
         // These version properties are only used in logging during clone and mount to track version numbers
         public string GitVersion
@@ -208,7 +208,7 @@ namespace Scalar.Common
             this.GitPackRoot = Path.Combine(this.GitObjectsRoot, ScalarConstants.DotGit.Objects.Pack.Name);
 
             // When using the GVFS protocol, we have a different cache location than local objects.
-            this.UseGvfsProtocol = !this.LocalCacheRoot.Equals(this.LocalObjectsRoot);
+            this.UsesGvfsProtocol = !this.LocalCacheRoot.Equals(this.LocalObjectsRoot);
         }
 
         public bool TryCreateEnlistmentFolders()

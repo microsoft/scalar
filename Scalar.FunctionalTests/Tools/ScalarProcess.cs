@@ -56,10 +56,10 @@ namespace Scalar.FunctionalTests.Tools
             return this.IsEnlistmentMounted();
         }
 
-        public string FetchCommitsAndTrees(bool failOnError, string standardInput = null)
+        public string FetchStep(bool failOnError, string standardInput = null)
         {
             return this.CallScalar(
-                $"maintenance \"{this.enlistmentRoot}\" --task fetch-commits-and-trees",
+                $"maintenance \"{this.enlistmentRoot}\" --task fetch",
                 failOnError ? SuccessExitCode : DoNotCheckExitCode,
                 standardInput: standardInput);
         }

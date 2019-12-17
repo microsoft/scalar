@@ -194,7 +194,7 @@ namespace Scalar.Common
             {
                 public const string Task = "task";
 
-                public const string FetchCommitsAndTreesTaskName = "fetch-commits-and-trees";
+                public const string FetchTaskName = "fetch";
                 public const string LooseObjectsTaskName = "loose-objects";
                 public const string PackFilesTaskName = "pack-files";
                 public const string CommitGraphTaskName = "commit-graph";

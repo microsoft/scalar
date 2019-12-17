@@ -424,6 +424,11 @@ namespace Scalar.Common.Git
             return this.InvokeGitInWorkingDirectoryRoot("checkout HEAD -- .", fetchMissingObjects: true);
         }
 
+        public Result BackgroundFetch()
+        {
+            return this.InvokeGitInWorkingDirectoryRoot("fetch --all --no-update-remote-refs +refs/heads/*:refs/hidden/*", fetchMissingObjects: true);
+        }
+
         public Result SparseCheckoutSet(List<string> foldersToSet)
         {
             return this.InvokeGitInWorkingDirectoryRoot(

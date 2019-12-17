@@ -175,9 +175,9 @@ namespace Scalar.FunctionalTests.Tools
             }
         }
 
-        public string FetchCommitsAndTrees(bool failOnError = true, string standardInput = null)
+        public string FetchStep(bool failOnError = true, string standardInput = null)
         {
-            return this.scalarProcess.FetchCommitsAndTrees(failOnError, standardInput);
+            return this.scalarProcess.FetchStep(failOnError, standardInput);
         }
 
         public void UnregisterRepo()
