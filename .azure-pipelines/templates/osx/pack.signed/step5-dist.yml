@@ -1,0 +1,27 @@
+steps:
+  - task: DownloadPipelineArtifact@2
+    displayName: Download signed installer
+    inputs:
+      artifact: _osx_installer_signed
+      path: $(Build.ArtifactStagingDirectory)/package
+
+  - script: Scalar.Signing/notarize-pkg.sh -id "$(Apple.Account.Id)" -p "$(Apple.Account.Password)" -pkg "$(Build.ArtifactStagingDirectory)"/package/*.pkg -b "com.microsoft.scalar.pkg"
+    displayName: Notarize installer (and containing bundles & binaries)
+    condition: and(succeeded(), eq(variables['SignType'], 'real'))
+
+  - task: DownloadPipelineArtifact@2
+    displayName: Download Git for Mac installer package
+    inputs:
+      artifact: _osx_gitformac_package
+      path: $(Build.ArtifactStagingDirectory)/gitformacpkg
+
+  - script: |
+      GCMURL=$(xmllint --xpath '//Project/PropertyGroup/GcmCoreOSXPackageUrl/text()' Directory.Build.props) || exit 1
+      Scalar.Installer.Mac/dist.sh "$(Build.ArtifactStagingDirectory)/package"/Scalar*.pkg "$(Build.ArtifactStagingDirectory)/gitformacpkg"/*.pkg "$GCMURL" "Scalar.Installer.Mac/InstallScalar.template.sh" "$(Build.ArtifactStagingDirectory)/dist"
+    displayName: Create distribution script
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish distribution drop
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)/dist
+      artifactName: Installers_macOS_$(configuration)

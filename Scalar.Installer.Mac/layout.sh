@@ -24,28 +24,27 @@ if [ -z $SRC_DIR ]; then
   exit 1
 fi
 
-OUT_DIR=$5
+BIN_DIR=$5
+if [ -z $BIN_DIR ]; then
+  echo "Error: Binaries directory not specified"
+  exit 1
+fi
+
+OUT_DIR=$6
 if [ -z $OUT_DIR ]; then
   echo "Error: Output directory not specified"
   exit 1
 fi
 
-LAYOUT_DIR=$6
-if [ -z $LAYOUT_DIR ]; then
-  echo "Error: Layout directory not specified"
-  exit 1
-fi
-
-LAYOUT_ROOT_DIR="${LAYOUT_DIR}/root"
-LOCALBIN_DIR="${LAYOUT_ROOT_DIR}/usr/local/bin"
-SCALAR_DESTINATION="${LAYOUT_ROOT_DIR}/usr/local/scalar"
-AGENTPLIST_DESTINATION="${LAYOUT_ROOT_DIR}/Library/LaunchAgents"
-LIBRARYAPPSUPPORT_DESTINATION="${LAYOUT_ROOT_DIR}/Library/Application Support/Scalar"
+LOCALBIN_DIR="${OUT_DIR}/usr/local/bin"
+SCALAR_DESTINATION="${OUT_DIR}/usr/local/scalar"
+AGENTPLIST_DESTINATION="${OUT_DIR}/Library/LaunchAgents"
+LIBRARYAPPSUPPORT_DESTINATION="${OUT_DIR}/Library/Application Support/Scalar"
 
 function CreateLayoutDirectories()
 {
     # Ensure the layout directory is clean so we don't accidentally package any old files
-    cleanLayout="rm -rf \"${LAYOUT_DIR}\""
+    cleanLayout="rm -rf \"${OUT_DIR}\""
     eval $cleanLayout || exit 1
 
     mkdirLayout="mkdir -p \"${LOCALBIN_DIR}\" \"${SCALAR_DESTINATION}\" \"${AGENTPLIST_DESTINATION}\" \"${LIBRARYAPPSUPPORT_DESTINATION}\""
@@ -58,13 +57,13 @@ function CopyScalar()
     # of the directory are copied, and NOT the parent directory itself.
     PUBPATH_FRAGMENT="bin/${CONFIGURATION}/${TARGETFRAMEWORK}/${RUNTIMEIDENTIFIER}/publish/"
 
-    copyCmd="cp -Rf \"${OUT_DIR}/Scalar/${PUBPATH_FRAGMENT}\" \"${SCALAR_DESTINATION}\"" || exit 1
+    copyCmd="cp -Rf \"${BIN_DIR}/Scalar/${PUBPATH_FRAGMENT}\" \"${SCALAR_DESTINATION}\"" || exit 1
     eval $copyCmd || exit 1
 
-    copyCmd="cp -Rf \"${OUT_DIR}/Scalar.Service/${PUBPATH_FRAGMENT}\" \"${SCALAR_DESTINATION}\"" || exit 1
+    copyCmd="cp -Rf \"${BIN_DIR}/Scalar.Service/${PUBPATH_FRAGMENT}\" \"${SCALAR_DESTINATION}\"" || exit 1
     eval $copyCmd || exit 1
 
-    copyCmd="cp -Rf \"${OUT_DIR}/Scalar.Upgrader/${PUBPATH_FRAGMENT}\" \"${SCALAR_DESTINATION}\"" || exit 1
+    copyCmd="cp -Rf \"${BIN_DIR}/Scalar.Upgrader/${PUBPATH_FRAGMENT}\" \"${SCALAR_DESTINATION}\"" || exit 1
     eval $copyCmd || exit 1
 
     # Create the symlink
@@ -89,7 +88,7 @@ function CopyUninstaller()
 
 function CopyNativeApp()
 {
-    SCALAR_NOTIFICATION_APP="${OUT_DIR}/Scalar.Notifications.Mac/bin/${CONFIGURATION}/native/${RUNTIMEIDENTIFIER}/Scalar.app"
+    SCALAR_NOTIFICATION_APP="${BIN_DIR}/Scalar.Notifications.Mac/bin/${CONFIGURATION}/native/${RUNTIMEIDENTIFIER}/Scalar.app"
 
     if [ ! -d "$SCALAR_NOTIFICATION_APP" ] ; then
         echo "Error: Could not find native notification app at ${SCALAR_NOTIFICATION_APP}."

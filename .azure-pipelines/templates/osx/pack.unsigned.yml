@@ -1,0 +1,20 @@
+steps:
+  - script: Scripts/Mac/CI/CreateFTDrop.sh $(configuration) $(Build.ArtifactStagingDirectory)/Tests
+    displayName: Create functional tests drop
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish functional tests drop
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)/Tests
+      artifactName: FunctionalTests_macOS_$(configuration)
+    condition: succeeded()
+
+  - script: Scripts/Mac/CI/CreateInstallerDrop.sh $(configuration) $(Build.ArtifactStagingDirectory)/Installers
+    displayName: Create distribution drop
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish distribution drop
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)/Installers
+      artifactName: Installers_macOS_$(configuration)
+    condition: succeeded()

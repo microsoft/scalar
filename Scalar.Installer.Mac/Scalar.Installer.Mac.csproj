@@ -4,7 +4,8 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
     <LayoutPath>$(ProjectOutPath)layout\$(Configuration)\</LayoutPath>
-    <InstallerOutputPath>$(ProjectOutPath)installer\$(Configuration)\</InstallerOutputPath>
+    <PackageOutputPath Condition="'$(PackageOutputPath)' == ''">$(ProjectOutPath)package\$(Configuration)\</PackageOutputPath>
+    <DistributionOutputPath Condition="'$(DistributionOutputPath)' == ''">$(ProjectOutPath)dist\$(Configuration)\</DistributionOutputPath>
   </PropertyGroup>
 
   <ItemDefinitionGroup>
@@ -16,6 +17,10 @@
     <ProjectReference Include="..\Scalar.Service\Scalar.Service.csproj" />
     <ProjectReference Include="..\Scalar.Upgrader\Scalar.Upgrader.csproj" />
     <ProjectReference Include="..\Scalar.Notifications.Mac\Scalar.Notifications.Mac.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GitForMac.GVFS.Installer" />
   </ItemGroup>
 
   <!-- Only create the installer when running on macOS -->
@@ -32,7 +37,16 @@
     <Exec Command="$(MSBuildProjectDirectory)/layout.sh '$(Configuration)' '$(TargetFramework)' '$(RuntimeIdentifier)' '$(RepoSrcPath)' '$(RepoOutPath)' '$(LayoutPath)'"/>
 
     <!-- Build the installer package(s) -->
-    <Exec Command="$(MSBuildProjectDirectory)/pack.sh '$(ScalarVersion)' '$(RepoSrcPath)' '$(LayoutPath)' '$(InstallerOutputPath)'"/>
+    <Exec Command="$(MSBuildProjectDirectory)/pack.sh '$(ScalarVersion)' '$(LayoutPath)' '$(PackageOutputPath)'"/>
+
+    <ItemGroup>
+      <ScriptTemplate Include="$(MSBuildThisFileDirectory)InstallScalar.template.sh" />
+      <ScalarPackage  Include="$(PackageOutputPath)*.pkg" />
+      <GitPackage     Include="$(PkgGitForMac_GVFS_Installer)\tools\*.pkg" />
+    </ItemGroup>
+
+    <!-- Build the distribution script -->
+    <Exec Command="$(MSBuildProjectDirectory)/dist.sh '@(ScalarPackage)' '@(GitPackage)' '$(GcmCoreOSXPackageUrl)' '@(ScriptTemplate)' '$(DistributionOutputPath)'"/>
   </Target>
 
   <Target Name="_Clean" AfterTargets="Clean">

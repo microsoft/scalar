@@ -2,6 +2,8 @@ parameters:
   useWatchman: true
 
 steps:
+  - bash: mkdir -p $(Build.ArtifactStagingDirectory)/logs
+    displayName: Create logs directory
 
   - task: UseDotNet@2
     displayName: Use .NET Core SDK 3.0.100
@@ -9,43 +11,36 @@ steps:
       packageType: sdk
       version: 3.0.100
 
-  - task: DownloadBuildArtifacts@0
+  - task: DownloadPipelineArtifact@2
     displayName: Download functional tests drop
     inputs:
-      buildType: current
-      downloadType: specific
-      artifactName: FunctionalTests_$(platformFriendlyName)_$(configuration)
-      downloadPath: $(Build.BinariesDirectory)
+      artifact: FunctionalTests_macOS_$(configuration)
+      path: $(Build.BinariesDirectory)/ft
 
-  - task: DownloadBuildArtifacts@0
+  - task: DownloadPipelineArtifact@2
     displayName: Download installers drop
     inputs:
-      buildType: current
-      downloadType: specific
-      artifactName: Installers_$(platformFriendlyName)_$(configuration)
-      downloadPath: $(Build.BinariesDirectory)
+      artifact: Installers_macOS_$(configuration)
+      path: $(Build.BinariesDirectory)/install
 
   - bash: |
-      chmod +x $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/*.sh
-      chmod +x $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/*.sh
+      chmod +x $(Build.BinariesDirectory)/ft/src/Scripts/Mac/*.sh
+      chmod +x $(Build.BinariesDirectory)/install/*.sh
     displayName: Ensure all scripts are executable
 
-  - bash: mkdir -p $(Build.ArtifactStagingDirectory)/logs
-    displayName: Create logs directory
-
   - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - bash: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.sh
+    - bash: $(Build.BinariesDirectory)/install/InstallScalar.sh
       displayName: Install product (with watchman)
 
   - ${{ if ne(parameters.useWatchman, 'true') }}:
-    - bash: $(Build.BinariesDirectory)/Installers_$(platformFriendlyName)_$(configuration)/InstallScalar.sh --no-watchman
+    - bash: $(Build.BinariesDirectory)/install/InstallScalar.sh --no-watchman
       displayName: Install product (without watchman)
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
     - bash: watchman log-level debug
       displayName: Set watchman log level to debug
 
-  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --test-scalar-on-path --trace2-output=$(Build.ArtifactStagingDirectory)/logs/trace2-event.log
+  - bash: $(Build.BinariesDirectory)/ft/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --test-scalar-on-path --trace2-output=$(Build.ArtifactStagingDirectory)/logs/trace2-event.log
     displayName: Run functional tests
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
@@ -72,30 +67,29 @@ steps:
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
     - bash: cp -pf '/usr/local/var/run/watchman/runner-state/log' '$(Build.ArtifactStagingDirectory)/logs/watchman-log'
-      displayName: Copy Watchman logs
+      displayName: Copy watchman logs
       condition: failed()
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - task: PublishBuildArtifacts@1
+    - task: PublishPipelineArtifact@1
       displayName: Publish test and installation logs
       inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)/logs'
-        artifactName: Logs_$(platformFriendlyName)_Watchman
+        targetPath: $(Build.ArtifactStagingDirectory)/logs
+        artifactName: Logs_macOS_Watchman
       condition: failed()
 
   - ${{ if ne(parameters.useWatchman, 'true') }}:
-    - task: PublishBuildArtifacts@1
+    - task: PublishPipelineArtifact@1
       displayName: Publish test and installation logs
       inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)/logs'
-        artifactName: Logs_$(platformFriendlyName)
+        targetPath: $(Build.ArtifactStagingDirectory)/logs
+        artifactName: Logs_macOS
       condition: failed()
 
-  - bash: $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)/src/Scripts/Mac/CleanupFunctionalTests.sh
+  - bash: $(Build.BinariesDirectory)/ft/src/Scripts/Mac/CleanupFunctionalTests.sh
     displayName: Cleanup
     condition: always()
 
-  - bash: sudo rm -rf $(Build.BinariesDirectory)/FunctionalTests_$(platformFriendlyName)_$(configuration)
+  - bash: sudo rm -rf $(Build.BinariesDirectory)/ft
     displayName: Cleanup phase 2
     condition: always()
-

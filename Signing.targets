@@ -1,0 +1,34 @@
+<Project>
+  <PropertyGroup>
+    <MacFilesTarget>$(ProjectOutPath)\osxsign\$(Configuration)</MacFilesTarget>
+    <IsSigningProject Condition="'$(IsSigningProject)' == ''">false</IsSigningProject>
+  </PropertyGroup>
+
+  <!-- Include signing via MicroBuild if we have *FilesToSign -->
+  <ItemGroup Condition="'$(IsSigningProject)' == 'true'">
+    <PackageReference Include="MicroBuild.Core" />
+  </ItemGroup>
+
+  <!-- Check the OutDir property has been set -->
+  <Target Name="ValidateOutDirProperty" BeforeTargets="ValidatePESignFiles;ValidatePESignFiles" Condition="'$(IsSigningProject)' == 'true'">
+    <Error Text="'OutDir' property must be set during build" Condition="'$(OutDir)' == ''" />
+  </Target>
+
+  <!-- Check all the PE files to sign exist -->
+  <Target Name="ValidatePESignFiles" BeforeTargets="SignFiles" Condition="'$(IsSigningProject)' == 'true'"
+          Inputs="@(FilesToSign)" Outputs="$(OutDir)\validatesign.timestamp">
+    <Error Text="File to sign not found: %(FilesToSign.Identity)" Condition="!Exists('%(FilesToSign.Identity)')" />
+    <Touch Files="$(OutDir)validatesign.timestamp" AlwaysCreate="true" />
+  </Target>
+
+  <!-- Check all the Mach-O files to sign exist -->
+  <Target Name="ValidateMacSignFiles" BeforeTargets="SignMacFiles" Condition="'$(IsSigningProject)' == 'true'"
+          Inputs="@(MacFilesToSign)" Outputs="$(OutDir)\validatesign.timestamp">
+    <Error Text="File to sign not found: %(MacFilesToSign.Identity)" Condition="!Exists('%(MacFilesToSign.Identity)')" />
+    <Touch Files="$(OutDir)validatesign.timestamp" AlwaysCreate="true" />
+  </Target>
+
+  <Target Name="_EnsureDirectoriesExist" AfterTargets="PrepareForBuild" Condition="@(MacFilesToSign->Count()) > 0">
+    <MakeDir Directories="$(MacFilesTarget)" />
+  </Target>
+</Project>

@@ -1,23 +1,24 @@
 #!/bin/bash
 
-# This file was sourced from https://github.com/microsoft/BuildXL/blob/8c2348ff04e6ca78726bb945fb2a0f6a55a5c7d6/Private/macOS/notarize.sh
+# This file was based on https://github.com/microsoft/BuildXL/blob/8c2348ff04e6ca78726bb945fb2a0f6a55a5c7d6/Private/macOS/notarize.sh
 #
 # For detailed explanation see: https://developer.apple.com/documentation/security/notarizing_your_app_before_distribution/customizing_the_notarization_workflow
 
 usage() {
     cat <<EOM
-$(basename $0) - Handy script to notarize a kernel extension file (KEXT)
-Usage: $(basename $0) -id <apple_id> -p <password> -k <path_to_kext>
-        -id or --appleid         # A valid Apple ID email address, account must have correct certificates available
-        -p  or --password        # The password for the specified Apple ID or Apple One-Time password (to avoid 2FA)
-        -k  or --kext            # The path to an already signed kernel extension .kext file
+$(basename $0) - Handy script to notarize an installer package (.pkg)
+Usage: $(basename $0) -id <apple_id> -p <password> -pkg <path_to_pkg>
+        -id  or --appleid         # A valid Apple ID email address, account must have correct certificates available
+        -p   or --password        # The password for the specified Apple ID or Apple One-Time password (to avoid 2FA)
+        -pkg or --package         # The path to an already signed meta/flat-package
+        -b   or --bundleid        # Primary bundle identifier
 EOM
     exit 0
 }
 
 declare arg_AppleId=""
 declare arg_Password=""
-declare arg_KextPath=""
+declare arg_PackagePath=""
 
 [ $# -eq 0 ] && { usage; }
 
@@ -39,8 +40,12 @@ function parseArgs() {
             arg_Password="$2"
             shift
             ;;
-        --kext | -k)
-            arg_KextPath="$2"
+        --package | -pkg)
+            arg_PackagePath="$2"
+            shift
+            ;;
+        --bundledid | -b)
+            arg_BundleId="$2"
             shift
             ;;
         *)
@@ -63,44 +68,34 @@ if [[ -z $arg_Password ]]; then
     exit 1
 fi
 
-if [[ ! -d "$arg_KextPath" ]]; then
-    echo "[ERROR] Must supply valid / non-empty path to KEXT to notarize!"
+if [[ ! -f $arg_PackagePath ]]; then
+    echo "[ERROR] Must supply valid / non-empty path to package!"
     exit 1
 fi
 
-declare bundle_id=`/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" ${arg_KextPath}/Contents/Info.plist`
-
-if [[ -z $bundle_id ]]; then
-    echo "[ERROR] No CFBundleIdentifier found in KEXT Info.plist!"
+if [[ -z $arg_BundleId ]]; then
+    echo "[ERROR] Must supply valid / non-empty primary bundle identifier"
     exit 1
 fi
 
-echo "Notarizating $arg_KextPath"
-declare kext_zip="${arg_KextPath}.zip"
-
-if [[ -f "$kext_zip" ]]; then
-    rm -f "$kext_zip"
-fi
+echo "Notarizating $arg_PackagePath"
 
 echo -e "Current state:\n"
-xcrun stapler validate -v "$arg_KextPath"
+xcrun stapler validate -v "$arg_PackagePath"
 
 if [[ $? -eq 0 ]]; then
-    echo "$arg_KextPath already notarized and stapled, nothing to do!"
+    echo "$arg_PackagePath already notarized and stapled, nothing to do!"
     exit 0
 fi
 
 set -e
 
-echo "Creating zip file..."
-ditto -c -k --rsrc --keepParent "$arg_KextPath" "$kext_zip"
-
 declare start_time=$(date +%s)
 
 declare output="/tmp/progress.xml"
 
-echo "Uploading zip to notarization service, please wait..."
-xcrun altool --notarize-app -t osx -f $kext_zip --primary-bundle-id $bundle_id -u $arg_AppleId -p $arg_Password --output-format xml | tee $output
+echo "Uploading package to notarization service, please wait..."
+xcrun altool --notarize-app -t osx -f $arg_PackagePath --primary-bundle-id $arg_BundleId -u $arg_AppleId -p $arg_Password --output-format xml | tee $output
 
 declare request_id=$(/usr/libexec/PlistBuddy -c "print :notarization-upload:RequestUUID" $output)
 
@@ -146,11 +141,11 @@ if [[ $request_id =~ ^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f
             curl $url
         fi
 
-        # Staple the ticket to the kext
-        xcrun stapler staple "$arg_KextPath"
+        # Staple the ticket to the package
+        xcrun stapler staple "$arg_PackagePath"
 
         echo -e "State after notarization:\n"
-        xcrun stapler validate -v "$arg_KextPath"
+        xcrun stapler validate -v "$arg_PackagePath"
         echo -e "Stapler exit code: $? (must be zero on success!)\n"
     fi
 else

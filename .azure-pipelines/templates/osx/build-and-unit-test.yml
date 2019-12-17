@@ -1,0 +1,32 @@
+steps:
+  - task: UseDotNet@2
+    displayName: Use .NET Core SDK 3.0.100
+    inputs:
+      packageType: sdk
+      version: 3.0.100
+
+  - script: $(Build.Repository.LocalPath)/Scripts/Mac/NukeBuildOutputs.sh
+    displayName: Delete previous build outputs
+    continueOnError: true
+
+  - task: InstallAppleCertificate@2
+    displayName: 'Install Apple certificate'
+    inputs:	
+      certSecureFile: '$(Apple.Certificate.FileName)'
+      certPwd: '$(Apple.Certificate.Password)'
+
+  - script: Scripts/Mac/BuildScalarForMac.sh $(configuration) $(majorAndMinorVersion).$(revision)
+    displayName: Build Scalar ($(configuration))
+
+  - script: Scripts/Mac/RunUnitTests.sh $(configuration) $(Common.TestResultsDirectory)
+    displayName: Run unit tests ($(configuration))
+
+  - task: PublishTestResults@2
+    displayName: Publish test results
+    inputs:
+      testRunner: VSTest
+      testResultsFiles: '**/*.trx'
+      searchFolder: $(Common.TestResultsDirectory)
+      testRunTitle: Mac $(configuration) Unit Tests
+      publishRunAttachments: true
+    condition: succeededOrFailed()

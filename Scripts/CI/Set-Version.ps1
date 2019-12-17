@@ -45,3 +45,4 @@ if ($SourceBranch -match $ReleaseBranch) {
 
 Set-PipelineVariable "majorAndMinorVersion" "$Major.$Minor"
 Set-PipelineVariable "revision" "$Revision.$SourceBranchCounter"
+Set-PipelineVariable "fullVersion" "$Major.$Minor.$Revision.$SourceBranchCounter"

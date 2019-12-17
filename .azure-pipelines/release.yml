@@ -1,12 +1,6 @@
-trigger:
-  - master
-  - releases/*
+trigger: none
 
-pr:
-  - master
-  - milestones/*
-  - releases/*
-  - servicing/*
+pr: none
 
 variables:
   - group: apple-development
@@ -14,27 +8,67 @@ variables:
     value: $[counter(variables['Build.SourceBranch'], 0)]
   - name: configuration
     value: Release
+  - name: signPool
+    value: VSEng-MicroBuildVS2019
+  - name: winImage
+    value: windows-2019
+  - name: osxImage
+    value: macOS-10.14
 
 jobs:
   - job: win_build
     displayName: Windows Build and Unit Test
     pool:
-      vmImage: windows-2019
+      name: $(signPool)
     steps:
       - powershell: Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
         displayName: "Compute product version"
       - template: templates/win/build-and-unit-test.yml
       - template: templates/win/pack.yml
 
-  - job: osx_build
+  - job: osx_build_step1
     displayName: macOS Build and Unit Test
     pool:
-      name: 'Hosted macOS'
+      vmImage: $(osxImage)
     steps:
       - powershell: Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
         displayName: "Compute product version"
       - template: templates/osx/build-and-unit-test.yml
-      - template: templates/osx/pack.unsigned.yml
+      - template: templates/osx/pack.signed/step1-layout.yml
+
+  - job: osx_build_step2
+    displayName: macOS Sign Binaries
+    pool:
+      name: $(signPool)
+    dependsOn: osx_build_step1
+    steps:
+      - template: templates/osx/pack.signed/step2-signlayout.yml
+
+  - job: osx_build_step3
+    displayName: macOS Create Installer
+    pool:
+      vmImage: $(osxImage)
+    dependsOn: osx_build_step2
+    steps:
+      - powershell: Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
+        displayName: "Compute product version"
+      - template: templates/osx/pack.signed/step3-pack.yml
+
+  - job: osx_build_step4
+    displayName: macOS Sign Installer
+    pool:
+      name: $(signPool)
+    dependsOn: osx_build_step3
+    steps:
+      - template: templates/osx/pack.signed/step4-signpack.yml
+
+  - job: osx_build_step5
+    displayName: macOS Create Distribution
+    pool:
+      vmImage: $(osxImage)
+    dependsOn: osx_build_step4
+    steps:
+      - template: templates/osx/pack.signed/step5-dist.yml
 
   - job: win_functionaltest
     displayName: Windows Functional Test
@@ -42,7 +76,7 @@ jobs:
     variables:
       configuration: Release
     pool:
-      vmImage: windows-2019
+      vmImage: $(winImage)
     dependsOn: win_build
     condition: succeeded()
     steps:
@@ -57,21 +91,21 @@ jobs:
     variables:
       configuration: Release
     pool:
-      vmImage: windows-2019
+      vmImage: $(winImage)
     dependsOn: win_build
     condition: succeeded()
     steps:
-    - checkout: none
-    - template: templates/win/functional-test.yml
-      parameters:
-        useWatchman: true
+      - checkout: none
+      - template: templates/win/functional-test.yml
+        parameters:
+          useWatchman: true
 
   - job: osx_functionaltest
     displayName: macOS Functional Test
-    timeoutInMinutes: 45
+    timeoutInMinutes: 30
     pool:
-      name: 'Hosted macOS'
-    dependsOn: osx_build
+      vmImage: $(osxImage)
+    dependsOn: osx_build_step5
     condition: succeeded()
     steps:
       - checkout: none
@@ -85,8 +119,8 @@ jobs:
       configuration: Release
     timeoutInMinutes: 30
     pool:
-      name: 'Hosted macOS'
-    dependsOn: osx_build
+      vmImage: $(osxImage)
+    dependsOn: osx_build_step5
     condition: succeeded()
     steps:
       - checkout: none
