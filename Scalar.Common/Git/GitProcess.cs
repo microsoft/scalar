@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Scalar.Common.Git
@@ -451,7 +452,8 @@ namespace Scalar.Common.Git
 
         public Result GvfsHelperPrefetch()
         {
-            return this.InvokeGitInWorkingDirectoryRoot("gvfs-helper prefetch", fetchMissingObjects: false);
+            string configString = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "-c http.sslBackend=schannel " : string.Empty;
+            return this.InvokeGitInWorkingDirectoryRoot($"{configString}gvfs-helper prefetch", fetchMissingObjects: false);
         }
 
         public Result Status(bool allowObjectDownloads, bool useStatusCache, bool showUntracked = false)

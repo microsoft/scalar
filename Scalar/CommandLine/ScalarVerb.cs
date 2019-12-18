@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security;
 
 namespace Scalar.CommandLine
@@ -187,6 +188,11 @@ namespace Scalar.CommandLine
                 { "feature.experimental", "false" },
                 { "fetch.writeCommitGraph", "false" },
             };
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                requiredSettings.Add("http.sslBackend", "schannel");
+            }
 
             if (!TrySetConfig(enlistment, requiredSettings, isRequired: true))
             {
