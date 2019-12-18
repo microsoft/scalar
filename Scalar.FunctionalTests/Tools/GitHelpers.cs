@@ -1,12 +1,7 @@
-using NUnit.Framework;
-using Scalar.FunctionalTests.Properties;
 using Scalar.Tests.Should;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 namespace Scalar.FunctionalTests.Tools
 {
     public static class GitHelpers
