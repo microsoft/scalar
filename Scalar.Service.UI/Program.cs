@@ -23,7 +23,7 @@ namespace Scalar.Service.UI
             using (JsonTracer tracer = new JsonTracer("Microsoft.Git.GVFS.Service.UI", "Service.UI"))
             {
                 string error;
-                string serviceUILogDirectory = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.Service.UIName);
+                string serviceUILogDirectory = ScalarPlatform.Instance.GetLogsDirectoryForGVFSComponent(ScalarConstants.Service.UIName);
                 if (!ScalarPlatform.Instance.FileSystem.TryCreateDirectoryWithAdminAndUserModifyPermissions(serviceUILogDirectory, out error))
                 {
                     EventMetadata metadata = new EventMetadata();

@@ -88,7 +88,7 @@ namespace Scalar.CommandLine
 
         private void TryUnregisterRepo()
         {
-            string repoRegistryLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
+            string repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
             ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
                                                         new JsonTracer(nameof(RemoveVerb), nameof(this.Execute)),
                                                         new PhysicalFileSystem(),

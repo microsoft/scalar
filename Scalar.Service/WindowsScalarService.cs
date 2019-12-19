@@ -168,9 +168,7 @@ namespace Scalar.Service
                 this.serviceName = serviceName.Substring(ServiceNameArgPrefix.Length);
             }
 
-            string serviceLogsDirectoryPath = Path.Combine(
-                    ScalarPlatform.Instance.GetDataRootForScalarComponent(this.serviceName),
-                    ScalarConstants.Service.LogDirectory);
+            string serviceLogsDirectoryPath = ScalarPlatform.Instance.GetLogsDirectoryForGVFSComponent(this.serviceName);
 
             // Create the logs directory explicitly *before* creating a log file event listener to ensure that it
             // and its ancestor directories are created with the correct ACLs.
@@ -182,8 +180,8 @@ namespace Scalar.Service
 
             try
             {
-                this.serviceDataLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(this.serviceName);
-                this.repoRegistryLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
+                this.serviceDataLocation = ScalarPlatform.Instance.GetSecureDataRootForScalarComponent(this.serviceName);
+                this.repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
                 this.CreateAndConfigureProgramDataDirectories();
                 this.Start();
             }
@@ -293,30 +291,24 @@ namespace Scalar.Service
         {
             if (!Directory.Exists(serviceLogsDirectoryPath))
             {
-                DirectorySecurity serviceDataRootSecurity = this.GetServiceDirectorySecurity(serviceLogsDirectoryPath);
                 Directory.CreateDirectory(serviceLogsDirectoryPath);
             }
         }
 
         private void CreateAndConfigureProgramDataDirectories()
         {
-            string serviceDataRootPath = ScalarPlatform.Instance.GetDataRootForScalar();
-
-            DirectorySecurity serviceDataRootSecurity = this.GetServiceDirectorySecurity(serviceDataRootPath);
+            string serviceDataRootPath = ScalarPlatform.Instance.GetSecureDataRootForScalar();
 
             // Create Scalar.Service and Scalar.Upgrade related directories (if they don't already exist)
             // TODO #136: Determine if we still should be creating Scalar.Service here
-            DirectoryEx.CreateDirectory(serviceDataRootPath, serviceDataRootSecurity);
-            DirectoryEx.CreateDirectory(this.serviceDataLocation, serviceDataRootSecurity);
-            DirectoryEx.CreateDirectory(ProductUpgraderInfo.GetUpgradeProtectedDataDirectory(), serviceDataRootSecurity);
-
-            // Ensure the ACLs are set correctly on any files or directories that were already created (e.g. after upgrading Scalar)
-            DirectoryEx.SetAccessControl(serviceDataRootPath, serviceDataRootSecurity);
+            DirectoryEx.CreateDirectory(serviceDataRootPath);
+            DirectoryEx.CreateDirectory(this.serviceDataLocation);
+            DirectoryEx.CreateDirectory(ProductUpgraderInfo.GetUpgradeProtectedDataDirectory());
 
             // Special rules for the upgrader logs and registry, as non-elevated users need to be be able to write
             this.CreateAndConfigureUserWriteableDirectory(this.repoRegistryLocation);
             this.CreateAndConfigureUserWriteableDirectory(ProductUpgraderInfo.GetLogDirectoryPath());
-            this.CreateAndConfigureUserWriteableDirectory(ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.Service.UIName));
+            this.CreateAndConfigureUserWriteableDirectory(ScalarPlatform.Instance.GetLogsDirectoryForGVFSComponent(ScalarConstants.Service.UIName));
         }
 
         private void CreateAndConfigureUserWriteableDirectory(string path)
@@ -335,31 +327,6 @@ namespace Scalar.Service
                     $"{nameof(this.CreateAndConfigureUserWriteableDirectory)}: Failed to create upgrade logs directory",
                     Keywords.Telemetry);
             }
-        }
-
-        private DirectorySecurity GetServiceDirectorySecurity(string serviceDataRootPath)
-        {
-            DirectorySecurity serviceDataRootSecurity;
-            if (Directory.Exists(serviceDataRootPath))
-            {
-                this.tracer.RelatedInfo($"{nameof(this.GetServiceDirectorySecurity)}: {serviceDataRootPath} exists, modifying ACLs.");
-                serviceDataRootSecurity = DirectoryEx.GetAccessControl(serviceDataRootPath);
-            }
-            else
-            {
-                this.tracer.RelatedInfo($"{nameof(this.GetServiceDirectorySecurity)}: {serviceDataRootPath} does not exist, creating new ACLs.");
-                serviceDataRootSecurity = new DirectorySecurity();
-            }
-
-            // Protect the access rules from inheritance and remove any inherited rules
-            serviceDataRootSecurity.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
-
-            // Remove any existing ACLs and add new ACLs for users and admins
-            WindowsFileSystem.RemoveAllFileSystemAccessRulesFromDirectorySecurity(serviceDataRootSecurity);
-            WindowsFileSystem.AddUsersAccessRulesToDirectorySecurity(serviceDataRootSecurity, grantUsersModifyPermissions: false);
-            WindowsFileSystem.AddAdminAccessRulesToDirectorySecurity(serviceDataRootSecurity);
-
-            return serviceDataRootSecurity;
         }
 
         private void LaunchServiceUIIfNotRunning(int sessionId)

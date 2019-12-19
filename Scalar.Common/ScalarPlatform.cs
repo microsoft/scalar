@@ -63,8 +63,11 @@ namespace Scalar.Common
         public abstract NamedPipeServerStream CreatePipeByName(string pipeName);
 
         public abstract string GetOSVersionInformation();
-        public abstract string GetDataRootForScalar();
-        public abstract string GetDataRootForScalarComponent(string componentName);
+        public abstract string GetCommonAppDataRootForScalar();
+        public abstract string GetCommonAppDataRootForScalarComponent(string componentName);
+        public abstract string GetSecureDataRootForScalar();
+        public abstract string GetSecureDataRootForScalarComponent(string componentName);
+        public abstract string GetLogsDirectoryForGVFSComponent(string componentName);
         public abstract void InitializeEnlistmentACLs(string enlistmentPath);
         public abstract bool IsElevated();
         public abstract string GetCurrentUser();

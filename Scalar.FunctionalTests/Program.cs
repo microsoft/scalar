@@ -138,8 +138,9 @@ namespace Scalar.FunctionalTests
                 ScalarServiceProcess.InstallService();
 
                 string statusCacheVersionTokenPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.Create),
+                    Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolderOption.Create),
                     "Scalar",
+                    "ProgramData",
                     "Scalar.Service",
                     "EnableGitStatusCacheToken.dat");
 

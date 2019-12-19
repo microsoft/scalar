@@ -96,14 +96,20 @@ namespace Scalar.CommandLine
 
                         // service
                         this.CopyAllFiles(
-                            ScalarPlatform.Instance.GetDataRootForScalar(),
+                            ScalarPlatform.Instance.GetCommonAppDataRootForScalar(),
+                            archiveFolderPath,
+                            this.ServiceName,
+                            copySubFolders: true);
+
+                        this.CopyAllFiles(
+                            ScalarPlatform.Instance.GetSecureDataRootForScalar(),
                             archiveFolderPath,
                             this.ServiceName,
                             copySubFolders: true);
 
                         // service ui
                         this.CopyAllFiles(
-                            ScalarPlatform.Instance.GetDataRootForScalar(),
+                            ScalarPlatform.Instance.GetCommonAppDataRootForScalar(),
                             archiveFolderPath,
                             ScalarConstants.Service.UIName,
                             copySubFolders: true);
@@ -134,7 +140,7 @@ namespace Scalar.CommandLine
 
                         if (ScalarPlatform.Instance.UnderConstruction.SupportsScalarConfig)
                         {
-                            this.CopyFile(ScalarPlatform.Instance.GetDataRootForScalar(), archiveFolderPath, LocalScalarConfig.FileName);
+                            this.CopyFile(ScalarPlatform.Instance.GetSecureDataRootForScalar(), archiveFolderPath, LocalScalarConfig.FileName);
                         }
 
                         return true;

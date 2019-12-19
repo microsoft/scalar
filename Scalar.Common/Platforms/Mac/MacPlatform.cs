@@ -41,14 +41,31 @@ namespace Scalar.Platform.Mac
             return string.IsNullOrWhiteSpace(result.Output) ? result.Errors : result.Output;
         }
 
-        public override string GetDataRootForScalar()
+        public override string GetCommonAppDataRootForScalar()
         {
             return MacPlatform.GetDataRootForScalarImplementation();
         }
 
-        public override string GetDataRootForScalarComponent(string componentName)
+        public override string GetCommonAppDataRootForScalarComponent(string componentName)
         {
             return MacPlatform.GetDataRootForScalarComponentImplementation(componentName);
+        }
+
+        public override string GetSecureDataRootForScalar()
+        {
+            // SecureDataRoot is Windows only. On the Mac, it is the same as CommoAppDataRoot
+            return this.GetCommonAppDataRootForScalar();
+        }
+
+        public override string GetSecureDataRootForScalarComponent(string componentName)
+        {
+            // SecureDataRoot is Windows only. On the Mac, it is the same as CommoAppDataRoot
+            return this.GetCommonAppDataRootForScalarComponent(componentName);
+        }
+
+        public override string GetLogsDirectoryForGVFSComponent(string componentName)
+        {
+            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
         }
 
         public override FileBasedLock CreateFileBasedLock(

@@ -23,5 +23,11 @@ namespace Scalar.Common
             di.Create();
             di.SetAccessControl(security);
         }
+
+        public static void CreateDirectory(string path)
+        {
+            var di = new DirectoryInfo(path);
+            di.Create();
+        }
     }
 }

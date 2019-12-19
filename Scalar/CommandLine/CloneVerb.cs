@@ -578,7 +578,7 @@ namespace Scalar.CommandLine
 
         private bool TryRegisterRepo(out string errorMessage)
         {
-            string repoRegistryLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
+            string repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
             ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
                 this.tracer,
                 this.fileSystem,
