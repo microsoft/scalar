@@ -87,7 +87,7 @@ namespace Scalar.CommandLine
                                     context,
                                     forceRun: true,
                                     batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
-                                        PackfileMaintenanceStep.DefaultBatchSize :
+                                        PackfileMaintenanceStep.DefaultBatchSizeBytes.ToString() :
                                         this.PackfileMaintenanceBatchSize)).Execute();
                                 return;
 
