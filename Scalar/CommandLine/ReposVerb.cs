@@ -1,9 +1,9 @@
 ﻿using CommandLine;
 using Scalar.Common;
 using Scalar.Common.FileSystem;
+using Scalar.Common.Maintenance;
 using Scalar.Common.RepoRegistry;
 using Scalar.Common.Tracing;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -58,7 +58,11 @@ namespace Scalar.CommandLine
                             string message = $"Failed to register repo: {error}";
                             tracer.RelatedError(message);
                             this.ReportErrorAndExit(message);
+                            return;
                         }
+
+                        ScalarContext context = new ScalarContext(tracer, fileSystem, enlistment);
+                        new ConfigStep(context).Execute();
                     }
                     break;
 
