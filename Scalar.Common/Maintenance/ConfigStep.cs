@@ -91,16 +91,13 @@ namespace Scalar.Common.Maintenance
             Dictionary<string, string> requiredSettings = new Dictionary<string, string>
             {
                 { "am.keepcr", "true" },
-                { "checkout.optimizenewbranch", "true" },
                 { "core.autocrlf", "false" },
+                { "checkout.optimizenewbranch", "true" },
                 { "core.fscache", "true" },
-                { "core.gvfs", coreGVFSFlags },
-                { ScalarConstants.GitConfig.UseGvfsHelper, "true" },
                 { "core.multiPackIndex", "true" },
                 { "core.preloadIndex", "true" },
                 { "core.safecrlf", "false" },
                 { "core.untrackedCache", ScalarPlatform.Instance.FileSystem.SupportsUntrackedCache ? "true" : "false" },
-                { "core.repositoryformatversion", "0" },
                 { "core.filemode", ScalarPlatform.Instance.FileSystem.SupportsFileMode ? "true" : "false" },
                 { "core.bare", "false" },
                 { "core.logallrefupdates", "true" },
