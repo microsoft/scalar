@@ -57,6 +57,8 @@ namespace Scalar.Service
 
                 this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.tracer, fileSystem, new WindowsScalarVerbRunner(this.tracer), this.repoRegistry);
 
+                this.AssignCurrentLoggedOnUser();
+
                 this.requestHandler = new RequestHandler(this.tracer, EtwArea);
 
                 string pipeName = ScalarPlatform.Instance.GetScalarServiceNamedPipeName(this.serviceName);
@@ -137,13 +139,8 @@ namespace Scalar.Service
                     if (changeDescription.Reason == SessionChangeReason.SessionLogon)
                     {
                         this.tracer.RelatedInfo("SessionLogon detected, sessionId: {0}", changeDescription.SessionId);
+                        this.TryAssignUserFromSessionId(changeDescription.SessionId);
 
-                        this.LaunchServiceUIIfNotRunning(changeDescription.SessionId);
-
-                        this.maintenanceTaskScheduler.RegisterUser(
-                            new UserAndSession(
-                                ScalarPlatform.Instance.GetUserIdFromLoginSessionId(changeDescription.SessionId, this.tracer),
-                                changeDescription.SessionId));
                     }
                     else if (changeDescription.Reason == SessionChangeReason.SessionLogoff)
                     {
@@ -235,6 +232,52 @@ namespace Scalar.Service
             this.serviceThread = new Thread(this.Run);
 
             this.serviceThread.Start();
+        }
+
+        private void AssignCurrentLoggedOnUser()
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.FileName = "powershell";
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.Arguments = "Get-Process"
+                                 + " | Select-Object -Unique -ExpandProperty SessionId";
+
+            Process process = Process.Start(startInfo);
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            string[] ids = output.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+
+            for (int i = 0; i < ids.Length; i++)
+            {
+                if (int.TryParse(ids[i], out int sessionId) &&
+                    sessionId != 0 &&
+                    this.TryAssignUserFromSessionId(sessionId))
+                {
+                    // This one worked!
+                    break;
+                }
+            }
+        }
+
+        private bool TryAssignUserFromSessionId(int sessionId)
+        {
+            this.LaunchServiceUIIfNotRunning(sessionId);
+
+            string userId = ScalarPlatform.Instance.GetUserIdFromLoginSessionId(sessionId, this.tracer);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                this.tracer.RelatedInfo($"Failed to use sessionId {sessionId}");
+                return false;
+            }
+
+            this.maintenanceTaskScheduler.RegisterUser(
+                new UserAndSession(userId, sessionId));
+
+            this.tracer.RelatedInfo($"Succeeded with sessionId {sessionId}");
+            return true;
         }
 
         private void LogExceptionAndExit(Exception e, string method)
