@@ -101,6 +101,11 @@ namespace Scalar.CommandLine
                                 (new CommitGraphStep(context, requireObjectCacheLock: false)).Execute();
                                 return;
 
+                            case ScalarConstants.VerbParameters.Maintenance.ConfigTaskName:
+                                this.FailIfBatchSizeSet(tracer);
+                                (new ConfigStep(context)).Execute();
+                                return;
+
                             default:
                                 this.ReportErrorAndExit($"Unknown maintenance task requested: '{this.MaintenanceTask}'");
                                 break;

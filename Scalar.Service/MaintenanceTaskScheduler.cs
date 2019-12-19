@@ -24,6 +24,9 @@ namespace Scalar.Service
 
         private readonly TimeSpan fetchCommitsAndTreesPeriod = TimeSpan.FromMinutes(15);
 
+        private readonly TimeSpan configDueTime = TimeSpan.FromSeconds(0);
+        private readonly TimeSpan configPeriod = TimeSpan.FromHours(24);
+
         private readonly ITracer tracer;
         private readonly PhysicalFileSystem fileSystem;
         private readonly IScalarVerbRunner scalarVerb;
@@ -104,6 +107,10 @@ namespace Scalar.Service
                     MaintenanceTasks.Task.CommitGraph,
                     dueTime: this.commitGraphDueTime,
                     period: this.commitGraphPeriod),
+                new MaintenanceSchedule(
+                    MaintenanceTasks.Task.Config,
+                    dueTime: this.configDueTime,
+                    period: this.configPeriod),
             };
 
             foreach (MaintenanceSchedule schedule in taskSchedules)

@@ -199,6 +199,7 @@ namespace Scalar.Common
                 public const string LooseObjectsTaskName = "loose-objects";
                 public const string PackFilesTaskName = "pack-files";
                 public const string CommitGraphTaskName = "commit-graph";
+                public const string ConfigTaskName = "config";
 
                 public const string BatchSizeOptionName = "batch-size";
             }
