@@ -28,9 +28,10 @@ namespace Scalar.Common.Maintenance
     {
         public const string PackfileLastRunFileName = "pack-maintenance.time";
         public const string DefaultBatchSize = "2g";
+        public const long DefaultBatchSizeBytes = 2 * 1024 * 1024 * 1024L;
         private const string MultiPackIndexLock = "multi-pack-index.lock";
         private readonly bool forceRun;
-        private readonly string batchSize;
+        private string batchSize;
 
         public PackfileMaintenanceStep(
             ScalarContext context,
@@ -131,6 +132,12 @@ namespace Scalar.Common.Maintenance
                 if (!this.Stopping && verifyAfterExpire.ExitCodeIsFailure)
                 {
                     this.LogErrorAndRewriteMultiPackIndex(activity);
+                }
+
+                // Try repacking everything into one pack if small.
+                if (this.batchSize.Equals(DefaultBatchSize) && expireSize < DefaultBatchSizeBytes && expireCount > 1)
+                {
+                    this.batchSize = ((int)(expireSize * (expireCount - 1) / (double)expireCount)).ToString();
                 }
 
                 GitProcess.Result repackResult = this.RunGitCommand((process) => process.MultiPackIndexRepack(this.Context.Enlistment.GitObjectsRoot, this.batchSize), nameof(GitProcess.MultiPackIndexRepack));
