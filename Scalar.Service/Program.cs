@@ -59,9 +59,7 @@ namespace Scalar.Service
 
             ScalarPlatform scalarPlatform = ScalarPlatform.Instance;
 
-            string logFilePath = Path.Combine(
-                scalarPlatform.GetDataRootForScalarComponent(serviceName),
-                ScalarConstants.Service.LogDirectory);
+            string logFilePath = ScalarPlatform.Instance.GetLogsDirectoryForGVFSComponent(serviceName);
             Directory.CreateDirectory(logFilePath);
 
             tracer.AddLogFileEventListener(
@@ -69,7 +67,7 @@ namespace Scalar.Service
                 EventLevel.Informational,
                 Keywords.Any);
 
-            string repoRegistryLocation = scalarPlatform.GetDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
+            string repoRegistryLocation = scalarPlatform.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
             ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
                 tracer,
                 new PhysicalFileSystem(),

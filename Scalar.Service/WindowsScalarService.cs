@@ -171,9 +171,7 @@ namespace Scalar.Service
                 this.serviceName = serviceName.Substring(ServiceNameArgPrefix.Length);
             }
 
-            string serviceLogsDirectoryPath = Path.Combine(
-                    ScalarPlatform.Instance.GetDataRootForScalarComponent(this.serviceName),
-                    ScalarConstants.Service.LogDirectory);
+            string serviceLogsDirectoryPath = ScalarPlatform.Instance.GetLogsDirectoryForGVFSComponent(this.serviceName);
 
             // Create the logs directory explicitly *before* creating a log file event listener to ensure that it
             // and its ancestor directories are created with the correct ACLs.
@@ -185,8 +183,8 @@ namespace Scalar.Service
 
             try
             {
-                this.serviceDataLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(this.serviceName);
-                this.repoRegistryLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
+                this.serviceDataLocation = ScalarPlatform.Instance.GetSecureDataRootForScalarComponent(this.serviceName);
+                this.repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
                 this.CreateAndConfigureProgramDataDirectories();
                 this.Start();
             }
@@ -257,7 +255,7 @@ namespace Scalar.Service
 
         private void CreateAndConfigureProgramDataDirectories()
         {
-            string serviceDataRootPath = ScalarPlatform.Instance.GetDataRootForScalar();
+            string serviceDataRootPath = ScalarPlatform.Instance.GetSecureDataRootForScalar();
 
             DirectorySecurity serviceDataRootSecurity = this.GetServiceDirectorySecurity(serviceDataRootPath);
 
@@ -273,7 +271,7 @@ namespace Scalar.Service
             // Special rules for the upgrader logs and registry, as non-elevated users need to be be able to write
             this.CreateAndConfigureUserWriteableDirectory(this.repoRegistryLocation);
             this.CreateAndConfigureUserWriteableDirectory(ProductUpgraderInfo.GetLogDirectoryPath());
-            this.CreateAndConfigureUserWriteableDirectory(ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.Service.UIName));
+            this.CreateAndConfigureUserWriteableDirectory(ScalarPlatform.Instance.GetLogsDirectoryForGVFSComponent(ScalarConstants.Service.UIName));
         }
 
         private void CreateAndConfigureUserWriteableDirectory(string path)

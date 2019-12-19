@@ -45,7 +45,7 @@ namespace Scalar.CommandLine
 
         private IEnumerable<string> GetRepoList()
         {
-            string repoRegistryLocation = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
+            string repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
             using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "ServiceVerb"))
             {
                 ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
