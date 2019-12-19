@@ -280,30 +280,6 @@ begin
   Exec('scalar.exe', 'service --help', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
-procedure RegisterUserWithService();
-var
-  StatusText: string;
-  RegisterOutput: ansiString;
-  ResultCode: integer;
-  MsgBoxText: string;
-begin
-  StatusText := WizardForm.StatusLabel.Caption;
-  WizardForm.StatusLabel.Caption := 'Registering with service.';
-  WizardForm.ProgressGauge.Style := npbstMarquee;
-
-  // TODO: #190 Instead of --help use the service action that will register the user with the service
-  ExecWithResult(ExpandConstant('{app}') + '\scalar.exe', 'service --help', '', SW_HIDE, ewWaitUntilTerminated, ResultCode, RegisterOutput);
-  WizardForm.StatusLabel.Caption := StatusText;
-  WizardForm.ProgressGauge.Style := npbstNormal;
-
-  if (ResultCode <> 0) then
-    begin
-      MsgBoxText := 'Registering with service failed:' + #13#10 + RegisterOutput;
-      SuppressibleMsgBox(MsgBoxText, mbConfirmation, MB_OK, IDOK);
-      ExitCode := 17;
-    end;
-end;
-
 function EnsureScalarNotRunning(): Boolean;
 var
   MsgBoxResult: integer;
@@ -355,7 +331,6 @@ begin
     ssPostInstall:
       begin
         InstallScalarService();
-        RegisterUserWithService();
       end;
     end;
 end;
