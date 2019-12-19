@@ -37,10 +37,7 @@ namespace Scalar.Platform.Windows
         {
             get
             {
-                string servicePath = ScalarPlatform.Instance.GetDataRootForScalarComponent(ScalarConstants.Service.ServiceName);
-                string scalarDirectory = Path.GetDirectoryName(servicePath);
-
-                return Path.Combine(scalarDirectory, LocalScalarConfig.FileName);
+                return Path.Combine(ScalarPlatform.Instance.GetSecureDataRootForScalar(), LocalScalarConfig.FileName);
             }
         }
 
