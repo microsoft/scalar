@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security;
 
 namespace Scalar.CommandLine
@@ -78,6 +79,11 @@ namespace Scalar.CommandLine
             // currently tell the first access vs subsequent accesses so this
             // flag just blocks them from occurring at all.
             BlockFiltersAndEolConversions = 1 << 6,
+
+            // GVFS_PREFETCH_DURING_FETCH
+            // While performing a `git fetch` command, use the gvfs-helper to
+            // perform a "prefetch" of commits and trees.
+            PrefetchDuringFetch = 1 << 7,
         }
 
         public abstract string EnlistmentRootPathParameter { get; set; }
@@ -138,7 +144,8 @@ namespace Scalar.CommandLine
             string coreGVFSFlags = Convert.ToInt32(
                 GitCoreGVFSFlags.BlockCommands |
                 GitCoreGVFSFlags.MissingOk |
-                GitCoreGVFSFlags.FetchSkipReachabilityAndUploadPack)
+                GitCoreGVFSFlags.FetchSkipReachabilityAndUploadPack |
+                GitCoreGVFSFlags.PrefetchDuringFetch)
                 .ToString();
 
             // These settings are required for normal Scalar functionality.
@@ -181,6 +188,11 @@ namespace Scalar.CommandLine
                 { "feature.experimental", "false" },
                 { "fetch.writeCommitGraph", "false" },
             };
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                requiredSettings.Add("http.sslBackend", "schannel");
+            }
 
             if (!TrySetConfig(enlistment, requiredSettings, isRequired: true))
             {
