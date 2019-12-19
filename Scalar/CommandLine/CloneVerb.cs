@@ -3,6 +3,7 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Http;
+using Scalar.Common.Maintenance;
 using Scalar.Common.Tracing;
 using System;
 using System.Diagnostics;
@@ -509,11 +510,10 @@ namespace Scalar.CommandLine
 
             this.context = new ScalarContext(this.tracer, this.fileSystem, this.enlistment);
 
-            if (!ScalarVerb.TrySetRequiredGitConfigSettings(this.enlistment) ||
-                !ScalarVerb.TrySetOptionalGitConfigSettings(this.enlistment))
-            {
-                return new Result("Unable to configure git repo");
-            }
+            // Set required and optional config.
+            // Explicitly pass useGvfsProtocol: true as the enlistment has not discovered
+            // that setting from Git config yet.
+            new ConfigStep(context, useGvfsProtocol: true).Execute();
 
             CacheServerResolver cacheServerResolver = new CacheServerResolver(this.tracer, this.enlistment);
             if (!cacheServerResolver.TrySaveUrlToLocalConfig(this.cacheServer, out errorMessage))
