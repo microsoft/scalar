@@ -129,14 +129,29 @@ namespace Scalar.Platform.Windows
             return sb.ToString();
         }
 
-        public override string GetDataRootForScalar()
+        public override string GetCommonAppDataRootForScalar()
         {
-            return WindowsPlatform.GetDataRootForScalarImplementation();
+            return WindowsPlatform.GetCommonAppDataRootForScalarImplementation();
         }
 
-        public override string GetDataRootForScalarComponent(string componentName)
+        public override string GetCommonAppDataRootForScalarComponent(string componentName)
         {
-            return WindowsPlatform.GetDataRootForScalarComponentImplementation(componentName);
+            return WindowsPlatform.GetCommonAppDataRootForScalarComponentImplementation(componentName);
+        }
+
+        public override string GetSecureDataRootForScalar()
+        {
+            return WindowsPlatform.GetSecureDataRootForScalarImplementation();
+        }
+
+        public override string GetSecureDataRootForScalarComponent(string componentName)
+        {
+            return WindowsPlatform.GetSecureDataRootForScalarComponentImplementation(componentName);
+        }
+
+        public override string GetLogsDirectoryForGVFSComponent(string componentName)
+        {
+            return WindowsPlatform.GetLogsDirectoryForGVFSComponentImplementation(componentName);
         }
 
         public override void StartBackgroundScalarProcess(ITracer tracer, string programName, string[] args)

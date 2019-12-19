@@ -66,7 +66,7 @@ namespace Scalar.UnitTests.Mock.Common
             throw new NotSupportedException();
         }
 
-        public override string GetDataRootForScalar()
+        public override string GetCommonAppDataRootForScalar()
         {
             // TODO: Update this method to return non existant file path.
             return Path.Combine(
@@ -74,9 +74,24 @@ namespace Scalar.UnitTests.Mock.Common
                 "Scalar");
         }
 
-        public override string GetDataRootForScalarComponent(string componentName)
+        public override string GetCommonAppDataRootForScalarComponent(string componentName)
         {
-            return Path.Combine(this.GetDataRootForScalar(), componentName);
+            return Path.Combine(this.GetCommonAppDataRootForScalar(), componentName);
+        }
+
+        public override string GetSecureDataRootForScalar()
+        {
+            return this.GetCommonAppDataRootForScalar();
+        }
+
+        public override string GetSecureDataRootForScalarComponent(string componentName)
+        {
+            return this.GetCommonAppDataRootForScalarComponent(componentName);
+        }
+
+        public override string GetLogsDirectoryForGVFSComponent(string componentName)
+        {
+            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
         }
 
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly)
@@ -86,7 +101,7 @@ namespace Scalar.UnitTests.Mock.Common
 
         public override string GetUpgradeProtectedDataDirectory()
         {
-            return this.GetDataRootForScalarComponent(ProductUpgraderInfo.UpgradeDirectoryName);
+            return this.GetCommonAppDataRootForScalarComponent(ProductUpgraderInfo.UpgradeDirectoryName);
         }
 
         public override string GetUpgradeLogDirectoryParentDirectory()

@@ -67,16 +67,36 @@ namespace Scalar.Platform.Windows
             }
         }
 
-        public static string GetDataRootForScalarImplementation()
+        public static string GetCommonAppDataRootForScalarImplementation()
         {
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.Create),
                 "Scalar");
         }
 
-        public static string GetDataRootForScalarComponentImplementation(string componentName)
+        public static string GetCommonAppDataRootForScalarComponentImplementation(string componentName)
         {
-            return Path.Combine(GetDataRootForScalarImplementation(), componentName);
+            return Path.Combine(GetCommonAppDataRootForScalarImplementation(), componentName);
+        }
+
+        public static string GetSecureDataRootForScalarImplementation()
+        {
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolderOption.Create),
+                "Scalar",
+                "ProgramData");
+        }
+
+        public static string GetSecureDataRootForScalarComponentImplementation(string componentName)
+        {
+            return Path.Combine(GetSecureDataRootForScalarImplementation(), componentName);
+        }
+
+        public static string GetLogsDirectoryForGVFSComponentImplementation(string componentName)
+        {
+            return Path.Combine(
+                GetCommonAppDataRootForScalarComponentImplementation(componentName),
+                "Logs");
         }
 
         public static bool IsConsoleOutputRedirectedToFileImplementation()
@@ -86,7 +106,7 @@ namespace Scalar.Platform.Windows
 
         public static string GetUpgradeProtectedDataDirectoryImplementation()
         {
-            return Path.Combine(GetDataRootForScalarImplementation(), ProductUpgraderInfo.UpgradeDirectoryName);
+            return Path.Combine(GetCommonAppDataRootForScalarImplementation(), ProductUpgraderInfo.UpgradeDirectoryName);
         }
 
         public static string GetUpgradeHighestAvailableVersionDirectoryImplementation()
