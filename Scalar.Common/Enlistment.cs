@@ -95,7 +95,7 @@ namespace Scalar.Common
                 logsRoot,
                 name + ".log");
 
-            if (fileSystem.FileExists(fullPath))
+            if (string.IsNullOrEmpty(logId) && fileSystem.FileExists(fullPath))
             {
                 fullPath = Path.Combine(
                     logsRoot,
