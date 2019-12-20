@@ -329,9 +329,9 @@ namespace Scalar.Common.Git
             return this.InvokeGitAgainstDotGitFolder("rev-parse " + gitRef);
         }
 
-        public void DeleteFromLocalConfig(string settingName)
+        public Result DeleteFromLocalConfig(string settingName)
         {
-            this.InvokeGitAgainstDotGitFolder("config --local --unset-all " + settingName);
+            return this.InvokeGitAgainstDotGitFolder("config --local --unset-all " + settingName);
         }
 
         public Result SetInLocalConfig(string settingName, string value, bool replaceAll = false)
@@ -356,19 +356,19 @@ namespace Scalar.Common.Git
             return true;
         }
 
-        public bool TryGetAllConfig(bool localOnly, out Dictionary<string, GitConfigSetting> configSettings)
+        public Result TryGetAllConfig(bool localOnly, out Dictionary<string, GitConfigSetting> configSettings)
         {
             configSettings = null;
             string localParameter = localOnly ? "--local" : string.Empty;
-            ConfigResult result = new ConfigResult(this.InvokeGitAgainstDotGitFolder("config --list " + localParameter), "--list");
+            Result result = this.InvokeGitAgainstDotGitFolder("config --list " + localParameter);
+            ConfigResult configResult = new ConfigResult(result, "--list");
 
-            if (result.TryParseAsString(out string output, out string _, string.Empty))
+            if (configResult.TryParseAsString(out string output, out string _, string.Empty))
             {
                 configSettings = GitConfigHelper.ParseKeyValues(output);
-                return true;
             }
 
-            return false;
+            return result;
         }
 
         /// <summary>
