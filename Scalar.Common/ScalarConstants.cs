@@ -78,7 +78,6 @@ namespace Scalar.Common
 
         public static class SpecialGitFiles
         {
-            public const string GitAttributes = ".gitattributes";
             public const string GitIgnore = ".gitignore";
         }
 

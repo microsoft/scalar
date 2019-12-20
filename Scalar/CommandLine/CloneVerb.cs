@@ -513,7 +513,12 @@ namespace Scalar.CommandLine
             // Set required and optional config.
             // Explicitly pass useGvfsProtocol: true as the enlistment has not discovered
             // that setting from Git config yet.
-            new ConfigStep(context, useGvfsProtocol: true).Execute();
+            ConfigStep configStep = new ConfigStep(context, useGvfsProtocol: true);
+
+            if (!configStep.TrySetConfig(out string configError))
+            {
+                return new Result($"Failed to set initial config: {configError}");
+            }
 
             CacheServerResolver cacheServerResolver = new CacheServerResolver(this.tracer, this.enlistment);
             if (!cacheServerResolver.TrySaveUrlToLocalConfig(this.cacheServer, out errorMessage))

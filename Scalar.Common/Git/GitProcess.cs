@@ -720,34 +720,37 @@ namespace Scalar.Common.Git
 
                             this.executingProcess.Start();
 
-                            if (this.LowerPriority)
+                            try
                             {
-                                try
+                                if (this.LowerPriority)
                                 {
                                     this.executingProcess.PriorityClass = ProcessPriorityClass.BelowNormal;
                                 }
-                                catch (InvalidOperationException)
+
+                                if (writeStdIn != null)
                                 {
-                                    // This is thrown if the process completes before we can set its priority.
+                                    writeStdIn.Invoke(this.executingProcess.StandardInput);
+                                    this.executingProcess.StandardInput.Close();
                                 }
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                // This is thrown if the process completes before we can set a property.
+                            }
+
+                            this.executingProcess.BeginOutputReadLine();
+                            this.executingProcess.BeginErrorReadLine();
+
+                            if (!this.executingProcess.WaitForExit(timeoutMs))
+                            {
+                                this.executingProcess.Kill();
+
+                                return new Result(output.ToString(), "Operation timed out: " + errors.ToString(), Result.GenericFailureCode);
                             }
                         }
 
-                        writeStdIn?.Invoke(this.executingProcess.StandardInput);
-                        this.executingProcess.StandardInput.Close();
-
-                        this.executingProcess.BeginOutputReadLine();
-                        this.executingProcess.BeginErrorReadLine();
-
-                        if (!this.executingProcess.WaitForExit(timeoutMs))
-                        {
-                            this.executingProcess.Kill();
-
-                            return new Result(output.ToString(), "Operation timed out: " + errors.ToString(), Result.GenericFailureCode);
-                        }
+                        return new Result(output.ToString(), errors.ToString(), this.executingProcess.ExitCode);
                     }
-
-                    return new Result(output.ToString(), errors.ToString(), this.executingProcess.ExitCode);
                 }
             }
             catch (Win32Exception e)
