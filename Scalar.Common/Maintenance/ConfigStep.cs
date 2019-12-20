@@ -136,9 +136,10 @@ namespace Scalar.Common.Maintenance
                 requiredSettings.Add("http.sslBackend", "schannel");
             }
 
-            if (!this.TrySetConfig(requiredSettings, isRequired: true))
+            string error;
+            if (!this.TrySetConfig(requiredSettings, isRequired: true, out error))
             {
-                this.Context.Tracer.RelatedError("Failed to set some required settings");
+                this.Context.Tracer.RelatedError($"Failed to set some required settings: {error}");
             }
 
             // These settings are optional, because they impact performance but not functionality of Scalar.
@@ -149,13 +150,13 @@ namespace Scalar.Common.Maintenance
                 { "status.aheadbehind", "false" },
             };
 
-            if (!this.TrySetConfig(optionalSettings, isRequired: false))
+            if (!this.TrySetConfig(optionalSettings, isRequired: false, out error))
             {
-                this.Context.Tracer.RelatedError("Failed to set some optional settings");
+                this.Context.Tracer.RelatedError($"Failed to set some optional settings: {error}");
             }
         }
 
-        private bool TrySetConfig(Dictionary<string, string> configSettings, bool isRequired)
+        private bool TrySetConfig(Dictionary<string, string> configSettings, bool isRequired, out string error)
         {
             Dictionary<string, GitConfigSetting> existingConfigSettings;
 
@@ -163,6 +164,7 @@ namespace Scalar.Common.Maintenance
             // global settings that can then change independent of this repo.
             if (!this.MaintenanceGitProcess.TryGetAllConfig(localOnly: isRequired, configSettings: out existingConfigSettings))
             {
+                error = "Failed to get all config entries";
                 return false;
             }
 
@@ -178,6 +180,7 @@ namespace Scalar.Common.Maintenance
                         GitProcess.Result setConfigResult = this.MaintenanceGitProcess.SetInLocalConfig(setting.Key, setting.Value);
                         if (setConfigResult.ExitCodeIsFailure)
                         {
+                            error = setConfigResult.Errors;
                             return false;
                         }
                     }
@@ -191,6 +194,7 @@ namespace Scalar.Common.Maintenance
                 }
             }
 
+            error = null;
             return true;
         }
     }
