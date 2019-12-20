@@ -140,15 +140,19 @@ namespace Scalar.CommandLine
 
         private void FetchCommitsAndTrees(ITracer tracer, ScalarEnlistment enlistment, string cacheServerUrl)
         {
-            GitObjectsHttpRequestor objectRequestor;
-            CacheServerInfo cacheServer;
+            GitObjectsHttpRequestor objectRequestor = null;
+            CacheServerInfo cacheServer = null;
 
-            this.InitializeServerConnection(
-                tracer,
-                enlistment,
-                cacheServerUrl,
-                out objectRequestor,
-                out cacheServer);
+            if (enlistment.UsesGvfsProtocol)
+            {
+                this.InitializeServerConnection(
+                    tracer,
+                    enlistment,
+                    cacheServerUrl,
+                    out objectRequestor,
+                    out cacheServer);
+            }
+
             this.RunFetchStep(tracer, enlistment, objectRequestor, cacheServer);
         }
 
