@@ -37,10 +37,17 @@ namespace Scalar.Common.Maintenance
 
             if (!this.Context.Enlistment.UsesGvfsProtocol)
             {
-                GitProcess.Result result = gitProcess.BackgroundFetch();
+                using (ITracer activity = this.Context.Tracer.StartActivity(nameof(GitProcess.BackgroundFetch), EventLevel.LogAlways))
+                {
+                    GitProcess.Result result = gitProcess.BackgroundFetch();
 
-                error = result.Errors;
-                return result.ExitCodeIsSuccess;
+                    error = result.Errors;
+
+                    activity.RelatedInfo($"Background fetch completed with stdout: {result.Output}");
+                    activity.RelatedError($"Background fetch completed with stderr: {result.Errors}");
+
+                    return result.ExitCodeIsSuccess;
+                }
             }
 
             // We take our own lock here to keep background and foreground fetches

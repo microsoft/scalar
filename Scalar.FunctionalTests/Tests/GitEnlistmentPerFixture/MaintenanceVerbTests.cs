@@ -81,9 +81,33 @@ namespace Scalar.FunctionalTests.Tests.GitEnlistmentPerFixture
         [Order(4)]
         public void FetchStep()
         {
-            // This step deletes the loose object that is already in a pack
+            string refsRoot = Path.Combine(this.Enlistment.RepoRoot, ".git", "refs");
+            string refsHeads = Path.Combine(refsRoot, "heads");
+            string refsRemotes = Path.Combine(refsRoot, "remotes");
+            string refsHidden = Path.Combine(refsRoot, "hidden");
+
+            // Removing refs makes the next fetch need to download a new pack
+            this.fileSystem.DeleteDirectory(refsHeads);
+            this.fileSystem.DeleteDirectory(refsRemotes);
+            this.fileSystem.DeleteDirectory(this.PackRoot);
+
             this.Enlistment.FetchStep();
-            this.GetLooseObjectFiles().Count.ShouldEqual(0);
+
+            this.GetPackSizes(out int countAfterFetch, out _, out _, out _);
+
+            countAfterFetch.ShouldEqual(1, "fetch should download one pack");
+
+            this.fileSystem.DirectoryExists(refsHidden).ShouldBeTrue("background fetch should have created refs/hidden/*");
+            this.fileSystem.DirectoryExists(refsHeads).ShouldBeFalse("background fetch should not have created refs/heads/*");
+            this.fileSystem.DirectoryExists(refsRemotes).ShouldBeFalse("background fetch should not have created refs/remotes/*");
+
+            this.Enlistment.FetchStep();
+
+            this.fileSystem.DirectoryExists(refsHeads).ShouldBeFalse("background fetch should not have created refs/heads/*");
+            this.fileSystem.DirectoryExists(refsRemotes).ShouldBeFalse("background fetch should not have created refs/remotes/*");
+
+            this.GetPackSizes(out int countAfterFetch2, out _, out _, out _);
+            countAfterFetch2.ShouldEqual(1, "sceond fetch should not download a pack");
         }
 
         private List<string> GetPackfiles()
