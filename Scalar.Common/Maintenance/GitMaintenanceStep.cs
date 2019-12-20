@@ -2,7 +2,6 @@ using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Tracing;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Scalar.Common.Maintenance
@@ -183,6 +182,11 @@ namespace Scalar.Common.Maintenance
                         message: $"{this.Area}: Not launching Git process {gitCommand} because the mount is stopping",
                         keywords: Keywords.Telemetry);
                     throw new StoppingException();
+                }
+
+                if (this.MaintenanceGitProcess == null)
+                {
+                    this.MaintenanceGitProcess = this.Context.Enlistment.CreateGitProcess();
                 }
 
                 GitProcess.Result result = work.Invoke(this.MaintenanceGitProcess);

@@ -169,11 +169,15 @@ namespace Scalar.Common.Maintenance
 
         private bool TrySetConfig(Dictionary<string, string> configSettings, bool isRequired, out string error)
         {
-            Dictionary<string, GitConfigSetting> existingConfigSettings;
+            Dictionary<string, GitConfigSetting> existingConfigSettings = null;
+
+            GitProcess.Result getConfigResult = this.RunGitCommand(
+                process => process.TryGetAllConfig(localOnly: isRequired, configSettings: out existingConfigSettings),
+                nameof(GitProcess.TryGetAllConfig));
 
             // If the settings are required, then only check local config settings, because we don't want to depend on
             // global settings that can then change independent of this repo.
-            if (!this.MaintenanceGitProcess.TryGetAllConfig(localOnly: isRequired, configSettings: out existingConfigSettings))
+            if (getConfigResult.ExitCodeIsFailure)
             {
                 error = "Failed to get all config entries";
                 return false;
@@ -188,7 +192,9 @@ namespace Scalar.Common.Maintenance
                         (isRequired && !existingSetting.HasValue(setting.Value)))
                     {
                         this.Context.Tracer.RelatedInfo($"Setting config value {setting.Key}={setting.Value}");
-                        GitProcess.Result setConfigResult = this.MaintenanceGitProcess.SetInLocalConfig(setting.Key, setting.Value);
+                        GitProcess.Result setConfigResult = this.RunGitCommand(
+                                                                    process => process.SetInLocalConfig(setting.Key, setting.Value),
+                                                                    nameof(GitProcess.SetInLocalConfig));
                         if (setConfigResult.ExitCodeIsFailure)
                         {
                             error = setConfigResult.Errors;
@@ -200,7 +206,9 @@ namespace Scalar.Common.Maintenance
                 {
                     if (existingConfigSettings.TryGetValue(setting.Key, out _))
                     {
-                        this.MaintenanceGitProcess.DeleteFromLocalConfig(setting.Key);
+                        this.RunGitCommand(
+                                process => process.DeleteFromLocalConfig(setting.Key),
+                                nameof(GitProcess.DeleteFromLocalConfig));
                     }
                 }
             }
