@@ -5,6 +5,7 @@
     <IsSigningProject>true</IsSigningProject>
     <!-- MicroBuild hack: override OutDir to make all files we want to sign under it. -->
     <OutDir>$(RootDir)</OutDir>
+    <MacFilesTarget>$(OutDir)\macho\</MacFilesTarget>
   </PropertyGroup>
 
   <ItemGroup>

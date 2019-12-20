@@ -24,7 +24,7 @@ jobs:
       - powershell: Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
         displayName: "Compute product version"
       - template: templates/win/build-and-unit-test.yml
-      - template: templates/win/pack.yml
+      - template: templates/win/pack.signed.yml
 
   - job: osx_build_step1
     displayName: macOS Build and Unit Test

@@ -1,0 +1,67 @@
+steps:
+  # Must use the NuGet & MSBuild toolchain here rather than `dotnet`
+  # because the signing tasks target the netfx MSBuild runtime only.
+  - task: NuGetCommand@2
+    displayName: Restore MicroBuild packages
+    inputs:
+      command: restore
+      restoreSolution: 'Scalar.Signing\Scalar.SignFiles.Windows.csproj'
+
+  - task: NuGetCommand@2
+    displayName: Restore MicroBuild packages
+    inputs:
+      command: restore
+      restoreSolution: 'Scalar.Signing\Scalar.SignInstaller.Windows.csproj'
+
+  - task: MSBuild@1
+    displayName: Collect payload files
+    inputs:
+      solution: 'Scalar.Installer.Windows\Scalar.Installer.Windows.csproj'
+      msbuildArguments: '/t:BuildInstallerPhase1 /p:LayoutPath="$(Build.ArtifactStagingDirectory)\signpayload"'
+
+  - task: MSBuild@1
+    displayName: Sign payload
+    inputs:
+      solution: 'Scalar.Signing\Scalar.SignFiles.Windows.csproj'
+      msbuildArguments: '/p:RootDir="$(Build.ArtifactStagingDirectory)\signpayload"'
+
+  - task: MSBuild@1
+    displayName: Build installer
+    inputs:
+      solution: 'Scalar.Installer.Windows\Scalar.Installer.Windows.csproj'
+      msbuildArguments: '/t:BuildInstallerPhase2 /p:LayoutPath="$(Build.ArtifactStagingDirectory)\signpayload" /p:InstallerOutputPath="$(Build.ArtifactStagingDirectory)\signinstaller" /p:ScalarVersion=$(majorAndMinorVersion).$(revision)'
+
+  - task: MSBuild@1
+    displayName: Sign installer
+    inputs:
+      solution: 'Scalar.Signing\Scalar.SignInstaller.Windows.csproj'
+      msbuildArguments: '/p:RootDir="$(Build.ArtifactStagingDirectory)\signinstaller"'
+
+  - script: rmdir /s /q ..\out\Scalar.Installer.Windows\dist
+    displayName: Clean distribution output directory
+
+  - task: MSBuild@1
+    displayName: Create distribution
+    inputs:
+      solution: 'Scalar.Installer.Windows\Scalar.Installer.Windows.csproj'
+      msbuildArguments: '/t:BuildInstallerPhase3 /p:InstallerOutputPath="$(Build.ArtifactStagingDirectory)\signinstaller"'
+
+  - script: Scripts\CI\CreateFTDrop.bat $(configuration) $(Build.ArtifactStagingDirectory)\Tests
+    displayName: Create functional tests drop
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish functional tests drop
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)\Tests\
+      artifactName: "FunctionalTests_Windows_$(configuration)"
+    condition: succeeded()
+
+  - script: Scripts\CI\CreateInstallerDrop.bat $(configuration) $(Build.ArtifactStagingDirectory)\Installers
+    displayName: Create distribution drop
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish distribution drop
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)\Installers\
+      artifactName: "Installers_Windows_$(configuration)"
+    condition: succeeded()
