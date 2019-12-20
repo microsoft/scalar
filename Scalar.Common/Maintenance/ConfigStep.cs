@@ -71,7 +71,7 @@ namespace Scalar.Common.Maintenance
             this.UseGvfsProtocol = useGvfsProtocol;
         }
 
-        protected override void PerformMaintenance()
+        public bool TrySetConfig(out string error)
         {
             string coreGVFSFlags = Convert.ToInt32(
                 GitCoreGVFSFlags.BlockCommands |
@@ -131,10 +131,11 @@ namespace Scalar.Common.Maintenance
                 requiredSettings.Add("http.sslBackend", "schannel");
             }
 
-            string error;
             if (!this.TrySetConfig(requiredSettings, isRequired: true, out error))
             {
-                this.Context.Tracer.RelatedError($"Failed to set some required settings: {error}");
+                error = $"Failed to set some required settings: {error}";
+                this.Context.Tracer.RelatedError(error);
+                return false;
             }
 
             // These settings are optional, because they impact performance but not functionality of Scalar.
@@ -147,8 +148,18 @@ namespace Scalar.Common.Maintenance
 
             if (!this.TrySetConfig(optionalSettings, isRequired: false, out error))
             {
-                this.Context.Tracer.RelatedError($"Failed to set some optional settings: {error}");
+                error = $"Failed to set some optional settings: {error}";
+                this.Context.Tracer.RelatedError(error);
+                return false;
             }
+
+            error = null;
+            return true;
+        }
+
+        protected override void PerformMaintenance()
+        {
+            this.TrySetConfig(out _);
         }
 
         private bool TrySetConfig(Dictionary<string, string> configSettings, bool isRequired, out string error)
