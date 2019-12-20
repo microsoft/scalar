@@ -108,7 +108,7 @@ namespace Scalar.Common
             return Enlistment.GetNewLogFileName(
                 logsRoot,
                 "scalar_" + logFileType,
-                logId: null,
+                logId: logId,
                 fileSystem: fileSystem);
         }
 

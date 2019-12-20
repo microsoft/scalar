@@ -47,8 +47,13 @@ namespace Scalar.CommandLine
             {
                 string cacheServerUrl = CacheServerResolver.GetUrlFromConfig(enlistment);
 
+                string logFileName = ScalarEnlistment.GetNewScalarLogFileName(
+                                                        enlistment.ScalarLogsRoot,
+                                                        ScalarConstants.LogFileTypes.Maintenance,
+                                                        logId: this.StartedByService ? "service" : null);
+
                 tracer.AddLogFileEventListener(
-                    ScalarEnlistment.GetNewScalarLogFileName(enlistment.ScalarLogsRoot, ScalarConstants.LogFileTypes.Maintenance),
+                    logFileName,
                     EventLevel.Informational,
                     Keywords.Any);
                 tracer.WriteStartEvent(
