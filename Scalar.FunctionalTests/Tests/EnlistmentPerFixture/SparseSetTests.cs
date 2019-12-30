@@ -15,7 +15,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
     public class SparseSetTests : TestsWithEnlistmentPerFixture
     {
         private const string SetOverwriteMessage = "would be overwritten by sparse checkout update";
-        private const string SetIndexStateMessage = "You need to resolve your current index first";
+        private const string SetIndexStateMessage = "you need to resolve your current index first";
 
         private const string FolderDotGit = ".git";
         private const string FolderDeleteFileTests = "DeleteFileTests";
