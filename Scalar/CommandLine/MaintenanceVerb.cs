@@ -142,6 +142,13 @@ namespace Scalar.CommandLine
         {
             GitObjectsHttpRequestor objectRequestor;
             CacheServerInfo cacheServer;
+
+            if (!enlistment.UseGvfsProtocol)
+            {
+                tracer.RelatedWarning("This repo does not use the GVFS protocol, so FetchCommitsAndTrees does nothing");
+                return;
+            }
+
             this.InitializeServerConnection(
                 tracer,
                 enlistment,
