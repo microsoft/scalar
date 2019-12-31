@@ -47,3 +47,6 @@ Scalar Commands
 
 * [`scalar remove`](commands/scalar-remove.md): Delete a Scalar enlistment.
 
+* [`scalar repos`](commands/scalar-repos.md): Manage the set of repositories
+  being maintained by Scalar.
+
