@@ -39,14 +39,25 @@ namespace Scalar.Common.Maintenance
             {
                 using (ITracer activity = this.Context.Tracer.StartActivity(nameof(GitProcess.BackgroundFetch), EventLevel.LogAlways))
                 {
-                    GitProcess.Result result = gitProcess.BackgroundFetch();
+                    string[] remotes = gitProcess.GetRemotes();
 
-                    error = result.Errors;
+                    error = "";
+                    foreach (string remote in remotes)
+                    {
+                        GitProcess.Result result = gitProcess.BackgroundFetch(remote);
 
-                    activity.RelatedInfo($"Background fetch completed with stdout: {result.Output}");
-                    activity.RelatedError($"Background fetch completed with stderr: {result.Errors}");
+                        error += result.Errors;
 
-                    return result.ExitCodeIsSuccess;
+                        activity.RelatedInfo($"Background fetch from '{remote}' completed with stdout: {result.Output}");
+                        activity.RelatedError($"Background fetch from '{remote}' completed with stderr: {result.Errors}");
+
+                        if (result.ExitCodeIsFailure)
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
                 }
             }
 
