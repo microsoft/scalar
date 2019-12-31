@@ -37,7 +37,8 @@ steps:
       displayName: Install product (without watchman)
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - bash: watchman log-level debug
+    - bash: |
+        watchman log-level debug || echo "WARNING: watchman call failed"
       displayName: Set watchman log level to debug
 
   - bash: $(Build.BinariesDirectory)/ft/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --test-scalar-on-path --trace2-output=$(Build.ArtifactStagingDirectory)/logs/trace2-event.log
@@ -66,7 +67,8 @@ steps:
       condition: succeededOrFailed()
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - bash: cp -pf '/usr/local/var/run/watchman/runner-state/log' '$(Build.ArtifactStagingDirectory)/logs/watchman-log'
+    - bash: |
+        cp -pf '/usr/local/var/run/watchman/runner-state/log' '$(Build.ArtifactStagingDirectory)/logs/watchman-log' || echo "WARNING: failed to archive logs"
       displayName: Copy watchman logs
       condition: failed()
 
