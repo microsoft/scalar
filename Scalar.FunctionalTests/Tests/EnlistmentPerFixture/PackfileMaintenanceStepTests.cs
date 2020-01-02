@@ -12,6 +12,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
     [TestFixture]
     public class PackfileMaintenanceStepTests : TestsWithEnlistmentPerFixture
     {
+        private const long BatchSizeForNoRepack = 1024 * 1024 * 1024L;
         private FileSystemRunner fileSystem;
 
         // Set forcePerRepoObjectCache to true to avoid any of the tests inadvertently corrupting
@@ -43,8 +44,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 this.Enlistment.RepoRoot,
                 $"multi-pack-index write --object-dir={this.GitObjectRoot}");
 
-            // Run the step to ensure we don't have any packs that will be expired during the repack step
-            this.Enlistment.PackfileMaintenanceStep();
+            // Run the step to ensure we don't have any packs that will be expired during the repack step.
+            // Use a non-standard, but large batchSize to avoid logic that resizes the batchSize.
+            this.Enlistment.PackfileMaintenanceStep(batchSize: BatchSizeForNoRepack);
 
             this.GetPackSizes(out int afterPrefetchPackCount, out maxSize, out minSize, out totalSize);
 
@@ -69,8 +71,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // We should expire all packs except the one we just created,
             // and the prefetch pack which is marked as ".keep"
-            this.Enlistment.PackfileMaintenanceStep();
-
+            this.Enlistment.PackfileMaintenanceStep(batchSize: BatchSizeForNoRepack);
+            
             List<string> packsAfter = this.GetPackfiles();
 
             packsAfter.Count.ShouldEqual(2, $"incorrect number of packs after final expire step: {packsAfter.Count}");

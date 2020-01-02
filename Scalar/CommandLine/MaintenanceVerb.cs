@@ -87,7 +87,7 @@ namespace Scalar.CommandLine
                                     context,
                                     forceRun: true,
                                     batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
-                                        PackfileMaintenanceStep.DefaultBatchSize :
+                                        PackfileMaintenanceStep.DefaultBatchSizeBytes.ToString() :
                                         this.PackfileMaintenanceBatchSize)).Execute();
                                 return;
 
@@ -99,6 +99,11 @@ namespace Scalar.CommandLine
                             case ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName:
                                 this.FailIfBatchSizeSet(tracer);
                                 (new CommitGraphStep(context, requireObjectCacheLock: false)).Execute();
+                                return;
+
+                            case ScalarConstants.VerbParameters.Maintenance.ConfigTaskName:
+                                this.FailIfBatchSizeSet(tracer);
+                                (new ConfigStep(context)).Execute();
                                 return;
 
                             default:

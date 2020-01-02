@@ -11,6 +11,7 @@ namespace Scalar.Common.Maintenance
             LooseObjects,
             PackFiles,
             CommitGraph,
+            Config,
         }
 
         public static string GetVerbTaskName(Task task)
@@ -25,6 +26,8 @@ namespace Scalar.Common.Maintenance
                     return ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName;
                 case Task.CommitGraph:
                     return ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName;
+                case Task.Config:
+                    return ScalarConstants.VerbParameters.Maintenance.ConfigTaskName;
                 default:
                     throw new ArgumentException($"Invalid or unknown task {task.ToString()}", nameof(task));
             }

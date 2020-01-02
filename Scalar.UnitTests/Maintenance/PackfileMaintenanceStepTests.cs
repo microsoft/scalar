@@ -26,7 +26,7 @@ namespace Scalar.UnitTests.Maintenance
         private string ExpireCommand => $"multi-pack-index expire --object-dir=\"{this.context.Enlistment.GitObjectsRoot}\"";
         private string VerifyCommand => $"-c core.multiPackIndex=true multi-pack-index verify --object-dir=\"{this.context.Enlistment.GitObjectsRoot}\"";
         private string WriteCommand => $"-c core.multiPackIndex=true multi-pack-index write --object-dir=\"{this.context.Enlistment.GitObjectsRoot}\"";
-        private string RepackCommand => $"-c pack.threads=1 multi-pack-index repack --object-dir=\"{this.context.Enlistment.GitObjectsRoot}\" --batch-size=2g";
+        private string RepackCommand => $"-c pack.threads=1 multi-pack-index repack --object-dir=\"{this.context.Enlistment.GitObjectsRoot}\" --batch-size=5";
 
         [TestCase]
         public void PackfileMaintenanceIgnoreTimeRestriction()
@@ -149,16 +149,18 @@ namespace Scalar.UnitTests.Maintenance
 
             PackfileMaintenanceStep step = new PackfileMaintenanceStep(this.context, requireObjectCacheLock: false, forceRun: true);
 
-            step.GetPackFilesInfo(out int count, out long size, out bool hasKeep);
+            step.GetPackFilesInfo(out int count, out long size, out long maxSize, out bool hasKeep);
             count.ShouldEqual(3);
             size.ShouldEqual(11);
+            maxSize.ShouldEqual(5);
             hasKeep.ShouldEqual(true);
 
             this.context.FileSystem.DeleteFile(Path.Combine(this.context.Enlistment.GitPackRoot, KeepName));
 
-            step.GetPackFilesInfo(out count, out size, out hasKeep);
+            step.GetPackFilesInfo(out count, out size, out maxSize, out hasKeep);
             count.ShouldEqual(3);
             size.ShouldEqual(11);
+            maxSize.ShouldEqual(5);
             hasKeep.ShouldEqual(false);
         }
 

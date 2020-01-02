@@ -187,13 +187,13 @@ namespace Scalar.Common.Maintenance
                     }
 
                     this.CountLooseObjects(out int beforeLooseObjectsCount, out long beforeLooseObjectsSize);
-                    this.GetPackFilesInfo(out int beforePackCount, out long beforePackSize, out bool _);
+                    this.GetPackFilesInfo(out int beforePackCount, out long beforePackSize, out long beforeMaxSize, out bool _);
 
                     GitProcess.Result gitResult = this.RunGitCommand((process) => process.PrunePacked(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.PrunePacked));
                     CreatePackResult createPackResult = this.TryCreateLooseObjectsPackFile(out int objectsAddedToPack);
 
                     this.CountLooseObjects(out int afterLooseObjectsCount, out long afterLooseObjectsSize);
-                    this.GetPackFilesInfo(out int afterPackCount, out long afterPackSize, out bool _);
+                    this.GetPackFilesInfo(out int afterPackCount, out long afterPackSize, out long afterMaxSize, out bool _);
 
                     EventMetadata metadata = new EventMetadata();
                     metadata.Add("GitObjectsRoot", this.Context.Enlistment.GitObjectsRoot);
@@ -208,6 +208,8 @@ namespace Scalar.Common.Maintenance
                     metadata.Add("EndingSize", afterLooseObjectsSize);
                     metadata.Add("StartingPackSize", beforePackSize);
                     metadata.Add("EndingPackSize", afterPackSize);
+                    metadata.Add("StartingMaxSize", beforeMaxSize);
+                    metadata.Add("EndingMaxSize", afterMaxSize);
 
                     metadata.Add("RemovedCount", beforeLooseObjectsCount - afterLooseObjectsCount);
                     metadata.Add("LooseObjectsPutIntoPackFile", objectsAddedToPack);
