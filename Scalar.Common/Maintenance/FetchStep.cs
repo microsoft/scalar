@@ -15,16 +15,26 @@ namespace Scalar.Common.Maintenance
         private const int LockWaitTimeMs = 100;
         private const int WaitingOnLockLogThreshold = 50;
         private const string FetchCommitsAndTreesLock = "fetch-commits-trees.lock";
+        private const string FetchTimeFile = "fetch.time";
         private readonly TimeSpan timeBetweenFetches = TimeSpan.FromMinutes(70);
         private readonly TimeSpan timeBetweenFetchesNoCacheServer = TimeSpan.FromDays(1);
+        private readonly bool forceRun;
 
-        public FetchStep(ScalarContext context, GitObjects gitObjects, bool requireCacheLock = true)
+        public FetchStep(
+                    ScalarContext context,
+                    GitObjects gitObjects,
+                    bool requireCacheLock = true,
+                    bool forceRun = false)
             : base(context, requireCacheLock)
         {
             this.GitObjects = gitObjects;
+            this.forceRun = forceRun;
         }
 
         public override string Area => "FetchCommitsAndTreesStep";
+
+        // Used only for vanilla Git repos
+        protected override TimeSpan TimeBetweenRuns => this.timeBetweenFetches;
 
         protected GitObjects GitObjects { get; }
 
@@ -37,9 +47,19 @@ namespace Scalar.Common.Maintenance
 
             if (!this.Context.Enlistment.UsesGvfsProtocol)
             {
+                this.LastRunTimeFilePath = Path.Combine(this.Context.Enlistment.ScalarLogsRoot, FetchTimeFile);
+
+                if (!this.forceRun && !this.EnoughTimeBetweenRuns())
+                {
+                    this.Context.Tracer.RelatedWarning($"Skipping {nameof(FetchStep)} due to not enough time between runs");
+                    error = null;
+                    return true;
+                }
+
                 using (ITracer activity = this.Context.Tracer.StartActivity(nameof(GitProcess.BackgroundFetch), EventLevel.LogAlways))
                 {
                     string[] remotes = gitProcess.GetRemotes();
+                    bool response = true;
 
                     error = "";
                     foreach (string remote in remotes)
@@ -53,11 +73,13 @@ namespace Scalar.Common.Maintenance
 
                         if (result.ExitCodeIsFailure)
                         {
-                            return false;
+                            response = false;
+                            break;
                         }
                     }
 
-                    return true;
+                    this.SaveLastRunTimeToFile();
+                    return response;
                 }
             }
 

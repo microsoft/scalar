@@ -215,7 +215,7 @@ namespace Scalar.CommandLine
             GitObjects gitObjects = new GitObjects(tracer, enlistment, objectRequestor, fileSystem);
 
             success = this.ShowStatusWhileRunning(
-                () => new FetchStep(context, gitObjects, requireCacheLock: false).TryFetch(out error),
+                () => new FetchStep(context, gitObjects, requireCacheLock: false, forceRun: !this.StartedByService).TryFetch(out error),
                                     "Fetching " + this.GetCacheServerDisplay(cacheServer, enlistment.RepoUrl));
 
             if (!success)
