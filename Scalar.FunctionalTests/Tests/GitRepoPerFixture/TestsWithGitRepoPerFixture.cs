@@ -1,10 +1,10 @@
 ﻿using NUnit.Framework;
 using Scalar.FunctionalTests.Tools;
 
-namespace Scalar.FunctionalTests.Tests.GitEnlistmentPerFixture
+namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
 {
     [TestFixture]
-    public class TestsWithGitEnlistmentPerFixture
+    public class TestsWithGitRepoPerFixture
     {
         public ScalarFunctionalTestEnlistment Enlistment
         {
@@ -12,13 +12,13 @@ namespace Scalar.FunctionalTests.Tests.GitEnlistmentPerFixture
         }
 
         [OneTimeSetUp]
-        public virtual void CreateEnlistment()
+        public virtual void CreateRepo()
         {
-            this.Enlistment = ScalarFunctionalTestEnlistment.Clone(ScalarTestConfig.PathToScalar, asGitRepo: true);
+            this.Enlistment = ScalarFunctionalTestEnlistment.CloneGitRepo(ScalarTestConfig.PathToScalar);
         }
 
         [OneTimeTearDown]
-        public virtual void DeleteEnlistment()
+        public virtual void DeleteRepo()
         {
             if (this.Enlistment != null)
             {

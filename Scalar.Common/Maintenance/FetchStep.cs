@@ -45,42 +45,57 @@ namespace Scalar.Common.Maintenance
                 gitProcess = new GitProcess(this.Context.Enlistment);
             }
 
-            if (!this.Context.Enlistment.UsesGvfsProtocol)
+            if (this.Context.Enlistment.UsesGvfsProtocol)
             {
-                this.LastRunTimeFilePath = Path.Combine(this.Context.Enlistment.ScalarLogsRoot, FetchTimeFile);
+                return this.TryFetchUsingGvfsProtocol(gitProcess, out error);
+            }
+            else
+            {
+                return this.TryFetchUsingGitProtocol(gitProcess, out error);
+            }
 
-                if (!this.forceRun && !this.EnoughTimeBetweenRuns())
+        }
+
+        protected override void PerformMaintenance()
+        {
+            string error = null;
+
+            this.RunGitCommand(
+                process =>
                 {
-                    this.Context.Tracer.RelatedWarning($"Skipping {nameof(FetchStep)} due to not enough time between runs");
-                    error = null;
-                    return true;
-                }
+                    this.TryFetch(out error, process);
+                    return null;
+                },
+                nameof(this.TryFetch));
 
-                using (ITracer activity = this.Context.Tracer.StartActivity(nameof(GitProcess.BackgroundFetch), EventLevel.LogAlways))
-                {
-                    string[] remotes = gitProcess.GetRemotes();
-                    bool response = true;
+            if (!string.IsNullOrEmpty(error))
+            {
+                this.Context.Tracer.RelatedWarning(
+                    metadata: this.CreateEventMetadata(),
+                    message: $"{nameof(this.TryFetch)} failed with error '{error}'",
+                    keywords: Keywords.Telemetry);
+            }
+        }
 
-                    error = "";
-                    foreach (string remote in remotes)
-                    {
-                        GitProcess.Result result = gitProcess.BackgroundFetch(remote);
+        private bool TryFetchUsingGvfsProtocol(GitProcess gitProcess, out string error)
+        {
+            if (!this.TryGetMaxGoodPrefetchPackTimestamp(out long last, out error))
+            {
+                this.Context.Tracer.RelatedError(error);
+                return false;
+            }
 
-                        error += result.Errors;
+            TimeSpan timeBetween = this.GitObjects.IsUsingCacheServer()
+                                    ? this.timeBetweenFetches
+                                    : this.timeBetweenFetchesNoCacheServer;
 
-                        activity.RelatedInfo($"Background fetch from '{remote}' completed with stdout: {result.Output}");
-                        activity.RelatedError($"Background fetch from '{remote}' completed with stderr: {result.Errors}");
-
-                        if (result.ExitCodeIsFailure)
-                        {
-                            response = false;
-                            break;
-                        }
-                    }
-
-                    this.SaveLastRunTimeToFile();
-                    return response;
-                }
+            DateTime lastDateTime = EpochConverter.FromUnixEpochSeconds(last);
+            DateTime now = DateTime.UtcNow;
+            if (!this.forceRun && now <= lastDateTime + timeBetween)
+            {
+                this.Context.Tracer.RelatedInfo(this.Area + ": Skipping fetch since most-recent fetch ({0}) is too close to now ({1})", lastDateTime, now);
+                error = null;
+                return true;
             }
 
             // We take our own lock here to keep background and foreground fetches
@@ -111,46 +126,41 @@ namespace Scalar.Common.Maintenance
             return true;
         }
 
-        protected override void PerformMaintenance()
+        private bool TryFetchUsingGitProtocol(GitProcess gitProcess, out string error)
         {
-            long last;
-            string error = null;
+            this.LastRunTimeFilePath = Path.Combine(this.Context.Enlistment.ScalarLogsRoot, FetchTimeFile);
 
-            if (this.Context.Enlistment.UsesGvfsProtocol)
+            if (!this.forceRun && !this.EnoughTimeBetweenRuns())
             {
-                if (!this.TryGetMaxGoodPrefetchPackTimestamp(out last, out error))
-                {
-                    this.Context.Tracer.RelatedError(error);
-                    return;
-                }
-
-                TimeSpan timeBetween = this.GitObjects.IsUsingCacheServer()
-                                        ? this.timeBetweenFetches
-                                        : this.timeBetweenFetchesNoCacheServer;
-
-                DateTime lastDateTime = EpochConverter.FromUnixEpochSeconds(last);
-                DateTime now = DateTime.UtcNow;
-                if (now <= lastDateTime + timeBetween)
-                {
-                    this.Context.Tracer.RelatedInfo(this.Area + ": Skipping fetch since most-recent fetch ({0}) is too close to now ({1})", lastDateTime, now);
-                    return;
-                }
+                this.Context.Tracer.RelatedInfo($"Skipping {nameof(FetchStep)} due to not enough time between runs");
+                error = null;
+                return true;
             }
 
-            this.RunGitCommand(
-                process =>
-                {
-                    this.TryFetch(out error, process);
-                    return null;
-                },
-                nameof(this.TryFetch));
-
-            if (!string.IsNullOrEmpty(error))
+            using (ITracer activity = this.Context.Tracer.StartActivity(nameof(GitProcess.BackgroundFetch), EventLevel.LogAlways))
             {
-                this.Context.Tracer.RelatedWarning(
-                    metadata: this.CreateEventMetadata(),
-                    message: $"{nameof(this.TryFetch)} failed with error '{error}'",
-                    keywords: Keywords.Telemetry);
+                string[] remotes = gitProcess.GetRemotes();
+                bool response = true;
+
+                error = "";
+                foreach (string remote in remotes)
+                {
+                    GitProcess.Result result = gitProcess.BackgroundFetch(remote);
+
+                    error += result.Errors;
+
+                    activity.RelatedInfo($"Background fetch from '{remote}' completed with stdout: {result.Output}");
+                    activity.RelatedError($"Background fetch from '{remote}' completed with stderr: {result.Errors}");
+
+                    if (result.ExitCodeIsFailure)
+                    {
+                        response = false;
+                        // Keep going through other remotes, but the overall result will still be false.
+                    }
+                }
+
+                this.SaveLastRunTimeToFile();
+                return response;
             }
         }
 

@@ -1,10 +1,10 @@
 ﻿using NUnit.Framework;
 using Scalar.Tests.Should;
 
-namespace Scalar.FunctionalTests.Tests.GitEnlistmentPerFixture
+namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
 {
     [Category(Categories.GitRepository)]
-    public class ReposVerbTests : TestsWithGitEnlistmentPerFixture
+    public class ReposVerbTests : TestsWithGitRepoPerFixture
     {
         [TestCase]
         public void ReposVerbSucceedsInGitRepo()

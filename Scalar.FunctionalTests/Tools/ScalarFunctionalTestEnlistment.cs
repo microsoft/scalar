@@ -7,6 +7,7 @@ namespace Scalar.FunctionalTests.Tools
 {
     public class ScalarFunctionalTestEnlistment
     {
+        private const string GitRepoSrcDir = "repo";
         private const string LockHeldByGit = "Scalar Lock: Held by {0}";
         private const int SleepMSWaitingForStatusCheck = 100;
         private const int DefaultMaxWaitMSForStatusCheck = 5000;
@@ -95,11 +96,10 @@ namespace Scalar.FunctionalTests.Tools
             string commitish = null,
             string localCacheRoot = null,
             bool skipFetchCommitsAndTrees = false,
-            bool fullClone = true,
-            bool asGitRepo = false)
+            bool fullClone = true)
         {
             string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
-            return Clone(pathToScalar, enlistmentRoot, commitish, localCacheRoot, skipFetchCommitsAndTrees, fullClone, isScalarRepo: !asGitRepo);
+            return Clone(pathToScalar, enlistmentRoot, commitish, localCacheRoot, skipFetchCommitsAndTrees, fullClone);
         }
 
         public static ScalarFunctionalTestEnlistment CloneEnlistmentWithSpacesInPath(string pathToScalar, string commitish = null)
@@ -117,6 +117,32 @@ namespace Scalar.FunctionalTests.Tools
         public static string GetUniqueEnlistmentRootWithSpaces()
         {
             return Path.Combine(Properties.Settings.Default.EnlistmentRoot, "test " + Guid.NewGuid().ToString("N").Substring(0, 15));
+        }
+
+        public static ScalarFunctionalTestEnlistment CloneGitRepo(string pathToScalar)
+        {
+            string enlistmentRoot = Path.Combine(GetUniqueEnlistmentRoot(), GitRepoSrcDir);
+
+            ScalarFunctionalTestEnlistment enlistment = new ScalarFunctionalTestEnlistment(
+                pathToScalar,
+                enlistmentRoot,
+                ScalarTestConfig.RepoToClone,
+                Properties.Settings.Default.Commitish,
+                ScalarTestConfig.LocalCacheRoot,
+                isScalarRepo: false);
+
+            try
+            {
+                enlistment.CloneGitRepo();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Unhandled exception in {nameof(ScalarFunctionalTestEnlistment.Clone)}: " + e.ToString());
+                TestResultsHelper.OutputScalarLogs(enlistment);
+                throw;
+            }
+
+            return enlistment;
         }
 
         public string GetPackRoot(FileSystemRunner fileSystem)
@@ -145,16 +171,32 @@ namespace Scalar.FunctionalTests.Tools
 
         public void Clone(bool skipFetchCommitsAndTrees)
         {
-            if (this.IsScalarRepo)
+            this.scalarProcess.Clone(this.RepoUrl, this.Commitish, skipFetchCommitsAndTrees, fullClone: this.fullClone);
+
+            GitProcess.Invoke(this.RepoRoot, "checkout " + this.Commitish);
+            GitProcess.Invoke(this.RepoRoot, "branch --unset-upstream");
+            GitProcess.Invoke(this.RepoRoot, "config core.abbrev 40");
+            GitProcess.Invoke(this.RepoRoot, "config user.name \"Functional Test User\"");
+            GitProcess.Invoke(this.RepoRoot, "config user.email \"functional@test.com\"");
+
+            // If this repository has a .gitignore file in the root directory, force it to be
+            // hydrated. This is because if the GitStatusCache feature is enabled, it will run
+            // a "git status" command asynchronously, which will hydrate the .gitignore file
+            // as it reads the ignore rules. Hydrate this file here so that it is consistently
+            // hydrated and there are no race conditions depending on when / if it is hydrated
+            // as part of an asynchronous status scan to rebuild the GitStatusCache.
+            string rootGitIgnorePath = Path.Combine(this.RepoRoot, ".gitignore");
+            if (File.Exists(rootGitIgnorePath))
             {
-                this.scalarProcess.Clone(this.RepoUrl, this.Commitish, skipFetchCommitsAndTrees, fullClone: this.fullClone);
+                File.ReadAllBytes(rootGitIgnorePath);
             }
-            else
-            {
-                string workDir = Directory.GetParent(this.RepoRoot).FullName;
-                Directory.CreateDirectory(workDir);
-                GitProcess.Invoke(workDir, $"clone {this.RepoUrl} repo");
-            }
+        }
+
+        public void CloneGitRepo()
+        {
+            string workDir = Directory.GetParent(this.RepoRoot).FullName;
+            Directory.CreateDirectory(workDir);
+            GitProcess.Invoke(workDir, $"clone {this.RepoUrl} {GitRepoSrcDir}");
 
             GitProcess.Invoke(this.RepoRoot, "checkout " + this.Commitish);
             GitProcess.Invoke(this.RepoRoot, "branch --unset-upstream");
@@ -257,29 +299,22 @@ namespace Scalar.FunctionalTests.Tools
         }
 
         private static ScalarFunctionalTestEnlistment Clone(
-            string pathToGvfs,
+            string pathToScalar,
             string enlistmentRoot,
             string commitish,
             string localCacheRoot,
             bool skipFetchCommitsAndTrees = false,
-            bool fullClone = true,
-            bool isScalarRepo = true)
+            bool fullClone = true)
         {
             enlistmentRoot = enlistmentRoot ?? GetUniqueEnlistmentRoot();
 
-            if (!isScalarRepo)
-            {
-                enlistmentRoot = Path.Combine(enlistmentRoot, "repo");
-            }
-
             ScalarFunctionalTestEnlistment enlistment = new ScalarFunctionalTestEnlistment(
-                pathToGvfs,
+                pathToScalar,
                 enlistmentRoot,
                 ScalarTestConfig.RepoToClone,
                 commitish ?? Properties.Settings.Default.Commitish,
                 localCacheRoot ?? ScalarTestConfig.LocalCacheRoot,
-                fullClone,
-                isScalarRepo);
+                fullClone);
 
             try
             {

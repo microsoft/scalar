@@ -7,13 +7,15 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Scalar.FunctionalTests.Tests.GitEnlistmentPerFixture
+namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
 {
     [Category(Categories.GitRepository)]
-    public class MaintenanceVerbTests : TestsWithGitEnlistmentPerFixture
+    public class MaintenanceVerbTests : TestsWithGitRepoPerFixture
     {
         private FileSystemRunner fileSystem;
+
         private string GitObjectRoot => Path.Combine(this.Enlistment.RepoRoot, ".git", "objects");
+        private string CommitGraphChain => Path.Combine(this.GitObjectRoot, "info", "commit-graphs", "commit-graph-chain");
         private string PackRoot => Path.Combine(this.Enlistment.RepoRoot, ".git", "objects", "pack");
 
         public MaintenanceVerbTests()
@@ -25,11 +27,9 @@ namespace Scalar.FunctionalTests.Tests.GitEnlistmentPerFixture
         [Order(1)]
         public void CommitGraphStep()
         {
-            this.fileSystem.FileExists(Path.Combine(this.Enlistment.RepoRoot, ".git", "objects", "info", "commit-graphs", "commit-graph-chain"))
-                           .ShouldBeFalse();
+            this.fileSystem.FileExists(CommitGraphChain).ShouldBeFalse();
             this.Enlistment.CommitGraphStep();
-            this.fileSystem.FileExists(Path.Combine(this.Enlistment.RepoRoot, ".git", "objects", "info", "commit-graphs", "commit-graph-chain"))
-                           .ShouldBeTrue();
+            this.fileSystem.FileExists(CommitGraphChain).ShouldBeTrue();
         }
 
         [TestCase]
@@ -37,17 +37,21 @@ namespace Scalar.FunctionalTests.Tests.GitEnlistmentPerFixture
         public void PackfileMaintenanceStep()
         {
             this.GetPackSizes(out int packCount, out long maxSize, out long minSize, out long totalSize);
+            minSize.ShouldNotEqual(0, "min size means empty pack-file?");
+
             GitProcess.InvokeProcess(
                 this.Enlistment.RepoRoot,
                 $"repack -adf --max-pack-size={totalSize / 4}");
 
             this.GetPackSizes(out int countAfterRepack, out maxSize, out minSize, out totalSize);
+            minSize.ShouldNotEqual(0, "min size means empty pack-file?");
 
             this.Enlistment
                 .PackfileMaintenanceStep(batchSize: totalSize - minSize + 1)
                 .ShouldNotContain(false, "Skipping pack maintenance due to no .keep file.");
 
             this.GetPackSizes(out int countAfterStep, out maxSize, out minSize, out totalSize);
+            minSize.ShouldNotEqual(0, "min size means empty pack-file?");
 
             countAfterStep.ShouldEqual(countAfterRepack + 1, nameof(countAfterStep));
 
@@ -56,6 +60,7 @@ namespace Scalar.FunctionalTests.Tests.GitEnlistmentPerFixture
                 .ShouldNotContain(false, "Skipping pack maintenance due to no .keep file.");
 
             this.GetPackSizes(out int countAfterStep2, out maxSize, out minSize, out totalSize);
+            minSize.ShouldNotEqual(0, "min size means empty pack-file?");
             countAfterStep2.ShouldEqual(1, nameof(countAfterStep2));
         }
 
@@ -67,14 +72,22 @@ namespace Scalar.FunctionalTests.Tests.GitEnlistmentPerFixture
             GitProcess.Invoke(this.Enlistment.RepoRoot, "commit -mtest --allow-empty");
 
             this.GetLooseObjectFiles().Count.ShouldBeAtLeast(1);
+            this.GetPackSizes(out int countBeforeStep, out _, out long minSize, out _);
+            minSize.ShouldNotEqual(0, "min size means empty pack-file?");
 
             // This step packs the loose object into a pack.
             this.Enlistment.LooseObjectStep();
+            this.GetPackSizes(out int countAfterStep1, out _, out minSize, out _);
+            minSize.ShouldNotEqual(0, "min size means empty pack-file?");
             this.GetLooseObjectFiles().Count.ShouldBeAtLeast(1);
+            countAfterStep1.ShouldEqual(countBeforeStep + 1, "First step should create a pack");
 
             // This step deletes the loose object that is already in a pack
             this.Enlistment.LooseObjectStep();
+            this.GetPackSizes(out int countAfterStep2, out _, out minSize, out _);
+            minSize.ShouldNotEqual(0, "min size means empty pack-file?");
             this.GetLooseObjectFiles().Count.ShouldEqual(0);
+            countAfterStep2.ShouldEqual(countAfterStep1, "Second step should not create a pack");
         }
 
         [TestCase]

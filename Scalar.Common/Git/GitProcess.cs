@@ -426,6 +426,11 @@ namespace Scalar.Common.Git
 
         public Result BackgroundFetch(string remote)
         {
+            // By using "--no-update-remote-refs", the user will see their remote refs update
+            // normally when they do a foreground fetch.
+            // By using this refspec, we do not create local refs, but instead store them in the "hidden"
+            // namespace. These refs are never visible to the user (unless they open the .git/refs dir)
+            // but still allow us to run reachability questions like updating the commit-graph.
             return this.InvokeGitInWorkingDirectoryRoot($"fetch {remote} --no-update-remote-refs +refs/heads/*:refs/hidden/{remote}/*", fetchMissingObjects: true);
         }
 

@@ -228,7 +228,7 @@ namespace Scalar.CommandLine
         {
             if (cacheServer == null)
             {
-                return "from origin";
+                return "from remotes";
             }
 
             if (!cacheServer.IsNone(repoUrl))
