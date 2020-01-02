@@ -404,11 +404,6 @@ namespace Scalar.Platform.Windows
 
             public override bool SupportsUpgradeWhileRunning => false;
 
-            public override string WorkingDirectoryBackingRootPath
-            {
-                get { return ScalarConstants.WorkingDirectoryRootName; }
-            }
-
             public override string ScalarBinDirectoryPath
             {
                 get

@@ -458,7 +458,7 @@ You can specify a URL, a name of a configured cache server, or the special names
 
         private string GetAlternatesPath(ScalarEnlistment enlistment)
         {
-            return Path.Combine(enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Objects.Info.Alternates);
+            return Path.Combine(enlistment.WorkingDirectoryRoot, ScalarConstants.DotGit.Objects.Info.Alternates);
         }
 
         private void CheckGitVersion(ITracer tracer, ScalarEnlistment enlistment, out string version)

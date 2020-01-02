@@ -80,7 +80,7 @@ namespace Scalar.Common.Maintenance
                 GitCoreGVFSFlags.PrefetchDuringFetch)
                 .ToString();
 
-            string expectedHooksPath = Path.Combine(this.Context.Enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Hooks.Root);
+            string expectedHooksPath = Path.Combine(this.Context.Enlistment.WorkingDirectoryRoot, ScalarConstants.DotGit.Hooks.Root);
             expectedHooksPath = Paths.ConvertPathToGitFormat(expectedHooksPath);
 
             // These settings are required for normal Scalar functionality.

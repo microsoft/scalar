@@ -141,7 +141,6 @@ namespace Scalar.Common
             /// the upgrade verb is running.
             /// </summary>
             public abstract bool SupportsUpgradeWhileRunning { get; }
-            public abstract string WorkingDirectoryBackingRootPath { get; }
 
             public abstract string ScalarBinDirectoryPath { get; }
 

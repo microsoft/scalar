@@ -185,11 +185,6 @@ namespace Scalar.UnitTests.Mock.Common
                 get { return ".mockexe"; }
             }
 
-            public override string WorkingDirectoryBackingRootPath
-            {
-                get { return ScalarConstants.WorkingDirectoryRootName; }
-            }
-
             public override string ScalarBinDirectoryPath
             {
                 get { return Path.Combine("MockProgramFiles", this.ScalarBinDirectoryName); }

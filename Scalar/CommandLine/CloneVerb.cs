@@ -301,11 +301,11 @@ namespace Scalar.CommandLine
             try
             {
                 string fsMonitorWatchmanSampleHookPath = Path.Combine(
-                    this.enlistment.WorkingDirectoryBackingRoot,
+                    this.enlistment.WorkingDirectoryRoot,
                     ScalarConstants.DotGit.Hooks.FsMonitorWatchmanSamplePath);
 
                 string queryWatchmanPath = Path.Combine(
-                    this.enlistment.WorkingDirectoryBackingRoot,
+                    this.enlistment.WorkingDirectoryRoot,
                     ScalarConstants.DotGit.Hooks.QueryWatchmanPath);
 
                 this.fileSystem.CopyFile(
@@ -543,7 +543,7 @@ namespace Scalar.CommandLine
             }
 
             File.WriteAllText(
-                Path.Combine(this.enlistment.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Head),
+                Path.Combine(this.enlistment.WorkingDirectoryRoot, ScalarConstants.DotGit.Head),
                 "ref: refs/heads/" + this.Branch);
 
             try
@@ -582,7 +582,7 @@ namespace Scalar.CommandLine
 
         private Result TryInitRepo()
         {
-            string repoPath = this.enlistment.WorkingDirectoryBackingRoot;
+            string repoPath = this.enlistment.WorkingDirectoryRoot;
             GitProcess.Result initResult = GitProcess.Init(this.enlistment);
             if (initResult.ExitCodeIsFailure)
             {
