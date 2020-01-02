@@ -101,6 +101,7 @@ namespace Scalar.Service
 
                         // On Mac, there is no separate session Id. currentUser is used as sessionId
                         this.maintenanceTaskScheduler.RegisterUser(new UserAndSession(currentUser, sessionId));
+                        this.maintenanceTaskScheduler.ScheduleRecurringTasks();
                     }
                     catch (Exception e)
                     {

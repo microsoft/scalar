@@ -58,6 +58,7 @@ namespace Scalar.Service
                 this.maintenanceTaskScheduler = new MaintenanceTaskScheduler(this.tracer, fileSystem, new WindowsScalarVerbRunner(this.tracer), this.repoRegistry);
 
                 this.AssignCurrentLoggedOnUser();
+                this.maintenanceTaskScheduler.ScheduleRecurringTasks();
 
                 this.requestHandler = new RequestHandler(this.tracer, EtwArea);
 

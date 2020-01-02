@@ -46,7 +46,6 @@ namespace Scalar.Service
             this.repoRegistry = repoRegistry;
             this.taskTimers = new List<Timer>();
             this.taskQueue = new ServiceTaskQueue(this.tracer);
-            this.ScheduleRecurringTasks();
         }
 
         public UserAndSession RegisteredUser { get; private set; }
@@ -81,7 +80,7 @@ namespace Scalar.Service
             this.taskTimers = null;
         }
 
-        private void ScheduleRecurringTasks()
+        public void ScheduleRecurringTasks()
         {
             if (ScalarEnlistment.IsUnattended(this.tracer))
             {
