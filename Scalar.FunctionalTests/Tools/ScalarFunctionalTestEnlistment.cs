@@ -24,6 +24,15 @@ namespace Scalar.FunctionalTests.Tools
             this.fullClone = fullClone;
             this.IsScalarRepo = isScalarRepo;
 
+            if (isScalarRepo)
+            {
+                this.RepoRoot = Path.Combine(this.EnlistmentRoot, "src");
+            }
+            else
+            {
+                this.RepoRoot = this.EnlistmentRoot;
+            }
+
             if (localCacheRoot == null)
             {
                 if (!this.IsScalarRepo)
@@ -44,6 +53,7 @@ namespace Scalar.FunctionalTests.Tools
             }
 
             this.LocalCacheRoot = localCacheRoot;
+
             this.scalarProcess = new ScalarProcess(pathToScalar, this.EnlistmentRoot, this.LocalCacheRoot);
         }
 
@@ -61,13 +71,7 @@ namespace Scalar.FunctionalTests.Tools
 
         public string LocalCacheRoot { get; }
 
-        public string RepoRoot
-        {
-            get
-            {
-                return this.IsScalarRepo ? Path.Combine(this.EnlistmentRoot, "src") : this.EnlistmentRoot;
-            }
-        }
+        public string RepoRoot { get; }
 
         public string ScalarLogsRoot
         {
