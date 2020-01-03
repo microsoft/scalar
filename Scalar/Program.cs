@@ -21,7 +21,6 @@ namespace Scalar
                 typeof(ConfigVerb),
                 typeof(DiagnoseVerb),
                 typeof(MaintenanceVerb),
-                typeof(RemoveVerb),
                 typeof(ReposVerb),
                 typeof(ServiceVerb),
                 typeof(UpgradeVerb),
