@@ -15,7 +15,6 @@ namespace Scalar.Common
             : this(
                   enlistmentRoot,
                   Path.Combine(enlistmentRoot, ScalarConstants.WorkingDirectoryRootName),
-                  Path.Combine(enlistmentRoot, ScalarPlatform.Instance.Constants.WorkingDirectoryBackingRootPath),
                   repoUrl,
                   gitBinPath,
                   authentication)
@@ -24,33 +23,16 @@ namespace Scalar.Common
 
         // Existing, configured enlistment
         private ScalarEnlistment(string enlistmentRoot, string workingDirectory, string repoUrl, string gitBinPath, GitAuthentication authentication)
-            : this(
-                  enlistmentRoot,
-                  workingDirectory,
-                  workingDirectory,
-                  repoUrl,
-                  gitBinPath,
-                  authentication)
-        {
-        }
-
-        private ScalarEnlistment(string enlistmentRoot,
-                                 string workingDirectory,
-                                 string workingDirectoryBackingRoot,
-                                 string repoUrl,
-                                 string gitBinPath,
-                                 GitAuthentication authentication)
             : base(
                   enlistmentRoot,
                   workingDirectory,
-                  workingDirectoryBackingRoot,
                   repoUrl,
                   gitBinPath,
                   flushFileBuffersForPacks: true,
                   authentication: authentication)
         {
-            this.ScalarLogsRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Logs.Root);
-            this.LocalObjectsRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Objects.Root);
+            this.ScalarLogsRoot = Path.Combine(this.WorkingDirectoryRoot, ScalarConstants.DotGit.Logs.Root);
+            this.LocalObjectsRoot = Path.Combine(this.WorkingDirectoryRoot, ScalarConstants.DotGit.Objects.Root);
         }
 
         public string ScalarLogsRoot { get; }

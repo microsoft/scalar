@@ -10,7 +10,6 @@ namespace Scalar.Common
         protected Enlistment(
             string enlistmentRoot,
             string workingDirectoryRoot,
-            string workingDirectoryBackingRoot,
             string repoUrl,
             string gitBinPath,
             bool flushFileBuffersForPacks,
@@ -23,8 +22,7 @@ namespace Scalar.Common
 
             this.EnlistmentRoot = enlistmentRoot;
             this.WorkingDirectoryRoot = workingDirectoryRoot;
-            this.WorkingDirectoryBackingRoot = workingDirectoryBackingRoot;
-            this.DotGitRoot = Path.Combine(this.WorkingDirectoryBackingRoot, ScalarConstants.DotGit.Root);
+            this.DotGitRoot = Path.Combine(this.WorkingDirectoryRoot, ScalarConstants.DotGit.Root);
             this.GitBinPath = gitBinPath;
             this.FlushFileBuffersForPacks = flushFileBuffersForPacks;
 
@@ -55,12 +53,7 @@ namespace Scalar.Common
         public string EnlistmentRoot { get; }
 
         // Path to the root of the working (i.e. "src") directory.
-        // On platforms where the contents of the working directory are stored
-        // at a different location (e.g. Linux), WorkingDirectoryBackingRoot is the path of that backing
-        // storage location.  On all other platforms WorkingDirectoryRoot and WorkingDirectoryBackingRoot
-        // are the same.
         public string WorkingDirectoryRoot { get; }
-        public string WorkingDirectoryBackingRoot { get; }
 
         public string DotGitRoot { get; private set; }
         public abstract string GitObjectsRoot { get; protected set; }

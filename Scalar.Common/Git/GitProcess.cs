@@ -62,7 +62,7 @@ namespace Scalar.Common.Git
         }
 
         public GitProcess(Enlistment enlistment)
-            : this(enlistment.GitBinPath, enlistment.WorkingDirectoryBackingRoot)
+            : this(enlistment.GitBinPath, enlistment.WorkingDirectoryRoot)
         {
         }
 
@@ -86,7 +86,7 @@ namespace Scalar.Common.Git
 
         public static Result Init(Enlistment enlistment)
         {
-            return new GitProcess(enlistment).InvokeGitOutsideEnlistment("init \"" + enlistment.WorkingDirectoryBackingRoot + "\"");
+            return new GitProcess(enlistment).InvokeGitOutsideEnlistment("init \"" + enlistment.WorkingDirectoryRoot + "\"");
         }
 
         public static Result SparseCheckoutInit(Enlistment enlistment)

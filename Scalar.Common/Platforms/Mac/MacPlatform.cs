@@ -152,11 +152,6 @@ namespace Scalar.Platform.Mac
                 get { return ".dmg"; }
             }
 
-            public override string WorkingDirectoryBackingRootPath
-            {
-                get { return ScalarConstants.WorkingDirectoryRootName; }
-            }
-
             public override string ScalarBinDirectoryPath
             {
                 get { return Path.Combine("/usr", "local", this.ScalarBinDirectoryName); }
