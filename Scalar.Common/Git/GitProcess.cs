@@ -431,7 +431,7 @@ namespace Scalar.Common.Git
             // By using this refspec, we do not create local refs, but instead store them in the "hidden"
             // namespace. These refs are never visible to the user (unless they open the .git/refs dir)
             // but still allow us to run reachability questions like updating the commit-graph.
-            return this.InvokeGitInWorkingDirectoryRoot($"fetch {remote} --no-update-remote-refs +refs/heads/*:refs/hidden/{remote}/*", fetchMissingObjects: true);
+            return this.InvokeGitInWorkingDirectoryRoot($"fetch {remote} --no-update-remote-refs +refs/heads/*:refs/{ScalarConstants.DotGit.Refs.Hidden.Name}/{remote}/*", fetchMissingObjects: true);
         }
 
         public string[] GetRemotes()
@@ -440,6 +440,7 @@ namespace Scalar.Common.Git
                        .Output
                        .Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
         }
+
         public Result SparseCheckoutSet(List<string> foldersToSet)
         {
             return this.InvokeGitInWorkingDirectoryRoot(

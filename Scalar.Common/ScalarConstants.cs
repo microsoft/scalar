@@ -166,6 +166,12 @@ namespace Scalar.Common
             public static class Refs
             {
                 public static readonly string Root = Path.Combine(DotGit.Root, "refs");
+
+                public static class Hidden
+                {
+                    public static readonly string Name = "hidden";
+                    public static readonly string Root = Path.Combine(DotGit.Refs.Root, Name);
+                }
             }
         }
 

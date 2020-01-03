@@ -139,6 +139,14 @@ namespace Scalar.Common.Maintenance
 
             using (ITracer activity = this.Context.Tracer.StartActivity(nameof(GitProcess.BackgroundFetch), EventLevel.LogAlways))
             {
+                // Clear hidden refs to avoid arbitrarily large growth
+                string hiddenRefspace = Path.Combine(this.Context.Enlistment.WorkingDirectoryRoot, ScalarConstants.DotGit.Refs.Hidden.Root);
+
+                if (this.Context.FileSystem.DirectoryExists(hiddenRefspace))
+                {
+                    this.Context.FileSystem.DeleteDirectory(hiddenRefspace, recursive: true);
+                }
+
                 string[] remotes = gitProcess.GetRemotes();
                 bool response = true;
 
