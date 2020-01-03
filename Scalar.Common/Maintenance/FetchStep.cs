@@ -155,10 +155,11 @@ namespace Scalar.Common.Maintenance
                 {
                     GitProcess.Result result = gitProcess.BackgroundFetch(remote);
 
-                    error += result.Errors;
-
-                    activity.RelatedInfo($"Background fetch from '{remote}' completed with stdout: {result.Output}");
-                    activity.RelatedError($"Background fetch from '{remote}' completed with stderr: {result.Errors}");
+                    if (!string.IsNullOrWhiteSpace(result.Errors))
+                    {
+                        error += result.Errors;
+                        activity.RelatedError($"Background fetch from '{remote}' completed with stderr: {result.Errors}");
+                    }
 
                     if (result.ExitCodeIsFailure)
                     {
