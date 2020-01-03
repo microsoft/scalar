@@ -20,9 +20,10 @@ namespace Scalar.CommandLine
 
         private const string AddSubcommand = "add";
         private const string ListSubcommand = "list";
-        private const string RemoteSubcommand = "remove";
+        private const string RemoveSubcommand = "remove";
 
         private string enlistmentRoot;
+        private PhysicalFileSystem fileSystem = new PhysicalFileSystem();
 
         protected override string VerbName => ReposVerb.ReposVerbName;
 
@@ -50,32 +51,11 @@ namespace Scalar.CommandLine
 
         public override void Execute()
         {
-            PhysicalFileSystem fileSystem = new PhysicalFileSystem();
 
             switch (this.Subcommand)
             {
                 case ReposVerb.AddSubcommand:
-                    this.ValidatePathParameter(this.EnlistmentRootPathParameter);
-
-                    ScalarEnlistment enlistment = this.CreateEnlistment(this.EnlistmentRootPathParameter ?? Directory.GetCurrentDirectory(), null);
-
-                    using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, ReposVerb.ReposVerbName))
-                    {
-                        if (this.TryRegisterRepo(tracer, enlistment, fileSystem, out string error))
-                        {
-                            this.Output.WriteLine($"Successfully registered repo at '{enlistment.EnlistmentRoot}'");
-                        }
-                        else
-                        {
-                            string message = $"Failed to register repo: {error}";
-                            tracer.RelatedError(message);
-                            this.ReportErrorAndExit(message);
-                            return;
-                        }
-
-                        ScalarContext context = new ScalarContext(tracer, fileSystem, enlistment);
-                        new ConfigStep(context).Execute();
-                    }
+                    this.Add();
                     break;
 
                 case ReposVerb.ListSubcommand:
@@ -85,12 +65,8 @@ namespace Scalar.CommandLine
                     }
                     break;
 
-                case ReposVerb.RemoteSubcommand:
-                    if (this.FromDisk)
-                    {
-                        this.RemoveFromDisk();
-                    }
-
+                case ReposVerb.RemoveSubcommand:
+                    this.Remove();
                     break;
 
                 default:
@@ -105,6 +81,31 @@ namespace Scalar.CommandLine
             }
         }
 
+        private void Add()
+        {
+            this.ValidatePathParameter(this.EnlistmentRootPathParameter);
+
+            ScalarEnlistment enlistment = this.CreateEnlistment(this.EnlistmentRootPathParameter ?? Directory.GetCurrentDirectory(), null);
+
+            using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, ReposVerb.ReposVerbName))
+            {
+                if (this.TryRegisterRepo(tracer, enlistment, fileSystem, out string error))
+                {
+                    this.Output.WriteLine($"Successfully registered repo at '{enlistment.EnlistmentRoot}'");
+                }
+                else
+                {
+                    string message = $"Failed to register repo: {error}";
+                    tracer.RelatedError(message);
+                    this.ReportErrorAndExit(message);
+                    return;
+                }
+
+                ScalarContext context = new ScalarContext(tracer, fileSystem, enlistment);
+                new ConfigStep(context).Execute();
+            }
+        }
+
         private IEnumerable<string> GetRepoList()
         {
             string repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
@@ -116,6 +117,29 @@ namespace Scalar.CommandLine
                     repoRegistryLocation);
 
                 return repoRegistry.GetRegisteredRepos().Select(x => x.NormalizedRepoRoot);
+            }
+        }
+
+        private void Remove()
+        {
+            using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, ReposVerb.ReposVerbName))
+            {
+                ScalarEnlistment enlistment = this.CreateEnlistment(this.EnlistmentRootPathParameter ?? Directory.GetCurrentDirectory(), null);
+
+                string logFileName = ScalarEnlistment.GetNewScalarLogFileName(
+                                                        enlistment.ScalarLogsRoot,
+                                                        ScalarConstants.LogFileTypes.ReposRemove);
+                this.ValidatePathParameter(this.EnlistmentRootPathParameter);
+
+                if (this.TryUnregisterRepo(enlistment.EnlistmentRoot, tracer))
+                {
+                    this.Output.WriteLine($"Successfully unregistered repo at '{enlistment.EnlistmentRoot}'");
+                }
+
+                if (this.FromDisk)
+                {
+                    this.RemoveFromDisk();
+                }
             }
         }
 
@@ -137,7 +161,6 @@ namespace Scalar.CommandLine
             Directory.SetCurrentDirectory(parentDir);
 
             this.StopFileSystemWatcher();
-            this.TryUnregisterRepo();
             this.DeleteEnlistment();
         }
 
@@ -179,7 +202,7 @@ namespace Scalar.CommandLine
             }
         }
 
-        private void TryUnregisterRepo()
+        private bool TryUnregisterRepo(string enlistmentRoot, ITracer tracer)
         {
             string repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
             ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
@@ -187,19 +210,14 @@ namespace Scalar.CommandLine
                                                         new PhysicalFileSystem(),
                                                         repoRegistryLocation);
 
-            bool found = false;
-            foreach (ScalarRepoRegistration registration in repoRegistry.GetRegisteredRepos())
+            if (!repoRegistry.TryUnregisterRepo(enlistmentRoot, out string error))
             {
-                if (registration.NormalizedRepoRoot.Equals(this.enlistmentRoot))
-                {
-                    found = true;
-                }
+                tracer.RelatedError(error);
+                Output.WriteLine($"Error while unregistering repo: {error}");
+                return false;
             }
 
-            if (found && !repoRegistry.TryUnregisterRepo(this.enlistmentRoot, out string error))
-            {
-                Console.Error.WriteLine($"Error while unregistering repo: {error}");
-            }
+            return true;
         }
 
         private void DeleteEnlistment()
@@ -210,7 +228,7 @@ namespace Scalar.CommandLine
             }
             catch (IOException e)
             {
-                Console.Error.WriteLine($"Exception while deleting enlistment: {e.Message}");
+                Output.WriteLine($"Exception while deleting enlistment: {e.Message}");
                 Environment.Exit(1);
             }
         }

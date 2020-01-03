@@ -98,6 +98,11 @@ namespace Scalar.FunctionalTests.Tools
             return this.CallScalar($"repos add", expectedExitCode: SuccessExitCode, workingDirectory: enlistmentRoot);
         }
 
+        public string ReposRemove()
+        {
+            return this.CallScalar($"repos remove", expectedExitCode: SuccessExitCode, workingDirectory: this.enlistmentRoot);
+        }
+
         public string ReposList()
         {
             return this.CallScalar($"repos list", expectedExitCode: SuccessExitCode, workingDirectory: this.enlistmentRoot);

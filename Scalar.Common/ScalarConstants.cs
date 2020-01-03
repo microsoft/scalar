@@ -92,6 +92,7 @@ namespace Scalar.Common
             public const string MountProcess = MountPrefix + "_process";
             public const string MountUpgrade = MountPrefix + "_repoupgrade";
             public const string Repair = "repair";
+            public const string ReposRemove = "repos_remove";
             public const string Service = "service";
             public const string ServiceUI = "service_ui";
             public const string UpgradeVerb = UpgradePrefix + "_verb";
