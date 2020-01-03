@@ -172,24 +172,7 @@ namespace Scalar.FunctionalTests.Tools
         public void Clone(bool skipFetchCommitsAndTrees)
         {
             this.scalarProcess.Clone(this.RepoUrl, this.Commitish, skipFetchCommitsAndTrees, fullClone: this.fullClone);
-
-            GitProcess.Invoke(this.RepoRoot, "checkout " + this.Commitish);
-            GitProcess.Invoke(this.RepoRoot, "branch --unset-upstream");
-            GitProcess.Invoke(this.RepoRoot, "config core.abbrev 40");
-            GitProcess.Invoke(this.RepoRoot, "config user.name \"Functional Test User\"");
-            GitProcess.Invoke(this.RepoRoot, "config user.email \"functional@test.com\"");
-
-            // If this repository has a .gitignore file in the root directory, force it to be
-            // hydrated. This is because if the GitStatusCache feature is enabled, it will run
-            // a "git status" command asynchronously, which will hydrate the .gitignore file
-            // as it reads the ignore rules. Hydrate this file here so that it is consistently
-            // hydrated and there are no race conditions depending on when / if it is hydrated
-            // as part of an asynchronous status scan to rebuild the GitStatusCache.
-            string rootGitIgnorePath = Path.Combine(this.RepoRoot, ".gitignore");
-            if (File.Exists(rootGitIgnorePath))
-            {
-                File.ReadAllBytes(rootGitIgnorePath);
-            }
+            this.InitializeConfig();
         }
 
         public void CloneGitRepo()
@@ -197,24 +180,7 @@ namespace Scalar.FunctionalTests.Tools
             string workDir = Directory.GetParent(this.RepoRoot).FullName;
             Directory.CreateDirectory(workDir);
             GitProcess.Invoke(workDir, $"clone {this.RepoUrl} {GitRepoSrcDir}");
-
-            GitProcess.Invoke(this.RepoRoot, "checkout " + this.Commitish);
-            GitProcess.Invoke(this.RepoRoot, "branch --unset-upstream");
-            GitProcess.Invoke(this.RepoRoot, "config core.abbrev 40");
-            GitProcess.Invoke(this.RepoRoot, "config user.name \"Functional Test User\"");
-            GitProcess.Invoke(this.RepoRoot, "config user.email \"functional@test.com\"");
-
-            // If this repository has a .gitignore file in the root directory, force it to be
-            // hydrated. This is because if the GitStatusCache feature is enabled, it will run
-            // a "git status" command asynchronously, which will hydrate the .gitignore file
-            // as it reads the ignore rules. Hydrate this file here so that it is consistently
-            // hydrated and there are no race conditions depending on when / if it is hydrated
-            // as part of an asynchronous status scan to rebuild the GitStatusCache.
-            string rootGitIgnorePath = Path.Combine(this.RepoRoot, ".gitignore");
-            if (File.Exists(rootGitIgnorePath))
-            {
-                File.ReadAllBytes(rootGitIgnorePath);
-            }
+            this.InitializeConfig();
         }
 
         public string FetchStep(bool failOnError = true, string standardInput = null)
@@ -296,6 +262,15 @@ namespace Scalar.FunctionalTests.Tools
                 TestConstants.DotGit.Objects.Root,
                 objectHash.Substring(0, 2),
                 objectHash.Substring(2));
+        }
+
+        private void InitializeConfig()
+        {
+            GitProcess.Invoke(this.RepoRoot, "checkout " + this.Commitish);
+            GitProcess.Invoke(this.RepoRoot, "branch --unset-upstream");
+            GitProcess.Invoke(this.RepoRoot, "config core.abbrev 40");
+            GitProcess.Invoke(this.RepoRoot, "config user.name \"Functional Test User\"");
+            GitProcess.Invoke(this.RepoRoot, "config user.email \"functional@test.com\"");
         }
 
         private static ScalarFunctionalTestEnlistment Clone(
