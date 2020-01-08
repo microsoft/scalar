@@ -166,6 +166,12 @@ namespace Scalar.Common
             public static class Refs
             {
                 public static readonly string Root = Path.Combine(DotGit.Root, "refs");
+
+                public static class Hidden
+                {
+                    public static readonly string Name = "hidden";
+                    public static readonly string Root = Path.Combine(DotGit.Refs.Root, Name);
+                }
             }
         }
 
@@ -194,7 +200,7 @@ namespace Scalar.Common
             {
                 public const string Task = "task";
 
-                public const string FetchCommitsAndTreesTaskName = "fetch-commits-and-trees";
+                public const string FetchTaskName = "fetch";
                 public const string LooseObjectsTaskName = "loose-objects";
                 public const string PackFilesTaskName = "pack-files";
                 public const string CommitGraphTaskName = "commit-graph";

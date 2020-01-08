@@ -9,34 +9,97 @@ using System.Threading;
 
 namespace Scalar.Common.Maintenance
 {
-    public class FetchCommitsAndTreesStep : GitMaintenanceStep
+    public class FetchStep : GitMaintenanceStep
     {
         private const int IoFailureRetryDelayMS = 50;
         private const int LockWaitTimeMs = 100;
         private const int WaitingOnLockLogThreshold = 50;
         private const string FetchCommitsAndTreesLock = "fetch-commits-trees.lock";
+        private const string FetchTimeFile = "fetch.time";
         private readonly TimeSpan timeBetweenFetches = TimeSpan.FromMinutes(70);
         private readonly TimeSpan timeBetweenFetchesNoCacheServer = TimeSpan.FromDays(1);
+        private readonly bool forceRun;
 
-        public FetchCommitsAndTreesStep(ScalarContext context, GitObjects gitObjects, bool requireCacheLock = true)
+        public FetchStep(
+                    ScalarContext context,
+                    GitObjects gitObjects,
+                    bool requireCacheLock = true,
+                    bool forceRun = false)
             : base(context, requireCacheLock)
         {
             this.GitObjects = gitObjects;
+            this.forceRun = forceRun;
         }
 
         public override string Area => "FetchCommitsAndTreesStep";
 
+        // Used only for vanilla Git repos
+        protected override TimeSpan TimeBetweenRuns => this.timeBetweenFetches;
+
         protected GitObjects GitObjects { get; }
 
-        public bool TryFetchCommitsAndTrees(out string error, GitProcess gitProcess = null)
+        public bool TryFetch(out string error, GitProcess gitProcess = null)
         {
             if (gitProcess == null)
             {
                 gitProcess = new GitProcess(this.Context.Enlistment);
             }
 
+            if (this.Context.Enlistment.UsesGvfsProtocol)
+            {
+                return this.TryFetchUsingGvfsProtocol(gitProcess, out error);
+            }
+            else
+            {
+                return this.TryFetchUsingGitProtocol(gitProcess, out error);
+            }
+
+        }
+
+        protected override void PerformMaintenance()
+        {
+            string error = null;
+
+            this.RunGitCommand(
+                process =>
+                {
+                    this.TryFetch(out error, process);
+                    return null;
+                },
+                nameof(this.TryFetch));
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                this.Context.Tracer.RelatedWarning(
+                    metadata: this.CreateEventMetadata(),
+                    message: $"{nameof(this.TryFetch)} failed with error '{error}'",
+                    keywords: Keywords.Telemetry);
+            }
+        }
+
+        private bool TryFetchUsingGvfsProtocol(GitProcess gitProcess, out string error)
+        {
+            if (!this.TryGetMaxGoodPrefetchPackTimestamp(out long last, out error))
+            {
+                this.Context.Tracer.RelatedError(error);
+                return false;
+            }
+
+            TimeSpan timeBetween = this.GitObjects.IsUsingCacheServer()
+                                    ? this.timeBetweenFetches
+                                    : this.timeBetweenFetchesNoCacheServer;
+
+            DateTime lastDateTime = EpochConverter.FromUnixEpochSeconds(last);
+            DateTime now = DateTime.UtcNow;
+            if (!this.forceRun && now <= lastDateTime + timeBetween)
+            {
+                this.Context.Tracer.RelatedInfo(this.Area + ": Skipping fetch since most-recent fetch ({0}) is too close to now ({1})", lastDateTime, now);
+                error = null;
+                return true;
+            }
+
             // We take our own lock here to keep background and foreground fetches
-            // (i.e. a user running 'scalar maintenance --fetch-commits-and-trees')
+            // (i.e. a user running 'scalar maintenance --task fetch')
             // from running at the same time.
             using (FileBasedLock fetchLock = ScalarPlatform.Instance.CreateFileBasedLock(
                 this.Context.FileSystem,
@@ -63,43 +126,50 @@ namespace Scalar.Common.Maintenance
             return true;
         }
 
-        protected override void PerformMaintenance()
+        private bool TryFetchUsingGitProtocol(GitProcess gitProcess, out string error)
         {
-            long last;
-            string error = null;
+            this.LastRunTimeFilePath = Path.Combine(this.Context.Enlistment.ScalarLogsRoot, FetchTimeFile);
 
-            if (!this.TryGetMaxGoodPrefetchPackTimestamp(out last, out error))
+            if (!this.forceRun && !this.EnoughTimeBetweenRuns())
             {
-                this.Context.Tracer.RelatedError(error);
-                return;
+                this.Context.Tracer.RelatedInfo($"Skipping {nameof(FetchStep)} due to not enough time between runs");
+                error = null;
+                return true;
             }
 
-            TimeSpan timeBetween = this.GitObjects.IsUsingCacheServer()
-                                    ? this.timeBetweenFetches
-                                    : this.timeBetweenFetchesNoCacheServer;
-
-            DateTime lastDateTime = EpochConverter.FromUnixEpochSeconds(last);
-            DateTime now = DateTime.UtcNow;
-            if (now <= lastDateTime + timeBetween)
+            using (ITracer activity = this.Context.Tracer.StartActivity(nameof(GitProcess.BackgroundFetch), EventLevel.LogAlways))
             {
-                this.Context.Tracer.RelatedInfo(this.Area + ": Skipping fetch since most-recent fetch ({0}) is too close to now ({1})", lastDateTime, now);
-                return;
-            }
+                // Clear hidden refs to avoid arbitrarily large growth
+                string hiddenRefspace = Path.Combine(this.Context.Enlistment.WorkingDirectoryRoot, ScalarConstants.DotGit.Refs.Hidden.Root);
 
-            this.RunGitCommand(
-                process =>
+                if (this.Context.FileSystem.DirectoryExists(hiddenRefspace))
                 {
-                    this.TryFetchCommitsAndTrees(out error, process);
-                    return null;
-                },
-                nameof(this.TryFetchCommitsAndTrees));
+                    this.Context.FileSystem.DeleteDirectory(hiddenRefspace, recursive: true);
+                }
 
-            if (!string.IsNullOrEmpty(error))
-            {
-                this.Context.Tracer.RelatedWarning(
-                    metadata: this.CreateEventMetadata(),
-                    message: $"{nameof(this.TryFetchCommitsAndTrees)} failed with error '{error}'",
-                    keywords: Keywords.Telemetry);
+                string[] remotes = gitProcess.GetRemotes();
+                bool response = true;
+
+                error = "";
+                foreach (string remote in remotes)
+                {
+                    GitProcess.Result result = gitProcess.BackgroundFetch(remote);
+
+                    if (!string.IsNullOrWhiteSpace(result.Errors))
+                    {
+                        error += result.Errors;
+                        activity.RelatedError($"Background fetch from '{remote}' completed with stderr: {result.Errors}");
+                    }
+
+                    if (result.ExitCodeIsFailure)
+                    {
+                        response = false;
+                        // Keep going through other remotes, but the overall result will still be false.
+                    }
+                }
+
+                this.SaveLastRunTimeToFile();
+                return response;
             }
         }
 

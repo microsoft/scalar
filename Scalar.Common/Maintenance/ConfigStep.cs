@@ -83,6 +83,11 @@ namespace Scalar.Common.Maintenance
             string expectedHooksPath = Path.Combine(this.Context.Enlistment.WorkingDirectoryRoot, ScalarConstants.DotGit.Hooks.Root);
             expectedHooksPath = Paths.ConvertPathToGitFormat(expectedHooksPath);
 
+            if (!this.UseGvfsProtocol.HasValue)
+            {
+                this.UseGvfsProtocol = this.Context.Enlistment.UsesGvfsProtocol;
+            }
+
             // These settings are required for normal Scalar functionality.
             // They will override any existing local configuration values.
             //
@@ -131,7 +136,9 @@ namespace Scalar.Common.Maintenance
                 requiredSettings.Add("http.sslBackend", "schannel");
             }
 
-            if (!this.TrySetConfig(requiredSettings, isRequired: true, out error))
+            // If we do not use the GVFS protocol, then these config settings
+            // are in fact optional.
+            if (!this.TrySetConfig(requiredSettings, isRequired: this.UseGvfsProtocol.Value, out error))
             {
                 error = $"Failed to set some required settings: {error}";
                 this.Context.Tracer.RelatedError(error);

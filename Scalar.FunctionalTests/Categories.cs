@@ -8,6 +8,8 @@ namespace Scalar.FunctionalTests
         public const string WindowsOnly = "WindowsOnly";
         public const string MacOnly = "MacOnly";
 
+        public const string GitRepository = "GitRepository";
+
         public const string NeedsUpdatesForNonVirtualizedMode = "NeedsUpdatesForNonVirtualizedMode";
 
         public static class MacTODO

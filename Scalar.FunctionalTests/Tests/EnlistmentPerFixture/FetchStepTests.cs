@@ -11,22 +11,22 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [NonParallelizable]
-    public class FetchCommitsAndTreesStepTests : TestsWithEnlistmentPerFixture
+    public class FetchStepTests : TestsWithEnlistmentPerFixture
     {
         private const string FetchCommitsAndTreesLock = "fetch-commits-trees.lock";
 
         private FileSystemRunner fileSystem;
 
-        public FetchCommitsAndTreesStepTests()
+        public FetchStepTests()
         {
             this.fileSystem = new SystemIORunner();
         }
 
         [TestCase]
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
-        public void FetchCommitsAndTreesCleansUpStaleFetchLock()
+        public void FetchStepCleansUpStaleFetchLock()
         {
-            this.Enlistment.FetchCommitsAndTrees();
+            this.Enlistment.FetchStep();
             string fetchCommitsLockFile = Path.Combine(
                 ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot),
                 "pack",
@@ -42,7 +42,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 .Count()
                 .ShouldEqual(1, "Incorrect number of .keep files in pack directory");
 
-            this.Enlistment.FetchCommitsAndTrees();
+            this.Enlistment.FetchStep();
             fetchCommitsLockFile.ShouldNotExistOnDisk(this.fileSystem);
         }
     }
