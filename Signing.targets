@@ -1,6 +1,5 @@
 <Project>
   <PropertyGroup>
-    <MacFilesTarget>$(ProjectOutPath)\osxsign\$(Configuration)</MacFilesTarget>
     <IsSigningProject Condition="'$(IsSigningProject)' == ''">false</IsSigningProject>
   </PropertyGroup>
 

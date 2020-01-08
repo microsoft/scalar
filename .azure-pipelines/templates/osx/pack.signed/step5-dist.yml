@@ -5,7 +5,7 @@ steps:
       artifact: _osx_installer_signed
       path: $(Build.ArtifactStagingDirectory)/package
 
-  - script: Scalar.Signing/notarize-pkg.sh -id "$(Apple.Account.Id)" -p "$(Apple.Account.Password)" -pkg "$(Build.ArtifactStagingDirectory)"/package/*.pkg -b "com.microsoft.scalar.pkg"
+  - script: Scalar.Signing/notarize-pkg.sh -id "$(Apple.Notarization.AppleId)" -p "$(Apple.Notarization.Password)" -pkg "$(Build.ArtifactStagingDirectory)"/package/*.pkg -b "com.microsoft.scalar.pkg"
     displayName: Notarize installer (and containing bundles & binaries)
     condition: and(succeeded(), eq(variables['SignType'], 'real'))
 

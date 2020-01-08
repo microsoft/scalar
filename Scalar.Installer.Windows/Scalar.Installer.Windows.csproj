@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <LayoutPath>$(ProjectOutPath)layout\$(Configuration)\</LayoutPath>
-    <InstallerOutputPath>$(ProjectOutPath)installer\$(Configuration)\</InstallerOutputPath>
-    <DistributionOutputPath>$(ProjectOutPath)dist\$(Configuration)\</DistributionOutputPath>
+    <LayoutPath Condition="'$(LayoutPath)' == ''">$(ProjectOutPath)layout\$(Configuration)\</LayoutPath>
+    <InstallerOutputPath Condition="'$(InstallerOutputPath)' == ''">$(ProjectOutPath)installer\$(Configuration)\</InstallerOutputPath>
+    <DistributionOutputPath Condition="'$(DistributionOutputPath)' == ''">$(ProjectOutPath)dist\$(Configuration)\</DistributionOutputPath>
   </PropertyGroup>
 
   <ItemDefinitionGroup>
@@ -24,8 +24,19 @@
     <PackageReference Include="Tools.InnoSetup" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <BuildInstallerDependsOn>
+      BuildInstallerPhase1;
+      BuildInstallerPhase2;
+      BuildInstallerPhase3;
+    </BuildInstallerDependsOn>
+  </PropertyGroup>
+
   <!-- Only create the installer when running on Windows -->
-  <Target Name="BuildInstaller" AfterTargets="Publish" Condition="'$(OSPlatform)' == 'windows'" >
+  <Target Name="BuildInstaller" AfterTargets="Publish" DependsOnTargets="$(BuildInstallerDependsOn)" Condition="'$(OSPlatform)' == 'windows'" >
+  </Target>
+
+  <Target Name="BuildInstallerPhase1" Condition="'$(OSPlatform)' == 'windows'" >
     <!-- Ensure all projects have been published with the correct runtime identifier and configuration -->
     <MSBuild Projects="@(ProjectReference)"
              Targets="Publish"
@@ -45,23 +56,17 @@
           DestinationFolder="$(LayoutPath)\%(RecursiveDir)"
           SkipUnchangedFiles="true"
           OverwriteReadOnlyFiles="true"/>
+  </Target>
 
-    <!-- Sign the layout files -->
-    <MSBuild Projects="$(MSBuildThisProjectDirectory)..\Scalar.Signing\Scalar.SignFiles.Windows.csproj"
-             Targets="Restore;Build"
-             Properties="RootDir=$(LayoutPath);" />
-
+  <Target Name="BuildInstallerPhase2" Condition="'$(OSPlatform)' == 'windows'" >
     <!-- Run the Inno setup tool to build the installer -->
     <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe /DLayoutPath=$(LayoutPath) /DScalarVersion=$(ScalarVersion) Setup.iss /O$(InstallerOutputPath)"/>
+  </Target>
 
-    <!-- Sign the installer file -->
-    <MSBuild Projects="$(MSBuildThisProjectDirectory)..\Scalar.Signing\Scalar.SignInstaller.Windows.csproj"
-             Targets="Restore;Build"
-             Properties="RootDir=$(InstallerOutputPath);" />
-
+  <Target Name="BuildInstallerPhase3" Condition="'$(OSPlatform)' == 'windows'" >
     <!-- Build the distribution script -->
     <ItemGroup>
-      <ScalarPackage Include="$(InstallerOutputPath)*.exe" LinkBase="Scalar" />
+      <ScalarPackage Include="$(InstallerOutputPath)\*.exe" LinkBase="Scalar" />
       <GitPackage    Include="$(PkgGitForWindows_GVFS_Installer)\tools\*.exe" LinkBase="Git" />
     </ItemGroup>
     <Copy SourceFiles="@(ScalarPackage);@(GitPackage)"
