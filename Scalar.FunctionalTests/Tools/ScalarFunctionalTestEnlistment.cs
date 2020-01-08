@@ -194,7 +194,7 @@ namespace Scalar.FunctionalTests.Tools
 
         public void UnregisterRepo()
         {
-            // TODO: #111: Unregister the repo from the service
+            this.scalarProcess.ReposRemove();
         }
 
         public void Repair(bool confirm)
