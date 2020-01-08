@@ -18,7 +18,7 @@ IF EXIST C:\Repos\ScalarPerfTest (
 
 IF EXIST %SCALAR_OUTPUTDIR% (
     ECHO deleting build outputs
-    rmdir /s /q %Scalar_OUTPUTDIR%
+    rmdir /s /q %SCALAR_OUTPUTDIR%
 ) ELSE (
     ECHO no build outputs found
 )
