@@ -18,7 +18,7 @@ steps:
     inputs:
       solution: 'Scalar.Installer.Windows\Scalar.Installer.Windows.csproj'
       configuration: $(configuration)
-      msbuildArguments: '/t:BuildInstallerPhase1 /p:LayoutPath="$(Build.ArtifactStagingDirectory)\signpayload"' /p:ScalarVersion=$(majorAndMinorVersion).$(revision)'
+      msbuildArguments: '/t:BuildInstallerPhase1 /p:LayoutPath="$(Build.ArtifactStagingDirectory)\signpayload" /p:ScalarVersion=$(majorAndMinorVersion).$(revision)'
 
   - task: MSBuild@1
     displayName: Sign payload
