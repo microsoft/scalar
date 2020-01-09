@@ -17,7 +17,8 @@ steps:
     displayName: Collect payload files
     inputs:
       solution: 'Scalar.Installer.Windows\Scalar.Installer.Windows.csproj'
-      msbuildArguments: '/t:BuildInstallerPhase1 /p:LayoutPath="$(Build.ArtifactStagingDirectory)\signpayload"'
+      configuration: $(configuration)
+      msbuildArguments: '/t:BuildInstallerPhase1 /p:LayoutPath="$(Build.ArtifactStagingDirectory)\signpayload" /p:ScalarVersion=$(majorAndMinorVersion).$(revision)'
 
   - task: MSBuild@1
     displayName: Sign payload
@@ -29,6 +30,7 @@ steps:
     displayName: Build installer
     inputs:
       solution: 'Scalar.Installer.Windows\Scalar.Installer.Windows.csproj'
+      configuration: $(configuration)
       msbuildArguments: '/t:BuildInstallerPhase2 /p:LayoutPath="$(Build.ArtifactStagingDirectory)\signpayload" /p:InstallerOutputPath="$(Build.ArtifactStagingDirectory)\signinstaller" /p:ScalarVersion=$(majorAndMinorVersion).$(revision)'
 
   - task: MSBuild@1
@@ -44,6 +46,7 @@ steps:
     displayName: Create distribution
     inputs:
       solution: 'Scalar.Installer.Windows\Scalar.Installer.Windows.csproj'
+      configuration: $(configuration)
       msbuildArguments: '/t:BuildInstallerPhase3 /p:InstallerOutputPath="$(Build.ArtifactStagingDirectory)\signinstaller"'
 
   - script: Scripts\CI\CreateFTDrop.bat $(configuration) $(Build.ArtifactStagingDirectory)\Tests
