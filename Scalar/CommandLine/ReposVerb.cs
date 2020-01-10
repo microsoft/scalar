@@ -16,7 +16,6 @@ namespace Scalar.CommandLine
     {
         private const string ReposVerbName = "repos";
 
-        private const string AddSubcommand = "add";
         private const string ListSubcommand = "list";
 
         protected override string VerbName => ReposVerb.ReposVerbName;
@@ -42,30 +41,6 @@ namespace Scalar.CommandLine
 
             switch (this.Subcommand)
             {
-                case ReposVerb.AddSubcommand:
-                    this.ValidatePathParameter(this.EnlistmentRootPathParameter);
-
-                    ScalarEnlistment enlistment = this.CreateEnlistment(this.EnlistmentRootPathParameter ?? Directory.GetCurrentDirectory(), null);
-
-                    using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, ReposVerb.ReposVerbName))
-                    {
-                        if (this.TryRegisterRepo(tracer, enlistment, fileSystem, out string error))
-                        {
-                            this.Output.WriteLine($"Successfully registered repo at '{enlistment.EnlistmentRoot}'");
-                        }
-                        else
-                        {
-                            string message = $"Failed to register repo: {error}";
-                            tracer.RelatedError(message);
-                            this.ReportErrorAndExit(message);
-                            return;
-                        }
-
-                        ScalarContext context = new ScalarContext(tracer, fileSystem, enlistment);
-                        new ConfigStep(context).Execute();
-                    }
-                    break;
-
                 case ReposVerb.ListSubcommand:
                     foreach (string repoRoot in this.GetRepoList())
                     {
@@ -77,7 +52,6 @@ namespace Scalar.CommandLine
                     StringBuilder messageBuilder = new StringBuilder();
                     messageBuilder.AppendLine($"Unknown subcommand '{this.Subcommand}'");
                     messageBuilder.AppendLine("Options are:");
-                    messageBuilder.AppendLine($"\t{ReposVerb.AddSubcommand}");
                     messageBuilder.AppendLine($"\t{ReposVerb.ListSubcommand}");
 
                     this.ReportErrorAndExit(messageBuilder.ToString());

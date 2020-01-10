@@ -93,9 +93,10 @@ namespace Scalar.FunctionalTests.Tools
                 $"maintenance \"{this.enlistmentRoot}\" --task pack-files {sizeString}",
                 expectedExitCode: SuccessExitCode);
         }
-        public string ReposAdd(string enlistmentRoot)
+
+        public string Register(string enlistmentRoot)
         {
-            return this.CallScalar($"repos add", expectedExitCode: SuccessExitCode, workingDirectory: enlistmentRoot);
+            return this.CallScalar($"register", expectedExitCode: SuccessExitCode, workingDirectory: enlistmentRoot);
         }
 
         public string ReposList()
