@@ -5,7 +5,7 @@ using Scalar.Tests.Should;
 namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {
     [TestFixture]
-    public class ReposVerbTests : TestsWithMultiEnlistment
+    public class RepoRegistryTests : TestsWithMultiEnlistment
     {
         [TestCase]
         public void ServiceListRegistered()
@@ -17,17 +17,17 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
             // Do not check for unexpected repos, as other repos on the machine may be registered while
             // this test is running
-            this.RunReposListCommand(enlistment1.EnlistmentRoot, expectedRepoRoots: repoRootList);
+            this.RunListCommand(enlistment1.EnlistmentRoot, expectedRepoRoots: repoRootList);
         }
 
-        private void RunReposListCommand(string workdir, string[] expectedRepoRoots)
+        private void RunListCommand(string workdir, string[] expectedRepoRoots)
         {
             ScalarProcess scalarProcess = new ScalarProcess(
                 ScalarTestConfig.PathToScalar,
                 enlistmentRoot: workdir,
                 localCacheRoot: null);
 
-            string result = scalarProcess.ReposList();
+            string result = scalarProcess.ListRepos();
             result.ShouldContain(expectedRepoRoots);
         }
     }
