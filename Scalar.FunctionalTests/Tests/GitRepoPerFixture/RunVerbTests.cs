@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
 {
     [Category(Categories.GitRepository)]
-    public class MaintenanceVerbTests : TestsWithGitRepoPerFixture
+    public class RunVerbTests : TestsWithGitRepoPerFixture
     {
         private FileSystemRunner fileSystem;
 
@@ -18,7 +18,7 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
         private string CommitGraphChain => Path.Combine(this.GitObjectRoot, "info", "commit-graphs", "commit-graph-chain");
         private string PackRoot => Path.Combine(this.Enlistment.RepoRoot, ".git", "objects", "pack");
 
-        public MaintenanceVerbTests()
+        public RunVerbTests()
         {
             this.fileSystem = new SystemIORunner();
         }

@@ -99,7 +99,7 @@ namespace Scalar.Common.Maintenance
             }
 
             // We take our own lock here to keep background and foreground fetches
-            // (i.e. a user running 'scalar maintenance --task fetch')
+            // (i.e. a user running 'scalar run fetch')
             // from running at the same time.
             using (FileBasedLock fetchLock = ScalarPlatform.Instance.CreateFileBasedLock(
                 this.Context.FileSystem,

@@ -55,7 +55,7 @@ namespace Scalar.Service
         {
             string taskVerbName = MaintenanceTasks.GetVerbTaskName(task);
             string arguments =
-                $"maintenance \"{repoRoot}\" --{ScalarConstants.VerbParameters.Maintenance.Task} {taskVerbName} --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}";
+                $"run {taskVerbName} \"{repoRoot}\" --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}";
 
             ProcessResult result = this.processLauncher.LaunchProcess(this.scalarBinPath, arguments, repoRoot);
             if (result.ExitCode != 0)

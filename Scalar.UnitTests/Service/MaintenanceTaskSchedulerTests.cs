@@ -177,7 +177,7 @@ namespace Scalar.UnitTests.Service
         }
 
         [TestCase]
-        public void MaintenanceTask_Execute_CallsMaintenanceVerbOnlyForRegisteredRepos()
+        public void MaintenanceTask_Execute_CallsRunVerbOnlyForRegisteredRepos()
         {
             MaintenanceTasks.Task task = MaintenanceTasks.Task.PackFiles;
 

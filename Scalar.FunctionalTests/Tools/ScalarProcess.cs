@@ -59,7 +59,7 @@ namespace Scalar.FunctionalTests.Tools
         public string FetchStep(bool failOnError, string standardInput = null)
         {
             return this.CallScalar(
-                $"maintenance \"{this.enlistmentRoot}\" --task fetch",
+                $"run fetch \"{this.enlistmentRoot}\"",
                 failOnError ? SuccessExitCode : DoNotCheckExitCode,
                 standardInput: standardInput);
         }
@@ -75,14 +75,14 @@ namespace Scalar.FunctionalTests.Tools
         public string CommitGraphStep()
         {
             return this.CallScalar(
-                $"maintenance \"{this.enlistmentRoot}\" --task commit-graph",
+                $"run commit-graph \"{this.enlistmentRoot}\"",
                 expectedExitCode: SuccessExitCode);
         }
 
         public string LooseObjectStep()
         {
             return this.CallScalar(
-                $"maintenance \"{this.enlistmentRoot}\" --task loose-objects",
+                $"run loose-objects \"{this.enlistmentRoot}\"",
                 expectedExitCode: SuccessExitCode);
         }
 
@@ -90,7 +90,7 @@ namespace Scalar.FunctionalTests.Tools
         {
             string sizeString = batchSize.HasValue ? $"--batch-size {batchSize.Value}" : string.Empty;
             return this.CallScalar(
-                $"maintenance \"{this.enlistmentRoot}\" --task pack-files {sizeString}",
+                $"run pack-files \"{this.enlistmentRoot}\" {sizeString}",
                 expectedExitCode: SuccessExitCode);
         }
 
