@@ -17,8 +17,6 @@ namespace Scalar.CommandLine
 
         public override void Execute()
         {
-            PhysicalFileSystem fileSystem = new PhysicalFileSystem();
-
             foreach (string repoRoot in this.GetRepoList())
             {
                 this.Output.WriteLine(repoRoot);

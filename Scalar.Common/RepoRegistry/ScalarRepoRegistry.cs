@@ -144,6 +144,20 @@ namespace Scalar.Common.RepoRegistry
             return true;
         }
 
+        public bool TryRemovePauseFile(out string errorMessage)
+        {
+            string timeFileName = this.GetMaintenanceDelayFilePath();
+
+            if (this.fileSystem.FileExists(timeFileName) && !this.fileSystem.TryDeleteFile(timeFileName))
+            {
+                errorMessage = $"Failed to delete '{timeFileName}'";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
+        }
+
         public bool TryGetMaintenanceDelayTime(out DateTime time)
         {
             string timeFileName = this.GetMaintenanceDelayFilePath();
