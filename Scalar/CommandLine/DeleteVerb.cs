@@ -1,8 +1,5 @@
 ﻿using CommandLine;
 using Scalar.Common;
-using Scalar.Common.FileSystem;
-using Scalar.Common.RepoRegistry;
-using Scalar.Common.Tracing;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -10,7 +7,7 @@ using System.IO;
 namespace Scalar.CommandLine
 {
     [Verb(DeleteVerb.DeleteVerbName, HelpText = "Delete a Scalar enlistment")]
-    public class DeleteVerb : ScalarVerb
+    public class DeleteVerb : ScalarVerb.ForNoEnlistment
     {
         private const string DeleteVerbName = "delete";
 
@@ -24,7 +21,6 @@ namespace Scalar.CommandLine
             MetaName = "Enlistment folder",
             HelpText = "The folder containing the repository to remove")]
         public string EnlistmentFolder { get; set; }
-        public override string EnlistmentRootPathParameter { get; set; }
 
         public override void Execute()
         {
@@ -35,8 +31,7 @@ namespace Scalar.CommandLine
 
             if (!ScalarPlatform.Instance.FileSystem.TryGetNormalizedPath(this.EnlistmentFolder, out this.enlistmentRoot, out string error))
             {
-                Console.Error.WriteLine($"Error while finding normalized path for '{this.EnlistmentFolder}': {error}");
-                Environment.Exit(1);
+                this.ReportErrorAndExit($"Error while finding normalized path for '{this.EnlistmentFolder}': {error}");
             }
 
             // Move out of enlistment and into parent folder
@@ -44,7 +39,7 @@ namespace Scalar.CommandLine
             Directory.SetCurrentDirectory(parentDir);
 
             this.StopFileSystemWatcher();
-            this.TryUnregisterRepo();
+            this.UnregisterRepo(this.enlistmentRoot);
             this.DeleteEnlistment();
         }
 
@@ -87,29 +82,6 @@ namespace Scalar.CommandLine
             }
         }
 
-        private void TryUnregisterRepo()
-        {
-            string repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
-            ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
-                                                        new JsonTracer(nameof(DeleteVerb), nameof(this.Execute)),
-                                                        new PhysicalFileSystem(),
-                                                        repoRegistryLocation);
-
-            bool found = false;
-            foreach (ScalarRepoRegistration registration in repoRegistry.GetRegisteredRepos())
-            {
-                if (registration.NormalizedRepoRoot.Equals(this.enlistmentRoot))
-                {
-                    found = true;
-                }
-            }
-
-            if (found && !repoRegistry.TryUnregisterRepo(this.enlistmentRoot, out string error))
-            {
-                Console.Error.WriteLine($"Error while unregistering repo: {error}");
-            }
-        }
-
         private void DeleteEnlistment()
         {
             try
@@ -118,8 +90,7 @@ namespace Scalar.CommandLine
             }
             catch (IOException e)
             {
-                Console.Error.WriteLine($"Exception while deleting enlistment: {e.Message}");
-                Environment.Exit(1);
+                this.ReportErrorAndExit($"Exception while deleting enlistment: {e.Message}");
             }
         }
     }

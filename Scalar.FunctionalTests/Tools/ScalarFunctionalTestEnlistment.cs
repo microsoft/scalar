@@ -194,7 +194,7 @@ namespace Scalar.FunctionalTests.Tools
 
         public void UnregisterRepo()
         {
-            
+            this.scalarProcess.Unregister(this.EnlistmentRoot);
         }
 
         public void Repair(bool confirm)

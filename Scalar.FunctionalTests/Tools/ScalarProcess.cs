@@ -99,6 +99,11 @@ namespace Scalar.FunctionalTests.Tools
             return this.CallScalar($"register", expectedExitCode: SuccessExitCode, workingDirectory: enlistmentRoot);
         }
 
+        public string Unregister(string enlistmentRoot)
+        {
+            return this.CallScalar($"unregister", expectedExitCode: SuccessExitCode, workingDirectory: enlistmentRoot);
+        }
+
         public string ListRepos()
         {
             return this.CallScalar($"list", expectedExitCode: SuccessExitCode, workingDirectory: this.enlistmentRoot);
