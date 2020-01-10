@@ -9,12 +9,12 @@ using System.IO;
 
 namespace Scalar.CommandLine
 {
-    [Verb(RemoveVerb.RemoveVerbName, HelpText = "Remove a Scalar enlistment")]
-    public class RemoveVerb : ScalarVerb
+    [Verb(DeleteVerb.DeleteVerbName, HelpText = "Delete a Scalar enlistment")]
+    public class DeleteVerb : ScalarVerb
     {
-        private const string RemoveVerbName = "remove";
+        private const string DeleteVerbName = "delete";
 
-        protected override string VerbName => RemoveVerbName;
+        protected override string VerbName => DeleteVerbName;
 
         private string enlistmentRoot;
 
@@ -59,6 +59,7 @@ namespace Scalar.CommandLine
                 {
                     string watchmanPath = Path.Combine(watchmanLocation, watchmanProcess);
                     string workDir = Path.Combine(this.enlistmentRoot, ScalarConstants.WorkingDirectoryRootName);
+
                     // Stop watching watchman, if exists
                     string argument = $"watch-del {workDir}";
                     ProcessResult result = ProcessHelper.Run(watchmanPath, argument);
@@ -90,7 +91,7 @@ namespace Scalar.CommandLine
         {
             string repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
             ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
-                                                        new JsonTracer(nameof(RemoveVerb), nameof(this.Execute)),
+                                                        new JsonTracer(nameof(DeleteVerb), nameof(this.Execute)),
                                                         new PhysicalFileSystem(),
                                                         repoRegistryLocation);
 
