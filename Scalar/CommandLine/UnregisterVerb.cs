@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using Scalar.Common;
+using System.IO;
 
 namespace Scalar.CommandLine
 {
@@ -22,13 +23,10 @@ namespace Scalar.CommandLine
         {
             this.ValidatePathParameter(this.EnlistmentRootPathParameter);
 
-            if (!ScalarPlatform.Instance.FileSystem.TryGetNormalizedPath(this.EnlistmentRootPathParameter, out string enlistmentRoot, out string error))
-            {
-                this.ReportErrorAndExit($"Error while finding normalized path for '{this.EnlistmentRootPathParameter}': {error}");
-            }
+            ScalarEnlistment enlistment = this.CreateEnlistment(this.EnlistmentRootPathParameter ?? Directory.GetCurrentDirectory(), null);
 
-            this.UnregisterRepo(this.EnlistmentRootPathParameter);
-            this.Output.WriteLine($"Successfully unregistered repo at '{this.EnlistmentRootPathParameter}'");
+            this.UnregisterRepo(enlistment.EnlistmentRoot);
+            this.Output.WriteLine($"Successfully unregistered repo at '{enlistment.EnlistmentRoot}'");
         }
     }
 }
