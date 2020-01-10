@@ -29,29 +29,8 @@ namespace Scalar.Common.RepoRegistry
 
         public bool TryRegisterRepo(string normalizedRepoRoot, string userId, out string errorMessage)
         {
-            try
+            if (!this.TryCreateRepoRegistryDirectory(out errorMessage))
             {
-                if (!this.fileSystem.DirectoryExists(this.registryFolderPath))
-                {
-                    EventMetadata metadata = CreateEventMetadata();
-                    metadata.Add(nameof(this.registryFolderPath), this.registryFolderPath);
-                    this.tracer.RelatedEvent(
-                        EventLevel.Informational,
-                        $"{nameof(this.TryRegisterRepo)}_CreatingRegistryDirectory",
-                        metadata);
-
-                    // TODO #136: Make sure this does the right thing with ACLs on Windows
-                    this.fileSystem.CreateDirectory(this.registryFolderPath);
-                }
-            }
-            catch (Exception e)
-            {
-                errorMessage = $"Error while ensuring registry directory '{this.registryFolderPath}' exists: {e.Message}";
-
-                EventMetadata metadata = CreateEventMetadata(e);
-                metadata.Add(nameof(normalizedRepoRoot), normalizedRepoRoot);
-                metadata.Add(nameof(this.registryFolderPath), this.registryFolderPath);
-                this.tracer.RelatedError(metadata, $"{nameof(this.TryRegisterRepo)}: Exception while ensuring registry directory exists");
                 return false;
             }
 
@@ -145,6 +124,52 @@ namespace Scalar.Common.RepoRegistry
             return true;
         }
 
+        public bool TryPauseMaintenanceUntil(DateTime time, out string errorMessage)
+        {
+            if (!this.TryCreateRepoRegistryDirectory(out errorMessage))
+            {
+                return false;
+            }
+
+            string timeFileName = this.GetMaintenanceDelayFilePath();
+            long seconds = EpochConverter.ToUnixEpochSeconds(time);
+
+            if (!this.fileSystem.TryWriteAllText(timeFileName, seconds.ToString()))
+            {
+                errorMessage = $"Failed to write epoch {seconds} to '{timeFileName}'";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
+        }
+
+        public bool TryGetMaintenanceDelayTime(out DateTime time)
+        {
+            string timeFileName = this.GetMaintenanceDelayFilePath();
+
+            if (this.fileSystem.FileExists(timeFileName))
+            {
+                try
+                {
+                    string contents = this.fileSystem.ReadAllText(timeFileName);
+
+                    if (long.TryParse(contents, out long seconds))
+                    {
+                        time = EpochConverter.FromUnixEpochSeconds(seconds);
+                        return true;
+                    }
+                }
+                catch (IOException)
+                {
+                    // Eat any issue reading this file
+                }
+            }
+
+            time = DateTime.MinValue;
+            return false;
+        }
+
         public IEnumerable<ScalarRepoRegistration> GetRegisteredRepos()
         {
             if (this.fileSystem.DirectoryExists(this.registryFolderPath))
@@ -192,6 +217,37 @@ namespace Scalar.Common.RepoRegistry
             return metadata;
         }
 
+        private bool TryCreateRepoRegistryDirectory(out string errorMessage)
+        {
+            try
+            {
+                if (!this.fileSystem.DirectoryExists(this.registryFolderPath))
+                {
+                    EventMetadata metadata = CreateEventMetadata();
+                    metadata.Add(nameof(this.registryFolderPath), this.registryFolderPath);
+                    this.tracer.RelatedEvent(
+                        EventLevel.Informational,
+                        $"{nameof(this.TryRegisterRepo)}_CreatingRegistryDirectory",
+                        metadata);
+
+                    // TODO #136: Make sure this does the right thing with ACLs on Windows
+                    this.fileSystem.CreateDirectory(this.registryFolderPath);
+                }
+            }
+            catch (Exception e)
+            {
+                errorMessage = $"Error while ensuring registry directory '{this.registryFolderPath}' exists: {e.Message}";
+
+                EventMetadata metadata = CreateEventMetadata(e);
+                metadata.Add(nameof(this.registryFolderPath), this.registryFolderPath);
+                this.tracer.RelatedError(metadata, $"{nameof(this.TryRegisterRepo)}: Exception while ensuring registry directory exists");
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
+        }
+
         private string GetRepoRegistryTempFilePath(string normalizedRepoRoot)
         {
             string repoTempFilename = $"{GetRepoRootSha(normalizedRepoRoot)}{RegistryTempFileExtension}";
@@ -202,6 +258,11 @@ namespace Scalar.Common.RepoRegistry
         {
             string repoFilename = $"{GetRepoRootSha(normalizedRepoRoot)}{RegistryFileExtension}";
             return Path.Combine(this.registryFolderPath, repoFilename);
+        }
+
+        private string GetMaintenanceDelayFilePath()
+        {
+            return Path.Combine(this.registryFolderPath, "maintenance-pause.time");
         }
     }
 }
