@@ -3,6 +3,7 @@ using Scalar.Common;
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Scalar.CommandLine
 {
@@ -65,14 +66,19 @@ namespace Scalar.CommandLine
                         Console.Error.WriteLine(result.Errors);
                     }
 
-                    // Shutdown server, clearing handles (it will restart on a new query)
-                    argument = "shutdown-server";
-                    result = ProcessHelper.Run(watchmanPath, argument);
-
-                    if (result.ExitCode != 0)
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
-                        Console.Error.WriteLine($"Errors during 'watchman {argument}':");
-                        Console.Error.WriteLine(result.Errors);
+                        // We MUST shutdown the server on Windows to close the handles.
+                        // We MUST NOT shutdown the server on Mac or we could lose events.
+                        // Shutdown server, clearing handles (it will restart on a new query)
+                        argument = "shutdown-server";
+                        result = ProcessHelper.Run(watchmanPath, argument);
+
+                        if (result.ExitCode != 0)
+                        {
+                            Console.Error.WriteLine($"Errors during 'watchman {argument}':");
+                            Console.Error.WriteLine(result.Errors);
+                        }
                     }
                 }
             }
