@@ -92,9 +92,11 @@ namespace Scalar.CommandLine
                     }
                 }
             }
-            catch (Win32Exception)
+            catch (Win32Exception ex)
             {
                 // Probably watchman is not on PATH
+                Console.Error.WriteLine($"Exception while stopping filesystme watcher. Is is on the PATH?");
+                Console.Error.WriteLine(ex.Message);
             }
         }
 
