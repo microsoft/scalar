@@ -56,13 +56,23 @@ namespace Scalar.CommandLine
                     string watchmanPath = Path.Combine(watchmanLocation, watchmanProcess);
                     string workDir = Path.Combine(this.enlistmentRoot, ScalarConstants.WorkingDirectoryRootName);
 
+                    // Check the existing list
+                    string listArgument = $"watch-list";
+                    ProcessResult listResult = ProcessHelper.Run(watchmanPath, listArgument);
+
+                    if (!listResult.Output.Contains(workDir))
+                    {
+                        Console.Error.WriteLine($"Watchman is not watching '{workDir}'");
+                        return;
+                    }
+
                     // Stop watching watchman, if exists
-                    string argument = $"watch-del {workDir}";
-                    ProcessResult result = ProcessHelper.Run(watchmanPath, argument);
+                    string deleteArgument = $"watch-del {workDir}";
+                    ProcessResult result = ProcessHelper.Run(watchmanPath, deleteArgument);
 
                     if (result.ExitCode != 0)
                     {
-                        Console.Error.WriteLine($"Errors during 'watchman {argument}':");
+                        Console.Error.WriteLine($"Errors during 'watchman {deleteArgument}':");
                         Console.Error.WriteLine(result.Errors);
                     }
 
@@ -71,12 +81,12 @@ namespace Scalar.CommandLine
                         // We MUST shutdown the server on Windows to close the handles.
                         // We MUST NOT shutdown the server on Mac or we could lose events.
                         // Shutdown server, clearing handles (it will restart on a new query)
-                        argument = "shutdown-server";
-                        result = ProcessHelper.Run(watchmanPath, argument);
+                        string shutdownArgument = "shutdown-server";
+                        result = ProcessHelper.Run(watchmanPath, shutdownArgument);
 
                         if (result.ExitCode != 0)
                         {
-                            Console.Error.WriteLine($"Errors during 'watchman {argument}':");
+                            Console.Error.WriteLine($"Errors during 'watchman {shutdownArgument}':");
                             Console.Error.WriteLine(result.Errors);
                         }
                     }
