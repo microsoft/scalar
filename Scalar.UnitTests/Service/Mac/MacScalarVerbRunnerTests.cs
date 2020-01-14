@@ -33,7 +33,7 @@ namespace Scalar.UnitTests.Service.Mac
             string taskVerbName = MaintenanceTasks.GetVerbTaskName(task);
             string scalarBinPath = Path.Combine(this.scalarPlatform.Constants.ScalarBinDirectoryPath, this.scalarPlatform.Constants.ScalarExecutableName);
             string expectedArgs =
-                $"maintenance \"{ExpectedActiveRepoPath}\" --{ScalarConstants.VerbParameters.Maintenance.Task} {taskVerbName} --{ScalarConstants.VerbParameters.InternalUseOnly} {new InternalVerbParameters(startedByService: true).ToJson()}";
+                $"run {taskVerbName} \"{ExpectedActiveRepoPath}\" --{ScalarConstants.VerbParameters.InternalUseOnly} {new InternalVerbParameters(startedByService: true).ToJson()}";
 
             Mock<MacScalarVerbRunner.ScalarProcessLauncher> mountLauncherMock = new Mock<MacScalarVerbRunner.ScalarProcessLauncher>(MockBehavior.Strict, this.tracer);
             mountLauncherMock.Setup(mp => mp.LaunchProcess(

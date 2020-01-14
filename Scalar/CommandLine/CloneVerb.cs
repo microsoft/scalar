@@ -257,7 +257,7 @@ namespace Scalar.CommandLine
 
                 if (!this.NoFetchCommitsAndTrees)
                 {
-                    ReturnCode result = this.Execute<MaintenanceVerb>(
+                    ReturnCode result = this.Execute<RunVerb>(
                         this.enlistment,
                         verb =>
                         {

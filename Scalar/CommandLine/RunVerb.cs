@@ -9,15 +9,15 @@ using System;
 
 namespace Scalar.CommandLine
 {
-    [Verb(MaintenanceVerb.MaintenanceVerbName, HelpText = "Perform a maintenance task in a Scalar repo")]
-    public class MaintenanceVerb : ScalarVerb.ForExistingEnlistment
+    [Verb(RunVerb.RunVerbName, HelpText = "Run a maintenance task in a Scalar repo")]
+    public class RunVerb : ScalarVerb.ForExistingEnlistment
     {
-        private const string MaintenanceVerbName = "maintenance";
+        private const string RunVerbName = "run";
 
-        [Option(
-            't',
-            "task",
+        [Value(
+            0,
             Required = true,
+            MetaName = "Task",
             Default = "",
             HelpText = "Maintenance task to run.  Allowed values are '"
                 + ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName + "', '"
@@ -38,12 +38,12 @@ namespace Scalar.CommandLine
 
         protected override string VerbName
         {
-            get { return MaintenanceVerb.MaintenanceVerbName; }
+            get { return RunVerb.RunVerbName; }
         }
 
         protected override void Execute(ScalarEnlistment enlistment)
         {
-            using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, MaintenanceVerbName))
+            using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, RunVerbName))
             {
                 string cacheServerUrl = CacheServerResolver.GetUrlFromConfig(enlistment);
 

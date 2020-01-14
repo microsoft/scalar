@@ -192,9 +192,9 @@ namespace Scalar.FunctionalTests.Tools
             return this.scalarProcess.FetchStep(failOnError, standardInput);
         }
 
-        public void UnregisterRepo()
+        public void Unregister()
         {
-            // TODO: #111: Unregister the repo from the service
+            this.scalarProcess.Unregister(this.EnlistmentRoot);
         }
 
         public void Repair(bool confirm)
@@ -227,9 +227,9 @@ namespace Scalar.FunctionalTests.Tools
             return this.scalarProcess.Status(trace);
         }
 
-        public string ReposAdd()
+        public string Register()
         {
-            return this.scalarProcess.ReposAdd(this.EnlistmentRoot);
+            return this.scalarProcess.Register(this.EnlistmentRoot);
         }
 
         public string GetCacheServer()

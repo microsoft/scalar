@@ -198,8 +198,6 @@ namespace Scalar.Common
 
             public static class Maintenance
             {
-                public const string Task = "task";
-
                 public const string FetchTaskName = "fetch";
                 public const string LooseObjectsTaskName = "loose-objects";
                 public const string PackFilesTaskName = "pack-files";

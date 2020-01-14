@@ -456,6 +456,29 @@ You can specify a URL, a name of a configured cache server, or the special names
             return repoRegistry.TryRegisterRepo(enlistment.EnlistmentRoot, ScalarPlatform.Instance.GetCurrentUser(), out errorMessage);
         }
 
+        protected void UnregisterRepo(string enlistmentRoot)
+        {
+            string repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
+            ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
+                                                        new JsonTracer(nameof(DeleteVerb), nameof(this.Execute)),
+                                                        new PhysicalFileSystem(),
+                                                        repoRegistryLocation);
+
+            bool found = false;
+            foreach (ScalarRepoRegistration registration in repoRegistry.GetRegisteredRepos())
+            {
+                if (registration.NormalizedRepoRoot.Equals(enlistmentRoot))
+                {
+                    found = true;
+                }
+            }
+
+            if (found && !repoRegistry.TryUnregisterRepo(enlistmentRoot, out string error))
+            {
+                this.ReportErrorAndExit($"Error while unregistering repo: {error}");
+            }
+        }
+
         private string GetAlternatesPath(ScalarEnlistment enlistment)
         {
             return Path.Combine(enlistment.WorkingDirectoryRoot, ScalarConstants.DotGit.Objects.Info.Alternates);

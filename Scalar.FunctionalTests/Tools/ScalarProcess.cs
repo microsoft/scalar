@@ -59,7 +59,7 @@ namespace Scalar.FunctionalTests.Tools
         public string FetchStep(bool failOnError, string standardInput = null)
         {
             return this.CallScalar(
-                $"maintenance \"{this.enlistmentRoot}\" --task fetch",
+                $"run fetch \"{this.enlistmentRoot}\"",
                 failOnError ? SuccessExitCode : DoNotCheckExitCode,
                 standardInput: standardInput);
         }
@@ -75,14 +75,14 @@ namespace Scalar.FunctionalTests.Tools
         public string CommitGraphStep()
         {
             return this.CallScalar(
-                $"maintenance \"{this.enlistmentRoot}\" --task commit-graph",
+                $"run commit-graph \"{this.enlistmentRoot}\"",
                 expectedExitCode: SuccessExitCode);
         }
 
         public string LooseObjectStep()
         {
             return this.CallScalar(
-                $"maintenance \"{this.enlistmentRoot}\" --task loose-objects",
+                $"run loose-objects \"{this.enlistmentRoot}\"",
                 expectedExitCode: SuccessExitCode);
         }
 
@@ -90,17 +90,23 @@ namespace Scalar.FunctionalTests.Tools
         {
             string sizeString = batchSize.HasValue ? $"--batch-size {batchSize.Value}" : string.Empty;
             return this.CallScalar(
-                $"maintenance \"{this.enlistmentRoot}\" --task pack-files {sizeString}",
+                $"run pack-files \"{this.enlistmentRoot}\" {sizeString}",
                 expectedExitCode: SuccessExitCode);
         }
-        public string ReposAdd(string enlistmentRoot)
+
+        public string Register(string enlistmentRoot)
         {
-            return this.CallScalar($"repos add", expectedExitCode: SuccessExitCode, workingDirectory: enlistmentRoot);
+            return this.CallScalar($"register", expectedExitCode: SuccessExitCode, workingDirectory: enlistmentRoot);
         }
 
-        public string ReposList()
+        public string Unregister(string enlistmentRoot)
         {
-            return this.CallScalar($"repos list", expectedExitCode: SuccessExitCode, workingDirectory: this.enlistmentRoot);
+            return this.CallScalar($"unregister", expectedExitCode: SuccessExitCode, workingDirectory: enlistmentRoot);
+        }
+
+        public string ListRepos()
+        {
+            return this.CallScalar($"list", expectedExitCode: SuccessExitCode, workingDirectory: this.enlistmentRoot);
         }
 
         public string Diagnose()

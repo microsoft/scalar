@@ -1,15 +1,28 @@
-`scalar clone`
-==============
+Getting Started
+===============
 
-The `clone` verb creates a local enlistment of a remote repository.
+Registering existing Git repos
+------------------------------
 
-Usage
------
+To add a repository to the list of registered repos, run `scalar register [<path>]`.
+If `<path>` is not provided, then the "current repository" is discovered from
+the working directory by scanning the parent paths for a path containing a `.git`
+folder, possibly inside a `src` folder.
 
-`scalar clone [options] <url> [<dir>]`
+To see which repositories are currently tracked by the service, run
+`scalar list`.
 
-Description
------------
+Run `scalar unregister [<path>]` to remove the repo from this list.
+
+Creating a new Scalar clone using the GVFS Protocol
+---------------------------------------------------
+
+The `clone` verb creates a local enlistment of a remote repository using the
+[GVFS protocol](https://github.com/microsoft//VFSForGit/blob/master/Protocol.md).
+
+```
+scalar clone [options] <url> [<dir>]
+```
 
 Create a local copy of the repository at `<url>`. If specified, create the `<dir>`
 directory and place the repository there. Otherwise, the last section of the `<url>`
@@ -22,8 +35,7 @@ you want to see, or `git sparse-checkout disable` to expand to all files. You
 can explore the subdirectories outside your sparse-checkout specification using
 `git ls-tree HEAD`.
 
-Options
--------
+### Options
 
 These options allow a user to customize their initial enlistment.
 
@@ -48,8 +60,7 @@ These options allow a user to customize their initial enlistment.
   multiple enlistments of the same remote repository share objects on the
   same device.
 
-Advanced Options
-----------------
+### Advanced Options
 
 The options below are not intended for use by a typical user. These are
 usually used by build machines to create a temporary enlistment that
@@ -65,3 +76,9 @@ operates on a single commit.
   traversal. Use of this option will make commands like `git log` or
   `git pull` extremely slow and is therefore not recommended.
 
+Removing a Scalar Clone
+-----------------------
+
+Since the `scalar clone` command sets up a file-system watcher (when available),
+that watcher could prevent deleting the enlistment. Run `scalar delete <path>`
+from outside of your enlistment to unregister the enlistment from the filesystem watcher and delete the enlistment at `<path>`.

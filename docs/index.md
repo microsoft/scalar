@@ -17,7 +17,11 @@ It achieves this by enabling some advanced Git features, such as:
 * *Incremental repack:* Repacks the packed Git data into fewer pack-file
   without disrupting concurrent commands by using the multi-pack-index.
 
-Scalar clones also use the
+By running `scalar register` in any Git repo, Scalar will automatically enable
+these features for that repo and start running suggested maintenance in the
+background.
+
+Repos cloned with the `scalar clone` command use the
 [GVFS protocol](https://github.com/microsoft//VFSForGit/blob/master/Protocol.md)
 to significantly reduce the amount of data required to get started
 using a repository. By delaying all blob downloads until they are required,
@@ -28,25 +32,16 @@ higher throughput. The cache servers also reduce load on the central server.
 Documentation
 -------------
 
+* [Getting Started](getting-started.md): Get started with Scalar.
+  Includes `scalar register`, `scalar unregister`, `scalar clone`, and
+  `scalar delete`.
+
+* [Advanced Features](advanced.md): 
+  For expert users who want full control of Scalar's activity. Includes
+  `scalar run <task>`, `scalar pause`, `scalar resume`.
+
+* [Troubleshooting](troubleshooting.md):
+  Collect diagnostic information or update custom settings. Includes
+  `scalar diagnose`, `scalar config`, `scalar upgrade`, and `scalar cache-server`.
+
 * [Frequently Asked Questions](faq.md)
-
-Scalar Commands
----------------
-
-* [`scalar clone`](commands/scalar-clone.md): Create a local enlistment of
-  a remote repository.
-
-* [`scalar upgrade`](commands/scalar-upgrade.md): Upgrade your version of
-  Scalar to the latest available release.
-
-* [`scalar diagnose`](commands/scalar-diagnose.md): Collect diagnostic data
-  to assist troubleshooting.
-
-* [`scalar maintenance`](commands/scalar-maintenance.md): Manually process
-  Git data for efficiency. Normally run in the background by Scalar Service.
-
-* [`scalar remove`](commands/scalar-remove.md): Delete a Scalar enlistment.
-
-* [`scalar repos`](commands/scalar-repos.md): Manage the set of repositories
-  being maintained by Scalar.
-

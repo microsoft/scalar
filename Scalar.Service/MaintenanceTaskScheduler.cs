@@ -109,20 +109,40 @@ namespace Scalar.Service
                 new MaintenanceSchedule(
                     MaintenanceTasks.Task.Config,
                     dueTime: this.configDueTime,
-                    period: this.configPeriod),
+                    period: this.configPeriod,
+                    ignorePause: true),
             };
 
             foreach (MaintenanceSchedule schedule in taskSchedules)
             {
                 this.taskTimers.Add(new Timer(
-                (state) => this.taskQueue.TryEnqueue(
-                    new MaintenanceTask(
-                        this.tracer,
-                        this.fileSystem,
-                        this.scalarVerb,
-                        this.repoRegistry,
-                        this,
-                        schedule.Task)),
+                (state) =>
+                {
+                    if (!schedule.IgnorePause)
+                    {
+                        if (this.repoRegistry.TryGetMaintenanceDelayTime(out DateTime time))
+                        {
+                            if (time.CompareTo(DateTime.Now) > 0)
+                            {
+                                this.tracer.RelatedInfo($"Maintenance is paused until {time}.");
+                                return;
+                            }
+                            else if (!this.repoRegistry.TryRemovePauseFile(out string error))
+                            {
+                                this.tracer.RelatedWarning($"Failed to remove pause file: {error}");
+                            }
+                        }
+                    }
+
+                    this.taskQueue.TryEnqueue(
+                        new MaintenanceTask(
+                            this.tracer,
+                            this.fileSystem,
+                            this.scalarVerb,
+                            this.repoRegistry,
+                            this,
+                            schedule.Task));
+                },
                 state: null,
                 dueTime: schedule.DueTime,
                 period: schedule.Period));
@@ -270,16 +290,18 @@ namespace Scalar.Service
 
         private class MaintenanceSchedule
         {
-            public MaintenanceSchedule(MaintenanceTasks.Task task, TimeSpan dueTime, TimeSpan period)
+            public MaintenanceSchedule(MaintenanceTasks.Task task, TimeSpan dueTime, TimeSpan period, bool ignorePause = false)
             {
                 this.Task = task;
                 this.DueTime = dueTime;
                 this.Period = period;
+                this.IgnorePause = ignorePause;
             }
 
             public MaintenanceTasks.Task Task { get; }
             public TimeSpan DueTime { get; }
             public TimeSpan Period { get; }
+            public bool IgnorePause { get; }
         }
     }
 }
