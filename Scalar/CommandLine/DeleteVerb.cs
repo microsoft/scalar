@@ -60,13 +60,15 @@ namespace Scalar.CommandLine
                     string listArgument = $"watch-list";
                     ProcessResult listResult = ProcessHelper.Run(watchmanPath, listArgument);
 
-                    if (!listResult.Output.Contains(workDir))
+                    // Watchman always uses slashes, not backslashes
+                    string normalizedWorkDir = workDir.Replace(Path.DirectorySeparatorChar, '/');
+                    if (!listResult.Output.Contains(normalizedWorkDir))
                     {
                         Console.Error.WriteLine($"Watchman is not watching '{workDir}'");
                         return;
                     }
 
-                    // Stop watching watchman, if exists
+                    // Remove workDir from watchman's watch-list.
                     string deleteArgument = $"watch-del {workDir}";
                     ProcessResult result = ProcessHelper.Run(watchmanPath, deleteArgument);
 

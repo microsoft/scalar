@@ -192,7 +192,7 @@ namespace Scalar.FunctionalTests.Tools
             return this.scalarProcess.FetchStep(failOnError, standardInput);
         }
 
-        public void UnregisterRepo()
+        public void Unregister()
         {
             this.scalarProcess.Unregister(this.EnlistmentRoot);
         }

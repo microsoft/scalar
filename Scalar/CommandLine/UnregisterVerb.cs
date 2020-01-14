@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Scalar.CommandLine
 {
-    [Verb(UnregisterVerb.UnregisterVerbName, HelpText = "Track Unregister Unregistered with the Scalar service")]
+    [Verb(UnregisterVerb.UnregisterVerbName, HelpText = "Unregister a repo with the Scalar service to stop background maintenance")]
     public class UnregisterVerb : ScalarVerb
     {
         private const string UnregisterVerbName = "unregister";
@@ -16,7 +16,7 @@ namespace Scalar.CommandLine
             Required = false,
             Default = null,
             MetaName = "Enlistment Root Path",
-            HelpText = "Full or relative path to the Scalar enlistment root")]
+            HelpText = "Full or relative path to the enlistment root. Uses current directory if not provided.")]
         public override string EnlistmentRootPathParameter { get; set; }
 
         public override void Execute()

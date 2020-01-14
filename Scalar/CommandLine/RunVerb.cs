@@ -17,6 +17,7 @@ namespace Scalar.CommandLine
         [Value(
             0,
             Required = true,
+            MetaName = "Task",
             Default = "",
             HelpText = "Maintenance task to run.  Allowed values are '"
                 + ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName + "', '"

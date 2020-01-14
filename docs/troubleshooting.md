@@ -7,7 +7,7 @@ Upgrade
 The Scalar service checks for new versions of Scalar daily and will prompt you
 for upgrade using a notification. To check yourself, run `scalar upgrade` to
 see if an upgrade is available. Run `scalar upgrade --confirm` to actually
-perform the upgrade, if you with.
+perform the upgrade, if you wish.
 
 Diagnosing Issues
 -----------------
@@ -35,12 +35,16 @@ zip file. This zip can be sent to the support team for investigation.
 Modifying Configuration Values
 ------------------------------
 
+The Scalar-specific configuration is only available for repos using the
+GVFS protocol.
+
 ### Cache Server URL
 
 When using an enlistment cloned with `scalar clone` and the GVFS protocol,
 you will have a value called the cache server URL. Cache servers are a feature
 of the GVFS protocol to provide low-latency access to the on-demand object
-requests.
+requests. This modifies the `gvfs.cache-server` setting in your local Git config
+file.
 
 Run `scalar cache-server --get` to see the current cache server.
 
@@ -51,5 +55,5 @@ Run `scalar cache-server --set=<url>` to set your cache server to `<url>`.
 ### Scalar Config
 
 The `scalar config` command is used for customizing the feed used for
-Scalar upgrades. This is used for large teams can bundle a custom installer
+Scalar upgrades. This is so large teams can bundle a custom installer
 or other tools along with Scalar upgrades.

@@ -31,7 +31,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [Order(1)]
         public void NoLooseObjectsDoesNothing()
         {
-            this.Enlistment.UnregisterRepo();
+            this.Enlistment.Unregister();
             this.DeleteFiles(this.GetLooseObjectFiles());
 
             this.DeleteFiles(this.GetLooseObjectFiles());
@@ -133,7 +133,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
         private void ClearAllObjects()
         {
-            this.Enlistment.UnregisterRepo();
+            this.Enlistment.Unregister();
 
             // Delete/Move any starting loose objects and packfiles
             this.DeleteFiles(this.GetLooseObjectFiles());

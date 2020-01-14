@@ -19,7 +19,7 @@ namespace Scalar.CommandLine
             Required = false,
             Default = null,
             MetaName = "Enlistment Root Path",
-            HelpText = "Full or relative path to the Scalar enlistment root")]
+            HelpText = "Full or relative path to the enlistment root. Uses current directory if not provided.")]
         public override string EnlistmentRootPathParameter { get; set; }
 
         public override void Execute()

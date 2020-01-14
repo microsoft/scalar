@@ -105,7 +105,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
         public void FetchStepFailsWhenItCannotRemoveABadPrefetchPack()
         {
-            this.Enlistment.UnregisterRepo();
+            this.Enlistment.Unregister();
 
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
             long mostRecentPackTimestamp = this.GetMostRecentPackTimestamp(prefetchPacks);
@@ -137,7 +137,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(5)]
         public void FetchCommitsAndTreesCleansUpStaleTempPrefetchPacks()
         {
-            this.Enlistment.UnregisterRepo();
+            this.Enlistment.Unregister();
 
             // Create stale packs and idxs  in the temp folder
             string stalePackContents = "StalePack";

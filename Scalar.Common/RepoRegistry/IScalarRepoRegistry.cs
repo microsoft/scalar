@@ -8,6 +8,7 @@ namespace Scalar.Common.RepoRegistry
         bool TryRegisterRepo(string normalizedRepoRoot, string userId, out string errorMessage);
         bool TryUnregisterRepo(string normalizedRepoRoot, out string errorMessage);
         IEnumerable<ScalarRepoRegistration> GetRegisteredRepos();
-        public bool TryGetMaintenanceDelayTime(out DateTime time);
+        bool TryGetMaintenanceDelayTime(out DateTime time);
+        bool TryRemovePauseFile(out string errorMessage);
     }
 }

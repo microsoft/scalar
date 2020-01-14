@@ -120,12 +120,17 @@ namespace Scalar.Service
                 {
                     if (!schedule.IgnorePause)
                     {
-                        this.repoRegistry.TryGetMaintenanceDelayTime(out DateTime time);
-
-                        if (time.CompareTo(DateTime.Now) > 0)
+                        if (this.repoRegistry.TryGetMaintenanceDelayTime(out DateTime time))
                         {
-                            this.tracer.RelatedInfo($"Maintenance is paused until {time}.");
-                            return;
+                            if (time.CompareTo(DateTime.Now) > 0)
+                            {
+                                this.tracer.RelatedInfo($"Maintenance is paused until {time}.");
+                                return;
+                            }
+                            else if (!this.repoRegistry.TryRemovePauseFile(out string error))
+                            {
+                                this.tracer.RelatedWarning($"Failed to remove pause file: {error}");
+                            }
                         }
                     }
 

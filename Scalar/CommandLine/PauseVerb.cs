@@ -17,12 +17,12 @@ namespace Scalar.CommandLine
         [Value(
             0,
             Default = 12,
-            HelpText = "The timespan (in hours) to delay background maintenance")]
-        public long Timespan { get; set; }
+            HelpText = "The number of hours to delay background maintenance")]
+        public long HoursToPause { get; set; }
 
         public override void Execute()
         {
-            DateTime pauseTime = DateTime.Now.AddHours(this.Timespan);
+            DateTime pauseTime = DateTime.Now.AddHours(this.HoursToPause);
 
             string repoRegistryLocation = ScalarPlatform.Instance.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
             using (JsonTracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, PauseVerb.PauseVerbName))

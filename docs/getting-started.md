@@ -81,4 +81,4 @@ Removing a Scalar Clone
 
 Since the `scalar clone` command sets up a file-system watcher (when available),
 that watcher could prevent deleting the enlistment. Run `scalar delete <path>`
-from outside of your enlistment to delete the enlistment at `<path>`.
+from outside of your enlistment to unregister the enlistment from the filesystem watcher and delete the enlistment at `<path>`.

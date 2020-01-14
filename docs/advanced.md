@@ -11,7 +11,7 @@ tasks are:
 
 * `commit-graph`: Update the Git commit-graph to include all reachable
   commits. After writing a new file, verify the file was computed successfully.
-  This helps commands like `git log --graph` work very quickly.
+  This drastically improves the performance of commands like `git log --graph`.
 
 * `fetch`: Fetch the latest data from the remote server. If using the GVFS
    protocol, download the latest set of commit and tree packs from
@@ -29,7 +29,7 @@ tasks are:
 
 * `pack-files`:  Update the Git multi-pack-index and repack small pack-files
   into larger pack-files.  Scalar downloads many pack-files during the
-  `commits-and-trees` step, or during `git checkout` commands. The `pack-files`
+  `fetch` step, or during `git checkout` commands. The `pack-files`
   step updates the  Git multi-pack-index to improve lookup speed. Further, it
   combines pack-files into larger files to reduce the total pack-file count.
   This step is designed to work without blocking concurrent processes by only
