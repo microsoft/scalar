@@ -6,6 +6,8 @@ Thank you for taking the time to contribute!
 
 * [Contributor License Agreement](#contributor-license-agreement)
 * [Code of Conduct](#code-of-conduct)
+* [Building Scalar on Windows](#building-scalar-on-windows)
+* [Building Scalar on Mac](#building-scalar-on-mac)
 * [Design Reviews](#design-reviews)
 * [Platform Specific Code](#platform-specific-code)
 * [Tracing and Logging](#tracing-and-logging)
@@ -23,6 +25,76 @@ When you submit a pull request, a CLA-bot will automatically determine whether y
 ## Code of Conduct
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+## Building Scalar on Windows
+
+If you'd like to build your own Scalar Windows installer:
+* Install Visual Studio 2017 Community Edition or higher (https://www.visualstudio.com/downloads/).
+  * Include the following workloads:
+    * .NET desktop development
+    * Desktop development with C++
+    * .NET Core cross-platform development
+  * Include the following additional components:
+    * .NET Core runtime
+    * Windows 10 SDK (10.0.10586.0)
+* Install the .NET Core 2.1 SDK (https://www.microsoft.com/net/download/dotnet-core/2.1)
+* Create a folder to clone into, e.g. `C:\Repos\Scalar`
+* Clone this repo into the `src` subfolder, e.g. `C:\Repos\Scalar\src`
+* Run `\src\Scripts\BuildScalarForWindows.bat`
+* You can also build in Visual Studio by opening `src\Scalar.sln` (do not upgrade any projects) and building. However, the very first
+build will fail, and the second and subsequent builds will succeed. This is because the build requires a prebuild code generation step.
+For details, see the build script in the previous step.
+
+You can also use Visual Studio 2019. There are a couple of options for getting all the dependencies.
+* You can install Visual Studio 2017 side by side with Visual Studio 2019, and make sure that you have all the dependencies from Visual Studio 2017 installed
+* Alternatively, if you only want to have Visual Studio 2019 installed, install the following extra dependency:
+  * MSVC v141 VS 2017 C++ build tools via the optional components in the Visual Studio 2019 installer. 
+
+Visual Studio 2019 will [automatically prompt you to install these dependencies](https://devblogs.microsoft.com/setup/configure-visual-studio-across-your-organization-with-vsconfig/)
+when you open the solution.
+
+The installer can now be found at `<repo root>\Scalar\BuildOutput\Scalar.Installer.Windows\bin\x64\[Debug|Release]\SetupScalar.<version>.exe`
+
+## Building Scalar on Mac
+
+Note that Scalar on Mac is under active development.
+
+* Ensure you have `Xcode` installed, have accepted the terms of use, and have launched `Xcode` at least once.
+
+* Install [Visual Studio for Mac ](https://visualstudio.microsoft.com/vs/mac). (This will also install the `dotnet` CLI).
+
+* If you still do not have the `dotnet` cli `>= v2.1.300` installed [manually install it]. You can check what version you have with `dotnet --version`.(https://www.microsoft.com/net/download/dotnet-core/2.1)
+
+* Create a `Scalar` directory and Clone Scalar into a directory called `src` inside it:
+
+  ```
+  mkdir Scalar
+  cd Scalar
+  git clone https://github.com/microsoft/scalar.git src
+  ```
+
+* Run the build and installation scripts:
+
+  ```
+  cd src/Scripts/Mac
+  ./BuildScalarForMac.sh
+  ./CreateScalarDistribution.sh
+  ../../../BuildOutput/Scalar.Distribution/InstallScalar.sh
+  ```
+
+  _Troubleshooting if this fails_
+
+  If you get
+  ```
+  xcodebuild: error: SDK "macosx10.13" cannot be located.
+  ```
+  You may have the "Xcode Command Line Tools" installed (helpfully by Mac OS) instead of full `Xcode`.
+  Make sure
+  ```
+  xcode-select -p
+  ```
+
+  shows `/Applications/Xcode.app/Contents/Developer`. If it does not, install `Xcode` and then launch it (you can close it afterwards.)
 
 ## Design Reviews
 
@@ -175,8 +247,6 @@ The design review process is as follows:
 
   `HttpRequestor.SendRequest` makes a [blocking call](https://github.com/Microsoft/Scalar/blob/4baa37df6bde2c9a9e1917fc7ce5debd653777c0/Scalar/Scalar.Common/Http/HttpRequestor.cs#L135) to `HttpClient.SendAsync`.  That blocking call consumes a thread from the managed thread pool.  Until that design changes, the rest of Scalar must avoid using the thread pool unless absolutely necessary.  If the thread pool is required, any long running tasks should be moved to a separate thread managed by Scalar itself (see [GitMaintenanceQueue](https://github.com/Microsoft/Scalar/blob/4baa37df6bde2c9a9e1917fc7ce5debd653777c0/Scalar/Scalar.Common/Maintenance/GitMaintenanceQueue.cs#L19) for an example).
 
-  Long-running or blocking work scheduled on the managed thread pool can prevent the normal operation of Scalar.  For example, it could prevent downloading file sizes, loose objects, or file contents in a timely fashion.
-
 - <a id="bgexceptions"></a>*Catch all exceptions on long-running tasks and background threads*
 
   Wrap all code that runs in the background thread in a top-level `try/catch(Exception)`.  Any exceptions caught by this handler should be logged, and then Scalar should be forced to terminate with `Environment.Exit`.  It's not safe to allow Scalar to continue to run after an unhandled exception stops a background thread or long-running task.  Testing has shown that `Environment.Exit` consistently terminates the Scalar mount process regardless of how background threads are started (e.g. native thread, `new Thread()`, `Task.Factory.StartNew()`).
@@ -237,43 +307,6 @@ The design review process is as follows:
 - *Use `nameof(...)` rather than hardcoded strings*
 
   Using `nameof` ensures that when methods/variables are renamed the logging of those method/variable names will also be updated.  However, hard coded strings are still appropriate when they are used for generating reports and changing the strings would break the reports.
-
-### C/C++
-
-- *Do not use C-style casts.  Use C++-style casts.*
-
-  C++ style casts (e.g. `static_cast<T>`) more clearly express the intent of the programmer, allow for better validation by the compiler, and are easier to search for in the codebase.
-
-- *Declare static functions at the top of source files*
-  
-  This ensures that the functions can be called from anywhere inside the file.
-
-- *Do not use namespace `using` statements in header files*
-
-  `using` statements inside header files are picked up by all source files that include the headers and can cause unexpected errors if there are name collisions.
-
-- *Prefer `using` to full namespaces in source files*
-
-  Example:
-  ```
-  // Inside MyFavSourceFile.cpp
-
-  using std::string;
-
-  // Do not use `std::` namespace with `string`
-  static string s_myString;
-  ```
-
-- *Use a meaningful prefix for "public" free functions, and use the same prefix for all functions in a given header file*
-
-   Example:
-   ```
-   // Functions declared in VirtualizationRoots.h have "VirtualizationRoot_" prefix
-   bool VirtualizationRoot_IsOnline(VirtualizationRootHandle rootHandle);
-
-   // Static helper function in VirtualizationRoots.cpp has no prefix
-   static VirtualizationRootHandle FindOrDetectRootAtVnode(vnode_t vnode, const FsidInode& vnodeFsidInode);
-   ```
 
 ## Testing
 
