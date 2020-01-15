@@ -35,6 +35,26 @@ you want to see, or `git sparse-checkout disable` to expand to all files. You
 can explore the subdirectories outside your sparse-checkout specification using
 `git ls-tree HEAD`.
 
+### Sparse Repo Mode
+
+By default, Scalar reduces your working directory to the bare minimum. You
+need to add the folders you care about to build up to your working set.
+
+* `scalar clone <url>`
+  * Please choose the **Clone with HTTPS** option in the `Clone Repository` dialog in Azure Repos, not **Clone with SSH**.
+* `cd <root>\src`
+* At this point, your `src` directory only contains files that appear in your root
+  tree. No folders are populated.
+* Set the directory list for your sparse-checkout using:
+	1. `git sparse-checkout set <dir1> <dir2> ...`
+	2. `git sparse-checkout set --stdin <dir-list.txt`
+* Run git commands as you normally would.
+* To fully populate your working directory, run `git sparse-checkout disable`.
+
+If instead you want to start with all files on-disk, you can clone with the
+`--full-clone` option. To enable sparse-checkout after the fact, run
+`git sparse-checkout init --cone`.
+
 ### Options
 
 These options allow a user to customize their initial enlistment.
@@ -81,4 +101,5 @@ Removing a Scalar Clone
 
 Since the `scalar clone` command sets up a file-system watcher (when available),
 that watcher could prevent deleting the enlistment. Run `scalar delete <path>`
-from outside of your enlistment to unregister the enlistment from the filesystem watcher and delete the enlistment at `<path>`.
+from outside of your enlistment to unregister the enlistment from the filesystem
+watcher and delete the enlistment at `<path>`.
