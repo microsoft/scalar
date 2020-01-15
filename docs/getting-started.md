@@ -37,8 +37,9 @@ can explore the subdirectories outside your sparse-checkout specification using
 
 ### Sparse Repo Mode
 
-By default, Scalar reduces your working directory to the bare minimum. You
-need to add the folders you care about to build up to your working set.
+By default, Scalar reduces your working directory to the only the files at the
+root of the repository. You need to add the folders you care about to build up
+to your working set.
 
 * `scalar clone <url>`
   * Please choose the **Clone with HTTPS** option in the `Clone Repository` dialog in Azure Repos, not **Clone with SSH**.
@@ -53,7 +54,13 @@ need to add the folders you care about to build up to your working set.
 
 If instead you want to start with all files on-disk, you can clone with the
 `--full-clone` option. To enable sparse-checkout after the fact, run
-`git sparse-checkout init --cone`.
+`git sparse-checkout init --cone`. This will initialize your sparse-checkout
+patterns to only match the files at root.
+
+If you are unfamiliar with what directories are available in the repository,
+then you can run `git ls-tree -d --name-only HEAD` to discover the directories
+at root, or `git ls-tree -d --name-onlye HEAD <path>` to discover the directories
+in `<path>`.
 
 ### Options
 

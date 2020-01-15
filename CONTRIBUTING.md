@@ -35,38 +35,34 @@ If you'd like to build your own Scalar Windows installer:
   * Include the following additional components:
     * .NET Core runtime
 * Install the .NET Core 3.0 SDK (https://dotnet.microsoft.com/download/dotnet-core/3.0)
-* Create a folder to clone into, e.g. `C:\Repos\Scalar`
-* Clone this repo into the `src` subfolder, e.g. `C:\Repos\Scalar\src`
-* Run `\src\Scripts\BuildScalarForWindows.bat`
-* You can also build in Visual Studio by opening `src\Scalar.sln` (do not upgrade any projects) and building. However, the very first
+* Clone using `git clone https://github.com/microsoft/scalar scalar/src`. The `src` directory
+  will be the "repo root" and some sibling directories are created in the build process.
+* Run `Scripts\BuildScalarForWindows.bat`
+* You can also build in Visual Studio by opening `Scalar.sln` (do not upgrade any projects) and building. However, the very first
 build will fail, and the second and subsequent builds will succeed. This is because the build requires a prebuild code generation step.
 For details, see the build script in the previous step.
 
 Visual Studio 2019 will [automatically prompt you to install these dependencies](https://devblogs.microsoft.com/setup/configure-visual-studio-across-your-organization-with-vsconfig/)
 when you open the solution.
 
-The installer can now be found at `<repo root>\Scalar\out\Scalar.Installer.Windows\dist\[Debug|Release]\Scalar\SetupScalar.<version>.exe`.
-Be sure to also install the latest Git for Windows installer at `<repo root>\Scalar\out\Scalar.Installer.Windows\dist\[Debug|Release]\Git\Git-  <version>.exe`.
+The installer can now be found at `<repo root>\..\out\Scalar.Installer.Windows\dist\[Debug|Release]\Scalar\SetupScalar.<version>.exe`.
+Be sure to also install the latest Git for Windows installer at `<repo root>\..\out\Scalar.Installer.Windows\dist\[Debug|Release]\Git\Git-<version>.exe`.
 
 ## Building Scalar on Mac
 
 * Install [Visual Studio for Mac ](https://visualstudio.microsoft.com/vs/mac). (This will also install the `dotnet` CLI).
 
-* If you still do not have the `dotnet` cli `>= v3.0` installed [manually install it](https://dotnet.microsoft.com/download/dotnet-core/3.0).
+* If you still do not have the `dotnet` cli `>= v3.0` installed, then
+  [manually install it](https://dotnet.microsoft.com/download/dotnet-core/3.0).
   You can check what version you have with `dotnet --version`.
 
-* Create a `Scalar` directory and Clone Scalar into a directory called `src` inside it:
-
-  ```
-  mkdir Scalar
-  cd Scalar
-  git clone https://github.com/microsoft/scalar src
-  ```
+* Clone using `git clone https://github.com/microsoft/scalar scalar/src`. The `src` directory
+  will be the "repo root" and some sibling directories are created in the build process.
 
 * Run the build and installation scripts:
 
   ```
-  cd src/Scripts/Mac
+  cd Scripts/Mac
   ./BuildScalarForMac.sh
   ./CreateScalarDistribution.sh
   cd ../../../out/Scalar.Distribution.Mac/dist/(Debug|Release)/

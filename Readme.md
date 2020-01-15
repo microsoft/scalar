@@ -9,12 +9,12 @@ Scalar is a C# application that manages large Git repositories.
 Run `scalar register` in an existing Git repo to enable recommended config
 settings and start background maintenance.
 
-If your repo is hosted on a service with the
+If your repo is hosted on a service that supports the
 [GVFS Protocol](https://github.com/microsoft/VFSForGit/blob/master/Protocol.md),
-then `scalar clone <url>` will create a local enlistment with abilities
-like on-demand object retrieval, background maintenance tasks, and automatically
-sets Git config values and hooks that enable performance enhancements. Scalar
-also assists in setting up sparse enlistments.
+such as Azure Repos, then `scalar clone <url>` will create a local enlistment with
+abilities like on-demand object retrieval, background maintenance tasks, and
+automatically sets Git config values and hooks that enable performance enhancements.
+Scalar also assists in setting up sparse enlistments.
 
 See [the documentation](docs/index.md) for more details.
 
