@@ -29,7 +29,7 @@ See [the documentation](docs/index.md) for more details.
 
 To install Scalar on macOS,
 [download the `Installers_macOS_Release.zip` from the releases page](https://github.com/microsoft/scalar/releases).
-Extract the `Installers_macOS_Release` folder, `cd` into it, and run `./InstallScalar.sh` in a Terminal window.
+Extract the `Installers_macOS_Release` directory, `cd` into it, and run `./InstallScalar.sh` in a Terminal window.
 The script may prompt for your password as it installs the following components:
 
 * [Git](https://github.com/microsoft/git) (with custom patches)
@@ -41,7 +41,12 @@ The script may prompt for your password as it installs the following components:
 
 To install Scalar on Windows,
 [download the `Installers_Windows_Release.zip` from the releases page](https://github.com/microsoft/scalar/releases).
-Extract the `Installers_Windows_Release` folder and run the Git installer and then Scalar installer.
+Extract the `Installers_Windows_Release` directory, open that directory in
+a command prompt, then run `InstallScalar.bat`. This script will install
+the following components:
+
+* [Git for Windows](https://github.com/microsoft/git) (with custom patches)
+* Scalar
 
 ## Quick start
 
