@@ -29,15 +29,12 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 ## Building Scalar on Windows
 
 If you'd like to build your own Scalar Windows installer:
-* Install Visual Studio 2017 Community Edition or higher (https://www.visualstudio.com/downloads/).
+* Install Visual Studio 2019 Community Edition or higher (https://www.visualstudio.com/downloads/).
   * Include the following workloads:
-    * .NET desktop development
-    * Desktop development with C++
     * .NET Core cross-platform development
   * Include the following additional components:
     * .NET Core runtime
-    * Windows 10 SDK (10.0.10586.0)
-* Install the .NET Core 2.1 SDK (https://www.microsoft.com/net/download/dotnet-core/2.1)
+* Install the .NET Core 3.0 SDK (https://dotnet.microsoft.com/download/dotnet-core/3.0)
 * Create a folder to clone into, e.g. `C:\Repos\Scalar`
 * Clone this repo into the `src` subfolder, e.g. `C:\Repos\Scalar\src`
 * Run `\src\Scripts\BuildScalarForWindows.bat`
@@ -45,32 +42,25 @@ If you'd like to build your own Scalar Windows installer:
 build will fail, and the second and subsequent builds will succeed. This is because the build requires a prebuild code generation step.
 For details, see the build script in the previous step.
 
-You can also use Visual Studio 2019. There are a couple of options for getting all the dependencies.
-* You can install Visual Studio 2017 side by side with Visual Studio 2019, and make sure that you have all the dependencies from Visual Studio 2017 installed
-* Alternatively, if you only want to have Visual Studio 2019 installed, install the following extra dependency:
-  * MSVC v141 VS 2017 C++ build tools via the optional components in the Visual Studio 2019 installer. 
-
 Visual Studio 2019 will [automatically prompt you to install these dependencies](https://devblogs.microsoft.com/setup/configure-visual-studio-across-your-organization-with-vsconfig/)
 when you open the solution.
 
-The installer can now be found at `<repo root>\Scalar\BuildOutput\Scalar.Installer.Windows\bin\x64\[Debug|Release]\SetupScalar.<version>.exe`
+The installer can now be found at `<repo root>\Scalar\out\Scalar.Installer.Windows\dist\[Debug|Release]\Scalar\SetupScalar.<version>.exe`.
+Be sure to also install the latest Git for Windows installer at `<repo root>\Scalar\out\Scalar.Installer.Windows\dist\[Debug|Release]\Git\Git-  <version>.exe`.
 
 ## Building Scalar on Mac
 
-Note that Scalar on Mac is under active development.
-
-* Ensure you have `Xcode` installed, have accepted the terms of use, and have launched `Xcode` at least once.
-
 * Install [Visual Studio for Mac ](https://visualstudio.microsoft.com/vs/mac). (This will also install the `dotnet` CLI).
 
-* If you still do not have the `dotnet` cli `>= v2.1.300` installed [manually install it]. You can check what version you have with `dotnet --version`.(https://www.microsoft.com/net/download/dotnet-core/2.1)
+* If you still do not have the `dotnet` cli `>= v3.0` installed [manually install it](https://dotnet.microsoft.com/download/dotnet-core/3.0).
+  You can check what version you have with `dotnet --version`.
 
 * Create a `Scalar` directory and Clone Scalar into a directory called `src` inside it:
 
   ```
   mkdir Scalar
   cd Scalar
-  git clone https://github.com/microsoft/scalar.git src
+  git clone https://github.com/microsoft/scalar src
   ```
 
 * Run the build and installation scripts:
@@ -79,22 +69,9 @@ Note that Scalar on Mac is under active development.
   cd src/Scripts/Mac
   ./BuildScalarForMac.sh
   ./CreateScalarDistribution.sh
-  ../../../BuildOutput/Scalar.Distribution/InstallScalar.sh
+  cd ../../../out/Scalar.Distribution.Mac/dist/(Debug|Release)/
+  ./InstallScalar.sh
   ```
-
-  _Troubleshooting if this fails_
-
-  If you get
-  ```
-  xcodebuild: error: SDK "macosx10.13" cannot be located.
-  ```
-  You may have the "Xcode Command Line Tools" installed (helpfully by Mac OS) instead of full `Xcode`.
-  Make sure
-  ```
-  xcode-select -p
-  ```
-
-  shows `/Applications/Xcode.app/Contents/Developer`. If it does not, install `Xcode` and then launch it (you can close it afterwards.)
 
 ## Design Reviews
 
@@ -128,7 +105,7 @@ The design review process is as follows:
 - *Log full exception stacks*
 
   Full exception stacks (i.e. `Exception.ToString`) provide more details than the exception message alone (`Exception.Message`). Full exception stacks make root-causing issues easier.
-  
+
 - *Do not display full exception stacks to users*
 
   Exception call stacks are not usually actionable for the user.  Users frequently (sometimes incorrectly) assume that Scalar has crashed when shown a full stack.  The full stack *should* be included in Scalar logs, but *should not* be displayed as part of the error message provided to the user.
