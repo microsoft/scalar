@@ -45,7 +45,7 @@ For details, see the build script in the previous step.
 Visual Studio 2019 will [automatically prompt you to install these dependencies](https://devblogs.microsoft.com/setup/configure-visual-studio-across-your-organization-with-vsconfig/)
 when you open the solution.
 
-The installer can now be found at `<repo root>\..\out\Scalar.Installer.Windows\dist\[Debug|Release]\Scalar\SetupScalar.<version>.exe`.
+The installer can now be found at `<repo root>\..\out\Scalar.Installer.Windows\dist\[Debug|Release]\Scalar\SetupScalar.0.2.173.2.exe`.
 Be sure to also install the latest Git for Windows installer at `<repo root>\..\out\Scalar.Installer.Windows\dist\[Debug|Release]\Git\Git-<version>.exe`.
 
 ## Building Scalar on Mac

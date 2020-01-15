@@ -59,7 +59,7 @@ patterns to only match the files at root.
 
 If you are unfamiliar with what directories are available in the repository,
 then you can run `git ls-tree -d --name-only HEAD` to discover the directories
-at root, or `git ls-tree -d --name-onlye HEAD <path>` to discover the directories
+at root, or `git ls-tree -d --name-only HEAD <path>` to discover the directories
 in `<path>`.
 
 ### Options
