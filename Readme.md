@@ -67,8 +67,6 @@ Cloning...Succeeded
 Fetching commits and trees from origin (no cache server)...Succeeded
 Configuring Watchman...Succeeded.
 Validating repo...Succeeded
-Mounting...Succeeded
-Registering for automount...Succeeded
 
 $ cd ForTests/src
 $ ls
