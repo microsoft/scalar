@@ -25,3 +25,26 @@ steps:
     inputs:
       targetPath: $(Build.ArtifactStagingDirectory)/dist
       artifactName: Installers_macOS_$(configuration)
+
+  # We need to recompute the product version variables here as we're in a different job
+  # from the initial build. We pass -SetVariablesOnly because we don't need to re-set the
+  # build number, only re-set the version variables for use in this job, and the next step.
+  - powershell: Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter) -SetVariablesOnly
+    displayName: "Recompute product version variables"
+
+  - task: NuGetCommand@2
+    displayName: Create distribution package (internal)
+    inputs:
+      command: pack
+      packagesToPack: 'Scalar.Installer.Mac/Installers.nuspec'
+      packDestination: $(Build.ArtifactStagingDirectory)/nupkg
+      buildProperties: ScalarVersion=$(fullVersion)
+      basePath: $(Build.ArtifactStagingDirectory)/dist
+
+  - task: NuGetCommand@2
+    displayName: Publish distribution package (internal)
+    inputs:
+      command: push
+      packagesToPush: $(Build.ArtifactStagingDirectory)/nupkg/*.nupkg
+      nuGetFeedType: external
+      publishFeedCredentials: $(1ESFeedCredentials)

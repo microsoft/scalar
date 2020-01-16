@@ -14,6 +14,8 @@ variables:
     value: windows-2019
   - name: osxImage
     value: macOS-10.14
+  - name: 1ESFeedCredentials
+    value: '1ESSharedAssets GVFS Feed [Publish]'
 
 jobs:
   - job: win_build

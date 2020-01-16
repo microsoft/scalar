@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Scalar.Installers.Mac</id>
+    <version>$ScalarVersion$</version>
+    <authors>Microsoft</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Scalar installer and required dependencies for macOS.</description>
+  </metadata>
+  <files>
+    <file src="**\*" target="content" />
+  </files>
+</package>
