@@ -43,7 +43,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(1)]
         public void FetchStepCommitsToEmptyCache()
         {
-            this.Enlistment.FetchStep();
+            this.Enlistment.RunVerb("fetch");
 
             // Verify prefetch pack(s) are in packs folder and have matching idx file
             string[] prefetchPacks = this.ReadPrefetchPackFileNames();
@@ -66,7 +66,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             idxPath.ShouldNotExistOnDisk(this.fileSystem);
 
             // fetch should rebuild the missing idx
-            this.Enlistment.FetchStep();
+            this.Enlistment.RunVerb("fetch");
 
             idxPath.ShouldBeAFile(this.fileSystem);
 
@@ -90,7 +90,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             badPackPath.ShouldBeAFile(this.fileSystem).WithContents(badContents);
 
             // fetch should delete the bad pack
-            this.Enlistment.FetchStep();
+            this.Enlistment.RunVerb("fetch");
 
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
 
@@ -119,12 +119,12 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Open a handle to the bad pack that will prevent fetch-commits-and-trees from being able to delete it
             using (FileStream stream = new FileStream(badPackPath, FileMode.Open, FileAccess.Read, FileShare.None))
             {
-                string output = this.Enlistment.FetchStep(failOnError: false);
+                string output = this.Enlistment.RunVerb("fetch", failOnError: false);
                 output.ShouldContain($"Unable to delete {badPackPath}");
             }
 
             // After handle is closed fetching commits and trees should succeed
-            this.Enlistment.FetchStep();
+            this.Enlistment.RunVerb("fetch");
 
             badPackPath.ShouldNotExistOnDisk(this.fileSystem);
 
@@ -164,7 +164,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fileSystem.WriteAllText(otherFilePath, otherFileContents);
             otherFilePath.ShouldBeAFile(this.fileSystem).WithContents(otherFileContents);
 
-            this.Enlistment.FetchStep();
+            this.Enlistment.RunVerb("fetch");
 
             // Validate stale prefetch packs are cleaned up
             Directory.GetFiles(this.TempPackRoot, $"{PrefetchPackPrefix}*.pack").ShouldBeEmpty("There should be no .pack files in the tempPack folder");

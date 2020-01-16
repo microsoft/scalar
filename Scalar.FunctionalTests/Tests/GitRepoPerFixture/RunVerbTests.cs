@@ -28,7 +28,7 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
         public void CommitGraphStep()
         {
             this.fileSystem.FileExists(CommitGraphChain).ShouldBeFalse();
-            this.Enlistment.CommitGraphStep();
+            this.Enlistment.RunVerb("commit-graph");
             this.fileSystem.FileExists(CommitGraphChain).ShouldBeTrue();
         }
 
@@ -47,7 +47,7 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             minSize.ShouldNotEqual(0, "min size means empty pack-file?");
 
             this.Enlistment
-                .PackfileMaintenanceStep(batchSize: totalSize - minSize + 1)
+                .RunVerb("pack-files", batchSize: totalSize - minSize + 1)
                 .ShouldNotContain(false, "Skipping pack maintenance due to no .keep file.");
 
             this.GetPackSizes(out int countAfterStep, out maxSize, out minSize, out totalSize);
@@ -56,7 +56,7 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             countAfterStep.ShouldEqual(countAfterRepack + 1, nameof(countAfterStep));
 
             this.Enlistment
-                .PackfileMaintenanceStep(batchSize: totalSize - minSize + 1)
+                .RunVerb("pack-files", batchSize: totalSize - minSize + 1)
                 .ShouldNotContain(false, "Skipping pack maintenance due to no .keep file.");
 
             this.GetPackSizes(out int countAfterStep2, out maxSize, out minSize, out totalSize);
@@ -76,14 +76,14 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             minSize.ShouldNotEqual(0, "min size means empty pack-file?");
 
             // This step packs the loose object into a pack.
-            this.Enlistment.LooseObjectStep();
+            this.Enlistment.RunVerb("loose-objects");
             this.GetPackSizes(out int countAfterStep1, out _, out minSize, out _);
             minSize.ShouldNotEqual(0, "min size means empty pack-file?");
             this.GetLooseObjectFiles().Count.ShouldBeAtLeast(1);
             countAfterStep1.ShouldEqual(countBeforeStep + 1, "First step should create a pack");
 
             // This step deletes the loose object that is already in a pack
-            this.Enlistment.LooseObjectStep();
+            this.Enlistment.RunVerb("loose-objects");
             this.GetPackSizes(out int countAfterStep2, out _, out minSize, out _);
             minSize.ShouldNotEqual(0, "min size means empty pack-file?");
             this.GetLooseObjectFiles().Count.ShouldEqual(0);
@@ -104,7 +104,7 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             this.fileSystem.DeleteDirectory(refsRemotes);
             this.fileSystem.DeleteDirectory(this.PackRoot);
 
-            this.Enlistment.FetchStep();
+            this.Enlistment.RunVerb("fetch");
 
             this.GetPackSizes(out int countAfterFetch, out _, out _, out _);
 
@@ -114,7 +114,7 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             this.fileSystem.DirectoryExists(refsHeads).ShouldBeFalse("background fetch should not have created refs/heads/*");
             this.fileSystem.DirectoryExists(refsRemotes).ShouldBeFalse("background fetch should not have created refs/remotes/*");
 
-            this.Enlistment.FetchStep();
+            this.Enlistment.RunVerb("fetch");
 
             this.fileSystem.DirectoryExists(refsHeads).ShouldBeFalse("background fetch should not have created refs/heads/*");
             this.fileSystem.DirectoryExists(refsRemotes).ShouldBeFalse("background fetch should not have created refs/remotes/*");

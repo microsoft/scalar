@@ -45,7 +45,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // Run the step to ensure we don't have any packs that will be expired during the repack step.
             // Use a non-standard, but large batchSize to avoid logic that resizes the batchSize.
-            this.Enlistment.PackfileMaintenanceStep(batchSize: BatchSizeForNoRepack);
+            this.Enlistment.RunVerb("pack-files", batchSize: BatchSizeForNoRepack);
 
             this.GetPackSizes(out int afterPrefetchPackCount, out maxSize, out minSize, out totalSize);
 
@@ -53,7 +53,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             afterPrefetchPackCount.ShouldBeAtLeast(2);
 
             // Batch size 0 tells Git to repack everything into a single pack!
-            this.Enlistment.PackfileMaintenanceStep(batchSize: 0);
+            this.Enlistment.RunVerb("pack-files", batchSize: 0);
             this.GetPackSizes(out int packCount, out maxSize, out minSize, out totalSize);
 
             // We should not have expired any packs, but created a new one with repack
@@ -70,8 +70,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // We should expire all packs except the one we just created,
             // and the prefetch pack which is marked as ".keep"
-            this.Enlistment.PackfileMaintenanceStep(batchSize: BatchSizeForNoRepack);
-            
+            this.Enlistment.RunVerb("pack-files", batchSize: BatchSizeForNoRepack);
+
             List<string> packsAfter = this.GetPackfiles();
 
             packsAfter.Count.ShouldEqual(2, $"incorrect number of packs after final expire step: {packsAfter.Count}");

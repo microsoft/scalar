@@ -56,12 +56,16 @@ namespace Scalar.FunctionalTests.Tools
             return this.IsEnlistmentMounted();
         }
 
-        public string FetchStep(bool failOnError, string standardInput = null)
+        public string RunVerb(string task, long? batchSize = null, bool failOnError = true)
         {
+            string batchArg = batchSize == null
+                                    ? string.Empty
+                                    : $"--batch-size={batchSize}";
+
             return this.CallScalar(
-                $"run fetch \"{this.enlistmentRoot}\"",
+                $"run {task} \"{this.enlistmentRoot}\" {batchArg}",
                 failOnError ? SuccessExitCode : DoNotCheckExitCode,
-                standardInput: standardInput);
+                standardInput: null);
         }
 
         public void Repair(bool confirm)
@@ -69,28 +73,6 @@ namespace Scalar.FunctionalTests.Tools
             string confirmArg = confirm ? "--confirm " : string.Empty;
             this.CallScalar(
                 "repair " + confirmArg + "\"" + this.enlistmentRoot + "\"",
-                expectedExitCode: SuccessExitCode);
-        }
-
-        public string CommitGraphStep()
-        {
-            return this.CallScalar(
-                $"run commit-graph \"{this.enlistmentRoot}\"",
-                expectedExitCode: SuccessExitCode);
-        }
-
-        public string LooseObjectStep()
-        {
-            return this.CallScalar(
-                $"run loose-objects \"{this.enlistmentRoot}\"",
-                expectedExitCode: SuccessExitCode);
-        }
-
-        public string PackfileMaintenanceStep(long? batchSize)
-        {
-            string sizeString = batchSize.HasValue ? $"--batch-size {batchSize.Value}" : string.Empty;
-            return this.CallScalar(
-                $"run pack-files \"{this.enlistmentRoot}\" {sizeString}",
                 expectedExitCode: SuccessExitCode);
         }
 
