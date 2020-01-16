@@ -5,10 +5,10 @@ steps:
       signType: $(SignType)
 
   - task: UseDotNet@2
-    displayName: Use .NET Core SDK 3.0.100
+    displayName: Use .NET Core SDK 3.1.101
     inputs:
       packageType: sdk
-      version: 3.0.100
+      version: 3.1.101
 
   - task: DownloadPipelineArtifact@2
     displayName: Download unsigned payload
