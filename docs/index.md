@@ -29,6 +29,30 @@ Scalar allows you to work with very large repositories quickly. This protocol
 allows a network of _cache servers_ to serve objects with lower latency and
 higher throughput. The cache servers also reduce load on the central server.
 
+Installing on macOS
+------------------
+
+To install Scalar on macOS,
+[download the `Installers_macOS_Release.zip` from the releases page](https://github.com/microsoft/scalar/releases).
+Extract the `Installers_macOS_Release` folder, `cd` into it, and run `./InstallScalar.sh` in a Terminal window.
+The script may prompt for your password as it installs the following components:
+
+* [Git](https://github.com/microsoft/git) (with custom patches)
+* [Git Credential Manager Core](https://github.com/microsoft/Git-Credential-Manager-Core)
+* Scalar
+* [Watchman](https://github.com/facebook/watchman), unless you use the `--no-watchman` argument.
+
+Installing on Windows
+--------------------
+
+To install Scalar on Windows,
+[download the `Installers_Windows_Release.zip` from the releases page](https://github.com/microsoft/scalar/releases).
+Extract the `Installers_Windows_Release` folder, open it in a command prompt, and
+run `InstallScalar.bat`. This will install the following components:
+
+* [Git for Windows](https://github.com/microsoft/git) (with custom patches)
+* Scalar
+* [Watchman](https://github.com/facebook/watchman), if you use the `--watchman` argument.
 Documentation
 -------------
 
