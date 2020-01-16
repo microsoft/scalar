@@ -3,7 +3,8 @@ Generates the pipeline variables for the product version and set the build numbe
 #>
 param (
     [Parameter(Mandatory)]
-    [string]$SourceBranchCounter # should always be set to counter($(Build.SourceBranch), 0)
+    [string]$SourceBranchCounter, # should always be set to counter($(Build.SourceBranch), 0)
+    [switch]$SetVariablesOnly # if set only set pipeline variables and do not update the build version
 )
 
 function Set-PipelineVariable {
@@ -13,7 +14,11 @@ function Set-PipelineVariable {
 
 function Set-BuildNumber {
     Param([string]$BuildNumber)
-    Write-Host "##vso[build.updatebuildnumber]$BuildNumber"
+    if ($SetVariablesOnly) {
+        Write-Host "Skipping Set-BuildNumber as the -SetVariablesOnly option is present."
+    } else {
+        Write-Host "##vso[build.updatebuildnumber]$BuildNumber"
+    }
 }
 
 $SourceBranch = $Env:BUILD_SOURCEBRANCH

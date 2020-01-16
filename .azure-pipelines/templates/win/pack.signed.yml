@@ -68,3 +68,20 @@ steps:
       targetPath: $(Build.ArtifactStagingDirectory)\Installers\
       artifactName: "Installers_Windows_$(configuration)"
     condition: succeeded()
+
+  - task: NuGetCommand@2
+    displayName: Create distribution package (internal)
+    inputs:
+      command: pack
+      packagesToPack: 'Scalar.Installer.Windows\Installers.nuspec'
+      packDestination: $(Build.ArtifactStagingDirectory)\NuGetPackage
+      buildProperties: ScalarVersion=$(fullVersion)
+      basePath: ..\out\Scalar.Installer.Windows\dist\$(configuration)
+
+  - task: NuGetCommand@2
+    displayName: Publish distribution package (internal)
+    inputs:
+      command: push
+      packagesToPush: $(Build.ArtifactStagingDirectory)\NuGetPackage\*.nupkg
+      nuGetFeedType: external
+      publishFeedCredentials: $(1ESFeedCredentials)
