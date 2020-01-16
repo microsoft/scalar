@@ -5,15 +5,11 @@ steps:
       signType: $(SignType)
     condition: and(succeeded(), ne(variables['SignType'], ''))
 
-  - task: NuGetToolInstaller@0
-    inputs:
-      versionSpec: '>=5.1'
-
   - task: UseDotNet@2
-    displayName: Use .NET Core SDK 3.0.100
+    displayName: Use .NET Core SDK 3.1.101
     inputs:
       packageType: sdk
-      version: 3.0.100
+      version: 3.1.101
 
   - script: $(Build.Repository.LocalPath)\\Scripts\\NukeBuildOutputs.bat
     displayName: Delete previous build outputs
