@@ -123,6 +123,14 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             countAfterFetch2.ShouldEqual(1, "sceond fetch should not download a pack");
         }
 
+
+        [TestCase]
+        [Order(5)]
+        public void AllSteps()
+        {
+            this.Enlistment.RunVerb("all");
+        }
+
         private List<string> GetPackfiles()
         {
             return Directory.GetFiles(this.PackRoot, "*.pack").ToList();
