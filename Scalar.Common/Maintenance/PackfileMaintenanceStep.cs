@@ -45,6 +45,9 @@ namespace Scalar.Common.Maintenance
         }
 
         public override string Area => nameof(PackfileMaintenanceStep);
+
+        public override string ProgressMessage => "Cleaning up pack-files";
+
         protected override string LastRunTimeFilePath => Path.Combine(this.Context.Enlistment.GitObjectsRoot, "info", PackfileLastRunFileName);
         protected override TimeSpan TimeBetweenRuns => TimeSpan.FromDays(1);
 

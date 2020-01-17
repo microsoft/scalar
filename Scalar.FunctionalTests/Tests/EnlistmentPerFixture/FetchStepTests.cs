@@ -26,7 +26,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [Category(Categories.MacTODO.TestNeedsToLockFile)]
         public void FetchStepCleansUpStaleFetchLock()
         {
-            this.Enlistment.FetchStep();
+            this.Enlistment.RunVerb("fetch");
             string fetchCommitsLockFile = Path.Combine(
                 ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot),
                 "pack",
@@ -42,7 +42,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 .Count()
                 .ShouldEqual(1, "Incorrect number of .keep files in pack directory");
 
-            this.Enlistment.FetchStep();
+            this.Enlistment.RunVerb("fetch");
             fetchCommitsLockFile.ShouldNotExistOnDisk(this.fileSystem);
         }
     }

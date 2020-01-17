@@ -100,6 +100,8 @@ namespace Scalar.UnitTests.Maintenance
 
             public override string Area => "CheckMethodStep";
 
+            public override string ProgressMessage => throw new System.NotImplementedException();
+
             protected override void PerformMaintenance()
             {
                 if (this.when == WhenToStop.BeforeGitCommand)

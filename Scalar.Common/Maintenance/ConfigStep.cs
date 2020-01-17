@@ -71,6 +71,8 @@ namespace Scalar.Common.Maintenance
             this.UseGvfsProtocol = useGvfsProtocol;
         }
 
+        public override string ProgressMessage => "Setting recommended config settings";
+
         public bool TrySetConfig(out string error)
         {
             string coreGVFSFlags = Convert.ToInt32(

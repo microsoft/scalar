@@ -9,6 +9,12 @@ chose to run those maintenance steps yourself by running `scalar run <task> [<op
 This command will run one maintenance step as specified by `<task>`. These
 tasks are:
 
+* `config`: Set recommended Git config settings. These are all intended
+  to improve performance in large repos. If the repo was cloned by Scalar,
+  then most of these settings will overwrite any existing settings. Otherwise,
+  Scalar will not override a local config value that disagrees with the
+  recommendation.
+
 * `commit-graph`: Update the Git commit-graph to include all reachable
   commits. After writing a new file, verify the file was computed successfully.
   This drastically improves the performance of commands like `git log --graph`.
@@ -37,6 +43,15 @@ tasks are:
   This step allows using the `--batch-size=<size>` option. By default, the
   batch-size is "2g" for two gigabytes. This batch size signifies the goal
   size of a repacked pack-file.
+
+* `all`: This task runs all of the above steps in the following order:
+  1. `config` ensures our recommended values are set for the remaining steps.
+  2. `fetch` downloads the latest data from the remotes.
+  3. `commit-graph` updates based on the newly fetched data.
+  4. `loose-objects` cleans up loose objects. When using the GVFS protocol,
+     the previous steps may have downloaded new loose objects.
+  5. `pack-files` cleans up the pack-files, including those downloaed in
+     previous steps.
 
 Controlling Background Maintenance
 ----------------------------------

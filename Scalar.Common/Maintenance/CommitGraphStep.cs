@@ -17,6 +17,8 @@ namespace Scalar.Common.Maintenance
 
         public override string Area => "CommitGraphStep";
 
+        public override string ProgressMessage => "Updating commit-graph";
+
         protected override void PerformMaintenance()
         {
             using (ITracer activity = this.Context.Tracer.StartActivity("TryWriteGitCommitGraph", EventLevel.Informational))

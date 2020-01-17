@@ -187,9 +187,9 @@ namespace Scalar.FunctionalTests.Tools
             this.InitializeConfig();
         }
 
-        public string FetchStep(bool failOnError = true, string standardInput = null)
+        public string RunVerb(string task, long? batchSize = null, bool failOnError = true)
         {
-            return this.scalarProcess.FetchStep(failOnError, standardInput);
+            return this.scalarProcess.RunVerb(task, batchSize, failOnError);
         }
 
         public void Unregister()
@@ -205,21 +205,6 @@ namespace Scalar.FunctionalTests.Tools
         public string Diagnose()
         {
             return this.scalarProcess.Diagnose();
-        }
-
-        public string CommitGraphStep()
-        {
-            return this.scalarProcess.CommitGraphStep();
-        }
-
-        public string LooseObjectStep()
-        {
-            return this.scalarProcess.LooseObjectStep();
-        }
-
-        public string PackfileMaintenanceStep(long? batchSize = null)
-        {
-            return this.scalarProcess.PackfileMaintenanceStep(batchSize);
         }
 
         public string Status(string trace = null)
