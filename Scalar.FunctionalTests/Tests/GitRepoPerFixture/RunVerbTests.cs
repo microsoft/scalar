@@ -96,13 +96,15 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
         {
             string refsRoot = Path.Combine(this.Enlistment.RepoRoot, ".git", "refs");
             string refsHeads = Path.Combine(refsRoot, "heads");
-            string refsRemotes = Path.Combine(refsRoot, "remotes");
-            string refsHidden = Path.Combine(refsRoot, "hidden");
+            string refsRemotesOrigin = Path.Combine(refsRoot, "remotes", "origin");
+            string refsHidden = Path.Combine(refsRoot, "scalar", "hidden");
+            string refsHiddenOriginFake = Path.Combine(refsHidden, "origin", "fake");
 
             // Removing refs makes the next fetch need to download a new pack
             this.fileSystem.DeleteDirectory(refsHeads);
-            this.fileSystem.DeleteDirectory(refsRemotes);
+            this.fileSystem.DeleteDirectory(refsRemotesOrigin);
             this.fileSystem.DeleteDirectory(this.PackRoot);
+            this.fileSystem.CreateDirectory(this.PackRoot);
 
             this.Enlistment.RunVerb("fetch");
 
@@ -110,19 +112,24 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
 
             countAfterFetch.ShouldEqual(1, "fetch should download one pack");
 
-            this.fileSystem.DirectoryExists(refsHidden).ShouldBeTrue("background fetch should have created refs/hidden/*");
+            this.fileSystem.DirectoryExists(refsHidden).ShouldBeTrue("background fetch should have created refs/scalar/hidden/*");
             this.fileSystem.DirectoryExists(refsHeads).ShouldBeFalse("background fetch should not have created refs/heads/*");
-            this.fileSystem.DirectoryExists(refsRemotes).ShouldBeFalse("background fetch should not have created refs/remotes/*");
+            this.fileSystem.DirectoryExists(refsRemotesOrigin).ShouldBeFalse("background fetch should not have created refs/remotes/origin/*");
+
+            // This is the SHA-1 for the master branch
+            string sha1 = "2797fbb8358bb2e0c12d6f3b42a60b43f7655edf";
+            this.fileSystem.WriteAllText(refsHiddenOriginFake, sha1);
 
             this.Enlistment.RunVerb("fetch");
 
             this.fileSystem.DirectoryExists(refsHeads).ShouldBeFalse("background fetch should not have created refs/heads/*");
-            this.fileSystem.DirectoryExists(refsRemotes).ShouldBeFalse("background fetch should not have created refs/remotes/*");
+            this.fileSystem.DirectoryExists(refsRemotesOrigin).ShouldBeFalse("background fetch should not have created refs/remotes/origin/*");
+
+            this.fileSystem.FileExists(refsHiddenOriginFake).ShouldBeFalse("background fetch should clear deleted refs from refs/scalar/hidden");
 
             this.GetPackSizes(out int countAfterFetch2, out _, out _, out _);
             countAfterFetch2.ShouldEqual(1, "sceond fetch should not download a pack");
         }
-
 
         [TestCase]
         [Order(5)]
