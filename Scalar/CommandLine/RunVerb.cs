@@ -56,7 +56,7 @@ namespace Scalar.CommandLine
                                                         ScalarConstants.LogFileTypes.Maintenance,
                                                         logId: this.StartedByService ? "service" : null);
 
-                List<ActionAndMessage> actions = new List<ActionAndMessage>();
+                List<GitMaintenanceStep> steps = new List<GitMaintenanceStep>();
 
                 tracer.AddLogFileEventListener(
                     logFileName,
@@ -81,39 +81,56 @@ namespace Scalar.CommandLine
                 {
                     try
                     {
+                        GitObjectsHttpRequestor objectRequestor = null;
+                        CacheServerInfo cacheServer;
+                        GitObjects gitObjects;
 
                         switch (this.MaintenanceTask)
                         {
                             case ScalarConstants.VerbParameters.Maintenance.AllTasksName:
-                                actions.Add(this.GetConfigAction(context));
-                                actions.Add(this.GetFetchAction(context, cacheServerUrl));
-                                actions.Add(this.GetCommitGraphAction(context));
-                                actions.Add(this.GetLooseObjectsAction(context));
-                                actions.Add(this.GetPackfileAction(context));
+                                steps.Add(new ConfigStep(context));
+                                this.InitializeServerConnection(tracer, enlistment, cacheServerUrl, out objectRequestor, out cacheServer);
+                                gitObjects = new GitObjects(tracer, enlistment, objectRequestor, fileSystem);
+                                steps.Add(new FetchStep(context, gitObjects, requireCacheLock: false, forceRun: !this.StartedByService));
+                                steps.Add(new CommitGraphStep(context, requireObjectCacheLock: false));
+                                steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService));
+                                steps.Add(new PackfileMaintenanceStep(
+                                        context,
+                                        forceRun: !this.StartedByService,
+                                        batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
+                                            PackfileMaintenanceStep.DefaultBatchSizeBytes.ToString() :
+                                            this.PackfileMaintenanceBatchSize));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName:
                                 this.FailIfBatchSizeSet(tracer);
-                                actions.Add(this.GetLooseObjectsAction(context));
+                                steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName:
-                                actions.Add(this.GetPackfileAction(context));
+                                steps.Add(new PackfileMaintenanceStep(
+                                        context,
+                                        forceRun: !this.StartedByService,
+                                        batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
+                                            PackfileMaintenanceStep.DefaultBatchSizeBytes.ToString() :
+                                            this.PackfileMaintenanceBatchSize));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.FetchTaskName:
                                 this.FailIfBatchSizeSet(tracer);
-                                actions.Add(this.GetFetchAction(context, cacheServerUrl));
+                                this.InitializeServerConnection(tracer, enlistment, cacheServerUrl, out objectRequestor, out cacheServer);
+                                gitObjects = new GitObjects(tracer, enlistment, objectRequestor, fileSystem);
+                                steps.Add(new FetchStep(context, gitObjects, requireCacheLock: false, forceRun: !this.StartedByService));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName:
                                 this.FailIfBatchSizeSet(tracer);
-                                actions.Add(this.GetCommitGraphAction(context));
+                                steps.Add(new CommitGraphStep(context, requireObjectCacheLock: false));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.ConfigTaskName:
                                 this.FailIfBatchSizeSet(tracer);
-                                actions.Add(this.GetConfigAction(context));
+                                steps.Add(new ConfigStep(context));
                                 break;
 
                             default:
@@ -121,9 +138,9 @@ namespace Scalar.CommandLine
                                 break;
                         }
 
-                        foreach (ActionAndMessage item in actions)
+                        foreach (GitMaintenanceStep step in steps)
                         {
-                            this.ShowStatusWhileRunning(() => { item.Action.Invoke(); return true; }, item.Message);
+                            this.ShowStatusWhileRunning(() => { step.Execute(); return true; }, step.ProgressMessage);
                         }
                     }
                     catch (VerbAbortedException)
@@ -153,59 +170,6 @@ namespace Scalar.CommandLine
             }
         }
 
-        private ActionAndMessage GetConfigAction(ScalarContext context)
-        {
-            return new ActionAndMessage(
-                        () => new ConfigStep(context).Execute(),
-                        "Setting recommended config settings");
-        }
-
-        private ActionAndMessage GetFetchAction(ScalarContext context, string cacheServerUrl)
-        {
-            GitObjectsHttpRequestor objectRequestor = null;
-            CacheServerInfo cacheServer = null;
-
-
-            if (context.Enlistment.UsesGvfsProtocol)
-            {
-                this.InitializeServerConnection(
-                    context.Tracer,
-                    context.Enlistment,
-                    cacheServerUrl,
-                    out objectRequestor,
-                    out cacheServer);
-            }
-
-            return new ActionAndMessage(() => this.RunFetchStep(context.Tracer, context.Enlistment, objectRequestor),
-                                             "Fetching " + this.GetCacheServerDisplay(cacheServer, context.Enlistment.RepoUrl));
-        }
-
-        private ActionAndMessage GetCommitGraphAction(ScalarContext context)
-        {
-            return new ActionAndMessage(
-                        () => new CommitGraphStep(context, requireObjectCacheLock: false).Execute(),
-                        "Updating commit-graph");
-        }
-
-        private ActionAndMessage GetLooseObjectsAction(ScalarContext context)
-        {
-            return new ActionAndMessage(
-                        () => new LooseObjectsStep(context, forceRun: !this.StartedByService).Execute(),
-                        "Cleaning up loose objects");
-        }
-
-        private ActionAndMessage GetPackfileAction(ScalarContext context)
-        {
-            return new ActionAndMessage(
-                            () => new PackfileMaintenanceStep(
-                                        context,
-                                        forceRun: !this.StartedByService,
-                                        batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
-                                            PackfileMaintenanceStep.DefaultBatchSizeBytes.ToString() :
-                                            this.PackfileMaintenanceBatchSize).Execute(),
-                            "Cleaning up pack-files");
-        }
-
         private void FailIfBatchSizeSet(ITracer tracer)
         {
             if (!string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize))
@@ -224,6 +188,13 @@ namespace Scalar.CommandLine
             out GitObjectsHttpRequestor objectRequestor,
             out CacheServerInfo cacheServer)
         {
+            if (!enlistment.UsesGvfsProtocol)
+            {
+                objectRequestor = null;
+                cacheServer = null;
+                return;
+            }
+
             RetryConfig retryConfig = this.GetRetryConfig(tracer, enlistment, TimeSpan.FromMinutes(RetryConfig.FetchAndCloneTimeoutMinutes));
 
             cacheServer = this.ResolvedCacheServer;
@@ -254,49 +225,6 @@ namespace Scalar.CommandLine
 
             this.InitializeCachePaths(tracer, enlistment);
             objectRequestor = new GitObjectsHttpRequestor(tracer, enlistment, cacheServer, retryConfig);
-        }
-
-        private void RunFetchStep(ITracer tracer, ScalarEnlistment enlistment, GitObjectsHttpRequestor objectRequestor)
-        {
-            bool success;
-            string error;
-            PhysicalFileSystem fileSystem = new PhysicalFileSystem();
-            ScalarContext context = new ScalarContext(tracer, fileSystem, enlistment);
-            GitObjects gitObjects = new GitObjects(tracer, enlistment, objectRequestor, fileSystem);
-
-            success = new FetchStep(context, gitObjects, requireCacheLock: false, forceRun: !this.StartedByService).TryFetch(out error);
-
-            if (!success)
-            {
-                this.ReportErrorAndExit(tracer, ReturnCode.GenericError, "Fetch failed: " + error);
-            }
-        }
-
-        private string GetCacheServerDisplay(CacheServerInfo cacheServer, string repoUrl)
-        {
-            if (cacheServer == null)
-            {
-                return "from remotes";
-            }
-
-            if (!cacheServer.IsNone(repoUrl))
-            {
-                return "from cache server";
-            }
-
-            return "from origin (no cache server)";
-        }
-
-        private struct ActionAndMessage
-        {
-            public ActionAndMessage(Action action, string message)
-            {
-                this.Action = action;
-                this.Message = message;
-            }
-
-            public readonly Action Action { get; }
-            public readonly string Message { get; }
         }
     }
 }

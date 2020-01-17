@@ -19,6 +19,9 @@ namespace Scalar.Common.Maintenance
         }
 
         public abstract string Area { get; }
+
+        public abstract string ProgressMessage { get; }
+
         protected virtual TimeSpan TimeBetweenRuns { get; }
         protected virtual string LastRunTimeFilePath { get; set; }
         protected ScalarContext Context { get; }

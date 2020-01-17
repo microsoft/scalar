@@ -41,6 +41,8 @@ namespace Scalar.Common.Maintenance
         protected override string LastRunTimeFilePath => Path.Combine(this.Context.Enlistment.GitObjectsRoot, "info", LooseObjectsLastRunFileName);
         protected override TimeSpan TimeBetweenRuns => TimeSpan.FromDays(1);
 
+        public override string ProgressMessage => "Cleaning up loose objects";
+
         public void CountLooseObjects(out int count, out long size)
         {
             count = 0;

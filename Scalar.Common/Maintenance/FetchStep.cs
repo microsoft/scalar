@@ -33,6 +33,25 @@ namespace Scalar.Common.Maintenance
 
         public override string Area => "FetchCommitsAndTreesStep";
 
+        public override string ProgressMessage
+        {
+            get
+            {
+                if (!this.Context.Enlistment.UsesGvfsProtocol)
+                {
+                    return "Fetching from remotes";
+                }
+                else if (this.GitObjects.IsUsingCacheServer())
+                {
+                    return "Fetching from cache server";
+                }
+                else
+                {
+                    return "Fetching from origin (no cache server)";
+                }
+            }
+        }
+
         // Used only for vanilla Git repos
         protected override TimeSpan TimeBetweenRuns => this.timeBetweenFetches;
 
