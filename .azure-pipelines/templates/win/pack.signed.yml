@@ -79,9 +79,16 @@ steps:
       basePath: ..\out\Scalar.Installer.Windows\dist\$(configuration)
 
   - task: NuGetCommand@2
-    displayName: Publish distribution package (internal)
+    displayName: Push distribution package (internal)
     inputs:
       command: push
       packagesToPush: $(Build.ArtifactStagingDirectory)\NuGetPackage\*.nupkg
       nuGetFeedType: external
       publishFeedCredentials: $(1ESFeedCredentials)
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish distribution package (internal)
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)\NuGetPackage\
+      artifactName: "Package_Windows_$(configuration)"
+    condition: succeeded()
