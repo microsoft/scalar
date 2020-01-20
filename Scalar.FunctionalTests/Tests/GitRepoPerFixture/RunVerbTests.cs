@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System.Collections.Generic;
@@ -117,7 +118,7 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             this.fileSystem.DirectoryExists(refsRemotesOrigin).ShouldBeFalse("background fetch should not have created refs/remotes/origin/*");
 
             // This is the SHA-1 for the master branch
-            string sha1 = "2797fbb8358bb2e0c12d6f3b42a60b43f7655edf";
+            string sha1 = Settings.Default.CommitId;
             this.fileSystem.WriteAllText(refsHiddenOriginFake, sha1);
 
             this.Enlistment.RunVerb("fetch");
