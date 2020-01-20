@@ -24,6 +24,12 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             this.fileSystem = new SystemIORunner();
         }
 
+        [SetUp]
+        public void Setup()
+        {
+            this.Enlistment.Unregister();
+        }
+
         [TestCase]
         [Order(1)]
         public void CommitGraphStep()
@@ -106,6 +112,7 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             this.fileSystem.DeleteDirectory(refsRemotesOrigin);
             this.fileSystem.DeleteDirectory(this.PackRoot);
             this.fileSystem.CreateDirectory(this.PackRoot);
+            this.fileSystem.DirectoryExists(refsRemotesOrigin).ShouldBeFalse($"{refsRemotesOrigin} was not deleted");
 
             this.Enlistment.RunVerb("fetch");
 
