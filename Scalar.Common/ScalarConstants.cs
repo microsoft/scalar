@@ -165,12 +165,28 @@ namespace Scalar.Common
 
             public static class Refs
             {
-                public static readonly string Root = Path.Combine(DotGit.Root, "refs");
+                public static readonly string RefName = "refs";
+                public static string Root => Path.Combine(DotGit.Root, RefName);
 
-                public static class Hidden
+                public static class Heads
                 {
-                    public static readonly string Name = "hidden";
-                    public static readonly string Root = Path.Combine(DotGit.Refs.Root, Name);
+                    public static readonly string Name = "heads";
+                    public static string Root => Path.Combine(Refs.Root, Name);
+                    public static string RefName => $"{Refs.RefName}/{Name}";
+                }
+
+                public static class Scalar
+                {
+                    public static readonly string Name = "scalar";
+                    public static string Root => Path.Combine(Refs.Root, Name);
+                    public static string RefName => $"{Refs.RefName}/{Name}";
+
+                    public static class Hidden
+                    {
+                        public static readonly string Name = "hidden";
+                        public static string Root => Path.Combine(Scalar.Root, Name);
+                        public static string RefName => $"{Scalar.RefName}/{Name}";
+                    }
                 }
             }
         }

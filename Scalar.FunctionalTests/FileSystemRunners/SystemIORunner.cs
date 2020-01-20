@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 
 namespace Scalar.FunctionalTests.FileSystemRunners
@@ -245,22 +246,28 @@ namespace Scalar.FunctionalTests.FileSystemRunners
 
         private static void RetryOnException(Action action)
         {
+            StringBuilder message = new StringBuilder();
+            message.AppendLine("Failed to perform action with inner exceptions:");
             for (int i = 0; i < 10; i++)
             {
                 try
                 {
                     action();
-                    break;
+                    return;
                 }
-                catch (IOException)
+                catch (IOException e)
                 {
                     Thread.Sleep(500);
+                    message.AppendLine(e.Message);
                 }
-                catch (UnauthorizedAccessException)
+                catch (UnauthorizedAccessException e)
                 {
                     Thread.Sleep(500);
+                    message.AppendLine(e.Message);
                 }
             }
+
+            throw new Exception(message.ToString());
         }
 
         private void ShouldFail<ExceptionType>(Action action) where ExceptionType : Exception

@@ -21,6 +21,7 @@ namespace Scalar.FunctionalTests.Properties
             public static string PathToBash { get; set; }
             public static string PathToScalar { get; set; }
             public static string Commitish { get; set; }
+            public static string CommitId { get; set; }
             public static string ControlGitRepoRoot { get; set; }
             public static string EnlistmentRoot { get; set; }
             public static string PathToGit { get; set; }
@@ -33,6 +34,7 @@ namespace Scalar.FunctionalTests.Properties
 
                 RepoToClone = @"https://gvfs.visualstudio.com/ci/_git/ForTests";
                 Commitish = @"FunctionalTests/20180214";
+                CommitId = "2797fbb8358bb2e0c12d6f3b42a60b43f7655edf";
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
