@@ -432,10 +432,12 @@ namespace Scalar.Common.Git
             string refspec = $"+{ScalarConstants.DotGit.Refs.Heads.RefName}/*"
                            + $":{ScalarConstants.DotGit.Refs.Scalar.Hidden.RefName}/{remote}/*";
 
-            // By using "--no-update-remote-refs", the user will see their remote refs update
+            // By using "--refmap", we override the configured refspec,
+            // ignoring the normal "+refs/heads/*:refs/remotes/<remote>/*".
+            // The user will see their remote refs update
             // normally when they do a foreground fetch.
             return this.InvokeGitInWorkingDirectoryRoot(
-                $"fetch {remote} --quiet --prune --no-update-remote-refs \"{refspec}\"",
+                $"fetch {remote} --quiet --prune --no-tags --refmap= \"{refspec}\"",
                 fetchMissingObjects: true);
         }
 
