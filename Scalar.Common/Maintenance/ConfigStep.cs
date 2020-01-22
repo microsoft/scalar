@@ -1,4 +1,5 @@
 ﻿using Scalar.Common.Git;
+using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -169,6 +170,7 @@ namespace Scalar.Common.Maintenance
         protected override void PerformMaintenance()
         {
             this.TrySetConfig(out _);
+            this.ConfigureWatchmanIntegration();
         }
 
         private bool TrySetConfig(Dictionary<string, string> configSettings, bool isRequired, out string error)
@@ -219,6 +221,43 @@ namespace Scalar.Common.Maintenance
 
             error = null;
             return true;
+        }
+
+        private void ConfigureWatchmanIntegration()
+        {
+            string watchmanLocation = ProcessHelper.GetProgramLocation(ScalarPlatform.Instance.Constants.ProgramLocaterCommand, "watchman");
+            if (string.IsNullOrEmpty(watchmanLocation))
+            {
+                this.Context.Tracer.RelatedWarning("Watchman is not installed - skipping Watchman configuration.");
+                return;
+            }
+
+            try
+            {
+                string fsMonitorWatchmanSampleHookPath = Path.Combine(
+                    this.Context.Enlistment.WorkingDirectoryRoot,
+                    ScalarConstants.DotGit.Hooks.FsMonitorWatchmanSamplePath);
+
+                string queryWatchmanPath = Path.Combine(
+                    this.Context.Enlistment.WorkingDirectoryRoot,
+                    ScalarConstants.DotGit.Hooks.QueryWatchmanPath);
+
+                this.Context.FileSystem.CopyFile(
+                    fsMonitorWatchmanSampleHookPath,
+                    queryWatchmanPath,
+                    overwrite: false);
+
+                this.RunGitCommand(
+                    process => process.SetInLocalConfig("core.fsmonitor", ".git/hooks/query-watchman"),
+                    "config");
+
+                this.Context.Tracer.RelatedInfo("Watchman configured!");
+            }
+            catch (IOException ex)
+            {
+                EventMetadata metadata = this.CreateEventMetadata(ex);
+                this.Context.Tracer.RelatedError(metadata, $"Failed to configure Watchman integration: {ex.Message}");
+            }
         }
     }
 }
