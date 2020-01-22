@@ -36,7 +36,10 @@ namespace Scalar.Common
             Dictionary<string, string> queryParams = new Dictionary<string, string>()
             {
                 { "Organization", orgName },
-                { "Platform", platform },
+                // Add '-scalar' suffix to Platform so we can continue to use the same orginfo function app as VFS for Git.
+                // We cannot use Organization as this is computed from the upgrade.feedUrl config entry, and cannot use
+                // Ring as this will complicate some scenarios regarding provisioning the downstream feeds.
+                { "Platform", $"{platform}-scalar" },
                 { "Ring", ring },
             };
 

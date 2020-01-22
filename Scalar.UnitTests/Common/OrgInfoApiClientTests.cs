@@ -40,7 +40,7 @@ namespace Scalar.UnitTests.Common
             Mock<HttpMessageHandler> handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
 
             handlerMock.Protected().As<IHttpMessageHandlerProtectedMembers>()
-                .Setup(m => m.SendAsync(It.Is<HttpRequestMessage>(request => this.UriMatches(request.RequestUri, this.baseUrl, orgInfo.OrgName, orgInfo.Platform, orgInfo.Ring)), It.IsAny<CancellationToken>()))
+                .Setup(m => m.SendAsync(It.Is<HttpRequestMessage>(request => this.UriMatches(request.RequestUri, this.baseUrl, orgInfo.OrgName, $"{orgInfo.Platform}-scalar", orgInfo.Ring)), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new HttpResponseMessage()
                 {
                     StatusCode = HttpStatusCode.OK,
