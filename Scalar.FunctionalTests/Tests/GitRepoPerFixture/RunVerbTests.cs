@@ -106,13 +106,17 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             string refsRemotesOrigin = Path.Combine(refsRoot, "remotes", "origin");
             string refsHidden = Path.Combine(refsRoot, "scalar", "hidden");
             string refsHiddenOriginFake = Path.Combine(refsHidden, "origin", "fake");
+            string packedRefs = Path.Combine(this.Enlistment.RepoRoot, ".git", "packed-refs");
 
             // Removing refs makes the next fetch need to download a new pack
             this.fileSystem.DeleteDirectory(refsHeads);
             this.fileSystem.DeleteDirectory(refsRemotesOrigin);
             this.fileSystem.DeleteDirectory(this.PackRoot);
             this.fileSystem.CreateDirectory(this.PackRoot);
-            this.fileSystem.DirectoryExists(refsRemotesOrigin).ShouldBeFalse($"{refsRemotesOrigin} was not deleted");
+            if (this.fileSystem.FileExists(packedRefs))
+            {
+                this.fileSystem.DeleteFile(packedRefs);
+            }
 
             this.Enlistment.RunVerb("fetch");
 
