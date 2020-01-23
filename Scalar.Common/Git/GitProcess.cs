@@ -437,8 +437,9 @@ namespace Scalar.Common.Git
             // The user will see their remote refs update
             // normally when they do a foreground fetch.
             return this.InvokeGitInWorkingDirectoryRoot(
-                $"fetch {remote} --quiet --prune --no-tags --refmap= \"{refspec}\"",
-                fetchMissingObjects: true);
+                $"-c credential.interactive=never fetch {remote} --quiet --prune --no-tags --refmap= \"{refspec}\"",
+                fetchMissingObjects: true,
+                userInteractive: false);
         }
 
         public string[] GetRemotes()
@@ -613,7 +614,14 @@ namespace Scalar.Common.Git
             return this.InvokeGitAgainstDotGitFolder($"-c pack.threads=1 multi-pack-index repack --object-dir=\"{gitObjectDirectory}\" --batch-size={batchSize}");
         }
 
-        public Process GetGitProcess(string command, string workingDirectory, string dotGitDirectory, bool fetchMissingObjects, bool redirectStandardError, string gitObjectsDirectory)
+        public Process GetGitProcess(
+            string command,
+            string workingDirectory,
+            string dotGitDirectory,
+            bool fetchMissingObjects,
+            bool redirectStandardError,
+            string gitObjectsDirectory,
+            bool userInteractive = true)
         {
             ProcessStartInfo processInfo = new ProcessStartInfo(this.gitBinPath);
             processInfo.WorkingDirectory = workingDirectory;
@@ -652,6 +660,11 @@ namespace Scalar.Common.Git
             processInfo.EnvironmentVariables["GIT_TERMINAL_PROMPT"] = "0";
             processInfo.EnvironmentVariables["GCM_VALIDATE"] = "0";
 
+            if (!userInteractive)
+            {
+                processInfo.EnvironmentVariables["GCM_INTERACTIVE"] = "Never";
+            }
+
             if (gitObjectsDirectory != null)
             {
                 processInfo.EnvironmentVariables["GIT_OBJECT_DIRECTORY"] = gitObjectsDirectory;
@@ -683,7 +696,8 @@ namespace Scalar.Common.Git
             Action<StreamWriter> writeStdIn,
             Action<string> parseStdOutLine,
             int timeoutMs,
-            string gitObjectsDirectory = null)
+            string gitObjectsDirectory = null,
+            bool userInteractive = true)
         {
             if (failedToSetEncoding && writeStdIn != null)
             {
@@ -701,7 +715,8 @@ namespace Scalar.Common.Git
                                                         dotGitDirectory,
                                                         fetchMissingObjects: fetchMissingObjects,
                                                         redirectStandardError: true,
-                                                        gitObjectsDirectory: gitObjectsDirectory))
+                                                        gitObjectsDirectory: gitObjectsDirectory,
+                                                        userInteractive: userInteractive))
                 {
                     StringBuilder output = new StringBuilder();
                     StringBuilder errors = new StringBuilder();
@@ -840,7 +855,8 @@ namespace Scalar.Common.Git
             string command,
             bool fetchMissingObjects,
             Action<StreamWriter> writeStdIn = null,
-            Action<string> parseStdOutLine = null)
+            Action<string> parseStdOutLine = null,
+            bool userInteractive = true)
         {
             return this.InvokeGitImpl(
                 command,

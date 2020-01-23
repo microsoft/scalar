@@ -82,7 +82,8 @@ namespace Scalar.UnitTests.Mock.Git
             Action<StreamWriter> writeStdIn,
             Action<string> parseStdOutLine,
             int timeoutMs,
-            string gitObjectsDirectory = null)
+            string gitObjectsDirectory = null,
+            bool userInteractive = true)
         {
             this.CommandsRun.Add(command);
 
