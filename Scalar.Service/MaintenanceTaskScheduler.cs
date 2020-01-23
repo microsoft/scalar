@@ -118,22 +118,6 @@ namespace Scalar.Service
                 this.taskTimers.Add(new Timer(
                 (state) =>
                 {
-                    if (!schedule.IgnorePause)
-                    {
-                        if (this.repoRegistry.TryGetMaintenanceDelayTime(out DateTime time))
-                        {
-                            if (time.CompareTo(DateTime.Now) > 0)
-                            {
-                                this.tracer.RelatedInfo($"Maintenance is paused until {time}.");
-                                return;
-                            }
-                            else if (!this.repoRegistry.TryRemovePauseFile(out string error))
-                            {
-                                this.tracer.RelatedWarning($"Failed to remove pause file: {error}");
-                            }
-                        }
-                    }
-
                     this.taskQueue.TryEnqueue(
                         new MaintenanceTask(
                             this.tracer,
@@ -141,7 +125,8 @@ namespace Scalar.Service
                             this.scalarVerb,
                             this.repoRegistry,
                             this,
-                            schedule.Task));
+                            schedule.Task,
+                            schedule.IgnorePause));
                 },
                 state: null,
                 dueTime: schedule.DueTime,
@@ -157,6 +142,7 @@ namespace Scalar.Service
             private readonly IScalarRepoRegistry repoRegistry;
             private readonly IRegisteredUserStore registeredUserStore;
             private readonly MaintenanceTasks.Task task;
+            private readonly bool ignorePause;
 
             public MaintenanceTask(
                 ITracer tracer,
@@ -164,7 +150,8 @@ namespace Scalar.Service
                 IScalarVerbRunner scalarVerb,
                 IScalarRepoRegistry repoRegistry,
                 IRegisteredUserStore registeredUserStore,
-                MaintenanceTasks.Task task)
+                MaintenanceTasks.Task task,
+                bool ignorePause = true)
             {
                 this.tracer = tracer;
                 this.fileSystem = fileSystem;
@@ -172,6 +159,7 @@ namespace Scalar.Service
                 this.repoRegistry = repoRegistry;
                 this.registeredUserStore = registeredUserStore;
                 this.task = task;
+                this.ignorePause = ignorePause;
             }
 
             public void Execute()
@@ -212,9 +200,11 @@ namespace Scalar.Service
                 int repoRemovalFailures = 0;
                 int reposMaintained = 0;
                 int reposInRegistryForUser = 0;
+                bool maintenancePaused = false;
 
                 string rootPath;
                 string errorMessage;
+                string traceMessage = null;
 
                 IEnumerable<ScalarRepoRegistration> reposForUser = this.repoRegistry.GetRegisteredRepos().Where(
                     x => x.UserId.Equals(registeredUser.UserId, StringComparison.InvariantCultureIgnoreCase));
@@ -222,6 +212,15 @@ namespace Scalar.Service
                 foreach (ScalarRepoRegistration repoRegistration in reposForUser)
                 {
                     ++reposInRegistryForUser;
+
+                    if (maintenancePaused || this.IsMaintenancePaused(out traceMessage))
+                    {
+                        metadata[nameof(traceMessage)] = traceMessage;
+                        maintenancePaused = true;
+                        ++reposSkipped;
+                        continue;
+                    }
+
                     rootPath = Path.GetPathRoot(repoRegistration.NormalizedRepoRoot);
 
                     metadata[nameof(repoRegistration.NormalizedRepoRoot)] = repoRegistration.NormalizedRepoRoot;
@@ -281,10 +280,37 @@ namespace Scalar.Service
                 metadata.Add(nameof(reposSuccessfullyRemoved), reposSuccessfullyRemoved);
                 metadata.Add(nameof(repoRemovalFailures), repoRemovalFailures);
                 metadata.Add(nameof(reposMaintained), reposMaintained);
+                metadata.Add(nameof(maintenancePaused), maintenancePaused);
                 this.tracer.RelatedEvent(
                     EventLevel.Informational,
                     $"{nameof(this.RunMaintenanceTaskForRepos)}_MaintenanceSummary",
                     metadata);
+            }
+
+            private bool IsMaintenancePaused(out string traceMessage)
+            {
+                if (this.ignorePause)
+                {
+                    traceMessage = null;
+                    return false;
+                }
+
+                if (this.repoRegistry.TryGetMaintenanceDelayTime(out DateTime time))
+                {
+                    if (time.CompareTo(DateTime.Now) > 0)
+                    {
+                        traceMessage = $"Maintenance is paused until {time}.";
+                        return true;
+                    }
+                    else if (!this.repoRegistry.TryRemovePauseFile(out string innerError))
+                    {
+                        traceMessage = $"Failed to remove pause file: {innerError}";
+                        return false;
+                    }
+                }
+
+                traceMessage = null;
+                return false;
             }
         }
 
