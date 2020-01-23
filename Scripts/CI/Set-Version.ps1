@@ -4,8 +4,20 @@ Generates the pipeline variables for the product version and set the build numbe
 param (
     [Parameter(Mandatory)]
     [string]$SourceBranchCounter, # should always be set to counter($(Build.SourceBranch), 0)
+    [string]$VersionFileDirectory, # directory to create version files
     [switch]$SetVariablesOnly # if set only set pipeline variables and do not update the build version
 )
+
+function New-VersionFile {
+    Param ([string]$FileName, [string]$Version)
+    if ($SetVariablesOnly) {
+        Write-Host "Skipping New-VersionFile as the -SetVariablesOnly option is present."
+    } else {
+        $parentDir = Split-Path $FileName
+        New-Item -Path $parentDir -Type Directory -Force | Out-Null
+        Set-Content -Path $FileName -Value $Version
+    }
+}
 
 function Set-PipelineVariable {
     Param ([string]$VarName, [string]$VarValue)
@@ -51,3 +63,9 @@ if ($SourceBranch -match $ReleaseBranch) {
 Set-PipelineVariable "majorAndMinorVersion" "$Major.$Minor"
 Set-PipelineVariable "revision" "$Revision.$SourceBranchCounter"
 Set-PipelineVariable "fullVersion" "$Major.$Minor.$Revision.$SourceBranchCounter"
+
+if ($VersionFileDirectory)
+{
+    $productVersionFile = Join-Path -Path $VersionFileDirectory -ChildPath "product-version.txt"
+    New-VersionFile -FileName $productVersionFile -Version "$Major.$Minor.$Revision.$SourceBranchCounter"
+}

@@ -23,8 +23,13 @@ jobs:
     pool:
       name: $(signPool)
     steps:
-      - powershell: Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
+      - powershell: Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter) -VersionFileDirectory $(Build.ArtifactStagingDirectory)\versions
         displayName: "Compute product version"
+      - task: PublishPipelineArtifact@1
+        displayName: "Publish version files"
+        inputs:
+          targetPath: $(Build.ArtifactStagingDirectory)\versions
+          artifactName: Versions
       - template: templates/win/build-and-unit-test.yml
       - template: templates/win/pack.signed.yml
 
