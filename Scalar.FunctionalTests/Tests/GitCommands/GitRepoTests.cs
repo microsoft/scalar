@@ -305,14 +305,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             this.FileSystem.WriteAllText(controlFile, content);
         }
 
-        protected void CreateFileWithoutClose(string path)
-        {
-            string virtualFile = Path.Combine(this.Enlistment.RepoRoot, path);
-            string controlFile = Path.Combine(this.ControlGitRepo.RootPath, path);
-            this.FileSystem.CreateFileWithoutClose(virtualFile);
-            this.FileSystem.CreateFileWithoutClose(controlFile);
-        }
-
         protected IDisposable ReadFileAndWriteWithoutClose(string path, string contents)
         {
             string virtualFile = Path.Combine(this.Enlistment.RepoRoot, path);

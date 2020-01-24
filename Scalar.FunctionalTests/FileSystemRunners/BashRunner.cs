@@ -304,11 +304,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             return long.Parse(this.RunProcess(statCommand));
         }
 
-        public override void CreateFileWithoutClose(string path)
-        {
-            throw new NotImplementedException();
-        }
-
         public override IDisposable OpenFileAndWrite(string path, string data)
         {
             throw new NotImplementedException();

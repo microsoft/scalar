@@ -211,11 +211,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             throw new System.NotSupportedException();
         }
 
-        public override void CreateFileWithoutClose(string path)
-        {
-            throw new System.NotSupportedException();
-        }
-
         public override IDisposable OpenFileAndWrite(string path, string data)
         {
             throw new System.NotSupportedException();
