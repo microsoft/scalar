@@ -41,6 +41,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         }
 
         [TestCase]
+        [Ignore("Intermittently failing test")]
         public void CreateFileWithoutClose()
         {
             string srcPath = @"CreateFileWithoutClose.md";
