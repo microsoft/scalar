@@ -31,17 +31,22 @@ $Major = 0
 $Minor = 0
 $Revision = 0
 
+# Release scenario. Build number is taken from the branch name "year.month.milestone".
 if ($SourceBranch -match $ReleaseBranch) {
     $Major = $Matches["Year"]
     $Minor = $Matches["Month"]
     $Revision = $Matches["Milestone"]
-    Set-BuildNumber "Release-$Major.$Minor.$Revision.$SourceBranchCounter"
-} elseif ($SourceBranch -match $PullRequest) {
+    Set-BuildNumber "$Major.$Minor.$Revision.$SourceBranchCounter"
+}
+# PR scenario. Prefix with PR number with "PR-".
+elseif ($SourceBranch -match $PullRequest) {
     $Major = 10
     $Minor = 20
     $Revision = $Matches["PrNum"]
     Set-BuildNumber "PR-$Revision.$SourceBranchCounter"
-} else {    # Typical CI scenario. Handles tags and non-release branches.
+}
+# Typical CI scenario. Handles tags and non-release branches. Prefix "CI-" with the branch name.
+else {
     $Major = (Get-Date -Format yy)
     $Minor = (Get-Date -Format MM)
     $Revision = (Get-Date -Format dd)
