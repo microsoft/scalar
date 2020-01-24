@@ -442,11 +442,21 @@ namespace Scalar.Common.Git
                 userInteractive: false);
         }
 
-        public string[] GetRemotes()
+        public bool TryGetRemotes(out string[] remotes, out string error)
         {
-            return this.InvokeGitInWorkingDirectoryRoot("remote", fetchMissingObjects: false)
-                       .Output
-                       .Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            GitProcess.Result result = this.InvokeGitInWorkingDirectoryRoot("remote", fetchMissingObjects: false);
+
+            if (result.ExitCodeIsFailure)
+            {
+                remotes = null;
+                error = result.Errors;
+                return false;
+            }
+
+            remotes = result.Output
+                            .Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            error = null;
+            return true;
         }
 
         public Result SparseCheckoutSet(List<string> foldersToSet)
@@ -754,6 +764,9 @@ namespace Scalar.Common.Git
 
                             this.executingProcess.Start();
 
+                            this.executingProcess.BeginOutputReadLine();
+                            this.executingProcess.BeginErrorReadLine();
+
                             try
                             {
                                 if (this.LowerPriority)
@@ -771,9 +784,10 @@ namespace Scalar.Common.Git
                             {
                                 // This is thrown if the process completes before we can set a property.
                             }
-
-                            this.executingProcess.BeginOutputReadLine();
-                            this.executingProcess.BeginErrorReadLine();
+                            catch (Win32Exception)
+                            {
+                                // This is thrown if the process completes before we can set a property.
+                            }
 
                             if (!this.executingProcess.WaitForExit(timeoutMs))
                             {
@@ -865,7 +879,8 @@ namespace Scalar.Common.Git
                 fetchMissingObjects: fetchMissingObjects,
                 writeStdIn: writeStdIn,
                 parseStdOutLine: parseStdOutLine,
-                timeoutMs: -1);
+                timeoutMs: -1,
+                userInteractive: userInteractive);
         }
 
         /// <summary>
