@@ -21,7 +21,7 @@ namespace Scalar.Service.UI
         private const string ScalarAutomountButtonTitle = "Retry";
 
         private const string ScalarUpgradeTitleFormat = "New version {0} is available";
-        private const string ScalarUpgradeMessage = "Upgrade will unmount and remount scalar repos, ensure you are at a stopping point. When ready, click Upgrade button to run upgrade.";
+        private const string ScalarUpgradeMessage = "When ready, click Upgrade button to run upgrade.";
         private const string ScalarUpgradeButtonTitle = "Upgrade";
 
         private const string ScalarRemountActionPrefix = "scalar mount";
