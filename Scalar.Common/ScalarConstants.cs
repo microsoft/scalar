@@ -236,7 +236,6 @@ namespace Scalar.Common
             public const string InvalidRingConsoleAlert = "Upgrade ring set to unknown value. " + NoUpgradeCheckPerformed;
             public const string SetUpgradeRingCommand = "To set or change upgrade ring, run `scalar config " + LocalScalarConfig.UpgradeRing + " [\"Fast\"|\"Slow\"|\"None\"]` from a command prompt.";
             public const string ReminderNotification = "A new version of Scalar is available. Run " + UpgradeVerbMessages.ScalarUpgradeConfirm + " from an elevated command prompt to upgrade.";
-            public const string UnmountRepoWarning = "Upgrade will unmount and remount scalar repos, ensure you are at a stopping point.";
             public const string UpgradeInstallAdvice = "When ready, run " + UpgradeVerbMessages.ScalarUpgradeConfirm + " from an elevated command prompt.";
         }
     }

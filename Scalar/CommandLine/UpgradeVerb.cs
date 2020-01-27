@@ -207,11 +207,9 @@ namespace Scalar.CommandLine
             }
             else
             {
-                string advisoryMessage = string.Join(
-                        Environment.NewLine,
-                        ScalarConstants.UpgradeVerbMessages.UnmountRepoWarning,
-                        ScalarConstants.UpgradeVerbMessages.UpgradeInstallAdvice);
-                this.ReportInfoToConsole(message + Environment.NewLine + Environment.NewLine + advisoryMessage + Environment.NewLine);
+                string upgradeMessage = string.Format("{1}{0}{0}{2}{0}",
+                    Environment.NewLine, message, ScalarConstants.UpgradeVerbMessages.UpgradeInstallAdvice);
+                this.ReportInfoToConsole(upgradeMessage);
             }
 
             return true;
