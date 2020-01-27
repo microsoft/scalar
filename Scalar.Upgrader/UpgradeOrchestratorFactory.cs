@@ -1,16 +1,22 @@
+using System.Runtime.InteropServices;
+
 namespace Scalar.Upgrader
 {
     public static class UpgradeOrchestratorFactory
     {
         public static UpgradeOrchestrator Create(UpgradeOptions options)
         {
-#if MACOS_BUILD
-            return new MacUpgradeOrchestrator(options);
-#elif WINDOWS_BUILD
-            return new WindowsUpgradeOrchestrator(options);
-#else
-            throw new System.NotImplementedException();
-#endif
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return new WindowsUpgradeOrchestrator(options);
             }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return new MacUpgradeOrchestrator(options);
+            }
+
+            throw new System.NotImplementedException();
+        }
     }
 }
