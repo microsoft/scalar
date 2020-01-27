@@ -41,14 +41,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         }
 
         [TestCase]
-        public void CreateFileWithoutClose()
-        {
-            string srcPath = @"CreateFileWithoutClose.md";
-            this.CreateFileWithoutClose(srcPath);
-            this.ValidGitStatusWithRetry(srcPath);
-        }
-
-        [TestCase]
         public void WriteWithoutClose()
         {
             string srcPath = @"Readme.md";
