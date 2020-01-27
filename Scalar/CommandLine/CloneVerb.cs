@@ -274,7 +274,13 @@ namespace Scalar.CommandLine
                     }
                 }
 
-                cloneResult = this.CheckoutRepo();
+                this.ShowStatusWhileRunning(
+                    () =>
+                    {
+                        cloneResult = this.CheckoutRepo();
+                        return cloneResult.Success;
+                    },
+                    "Populating working directory");
             }
 
             if (cloneResult.Success)
