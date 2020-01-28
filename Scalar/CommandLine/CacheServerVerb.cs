@@ -62,8 +62,6 @@ namespace Scalar.CommandLine
                     {
                         this.ReportErrorAndExit("Failed to save cache to config: " + error);
                     }
-
-                    this.Output.WriteLine("You must remount Scalar for this to take effect.");
                 }
                 else if (this.ListCacheServers)
                 {

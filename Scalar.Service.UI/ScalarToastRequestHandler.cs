@@ -8,23 +8,10 @@ namespace Scalar.Service.UI
 {
     public class ScalarToastRequestHandler
     {
-        private const string ScalarAutomountStartTitle= "Scalar Automount";
-        private const string ScalarAutomountStartMessageFormat = "Attempting to mount {0} Scalar {1}";
-        private const string ScalarMultipleRepos = "repos";
-        private const string ScalarSingleRepo = "repo";
-
-        private const string ScalarAutomountSuccessTitle = "Scalar Automount";
-        private const string ScalarAutomountSuccessMessageFormat = "The following Scalar repo is now mounted: {0}{1}";
-
-        private const string ScalarAutomountErrorTitle = "Scalar Automount";
-        private const string ScalarAutomountErrorMessageFormat = "The following Scalar repo failed to mount: {0}{1}";
-        private const string ScalarAutomountButtonTitle = "Retry";
-
         private const string ScalarUpgradeTitleFormat = "New version {0} is available";
         private const string ScalarUpgradeMessage = "When ready, click Upgrade button to run upgrade.";
         private const string ScalarUpgradeButtonTitle = "Upgrade";
 
-        private const string ScalarRemountActionPrefix = "scalar mount";
         private const string ScalarUpgradeActionPrefix = "scalar upgrade --confirm";
 
         private readonly ITracer tracer;
@@ -68,41 +55,25 @@ namespace Scalar.Service.UI
                 return;
             }
 
-            using (ITracer activity = this.tracer.StartActivity("GVFSToastCallback", EventLevel.Informational))
+            using (ITracer activity = this.tracer.StartActivity("ScalarToastCallback", EventLevel.Informational))
             {
-                string gvfsCmd = null;
+                string command = null;
                 bool elevate = false;
 
                 if (args.StartsWith(ScalarUpgradeActionPrefix))
                 {
                     this.tracer.RelatedInfo($"scalar upgrade action.");
-                    gvfsCmd = "scalar upgrade --confirm";
+                    command = "scalar upgrade --confirm";
                     elevate = true;
-                }
-                else if (args.StartsWith(ScalarRemountActionPrefix))
-                {
-                    string path = args.Substring(ScalarRemountActionPrefix.Length, args.Length - ScalarRemountActionPrefix.Length);
-                    if (this.TryValidatePath(path, out string enlistment, activity))
-                    {
-                        this.tracer.RelatedInfo($"scalar mount action {enlistment}.");
-                        gvfsCmd = $"scalar mount \"{enlistment}\"";
-                    }
-                    else
-                    {
-                        EventMetadata metadata = new EventMetadata();
-                        metadata.Add(nameof(args), args);
-                        metadata.Add(nameof(path), path);
-                        this.tracer.RelatedError(metadata, $"{nameof(this.UserResponseCallback)}- Invalid enlistment path specified in Toaster callback.");
-                    }
                 }
                 else
                 {
                     this.tracer.RelatedError($"{nameof(this.UserResponseCallback)}- Unknown action({args}) specified in Toaster callback.");
                 }
 
-                if (!string.IsNullOrEmpty(gvfsCmd))
+                if (!string.IsNullOrEmpty(command))
                 {
-                    this.launchGVFSInCommandPrompt(gvfsCmd, elevate, activity);
+                    this.LaunchCommandInCommandPrompt(command, elevate, activity);
                 }
             }
         }
@@ -127,7 +98,7 @@ namespace Scalar.Service.UI
             return false;
         }
 
-        private void launchGVFSInCommandPrompt(string fullGvfsCmd, bool elevate, ITracer tracer)
+        private void LaunchCommandInCommandPrompt(string fullCommand, bool elevate, ITracer tracer)
         {
             const string cmdPath = "CMD.exe";
             ProcessStartInfo processInfo = new ProcessStartInfo(cmdPath);
@@ -140,13 +111,13 @@ namespace Scalar.Service.UI
 
             // /K option is so the user gets the time to read the output of the command and
             // manually close the cmd window after that.
-            processInfo.Arguments = "/K " + fullGvfsCmd;
+            processInfo.Arguments = "/K " + fullCommand;
             if (elevate)
             {
                 processInfo.Verb = "runas";
             }
 
-            tracer.RelatedInfo($"{nameof(this.UserResponseCallback)}- Running {cmdPath} /K {fullGvfsCmd}");
+            tracer.RelatedInfo($"{nameof(this.UserResponseCallback)}- Running {cmdPath} /K {fullCommand}");
 
             try
             {
@@ -156,10 +127,10 @@ namespace Scalar.Service.UI
             {
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add("Exception", ex.ToString());
-                metadata.Add(nameof(fullGvfsCmd), fullGvfsCmd);
+                metadata.Add(nameof(fullCommand), fullCommand);
                 metadata.Add(nameof(elevate), elevate);
 
-                tracer.RelatedError(metadata, $"{nameof(this.launchGVFSInCommandPrompt)}: Error launching {fullGvfsCmd}. {ex.ToString()}");
+                tracer.RelatedError(metadata, $"{nameof(this.LaunchCommandInCommandPrompt)}: Error launching {fullCommand}. {ex.ToString()}");
             }
         }
     }

@@ -20,18 +20,7 @@ namespace Scalar.FunctionalTests.Tests
 
             foreach (string filename in GetAllFilesInDirectory(enlistment.ScalarLogsRoot))
             {
-                if (filename.Contains("mount_process"))
-                {
-                    // Validate that all mount processes started by the functional tests were started
-                    // by verbs, and that "StartedByVerb" was set to true when the mount process was launched
-                    OutputFileContents(
-                        filename,
-                        contents => contents.ShouldContain("\"StartedByVerb\":true"));
-                }
-                else
-                {
-                    OutputFileContents(filename);
-                }
+                OutputFileContents(filename);
             }
         }
 

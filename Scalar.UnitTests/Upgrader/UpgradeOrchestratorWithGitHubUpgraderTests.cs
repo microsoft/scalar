@@ -34,24 +34,6 @@ namespace Scalar.UnitTests.Upgrader
             this.Tracer.RelatedErrorEvents.ShouldBeEmpty();
         }
 
-        [TestCase]
-        public void AutoUnmountError()
-        {
-            this.ConfigureRunAndVerify(
-                configure: () =>
-                {
-                    this.PrerunChecker.SetReturnFalseOnCheck(MockInstallerPrerunChecker.FailOnCheckType.UnMountRepos);
-                },
-                expectedReturn: ReturnCode.GenericError,
-                expectedOutput: new List<string>
-                {
-                    "Unmount of some of the repositories failed."
-                },
-                expectedErrors: new List<string>
-                {
-                    "Unmount of some of the repositories failed."
-                });
-        }
 
         [TestCase]
         public void AbortOnBlockingProcess()
@@ -194,7 +176,7 @@ namespace Scalar.UnitTests.Upgrader
 
             string args;
             gitInstallerInfo.TryGetValue("Args", out args).ShouldBeTrue();
-            args.ShouldContain(new string[] { "/VERYSILENT", "/CLOSEAPPLICATIONS", "/SUPPRESSMSGBOXES", "/NORESTART", "/Log", "/REMOUNTREPOS=false" });
+            args.ShouldContain(new string[] { "/VERYSILENT", "/CLOSEAPPLICATIONS", "/SUPPRESSMSGBOXES", "/NORESTART", "/Log" });
         }
 
         [TestCase]
@@ -268,25 +250,6 @@ namespace Scalar.UnitTests.Upgrader
                 expectedErrors: new List<string>
                 {
                     "Error deleting downloaded Git installer."
-                });
-        }
-
-        [TestCase]
-        public void RemountReposError()
-        {
-            this.ConfigureRunAndVerify(
-                configure: () =>
-                {
-                    this.PrerunChecker.SetReturnFalseOnCheck(MockInstallerPrerunChecker.FailOnCheckType.RemountRepos);
-                },
-                expectedReturn: ReturnCode.Success,
-                expectedOutput: new List<string>
-                {
-                    "Auto remount failed."
-                },
-                expectedErrors: new List<string>
-                {
-                    "Auto remount failed."
                 });
         }
 

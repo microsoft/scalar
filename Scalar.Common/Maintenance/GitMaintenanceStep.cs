@@ -32,7 +32,7 @@ namespace Scalar.Common.Maintenance
 
         public static bool EnlistmentRootReady(ScalarContext context)
         {
-            // If a user locks their drive or disconnects an external drive while the mount process
+            // If a user locks their drive or disconnects an external drive while the process
             // is running, then it will appear as if the directories below do not exist or throw
             // a "Device is not ready" error.
             try
@@ -188,7 +188,7 @@ namespace Scalar.Common.Maintenance
                 {
                     this.Context.Tracer.RelatedWarning(
                         metadata: null,
-                        message: $"{this.Area}: Not launching Git process {gitCommand} because the mount is stopping",
+                        message: $"{this.Area}: Not launching Git process {gitCommand} because the process is stopping",
                         keywords: Keywords.Telemetry);
                     throw new StoppingException();
                 }
