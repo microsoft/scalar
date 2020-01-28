@@ -22,7 +22,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         /// <summary>
-        /// Can be overridden for custom [TearDown] steps that occur after the test enlistements have been unmounted and deleted
+        /// Can be overridden for custom [TearDown] steps that occur after the test enlistments have been deleted
         /// </summary>
         protected virtual void OnTearDownEnlistmentsDeleted()
         {

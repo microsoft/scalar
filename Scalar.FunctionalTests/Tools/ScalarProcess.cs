@@ -40,22 +40,6 @@ namespace Scalar.FunctionalTests.Tools
             this.CallScalar(args, expectedExitCode: SuccessExitCode);
         }
 
-        public void Mount()
-        {
-            string output;
-            this.TryMount(out output).ShouldEqual(true, "Scalar did not mount: " + output);
-
-            // TODO: Re-add this warning after we work out the version detail information
-            // output.ShouldNotContain(ignoreCase: true, unexpectedSubstrings: "warning");
-        }
-
-        public bool TryMount(out string output)
-        {
-            this.IsEnlistmentMounted().ShouldEqual(false, "Scalar is already mounted");
-            output = this.CallScalar("mount \"" + this.enlistmentRoot + "\"");
-            return this.IsEnlistmentMounted();
-        }
-
         public string RunVerb(string task, long? batchSize = null, bool failOnError = true)
         {
             string batchArg = batchSize == null
@@ -104,21 +88,6 @@ namespace Scalar.FunctionalTests.Tools
         public string CacheServer(string args)
         {
             return this.CallScalar("cache-server " + args + " \"" + this.enlistmentRoot + "\"");
-        }
-
-        public void Unmount()
-        {
-            if (this.IsEnlistmentMounted())
-            {
-                string result = this.CallScalar("unmount \"" + this.enlistmentRoot + "\"", expectedExitCode: SuccessExitCode);
-                this.IsEnlistmentMounted().ShouldEqual(false, "Scalar did not unmount: " + result);
-            }
-        }
-
-        public bool IsEnlistmentMounted()
-        {
-            string statusResult = this.CallScalar("status \"" + this.enlistmentRoot + "\"");
-            return statusResult.Contains("Mount status: Ready");
         }
 
         public string RunServiceVerb(string argument)

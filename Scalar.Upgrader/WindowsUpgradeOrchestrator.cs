@@ -22,34 +22,5 @@ namespace Scalar.Upgrader
             : base(options)
         {
         }
-
-        protected override bool TryMountRepositories(out string consoleError)
-        {
-            string errorMessage = string.Empty;
-            if (this.mount && !this.LaunchInsideSpinner(
-                () =>
-                {
-                    string mountError;
-                    if (!this.preRunChecker.TryMountAllScalarRepos(out mountError))
-                    {
-                        EventMetadata metadata = new EventMetadata();
-                        metadata.Add("Upgrade Step", nameof(this.TryMountRepositories));
-                        metadata.Add("Mount Error", mountError);
-                        this.tracer.RelatedError(metadata, $"{nameof(this.preRunChecker.TryMountAllScalarRepos)} failed.");
-                        errorMessage += mountError;
-                        return false;
-                    }
-
-                    return true;
-                },
-                "Mounting repositories"))
-            {
-                consoleError = errorMessage;
-                return false;
-            }
-
-            consoleError = null;
-            return true;
-        }
     }
 }

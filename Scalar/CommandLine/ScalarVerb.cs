@@ -46,13 +46,13 @@ namespace Scalar.CommandLine
                 {
                     try
                     {
-                        InternalVerbParameters mountInternal = InternalVerbParameters.FromJson(value);
-                        if (!string.IsNullOrEmpty(mountInternal.ServiceName))
+                        InternalVerbParameters internalParams = InternalVerbParameters.FromJson(value);
+                        if (!string.IsNullOrEmpty(internalParams.ServiceName))
                         {
-                            this.ServiceName = mountInternal.ServiceName;
+                            this.ServiceName = internalParams.ServiceName;
                         }
 
-                        this.StartedByService = mountInternal.StartedByService;
+                        this.StartedByService = internalParams.StartedByService;
                     }
                     catch (JsonReaderException e)
                     {
