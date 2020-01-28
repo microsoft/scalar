@@ -158,13 +158,25 @@ namespace Scalar.Common.Maintenance
 
             using (ITracer activity = this.Context.Tracer.StartActivity(nameof(GitProcess.BackgroundFetch), EventLevel.LogAlways))
             {
-                string[] remotes = gitProcess.GetRemotes();
+                if (!gitProcess.TryGetRemotes(out string[] remotes, out string errors))
+                {
+                    error = $"Failed to load remotes with error: {errors}";
+                    activity.RelatedError(error);
+                    return false;
+                }
+
                 bool response = true;
 
                 error = "";
                 foreach (string remote in remotes)
                 {
+                    activity.RelatedInfo($"Running fetch for remote '{remote}'");
                     GitProcess.Result result = gitProcess.BackgroundFetch(remote);
+
+                    if (!string.IsNullOrWhiteSpace(result.Output))
+                    {
+                        activity.RelatedError($"Background fetch from '{remote}' completed with stdout: {result.Output}");
+                    }
 
                     if (!string.IsNullOrWhiteSpace(result.Errors))
                     {
@@ -176,6 +188,7 @@ namespace Scalar.Common.Maintenance
                     {
                         response = false;
                         // Keep going through other remotes, but the overall result will still be false.
+                        activity.RelatedError($"Background fetch from '{remote}' failed");
                     }
                 }
 
