@@ -92,8 +92,7 @@ Mac:
 
 ## How to Write a Functional Test
 
-Each piece of functionality that we add to Scalar should have corresponding functional tests that clone a repo, mount the filesystem, and use existing tools and filesystem
-APIs to interact with the virtual repo.
+Each piece of functionality that we add to Scalar should have corresponding functional tests that clone a repo and use existing tools and filesystem APIs to interact with the virtual repo.
 
 Since these are functional tests that can potentially modify the state of files on disk, you need to be careful to make sure each test can run in a clean 
 environment.  There are three base classes that you can derive from when writing your tests.  It's also important to put your new class into the same namespace
@@ -101,14 +100,11 @@ as the base class, because NUnit treats namespaces like test suites, and we have
 
 1. `TestsWithLongRunningEnlistment`
 
-    Before any test in this namespace is executed, we create a single enlistment and mount Scalar.  We then run all tests in this namespace that derive
-	from this base class.  Only put tests in here that are purely readonly and will leave the repo in a good state for future tests.
+    Before any test in this namespace is executed, we create a single enlistment.  We then run all tests in this namespace that derive from this base class.  Only put tests in here that are purely readonly and will leave the repo in a good state for future tests.
 
 2. `TestsWithEnlistmentPerFixture`
 
-    For any test fixture (a fixture is the same as a class in NUnit) that derives from this class, we create an enlistment and mount Scalar before running
-	any of the tests in the fixture, and then we unmount and delete the enlistment after all tests are done (but before any other fixture runs).  If you need
-	to write a sequence of tests that manipulate the same repo, this is the right base class.
+    For any test fixture (a fixture is the same as a class in NUnit) that derives from this class, we create an enlistment before running any of the tests in the fixture, and then we delete the enlistment after all tests are done (but before any other fixture runs).  If you need to write a sequence of tests that manipulate the same repo, this is the right base class.
 
 3. `TestsWithEnlistmentPerTestCase`
 

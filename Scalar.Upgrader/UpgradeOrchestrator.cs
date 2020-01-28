@@ -11,7 +11,6 @@ namespace Scalar.Upgrader
     public abstract class UpgradeOrchestrator
     {
         protected InstallerPreRunChecker preRunChecker;
-        protected bool mount;
         protected ITracer tracer;
 
         private const EventLevel DefaultEventLevel = EventLevel.Informational;
@@ -37,7 +36,6 @@ namespace Scalar.Upgrader
             this.preRunChecker = preRunChecker;
             this.output = output;
             this.input = input;
-            this.mount = false;
             this.ExitCode = ReturnCode.Success;
             this.installationId = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         }
@@ -59,7 +57,6 @@ namespace Scalar.Upgrader
             this.fileSystem = new PhysicalFileSystem();
             this.output = Console.Out;
             this.input = Console.In;
-            this.mount = false;
             this.ExitCode = ReturnCode.Success;
             this.installationId = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         }
@@ -73,7 +70,6 @@ namespace Scalar.Upgrader
         public void Execute()
         {
             string error = null;
-            string mountError = null;
             Version newVersion = null;
 
             if (this.tracer == null)
@@ -99,12 +95,6 @@ namespace Scalar.Upgrader
                     }
                     finally
                     {
-                        if (!this.TryMountRepositories(out mountError))
-                        {
-                            mountError = Environment.NewLine + "WARNING: " + mountError;
-                            this.output.WriteLine(mountError);
-                        }
-
                         this.DeletedDownloadedAssets();
                     }
                 }
@@ -130,7 +120,7 @@ namespace Scalar.Upgrader
                 {
                     if (newVersion != null)
                     {
-                        this.output.WriteLine($"{Environment.NewLine}Upgrade completed successfully{(string.IsNullOrEmpty(mountError) ? "." : ", but one or more repositories will need to be mounted manually.")}");
+                        this.output.WriteLine($"{Environment.NewLine}Upgrade completed successfully.");
                     }
                 }
             }
@@ -156,8 +146,6 @@ namespace Scalar.Upgrader
                 this.output,
                 this.output == Console.Out && !ScalarPlatform.Instance.IsConsoleOutputRedirectedToFile());
         }
-
-        protected abstract bool TryMountRepositories(out string consoleError);
 
         private JsonTracer CreateTracer()
         {
@@ -257,25 +245,6 @@ namespace Scalar.Upgrader
                 newVersion = null;
                 consoleError = null;
                 return true;
-            }
-
-            if (!this.LaunchInsideSpinner(
-                () =>
-                {
-                    if (!this.preRunChecker.TryUnmountAllScalarRepos(out error))
-                    {
-                        return false;
-                    }
-
-                    this.mount = true;
-
-                    return true;
-                },
-                "Unmounting repositories"))
-            {
-                newVersion = null;
-                consoleError = error;
-                return false;
             }
 
             if (!this.LaunchInsideSpinner(

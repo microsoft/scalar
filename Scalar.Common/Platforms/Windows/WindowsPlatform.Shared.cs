@@ -50,7 +50,7 @@ namespace Scalar.Platform.Windows
                 }
                 else if (tryGetProcessById)
                 {
-                    // The process.IsInvalid may be true when the mount process doesn't have access to call
+                    // The process.IsInvalid may be true when the process doesn't have access to call
                     // OpenProcess for the specified processId. Fallback to slow way of finding process.
                     try
                     {

@@ -45,7 +45,7 @@ namespace Scalar.Common
 
         public bool UsesGvfsProtocol { get; protected set; }
 
-        // These version properties are only used in logging during clone and mount to track version numbers
+        // These version properties are only used in logging during clone to track version numbers
         public string GitVersion
         {
             get { return this.gitVersion; }
