@@ -22,8 +22,6 @@ namespace Scalar.UnitTests.Mock.Upgrader
             IsElevated = 0x2,
             BlockingProcessesRunning = 0x4,
             UnattendedMode = 0x8,
-            UnMountRepos = 0x10,
-            RemountRepos = 0x20,
             IsServiceInstalledAndNotRunning = 0x40,
         }
 
@@ -86,20 +84,6 @@ namespace Scalar.UnitTests.Mock.Upgrader
 
         protected override bool TryRunScalarWithArgs(string args, out string error)
         {
-            if (string.CompareOrdinal(args, "service --unmount-all") == 0)
-            {
-                bool result = this.FakedResultOfCheck(FailOnCheckType.UnMountRepos);
-                error = result == false ? "Unmount of some of the repositories failed." : null;
-                return result;
-            }
-
-            if (string.CompareOrdinal(args, "service --mount-all") == 0)
-            {
-                bool result = this.FakedResultOfCheck(FailOnCheckType.RemountRepos);
-                error = result == false ? "Auto remount failed." : null;
-                return result;
-            }
-
             error = "Unknown Scalar command";
             return false;
         }

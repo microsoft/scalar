@@ -83,14 +83,10 @@ namespace Scalar.Common
 
         public static class LogFileTypes
         {
-            public const string MountPrefix = "mount";
             public const string UpgradePrefix = "productupgrade";
 
             public const string Clone = "clone";
             public const string Maintenance = "maintenance";
-            public const string MountVerb = MountPrefix + "_verb";
-            public const string MountProcess = MountPrefix + "_process";
-            public const string MountUpgrade = MountPrefix + "_repoupgrade";
             public const string Repair = "repair";
             public const string Service = "service";
             public const string ServiceUI = "service_ui";
@@ -194,23 +190,6 @@ namespace Scalar.Common
         public static class VerbParameters
         {
             public const string InternalUseOnly = "internal_use_only";
-
-            public static class Mount
-            {
-                public const string StartedByService = "StartedByService";
-                public const string StartedByVerb = "StartedByVerb";
-                public const string Verbosity = "verbosity";
-                public const string Keywords = "keywords";
-                public const string DebugWindow = "debug-window";
-
-                public const string DefaultVerbosity = "Informational";
-                public const string DefaultKeywords = "Any";
-            }
-
-            public static class Unmount
-            {
-                public const string SkipLock = "skip-wait-for-lock";
-            }
 
             public static class Maintenance
             {

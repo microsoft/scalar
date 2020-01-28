@@ -44,32 +44,6 @@ namespace Scalar.Upgrader
             return true;
         }
 
-        // TODO: Move repo mount calls to Scalar.Upgrader project.
-        // https://github.com/Microsoft/Scalar/issues/293
-        public virtual bool TryMountAllScalarRepos(out string consoleError)
-        {
-            return this.TryRunScalarWithArgs("service --mount-all", out consoleError);
-        }
-
-        public virtual bool TryUnmountAllScalarRepos(out string consoleError)
-        {
-            consoleError = null;
-            this.tracer.RelatedInfo("Unmounting any mounted Scalar repositories.");
-
-            using (ITracer activity = this.tracer.StartActivity(nameof(this.TryUnmountAllScalarRepos), EventLevel.Informational))
-            {
-                if (!this.TryRunScalarWithArgs("service --unmount-all", out consoleError))
-                {
-                    this.tracer.RelatedError($"{nameof(this.TryUnmountAllScalarRepos)}: {consoleError}");
-                    return false;
-                }
-
-                activity.RelatedInfo("Successfully unmounted repositories.");
-            }
-
-            return true;
-        }
-
         public virtual bool IsInstallationBlockedByRunningProcess(out string consoleError)
         {
             consoleError = null;

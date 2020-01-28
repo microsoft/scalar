@@ -2,19 +2,18 @@
 
 Thank you for taking the time to contribute!
 
-## Guidelines
-
-* [Contributor License Agreement](#contributor-license-agreement)
-* [Code of Conduct](#code-of-conduct)
-* [Building Scalar on Windows](#building-scalar-on-windows)
-* [Building Scalar on Mac](#building-scalar-on-mac)
-* [Design Reviews](#design-reviews)
-* [Platform Specific Code](#platform-specific-code)
-* [Tracing and Logging](#tracing-and-logging)
-* [Error Handling](#error-handling)
-* [Background Threads](#background-threads)
-* [Coding Conventions](#coding-conventions)
-* [Testing](#testing)
+ - [Contributor License Agreement](#contributor-license-agreement)
+ - [Code of Conduct](#code-of-conduct)
+ - [Building Scalar on Windows](#building-scalar-on-windows)
+ - [Building Scalar on Mac](#building-scalar-on-mac)
+ - [Design Reviews](#design-reviews)
+ - [Platform Specific Code](#platform-specific-code)
+ - [Tracing and Logging](#tracing-and-logging)
+ - [Error Handling](#error-handling)
+ - [Background Threads](#background-threads)
+ - [Coding Conventions](#coding-conventions)
+ - [Testing](#testing)
+   - [C# Unit Tests](#c-unit-tests)
 
 ## Contributor License Agreement
 
@@ -115,11 +114,11 @@ The design review process is as follows:
   catch (Exception e)
   {
     EventMetadata metadata = new EventMetadata();
-    metadata.Add("Area", "Mount");
-    metadata.Add(nameof(enlistmentHookPath), enlistmentHookPath);
-    metadata.Add(nameof(installedHookPath), installedHookPath);
+    metadata.Add("Area", "Upgrade");
+    metadata.Add(nameof(packageVersion), packageVersion);
+    metadata.Add(nameof(packageName), packageName);
     metadata.Add("Exception", e.ToString());
-    context.Tracer.RelatedError(metadata, $"Failed to compare {hook.Name} version");
+    context.Tracer.RelatedError(metadata, $"Failed to compare {packageName} version");
   }
   ```
 
@@ -127,7 +126,7 @@ The design review process is as follows:
 
 - *Fail fast: An error or exception that risks data loss or corruption should shut down Scalar immediately*
 
-  Preventing data loss and repository corruption is critical.  If an error or exception occurs that could lead to data loss, it's better to shut down Scalar than keep the repository mounted and risk corruption.
+  Preventing data loss and repository corruption is critical.  If an error or exception occurs that could lead to data loss, it's better to shut down Scalar than risk corruption.
 
 - *Do not catch exceptions that are indicative of a programmer error (e.g. `ArgumentNullException`)*
 
@@ -222,7 +221,7 @@ The design review process is as follows:
 
 - <a id="bgexceptions"></a>*Catch all exceptions on long-running tasks and background threads*
 
-  Wrap all code that runs in the background thread in a top-level `try/catch(Exception)`.  Any exceptions caught by this handler should be logged, and then Scalar should be forced to terminate with `Environment.Exit`.  It's not safe to allow Scalar to continue to run after an unhandled exception stops a background thread or long-running task.  Testing has shown that `Environment.Exit` consistently terminates the Scalar mount process regardless of how background threads are started (e.g. native thread, `new Thread()`, `Task.Factory.StartNew()`).
+  Wrap all code that runs in the background thread in a top-level `try/catch(Exception)`.  Any exceptions caught by this handler should be logged, and then Scalar should be forced to terminate with `Environment.Exit`.  It's not safe to allow Scalar to continue to run after an unhandled exception stops a background thread or long-running task.  Testing has shown that `Environment.Exit` consistently terminates the process regardless of how background threads are started (e.g. native thread, `new Thread()`, `Task.Factory.StartNew()`).
 
   An example of this pattern can be seen in [`BackgroundFileSystemTaskRunner.ProcessBackgroundTasks`](https://github.com/Microsoft/Scalar/blob/4baa37df6bde2c9a9e1917fc7ce5debd653777c0/Scalar/Scalar.Virtualization/Background/BackgroundFileSystemTaskRunner.cs#L233).
 
