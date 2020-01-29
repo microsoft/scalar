@@ -6,7 +6,8 @@
     <PackageReference Update="Microsoft.PowerShell.SDK"        Version="6.2.2"  />
     <PackageReference Update="Microsoft.Windows.Compatibility" Version="2.1.1"  />
     <PackageReference Update="Newtonsoft.Json"                 Version="12.0.2" />
-    <PackageReference Update="NuGet.Commands"                  Version="5.2.0"  />
+    <PackageReference Update="NuGet.CommandLine"               Version="5.4.0"  />
+    <PackageReference Update="NuGet.Commands"                  Version="5.4.0"  />
     <PackageReference Update="GitForWindows.GVFS.Installer"    Version="$(GitPackageVersion)" />
     <PackageReference Update="GitForMac.GVFS.Installer"        Version="$(GitPackageVersion)" />
 
