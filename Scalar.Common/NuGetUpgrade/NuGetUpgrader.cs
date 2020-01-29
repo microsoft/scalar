@@ -47,7 +47,8 @@ namespace Scalar.Common.NuGetUpgrade
                     downloadFolder,
                     null,
                     ScalarPlatform.Instance.UnderConstruction.SupportsNuGetEncryption,
-                    tracer),
+                    tracer,
+                    fileSystem),
                 credentialStore,
                 ScalarPlatform.Instance.CreateProductUpgraderPlatformInteractions(fileSystem, tracer))
         {

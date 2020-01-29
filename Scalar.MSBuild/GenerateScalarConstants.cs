@@ -11,6 +11,9 @@ namespace Scalar.MSBuild
         public string MinimumGitVersion { get; set; }
 
         [Required]
+        public string ExternalBinariesDirectoryName { get; set; }
+
+        [Required]
         public string OutputFile { get; set; }
 
         public override bool Execute()
@@ -41,6 +44,7 @@ namespace Scalar.Common
     public static partial class ScalarConstants
     {{
         public static readonly GitVersion SupportedGitVersion = new GitVersion({0}, {1}, {2}, ""{3}"", {4}, {5});
+        public const string ExternalBinariesDirectoryName = ""{6}"";
     }}
 }}";
 
@@ -53,7 +57,8 @@ namespace Scalar.Common
                     version.Build,
                     version.Platform,
                     version.Revision,
-                    version.MinorRevision));
+                    version.MinorRevision,
+                    ExternalBinariesDirectoryName));
 
             return true;
         }

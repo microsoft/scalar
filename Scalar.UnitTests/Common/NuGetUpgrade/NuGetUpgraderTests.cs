@@ -66,20 +66,21 @@ namespace Scalar.UnitTests.Common.NuGetUpgrade
 
             this.tracer = new MockTracer();
 
+            this.mockFileSystem = new MockFileSystem(
+                new MockDirectory(
+                    Path.GetDirectoryName(this.downloadDirectoryPath),
+                    new[] { new MockDirectory(this.downloadDirectoryPath, null, null) },
+                    null));
+
             this.mockNuGetFeed = new Mock<NuGetFeed>(
                 NuGetFeedUrl,
                 NuGetFeedName,
                 this.downloadDirectoryPath,
                 null,
                 ScalarPlatform.Instance.UnderConstruction.SupportsNuGetEncryption,
-                this.tracer);
+                this.tracer,
+                this.mockFileSystem);
             this.mockNuGetFeed.Setup(feed => feed.SetCredentials(It.IsAny<string>()));
-
-            this.mockFileSystem = new MockFileSystem(
-                new MockDirectory(
-                    Path.GetDirectoryName(this.downloadDirectoryPath),
-                    new[] { new MockDirectory(this.downloadDirectoryPath, null, null) },
-                    null));
 
             this.mockCredentialManager = new Mock<ICredentialStore>();
             string credentialManagerString = "value";

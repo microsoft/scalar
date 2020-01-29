@@ -43,6 +43,9 @@
     <!-- Signing certificates -->
     <AuthenticodeCert>Microsoft400</AuthenticodeCert>
     <MacFilesCert>8003</MacFilesCert>
+
+    <!-- Compiled build constants -->
+    <ExternalBinariesDirectoryName>extbin</ExternalBinariesDirectoryName>
   </PropertyGroup>
 
   <!-- Common build-only dependencies -->
