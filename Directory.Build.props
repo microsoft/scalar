@@ -25,7 +25,7 @@
     <BaseIntermediateOutputPath>$(ProjectOutPath)obj\</BaseIntermediateOutputPath>
 
     <!-- Common build properties -->
-    <RuntimeIdentifiers>win-x64;osx-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win10-x64;osx-x64</RuntimeIdentifiers>
     <Deterministic>true</Deterministic>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <CodeAnalysisRuleSet>$(RepoPath)Scalar.ruleset</CodeAnalysisRuleSet>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
     <LayoutPath Condition="'$(LayoutPath)' == ''">$(ProjectOutPath)layout\$(Configuration)\</LayoutPath>
     <InstallerOutputPath Condition="'$(InstallerOutputPath)' == ''">$(ProjectOutPath)installer\$(Configuration)\</InstallerOutputPath>
     <DistributionOutputPath Condition="'$(DistributionOutputPath)' == ''">$(ProjectOutPath)dist\$(Configuration)\</DistributionOutputPath>
