@@ -1,4 +1,3 @@
-#if NETCOREAPP2_1
 using Moq;
 using NUnit.Framework;
 using Scalar.Common;
@@ -268,4 +267,3 @@ namespace Scalar.UnitTests.Common.Git
         }
     }
 }
-#endif
