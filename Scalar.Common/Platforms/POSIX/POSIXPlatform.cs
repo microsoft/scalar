@@ -23,7 +23,8 @@ namespace Scalar.Platform.POSIX
             underConstruction: new UnderConstructionFlags(
                 supportsScalarUpgrade: false,
                 supportsScalarConfig: false,
-                supportsNuGetEncryption: false))
+                supportsNuGetEncryption: false,
+                supportsNuGetVerification: false))
         {
         }
 

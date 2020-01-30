@@ -6,7 +6,7 @@ IF "%1"=="" (SET "Configuration=Debug") ELSE (SET "Configuration=%1")
 SETLOCAL
 SET PATH=C:\Program Files\Scalar;C:\Program Files\watchman;C:\Program Files\Git\cmd;%PATH%
 
-SET publishFragment=bin\%Configuration%\netcoreapp3.0\win-x64\publish
+SET publishFragment=bin\%Configuration%\netcoreapp3.0\win10-x64\publish
 SET functionalTestsDir=%SCALAR_OUTPUTDIR%\Scalar.FunctionalTests\%publishFragment%
 
 IF "%2"=="--test-scalar-on-path" GOTO :testPath

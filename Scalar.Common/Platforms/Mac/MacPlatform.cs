@@ -19,7 +19,8 @@ namespace Scalar.Platform.Mac
              underConstruction: new UnderConstructionFlags(
                 supportsScalarUpgrade: true,
                 supportsScalarConfig: true,
-                supportsNuGetEncryption: false))
+                supportsNuGetEncryption: false,
+                supportsNuGetVerification: false))
         {
         }
 

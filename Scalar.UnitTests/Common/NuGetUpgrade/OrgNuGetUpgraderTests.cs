@@ -81,7 +81,8 @@ namespace Scalar.UnitTests.Common.NuGetUpgrade
                 this.downloadDirectoryPath,
                 null,
                 ScalarPlatform.Instance.UnderConstruction.SupportsNuGetEncryption,
-                this.tracer);
+                this.tracer,
+                this.mockFileSystem);
 
             this.mockFileSystem = new MockFileSystem(
                 new MockDirectory(

@@ -9,8 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Scalar.Common.FileSystem;
 
 namespace Scalar.Common.NuGetUpgrade
 {
@@ -22,11 +24,16 @@ namespace Scalar.Common.NuGetUpgrade
         // This is the SHA256 Certificate Thumbrint we expect packages from Microsoft to be signed with
         private const string TrustedMicrosoftCertFingerprint = "3F9001EA83C560D712C24CF213C3D312CB3BFF51EE89435D3430BD06B5D0EECE";
 
+        // These are the expected signer and Authenticode certificate issuer for the NuGet CLI
+        private const string NuGetToolSigner = "Microsoft Corporation";
+        private const string NuGetToolCertIssuer = "Microsoft Code Signing PCA";
+
         private readonly ITracer tracer;
         private readonly string feedUrl;
         private readonly string feedName;
         private readonly string downloadFolder;
         private readonly bool platformSupportsEncryption;
+        private readonly PhysicalFileSystem fileSystem;
 
         private SourceRepository sourceRepository;
         private string personalAccessToken;
@@ -39,13 +46,15 @@ namespace Scalar.Common.NuGetUpgrade
             string downloadFolder,
             string personalAccessToken,
             bool platformSupportsEncryption,
-            ITracer tracer)
+            ITracer tracer,
+            PhysicalFileSystem fileSystem)
         {
             this.feedUrl = feedUrl;
             this.feedName = feedName;
             this.downloadFolder = downloadFolder;
             this.personalAccessToken = personalAccessToken;
             this.tracer = tracer;
+            this.fileSystem = fileSystem;
 
             // Configure the NuGet SourceCacheContext -
             // - Direct download packages - do not download to global
@@ -130,17 +139,53 @@ namespace Scalar.Common.NuGetUpgrade
 
         public virtual bool VerifyPackage(string packagePath)
         {
-            VerifyArgs verifyArgs = new VerifyArgs()
+            // We cannot use VerifyCommandRunner::ExecuteCommandAsync(VerifyArgs) because this is not implement for .NET Core.
+            // Instead we will shell out to the nuget.exe (Windows only) that we bundle with Scalar to do the checks for us.
+            // We first locate the bundled nuget.exe and check that it is signed before delegating our trust checks to it.
+            if (!ScalarPlatform.Instance.UnderConstruction.SupportsNuGetVerification)
             {
-                Verifications = new VerifyArgs.Verification[] { VerifyArgs.Verification.All },
-                PackagePath = packagePath,
-                CertificateFingerprint = new List<string>() { TrustedMicrosoftCertFingerprint },
-                Logger = this.nuGetLogger
-            };
+                this.tracer.RelatedError("Platform does not support NuGet package verification.");
+                return false;
+            }
 
-            VerifyCommandRunner verifyCommandRunner = new VerifyCommandRunner();
-            int result = verifyCommandRunner.ExecuteCommandAsync(verifyArgs).Result;
-            return result == 0;
+            // Locate bundled nuget CLI tool
+            string externalBinDir = ProcessHelper.GetBundledExternalBinariesLocation();
+            string nugetToolFileName = "nuget" + ScalarPlatform.Instance.Constants.ExecutableExtension;
+            string nugetToolFilePath = Path.Combine(externalBinDir, nugetToolFileName);
+            if (!this.fileSystem.FileExists(nugetToolFilePath))
+            {
+                this.tracer.RelatedError($"Cannot find NuGet CLI tool {nugetToolFilePath}. Scalar installation is broken; please reinstall Scalar.");
+                return false;
+            }
+
+            // Open a file handle so that no one can replace the executable between the 'is signed' check and actually running it
+            using (Stream stream = this.fileSystem.OpenFileStream(nugetToolFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, false))
+            {
+                // Check CLI tool is signed
+                if (!ScalarPlatform.Instance.TryVerifyAuthenticodeSignature(nugetToolFilePath, out string subject, out string issuer, out string error))
+                {
+                    this.tracer.RelatedError($"NuGet CLI tool {nugetToolFilePath} is not signed. Error={error}");
+                    return false;
+                }
+
+                if (!subject.StartsWith($"CN={NuGetToolSigner}, ") || !issuer.StartsWith($"CN={NuGetToolCertIssuer}"))
+                {
+                    this.tracer.RelatedError($"NuGet CLI tool {nugetToolFilePath} is signed by unknown signer. Signed by {subject}, issued by {issuer} expected signer is {NuGetToolSigner}, issuer {NuGetToolCertIssuer}.");
+                    return false;
+                }
+
+                // Use the NuGet CLI to verify the package
+                string verifyCommandArgs = $"verify -All \"{packagePath}\" -CertificateFingerprint {TrustedMicrosoftCertFingerprint}";
+
+                ProcessResult result = ProcessHelper.Run(nugetToolFilePath, verifyCommandArgs, redirectOutput: true);
+                if (result.ExitCode != 0)
+                {
+                    this.tracer.RelatedError($"NuGet package verification failed. ExitCode={result.ExitCode}.{Environment.NewLine}StdOut: {result.Output}{Environment.NewLine}StdError: {result.Errors}");
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         protected static EventMetadata CreateEventMetadata(Exception e = null)
@@ -166,7 +211,7 @@ namespace Scalar.Common.NuGetUpgrade
             // (with the tradeoff being the password is not encrypted in memory, and we need to make sure that new code
             // does not start to write out config files).
             return PackageSourceCredential.FromUserInput(
-                "VfsForGitNugetUpgrader",
+                "ScalarNugetUpgrader",
                 "PersonalAccessToken",
                 personalAccessToken,
                 storePasswordInClearText: storePasswordInClearText,
