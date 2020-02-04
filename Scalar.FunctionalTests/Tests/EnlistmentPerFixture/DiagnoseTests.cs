@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.Tests.Should;
 using System.Collections.Generic;
 using System.IO;
@@ -9,17 +8,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [NonParallelizable]
-    [Category(Categories.ExtraCoverage)]
-    [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class DiagnoseTests : TestsWithEnlistmentPerFixture
     {
-        private FileSystemRunner fileSystem;
-
-        public DiagnoseTests()
-        {
-            this.fileSystem = new SystemIORunner();
-        }
-
         [TestCase]
         public void DiagnoseProducesZipFile()
         {

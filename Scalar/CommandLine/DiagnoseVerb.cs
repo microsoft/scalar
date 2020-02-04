@@ -95,17 +95,23 @@ namespace Scalar.CommandLine
                         this.CopyLocalCacheData(archiveFolderPath, gitObjectsRoot);
 
                         // service
+                        string commonAppDataRoot = ScalarPlatform.Instance.GetCommonAppDataRootForScalar();
+                        string secureDataRoot = ScalarPlatform.Instance.GetSecureDataRootForScalar();
+
                         this.CopyAllFiles(
-                            ScalarPlatform.Instance.GetCommonAppDataRootForScalar(),
+                            commonAppDataRoot,
                             archiveFolderPath,
                             this.ServiceName,
                             copySubFolders: true);
 
-                        this.CopyAllFiles(
-                            ScalarPlatform.Instance.GetSecureDataRootForScalar(),
-                            archiveFolderPath,
-                            this.ServiceName,
-                            copySubFolders: true);
+                        if (!commonAppDataRoot.Equals(secureDataRoot))
+                        {
+                            this.CopyAllFiles(
+                                secureDataRoot,
+                                archiveFolderPath,
+                                this.ServiceName,
+                                copySubFolders: true);
+                        }
 
                         // service ui
                         this.CopyAllFiles(
@@ -314,7 +320,7 @@ namespace Scalar.CommandLine
                     lines.Add($"Contents of {folder}:");
                     foreach (FileInfo file in packDirectory.EnumerateFiles())
                     {
-                        lines.Add($"{file.Name, -70} {file.Length, 16}");
+                        lines.Add($"{file.Name,-70} {file.Length,16}");
                     }
                 }
 
@@ -360,7 +366,7 @@ namespace Scalar.CommandLine
                         {
                             countFolders++;
                             int numObjects = directory.EnumerateFiles().Count();
-                            lines.Add($"{directory.Name} : {numObjects, 7} objects");
+                            lines.Add($"{directory.Name} : {numObjects,7} objects");
                             countLoose += numObjects;
                         }
                     }
@@ -435,38 +441,6 @@ namespace Scalar.CommandLine
                             hideErrorsFromStdout);
                     }
                 }
-            }
-        }
-
-        private ReturnCode RunAndRecordScalarVerb<TVerb>(string archiveFolderPath, string outputFileName, Action<TVerb> configureVerb = null)
-            where TVerb : ScalarVerb, new()
-        {
-            try
-            {
-                using (FileStream file = new FileStream(Path.Combine(archiveFolderPath, outputFileName), FileMode.CreateNew))
-                using (StreamWriter writer = new StreamWriter(file))
-                {
-                    return this.Execute<TVerb>(
-                        this.EnlistmentRootPathParameter,
-                        verb =>
-                        {
-                            if (configureVerb != null)
-                            {
-                                configureVerb(verb);
-                            }
-
-                            verb.Output = writer;
-                        });
-                }
-            }
-            catch (Exception e)
-            {
-                this.WriteMessage(string.Format(
-                    "Verb {0} failed with exception {1}",
-                    typeof(TVerb),
-                    e));
-
-                return ReturnCode.GenericError;
             }
         }
 
