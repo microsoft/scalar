@@ -499,31 +499,13 @@ You can specify a URL, a name of a configured cache server, or the special names
                 this.ReportErrorAndExit(tracer, "Error: Invalid version of git {0}.  Must use scalar version.", version);
             }
 
-            if (ProcessHelper.IsDevelopmentVersion())
+            if (gitVersion.IsLessThan(ScalarConstants.SupportedGitVersion))
             {
-                if (gitVersion.IsLessThan(ScalarConstants.SupportedGitVersion))
-                {
-                    this.ReportErrorAndExit(
-                        tracer,
-                        "Error: Installed git version {0} is less than the supported version of {1}.",
-                        gitVersion,
-                        ScalarConstants.SupportedGitVersion);
-                }
-                else if (!gitVersion.IsEqualTo(ScalarConstants.SupportedGitVersion))
-                {
-                    this.Output.WriteLine($"Warning: Installed git version {gitVersion} does not match supported version of {ScalarConstants.SupportedGitVersion}.");
-                }
-            }
-            else
-            {
-                if (!gitVersion.IsEqualTo(ScalarConstants.SupportedGitVersion))
-                {
-                    this.ReportErrorAndExit(
-                        tracer,
-                        "Error: Installed git version {0} does not match supported version of {1}.",
-                        gitVersion,
-                        ScalarConstants.SupportedGitVersion);
-                }
+                this.ReportErrorAndExit(
+                    tracer,
+                    "Error: Installed git version {0} is less than the supported version of {1}.",
+                    gitVersion,
+                    ScalarConstants.SupportedGitVersion);
             }
         }
 

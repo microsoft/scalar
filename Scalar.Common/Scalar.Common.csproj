@@ -25,16 +25,6 @@
   </ItemGroup>
 
   <Target Name="_GenerateConstantsFile" BeforeTargets="BeforeBuild">
-    <!--
-      Extract the minimum Git version using the Git for Windows package.
-      We assume the Git for Mac package contains the same Git version for
-      the same NuGet package version.
-     -->
-    <GetGitInstallerVersion PackagePath="$(PkgGitForWindows_GVFS_Installer)"
-                            InstallerExtension=".exe">
-      <Output TaskParameter="GitVersion" PropertyName="MinimumGitVersion" />
-    </GetGitInstallerVersion>
-
     <!-- Generate Scalar constants file with the minimum Git version -->
     <GenerateScalarConstants MinimumGitVersion="$(MinimumGitVersion)"
                              ExternalBinariesDirectoryName="$(ExternalBinariesDirectoryName)"
