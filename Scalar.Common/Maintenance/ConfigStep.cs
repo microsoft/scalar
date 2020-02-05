@@ -245,7 +245,7 @@ namespace Scalar.Common.Maintenance
                 this.Context.FileSystem.CopyFile(
                     fsMonitorWatchmanSampleHookPath,
                     queryWatchmanPath,
-                    overwrite: false);
+                    overwrite: true);
 
                 this.RunGitCommand(
                     process => process.SetInLocalConfig("core.fsmonitor", ".git/hooks/query-watchman"),
