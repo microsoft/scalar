@@ -24,9 +24,9 @@ namespace Scalar.Common
             return Run(processInfo);
         }
 
-        public static string GetBundledExternalBinariesLocation()
+        public static string GetBundledBinariesLocation()
         {
-            return Path.Combine(ProcessHelper.GetCurrentProcessLocation(), ScalarConstants.ExternalBinariesDirectoryName);
+            return Path.Combine(GetCurrentProcessLocation(), ScalarConstants.BundledBinaries.DirectoryName);
         }
 
         public static string GetCurrentProcessLocation()

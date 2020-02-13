@@ -22,6 +22,14 @@ namespace Scalar.Common
 
         public const string GitIsNotInstalledError = "Could not find git.exe.  Ensure that Git is installed.";
 
+        public static class BundledBinaries
+        {
+            public const string NuGetFileName = "nuget";
+
+            public const string GcmDirectoryName = "gcm";
+            public const string GcmFileName = "git-credential-manager-core";
+        }
+
         public static class GitConfig
         {
             public const string ScalarPrefix = "scalar.";

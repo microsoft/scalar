@@ -44,7 +44,11 @@ namespace Scalar.Common
     public static partial class ScalarConstants
     {{
         public static readonly GitVersion SupportedGitVersion = new GitVersion({0}, {1}, {2}, ""{3}"", {4}, {5});
-        public const string ExternalBinariesDirectoryName = ""{6}"";
+
+        public static partial class BundledBinaries
+        {{
+            public const string DirectoryName = ""{6}"";
+        }}
     }}
 }}";
 

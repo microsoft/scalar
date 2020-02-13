@@ -149,8 +149,8 @@ namespace Scalar.Common.NuGetUpgrade
             }
 
             // Locate bundled nuget CLI tool
-            string externalBinDir = ProcessHelper.GetBundledExternalBinariesLocation();
-            string nugetToolFileName = "nuget" + ScalarPlatform.Instance.Constants.ExecutableExtension;
+            string externalBinDir = ProcessHelper.GetBundledBinariesLocation();
+            string nugetToolFileName = ScalarConstants.BundledBinaries.NuGetFileName + ScalarPlatform.Instance.Constants.ExecutableExtension;
             string nugetToolFilePath = Path.Combine(externalBinDir, nugetToolFileName);
             if (!this.fileSystem.FileExists(nugetToolFilePath))
             {

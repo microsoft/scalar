@@ -113,14 +113,10 @@ namespace Scalar.CommandLine
                     this.tracer = jsonTracer;
                     this.prerunChecker = new InstallerPreRunChecker(this.tracer, this.Confirmed ? ScalarConstants.UpgradeVerbMessages.ScalarUpgradeConfirm : ScalarConstants.UpgradeVerbMessages.ScalarUpgrade);
 
-                    string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
-                    if (string.IsNullOrEmpty(gitBinPath))
+                    if (!ScalarPlatform.Instance.TryGetCredentialStore(jsonTracer, this.fileSystem, out ICredentialStore credentialStore, out error))
                     {
-                        error = $"nameof(this.TryInitializeUpgrader): Unable to locate git installation. Ensure git is installed and try again.";
                         return false;
                     }
-
-                    ICredentialStore credentialStore = new GitProcess(gitBinPath, workingDirectoryRoot: null);
 
                     ProductUpgrader upgrader;
                     if (ProductUpgrader.TryCreateUpgrader(this.tracer, this.fileSystem, new LocalScalarConfig(), credentialStore, this.DryRun, this.NoVerify, out upgrader, out error))
