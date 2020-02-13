@@ -9,6 +9,7 @@ namespace Scalar.Common
 {
     public class FileBasedDictionary<TKey, TValue> : FileBasedCollection
     {
+        private IEqualityComparer<TKey> comparer;
         private ConcurrentDictionary<TKey, TValue> data;
 
         private FileBasedDictionary(
@@ -18,6 +19,7 @@ namespace Scalar.Common
             IEqualityComparer<TKey> keyComparer)
             : base(tracer, fileSystem, dataFilePath, collectionAppendsDirectlyToFile: false)
         {
+            this.comparer = keyComparer;
             this.data = new ConcurrentDictionary<TKey, TValue>(keyComparer);
         }
 
@@ -108,7 +110,7 @@ namespace Scalar.Common
 
         public Dictionary<TKey, TValue> GetAllKeysAndValues()
         {
-            return new Dictionary<TKey, TValue>(this.data);
+            return new Dictionary<TKey, TValue>(this.data, this.comparer);
         }
 
         private void Flush()
