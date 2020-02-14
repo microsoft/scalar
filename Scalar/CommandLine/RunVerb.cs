@@ -7,6 +7,7 @@ using Scalar.Common.Maintenance;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Scalar.CommandLine
 {
@@ -58,10 +59,38 @@ namespace Scalar.CommandLine
 
                 List<GitMaintenanceStep> steps = new List<GitMaintenanceStep>();
 
-                tracer.AddLogFileEventListener(
-                    logFileName,
-                    EventLevel.Informational,
-                    Keywords.Any);
+                try
+                {
+                    tracer.AddLogFileEventListener(
+                        logFileName,
+                        EventLevel.Informational,
+                        Keywords.Any);
+                }
+                catch (IOException e1)
+                {
+                    // There was likely difficulty loading the log file.
+                    if (this.StartedByService)
+                    {
+                        // Regenerate a log file name using a timestamp
+                        string newFileName = ScalarEnlistment.GetNewScalarLogFileName(
+                                                    enlistment.ScalarLogsRoot,
+                                                    ScalarConstants.LogFileTypes.Maintenance);
+
+                        try
+                        {
+                            tracer.AddLogFileEventListener(
+                                newFileName,
+                                EventLevel.Informational,
+                                Keywords.Any);
+                            tracer.RelatedWarning($"Failed to use service log file '{logFileName}': {e1.Message}");
+                        }
+                        catch (IOException e2)
+                        {
+                            tracer.RelatedError($"Failed to use either log file '{logFileName}' or '{newFileName}': {e2.Message}");
+                        }
+                    }
+                }
+
                 tracer.WriteStartEvent(
                     enlistment.EnlistmentRoot,
                     enlistment.RepoUrl,

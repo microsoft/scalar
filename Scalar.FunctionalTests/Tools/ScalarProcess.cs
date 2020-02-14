@@ -40,16 +40,21 @@ namespace Scalar.FunctionalTests.Tools
             this.CallScalar(args, expectedExitCode: SuccessExitCode);
         }
 
-        public string RunVerb(string task, long? batchSize = null, bool failOnError = true)
+        public string RunVerb(string task, long? batchSize = null, bool failOnError = true, bool asService = false)
         {
             string batchArg = batchSize == null
                                     ? string.Empty
                                     : $"--batch-size={batchSize}";
 
+            string serviceArg = asService
+                                    ? "{\"StartedByService\":\"true\"}"
+                                    : null;
+
             return this.CallScalar(
                 $"run {task} \"{this.enlistmentRoot}\" {batchArg}",
                 failOnError ? SuccessExitCode : DoNotCheckExitCode,
-                standardInput: null);
+                standardInput: null,
+                internalParameter: serviceArg);
         }
 
         public void Repair(bool confirm)
