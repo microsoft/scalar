@@ -173,7 +173,7 @@ namespace Scalar.Common.Git
             return null;
         }
 
-        private Result InvokeGcm(string command, string stdIn)
+        protected virtual Result InvokeGcm(string command, string stdIn)
         {
             int timeoutMs = -1;
 
@@ -254,7 +254,7 @@ namespace Scalar.Common.Git
             }
         }
 
-        private class Result
+        public class Result
         {
             public const int SuccessCode = 0;
             public const int GenericFailureCode = 1;

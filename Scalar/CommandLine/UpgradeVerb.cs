@@ -113,7 +113,7 @@ namespace Scalar.CommandLine
                     this.tracer = jsonTracer;
                     this.prerunChecker = new InstallerPreRunChecker(this.tracer, this.Confirmed ? ScalarConstants.UpgradeVerbMessages.ScalarUpgradeConfirm : ScalarConstants.UpgradeVerbMessages.ScalarUpgrade);
 
-                    if (!ScalarPlatform.Instance.TryGetCredentialStore(jsonTracer, this.fileSystem, out ICredentialStore credentialStore, out error))
+                    if (!ScalarPlatform.Instance.TryCreateCredentialStore(jsonTracer, this.fileSystem, out ICredentialStore credentialStore, out error))
                     {
                         return false;
                     }

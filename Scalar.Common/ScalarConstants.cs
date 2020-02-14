@@ -22,7 +22,7 @@ namespace Scalar.Common
 
         public const string GitIsNotInstalledError = "Could not find git.exe.  Ensure that Git is installed.";
 
-        public static class BundledBinaries
+        public static partial class BundledBinaries
         {
             public const string NuGetFileName = "nuget";
 

@@ -169,7 +169,7 @@ namespace Scalar.Upgrader
         {
             if (this.upgrader == null)
             {
-                if (!ScalarPlatform.Instance.TryGetCredentialStore(this.tracer, this.fileSystem, out ICredentialStore credentialStore, out errorMessage))
+                if (!ScalarPlatform.Instance.TryCreateCredentialStore(this.tracer, this.fileSystem, out ICredentialStore credentialStore, out errorMessage))
                 {
                     return false;
                 }
