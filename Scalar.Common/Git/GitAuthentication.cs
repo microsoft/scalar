@@ -25,14 +25,14 @@ namespace Scalar.Common.Git
 
         private bool isInitialized;
 
-        public GitAuthentication(GitProcess git, string repoUrl)
+        public GitAuthentication(GitProcess git, string repoUrl, string repoPath)
         {
             this.credentialStore = git;
             this.repoUrl = repoUrl;
 
             if (git.TryGetConfigUrlMatch("http", this.repoUrl, out Dictionary<string, GitConfigSetting> configSettings))
             {
-                this.GitSsl = new GitSsl(configSettings);
+                this.GitSsl = new GitSsl(repoPath, configSettings);
             }
         }
 

@@ -1,13 +1,12 @@
+using Scalar.Common.FileSystem;
+using Scalar.Common.Tracing;
+using Scalar.Common.X509Certificates;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
-using Scalar.Common.FileSystem;
-using Scalar.Common.Tracing;
-using Scalar.Common.X509Certificates;
 
 namespace Scalar.Common.Git
 {
@@ -20,6 +19,7 @@ namespace Scalar.Common.Git
         private readonly PhysicalFileSystem fileSystem;
 
         public GitSsl(
+            string repoPath,
             IDictionary<string, GitConfigSetting> configSettings,
             Func<SystemCertificateStore> createCertificateStore = null,
             CertificateVerifier certificateVerifier = null,
@@ -32,9 +32,9 @@ namespace Scalar.Common.Git
                     this.certificatePathOrSubjectCommonName = sslCerts.Values.Last();
                 }
 
-                this.isCertificatePasswordProtected = SetBoolSettingOrThrow(configSettings, GitConfigSetting.HttpSslCertPasswordProtected, this.isCertificatePasswordProtected);
+                this.isCertificatePasswordProtected = SetBoolSettingOrThrow(repoPath, configSettings, GitConfigSetting.HttpSslCertPasswordProtected, this.isCertificatePasswordProtected);
 
-                this.ShouldVerify = SetBoolSettingOrThrow(configSettings, GitConfigSetting.HttpSslVerify, this.ShouldVerify);
+                this.ShouldVerify = SetBoolSettingOrThrow(repoPath, configSettings, GitConfigSetting.HttpSslVerify, this.ShouldVerify);
             }
         }
 
@@ -87,7 +87,7 @@ namespace Scalar.Common.Git
             return result;
         }
 
-        private static bool SetBoolSettingOrThrow(IDictionary<string, GitConfigSetting> configSettings, string settingName, bool currentValue)
+        private static bool SetBoolSettingOrThrow(string repoPath, IDictionary<string, GitConfigSetting> configSettings, string settingName, bool currentValue)
         {
             if (configSettings.TryGetValue(settingName, out GitConfigSetting settingValues))
             {
@@ -97,7 +97,7 @@ namespace Scalar.Common.Git
                 }
                 catch (FormatException)
                 {
-                    throw new InvalidRepoException($"{settingName} git setting did not have a bool-parsable value. Found: {string.Join(" ", settingValues.Values)}");
+                    throw new InvalidRepoException(repoPath, $"{settingName} git setting did not have a bool-parsable value. Found: {string.Join(" ", settingValues.Values)}");
                 }
             }
 

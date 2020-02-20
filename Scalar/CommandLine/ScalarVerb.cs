@@ -107,6 +107,10 @@ namespace Scalar.CommandLine
             {
                 verb.Execute();
             }
+            catch (InvalidRepoException ire)
+            {
+                this.ReportErrorAndExit($"Invalid repository: {ire.Message}");
+            }
             catch (VerbAbortedException)
             {
             }

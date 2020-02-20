@@ -69,7 +69,7 @@ namespace Scalar.Common
 
                 if (!TryGetScalarEnlistmentRoot(directory, out enlistmentRoot, out workingDirectory))
                 {
-                    throw new InvalidRepoException($"Could not get enlistment root.");
+                    throw new InvalidRepoException(directory, $"Could not get enlistment root.");
                 }
 
                 if (createWithoutRepoURL)
@@ -80,7 +80,7 @@ namespace Scalar.Common
                 return new ScalarEnlistment(enlistmentRoot, workingDirectory, null, gitBinRoot, authentication);
             }
 
-            throw new InvalidRepoException($"Directory '{directory}' does not exist");
+            throw new InvalidRepoException(directory, $"Directory '{directory}' does not exist");
         }
 
         public static string GetNewScalarLogFileName(

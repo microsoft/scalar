@@ -36,18 +36,18 @@ namespace Scalar.Common
                 GitProcess.ConfigResult originResult = gitProcess.GetOriginUrl();
                 if (!originResult.TryParseAsString(out string originUrl, out string error))
                 {
-                    throw new InvalidRepoException("Could not get origin url. git error: " + error);
+                    throw new InvalidRepoException(this.WorkingDirectoryRoot, "Could not get origin url. git error: " + error);
                 }
 
                 if (originUrl == null)
                 {
-                    throw new InvalidRepoException("Could not get origin url. remote 'origin' is not configured for this repo.'");
+                    throw new InvalidRepoException(this.WorkingDirectoryRoot, "Could not get origin url. remote 'origin' is not configured for this repo.'");
                 }
 
                 this.RepoUrl = originUrl.Trim();
             }
 
-            this.Authentication = authentication ?? new GitAuthentication(gitProcess, this.RepoUrl);
+            this.Authentication = authentication ?? new GitAuthentication(gitProcess, this.RepoUrl, this.WorkingDirectoryRoot);
         }
 
         public string EnlistmentRoot { get; }

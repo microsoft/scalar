@@ -27,7 +27,7 @@ namespace Scalar.UnitTests.Git
             MockTracer tracer = new MockTracer();
             MockGitProcess gitProcess = this.GetGitProcess();
 
-            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl");
+            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl", "fake path");
             dut.TryInitializeAndRequireAuth(tracer, out _);
 
             string authString;
@@ -54,7 +54,7 @@ namespace Scalar.UnitTests.Git
             MockTracer tracer = new MockTracer();
             MockGitProcess gitProcess = this.GetGitProcess();
 
-            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl");
+            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl", "fake path");
             dut.TryInitializeAndRequireAuth(tracer, out _);
 
             string authString;
@@ -78,7 +78,7 @@ namespace Scalar.UnitTests.Git
             MockTracer tracer = new MockTracer();
             MockGitProcess gitProcess = this.GetGitProcess();
 
-            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl");
+            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl", "fake path");
             dut.TryInitializeAndRequireAuth(tracer, out _);
 
             string authString;
@@ -105,7 +105,7 @@ namespace Scalar.UnitTests.Git
             MockTracer tracer = new MockTracer();
             MockGitProcess gitProcess = this.GetGitProcess();
 
-            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl");
+            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl", "fake path");
             dut.TryInitializeAndRequireAuth(tracer, out _);
 
             string authString;
@@ -132,7 +132,7 @@ namespace Scalar.UnitTests.Git
             MockTracer tracer = new MockTracer();
             MockGitProcess gitProcess = this.GetGitProcess();
 
-            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl");
+            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl", "fake path");
             dut.TryInitializeAndRequireAuth(tracer, out _);
 
             string thread1Auth;
@@ -168,7 +168,7 @@ namespace Scalar.UnitTests.Git
             MockTracer tracer = new MockTracer();
             MockGitProcess gitProcess = this.GetGitProcess();
 
-            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl");
+            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl", "fake path");
             dut.TryInitializeAndRequireAuth(tracer, out _);
 
             string thread1Auth;
@@ -205,7 +205,7 @@ namespace Scalar.UnitTests.Git
             MockTracer tracer = new MockTracer();
             MockGitProcess gitProcess = this.GetGitProcess();
 
-            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl");
+            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl", "fake path");
             dut.TryInitializeAndRequireAuth(tracer, out _);
 
             string authString;
@@ -228,7 +228,7 @@ namespace Scalar.UnitTests.Git
             MockTracer tracer = new MockTracer();
             MockGitProcess gitProcess = this.GetGitProcess();
 
-            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl");
+            GitAuthentication dut = new GitAuthentication(gitProcess, "mock://repoUrl", "fake path");
             dut.TryInitializeAndRequireAuth(tracer, out _);
 
             // Get and store an initial value that will be cached
