@@ -32,7 +32,7 @@ namespace Scalar.Common.Http
 
             // TODO 1057500: Remove support for encoded-repo-url cache config setting
             return
-                GetValueFromConfig(git, ScalarConstants.GitConfig.CacheServer, localOnly: true)
+                GetValueFromConfig(enlistment.WorkingDirectoryRoot, git, ScalarConstants.GitConfig.CacheServer, localOnly: true)
                 ?? enlistment.RepoUrl;
         }
 
@@ -128,7 +128,7 @@ namespace Scalar.Common.Http
             return result.ExitCodeIsSuccess;
         }
 
-        private static string GetValueFromConfig(GitProcess git, string configName, bool localOnly)
+        private static string GetValueFromConfig(string repoPath, GitProcess git, string configName, bool localOnly)
         {
             GitProcess.ConfigResult result =
                 localOnly
@@ -137,7 +137,7 @@ namespace Scalar.Common.Http
 
             if (!result.TryParseAsString(out string value, out string error))
             {
-                throw new InvalidRepoException(error);
+                throw new InvalidRepoException(repoPath, error);
             }
 
             return value;

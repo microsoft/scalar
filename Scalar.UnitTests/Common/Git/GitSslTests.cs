@@ -55,7 +55,7 @@ namespace Scalar.UnitTests.Common.Git
             IDictionary<string, GitConfigSetting> gitConfig = new Dictionary<string, GitConfigSetting>();
             gitConfig.Add(setting, new GitConfigSetting(setting, "true", "this is true"));
 
-            Assert.Throws<InvalidRepoException>(() => new GitSsl(gitConfig));
+            Assert.Throws<InvalidRepoException>(() => new GitSsl(string.Empty, gitConfig));
         }
 
         [TestCaseSource(typeof(GitSslTests), nameof(GitSslTests.BoolGitSettings))]
@@ -64,13 +64,13 @@ namespace Scalar.UnitTests.Common.Git
             IDictionary<string, GitConfigSetting> gitConfig = new Dictionary<string, GitConfigSetting>();
             gitConfig.Add(setting, new GitConfigSetting(setting, "this is true", "true"));
 
-            Assert.DoesNotThrow(() => new GitSsl(gitConfig));
+            Assert.DoesNotThrow(() => new GitSsl(string.Empty, gitConfig));
         }
 
         [TestCase]
         public void GetCertificateShouldReturnNullWhenCertificateCommonNameSettingIsEmpty()
         {
-            GitSsl sut = new GitSsl(new Dictionary<string, GitConfigSetting>());
+            GitSsl sut = new GitSsl(string.Empty, new Dictionary<string, GitConfigSetting>());
             X509Certificate2 result = sut.GetCertificate(this.tracer, this.gitProcess);
             result.ShouldBeNull();
         }
@@ -82,7 +82,7 @@ namespace Scalar.UnitTests.Common.Git
             this.SetupCertificateFile(certificate, CertificatePassword);
             this.SetupGitCertificatePassword();
             this.MakeCertificateValid(certificate);
-            GitSsl gitSsl = new GitSsl(GetGitConfig(), () => this.certificateStoreMock.Object, this.certificateVerifierMock.Object, this.fileSystem);
+            GitSsl gitSsl = new GitSsl(string.Empty, GetGitConfig(), () => this.certificateStoreMock.Object, this.certificateVerifierMock.Object, this.fileSystem);
 
             X509Certificate2 result = gitSsl.GetCertificate(this.tracer, this.gitProcess);
 
@@ -97,6 +97,7 @@ namespace Scalar.UnitTests.Common.Git
             this.SetupCertificateFile(certificate);
             this.MakeCertificateValid(certificate);
             GitSsl gitSsl = new GitSsl(
+                string.Empty,
                 GetGitConfig(
                     new GitConfigSetting(GitConfigSetting.HttpSslCertPasswordProtected, "false")),
                  () => this.certificateStoreMock.Object,
@@ -116,6 +117,7 @@ namespace Scalar.UnitTests.Common.Git
             this.SetupCertificateFile(certificate);
             this.MakeCertificateValid(certificate, false);
             GitSsl gitSsl = new GitSsl(
+                string.Empty,
                 GetGitConfig(
                     new GitConfigSetting(GitConfigSetting.HttpSslCertPasswordProtected, "false")),
                  () => this.certificateStoreMock.Object,
@@ -134,6 +136,7 @@ namespace Scalar.UnitTests.Common.Git
             this.SetupCertificateFile(certificate);
             this.MakeCertificateValid(certificate, false);
             GitSsl gitSsl = new GitSsl(
+                string.Empty,
                 GetGitConfig(
                     new GitConfigSetting(GitConfigSetting.HttpSslCertPasswordProtected, "false"),
                     new GitConfigSetting(GitConfigSetting.HttpSslVerify, "false")),
@@ -153,6 +156,7 @@ namespace Scalar.UnitTests.Common.Git
             X509Certificate2 certificate = this.MakeCertificateValid(GenerateTestCertificate());
             this.SetupGitCertificatePassword();
             GitSsl gitSsl = new GitSsl(
+                string.Empty,
                 GetGitConfig(),
                 () => this.certificateStoreMock.Object,
                 this.certificateVerifierMock.Object,
@@ -179,6 +183,7 @@ namespace Scalar.UnitTests.Common.Git
         {
             this.SetupGitCertificatePassword();
             GitSsl gitSsl = new GitSsl(
+                string.Empty,
                 GetGitConfig(),
                 () => this.certificateStoreMock.Object,
                 this.certificateVerifierMock.Object,
