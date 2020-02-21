@@ -163,6 +163,8 @@ namespace Scalar.Common.Maintenance
                 return false;
             }
 
+            this.ConfigureWatchmanIntegration();
+
             error = null;
             return true;
         }
@@ -170,7 +172,6 @@ namespace Scalar.Common.Maintenance
         protected override void PerformMaintenance()
         {
             this.TrySetConfig(out _);
-            this.ConfigureWatchmanIntegration();
         }
 
         private bool TrySetConfig(Dictionary<string, string> configSettings, bool isRequired, out string error)
