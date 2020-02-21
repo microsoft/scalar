@@ -146,7 +146,7 @@ namespace Scalar.Tests.Should
 
             if (shouldMatchInOrder)
             {
-                for (int i = 0; i < groupList.Count; ++i)
+                for (int i = 0; i < groupList.Count && i < expectedValuesList.Count; ++i)
                 {
                     if (!equals(groupList[i], expectedValuesList[i]))
                     {
