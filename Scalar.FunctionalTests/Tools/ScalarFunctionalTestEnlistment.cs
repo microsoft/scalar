@@ -157,6 +157,8 @@ namespace Scalar.FunctionalTests.Tools
 
         public void DeleteEnlistment()
         {
+            this.Unregister();
+
             string watchmanLocation = ProcessHelper.GetProgramLocation("watchman");
             if (!string.IsNullOrEmpty(watchmanLocation))
             {
@@ -168,6 +170,12 @@ namespace Scalar.FunctionalTests.Tools
                 {
                     Console.WriteLine($"Failed to delete watch on {this.RepoRoot}. {ex.ToString()}");
                 }
+            }
+
+            string fsmonitorConfig = GitProcess.Invoke(this.RepoRoot, "config core.fsmonitor").Trim();
+            if (fsmonitorConfig == ":internal:")
+            {
+                GitProcess.Invoke(this.RepoRoot, "fsmonitor--daemon --stop");
             }
 
             TestResultsHelper.OutputScalarLogs(this);
