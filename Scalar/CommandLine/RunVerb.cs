@@ -231,7 +231,7 @@ namespace Scalar.CommandLine
             if (!this.SkipVersionCheck)
             {
                 string authErrorMessage;
-                if (!this.TryAuthenticate(tracer, enlistment, out authErrorMessage))
+                if (this.TryAuthenticate(tracer, enlistment, out authErrorMessage) != GitAuthentication.Result.Success)
                 {
                     this.ReportErrorAndExit(tracer, "Unable to fetch because authentication failed: " + authErrorMessage);
                 }

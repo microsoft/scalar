@@ -160,7 +160,7 @@ namespace Scalar.Common.Git
             return true;
         }
 
-        public bool TryInitialize(ITracer tracer, Enlistment enlistment, out string errorMessage)
+        public Result TryInitialize(ITracer tracer, Enlistment enlistment, out string errorMessage)
         {
             if (this.isInitialized)
             {
@@ -173,18 +173,18 @@ namespace Scalar.Common.Git
             if (!this.TryAnonymousQuery(tracer, enlistment, out isAnonymous))
             {
                 errorMessage = $"Unable to determine if authentication is required";
-                return false;
+                return Result.UnableToDetermine;
             }
 
             if (!isAnonymous &&
                 !this.TryCallGitCredential(tracer, out errorMessage))
             {
-                return false;
+                return Result.Failed;
             }
 
             this.IsAnonymous = isAnonymous;
             this.isInitialized = true;
-            return true;
+            return Result.Success;
         }
 
         public bool TryInitializeAndRequireAuth(ITracer tracer, out string errorMessage)
@@ -322,6 +322,13 @@ namespace Scalar.Common.Git
             }
 
             return true;
+        }
+
+        public enum Result
+        {
+            Success = 0,
+            Failed = 1,
+            UnableToDetermine = 2,
         }
     }
 }

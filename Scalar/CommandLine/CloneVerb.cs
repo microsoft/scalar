@@ -219,7 +219,15 @@ namespace Scalar.CommandLine
             this.Output.WriteLine("  FullClone:     " + this.FullClone);
 
             string authErrorMessage;
-            if (!this.TryAuthenticate(this.tracer, this.enlistment, out authErrorMessage))
+            GitAuthentication.Result authResult = this.TryAuthenticate(this.tracer, this.enlistment, out authErrorMessage);
+
+            if (authResult == GitAuthentication.Result.UnableToDetermine)
+            {
+                // We can't tell, because we don't have the right endpoint!
+                return this.GitClone();
+            }
+
+            if (authResult == GitAuthentication.Result.Failed)
             {
                 this.ReportErrorAndExit(this.tracer, "Cannot clone because authentication failed: " + authErrorMessage);
             }
@@ -291,6 +299,88 @@ namespace Scalar.CommandLine
             return cloneResult;
         }
 
+        private Result GitClone()
+        {
+            string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+            if (string.IsNullOrWhiteSpace(gitBinPath))
+            {
+                return new Result(ScalarConstants.GitIsNotInstalledError);
+            }
+
+            GitProcess git = new GitProcess(this.enlistment);
+
+            git.SetInLocalConfig("protocol.version", "2");
+            git.SetInLocalConfig("remote.origin.url", this.RepositoryURL);
+            git.SetInLocalConfig("remote.origin.fetch", "+refs/heads/*:refs/remotes/origin/*");
+            git.SetInLocalConfig("remote.origin.promisor", "true");
+            git.SetInLocalConfig("remote.origin.partialCloneFilter", "blob:none");
+
+            string branch = this.Branch ?? "master";
+            git.SetInLocalConfig($"branch.{branch}.remote", "origin");
+            git.SetInLocalConfig($"branch.{branch}.merge", $"refs/heads/{branch}");
+
+            if (!this.FullClone)
+            {
+                git.SetInLocalConfig($"core.sparseCheckout", "true");
+                git.SetInLocalConfig($"core.sparseCheckoutCone", "true");
+
+                this.fileSystem.CreateDirectory(Path.Combine(this.enlistment.DotGitRoot, "info"));
+                this.fileSystem.WriteAllText(Path.Combine(this.enlistment.DotGitRoot, "info", "sparse-checkout"), "/*\n!/*/*");
+            }
+
+            this.context = new ScalarContext(this.tracer, this.fileSystem, this.enlistment);
+
+            // Set required and optional config.
+            // Explicitly pass useGvfsProtocol: true as the enlistment can not discover that setting from
+            // Git config yet. Other verbs will discover this automatically from the config we set now.
+            ConfigStep configStep = new ConfigStep(this.context, useGvfsProtocol: false);
+
+            if (!configStep.TrySetConfig(out string configError))
+            {
+                return new Result($"Failed to set initial config: {configError}");
+            }
+
+            GitProcess.Result fetchResult = null;
+            if (!this.ShowStatusWhileRunning(() =>
+            {
+                fetchResult = git.ForegroundFetch("origin");
+                return fetchResult.ExitCodeIsSuccess;
+            },
+                "Fetching objects from remote"))
+            {
+                if (!fetchResult.Errors.Contains("filtering not recognized by server"))
+                {
+                    return new Result($"Failed to complete regular clone: {fetchResult?.Errors}");
+                }
+            }
+
+            if (fetchResult.ExitCodeIsFailure &&
+                !this.ShowStatusWhileRunning(() =>
+                {
+                    git.DeleteFromLocalConfig("remote.origin.promisor");
+                    git.DeleteFromLocalConfig("remote.origin.partialCloneFilter");
+                    fetchResult = git.ForegroundFetch("origin");
+                    return fetchResult.ExitCodeIsSuccess;
+                },
+                "Fetching objects from remote"))
+            {
+                return new Result($"Failed to complete regular clone: {fetchResult?.Errors}");
+            }
+
+            GitProcess.Result checkoutResult = null;
+
+            if (!this.ShowStatusWhileRunning(() =>
+                {
+                    checkoutResult = git.ForceCheckout(branch);
+                    return checkoutResult.ExitCodeIsSuccess;
+                },
+                $"Checking out '{branch}'"))
+            {
+                return new Result($"Failed to complete regular clone: {checkoutResult?.Errors}");
+            }
+            return new Result(true);
+        }
+
         private Result TryCreateEnlistment(
             string fullEnlistmentRootPathParameter,
             string normalizedEnlistementRootPath,
@@ -329,7 +419,9 @@ namespace Scalar.CommandLine
                 return new Result($"Error when creating a new Scalar enlistment at '{normalizedEnlistementRootPath}'. {e.Message}");
             }
 
-            return new Result(true);
+            GitProcess.Result initResult = GitProcess.Init(enlistment);
+
+            return new Result(initResult.ExitCodeIsSuccess);
         }
 
         private Result CreateScalarDirctories(string resolvedLocalCacheRoot)

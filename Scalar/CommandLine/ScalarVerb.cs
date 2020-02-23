@@ -162,12 +162,17 @@ namespace Scalar.CommandLine
                 initialDelayMs: 0);
         }
 
-        protected bool TryAuthenticate(ITracer tracer, ScalarEnlistment enlistment, out string authErrorMessage)
+        protected GitAuthentication.Result TryAuthenticate(ITracer tracer, ScalarEnlistment enlistment, out string authErrorMessage)
         {
             string authError = null;
 
-            bool result = this.ShowStatusWhileRunning(
-                () => enlistment.Authentication.TryInitialize(tracer, enlistment, out authError),
+            GitAuthentication.Result result = GitAuthentication.Result.UnableToDetermine;
+            bool runResult = this.ShowStatusWhileRunning(
+                () =>
+                {
+                    result = enlistment.Authentication.TryInitialize(tracer, enlistment, out authError);
+                    return true;
+                },
                 "Authenticating");
 
             authErrorMessage = authError;
@@ -270,7 +275,7 @@ namespace Scalar.CommandLine
                 },
                 "Querying remote for config"))
             {
-                this.ReportErrorAndExit(tracer, "Unable to query /gvfs/config" + Environment.NewLine + errorMessage);
+                tracer.RelatedWarning("Unable to query /gvfs/config" + Environment.NewLine + errorMessage);
             }
 
             return serverScalarConfig;

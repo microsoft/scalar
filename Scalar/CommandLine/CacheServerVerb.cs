@@ -1,5 +1,6 @@
 using CommandLine;
 using Scalar.Common;
+using Scalar.Common.Git;
 using Scalar.Common.Http;
 using Scalar.Common.Tracing;
 using System;
@@ -43,7 +44,7 @@ namespace Scalar.CommandLine
             using (ITracer tracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "CacheVerb"))
             {
                 string authErrorMessage;
-                if (!this.TryAuthenticate(tracer, enlistment, out authErrorMessage))
+                if (this.TryAuthenticate(tracer, enlistment, out authErrorMessage) != GitAuthentication.Result.Success)
                 {
                     this.ReportErrorAndExit(tracer, "Authentication failed: " + authErrorMessage);
                 }

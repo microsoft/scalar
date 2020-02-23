@@ -84,6 +84,26 @@ namespace Scalar.Common.Git
 
         public bool LowerPriority { get; set; }
 
+        public static Result Clone(string gitBinPath, string url, string targetDir, bool sparse, bool filterBlobs)
+        {
+            string sparseArg = sparse ? "--sparse " : string.Empty;
+            string filterArg = filterBlobs ? "--filter=blob:none" : string.Empty;
+
+            string dir = Paths.ConvertPathToGitFormat(targetDir);
+            dir.Replace(" ", "\\ ");
+            url.Replace(" ", "%20");
+
+            GitProcess git = new GitProcess(gitBinPath, workingDirectoryRoot: null);
+
+            return git.InvokeGitImpl($"clone {sparseArg} {filterArg} {url} {dir}",
+                                     workingDirectory: Directory.GetCurrentDirectory(),
+                                     dotGitDirectory: null,
+                                     fetchMissingObjects: false,
+                                     writeStdIn: null,
+                                     parseStdOutLine: null,
+                                     timeoutMs: -1);
+        }
+
         public static Result Init(Enlistment enlistment)
         {
             return new GitProcess(enlistment).InvokeGitOutsideEnlistment("init \"" + enlistment.WorkingDirectoryRoot + "\"");
@@ -424,6 +444,18 @@ namespace Scalar.Common.Git
             return this.InvokeGitInWorkingDirectoryRoot("checkout HEAD -- .", fetchMissingObjects: true);
         }
 
+        public Result ForegroundFetch(string remote)
+        {
+            // By using "--refmap", we override the configured refspec,
+            // ignoring the normal "+refs/heads/*:refs/remotes/<remote>/*".
+            // The user will see their remote refs update
+            // normally when they do a foreground fetch.
+            return this.InvokeGitInWorkingDirectoryRoot(
+                $"-c credential.interactive=never fetch {remote} --quiet",
+                fetchMissingObjects: true,
+                userInteractive: false);
+        }
+
         public Result BackgroundFetch(string remote)
         {
             // By using this refspec, we do not create local refs, but instead store them in the "hidden"
@@ -468,7 +500,7 @@ namespace Scalar.Common.Git
                 {
                     foreach (string path in foldersToSet)
                     {
-                        string normalizedPath = path.Replace(Path.DirectorySeparatorChar, ScalarConstants.GitPathSeparator).TrimEnd(ScalarConstants.GitPathSeparator);
+                        string normalizedPath = Paths.ConvertPathToGitFormat(path).Trim(ScalarConstants.GitPathSeparator);
                         writer.Write(normalizedPath + "\n");
                     }
                 });
