@@ -32,33 +32,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             VerifyPartialCloneBehavior(enlistment);
         }
 
-        [TestCase]
-        public void PartialCloneSsh()
-        {
-            ProcessResult result = ProcessHelper.Run("ssh-keygen", "-H github.com");
-
-            string userDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            string sshDir = Path.Combine(userDir, ".ssh");
-
-            if (this.fileSystem.DirectoryExists(sshDir))
-            {
-                this.fileSystem.CreateDirectory(sshDir);
-            }
-
-            string knownHosts = Path.Combine(sshDir, "known_hosts");
-            if (this.fileSystem.FileExists(knownHosts) && !this.fileSystem.ReadAllText(knownHosts).Contains("github.com"))
-            {
-                this.fileSystem.AppendAllText(knownHosts, result.Output);
-            }
-
-            ScalarFunctionalTestEnlistment enlistment = this.CreateNewEnlistment(
-                                                                url: MicrosoftScalarSsh,
-                                                                branch: "master",
-                                                                fullClone: false);
-
-            VerifyPartialCloneBehavior(enlistment);
-        }
-
         private void VerifyPartialCloneBehavior(ScalarFunctionalTestEnlistment enlistment)
         {
             this.fileSystem.DirectoryExists(enlistment.RepoRoot).ShouldBeTrue($"'{enlistment.RepoRoot}' does not exist");
