@@ -35,6 +35,11 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void PartialCloneSsh()
         {
+            ProcessResult result = ProcessHelper.Run("ssh-keygen", "-H github.com");
+
+            string userDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            this.fileSystem.AppendAllText(Path.Combine(userDir, ".ssh", "known_hosts"), result.Output);
+
             ScalarFunctionalTestEnlistment enlistment = this.CreateNewEnlistment(
                                                                 url: MicrosoftScalarSsh,
                                                                 branch: "master",
