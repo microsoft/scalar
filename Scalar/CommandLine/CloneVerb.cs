@@ -218,8 +218,14 @@ namespace Scalar.CommandLine
             this.Output.WriteLine("  Destination:  " + this.enlistment.EnlistmentRoot);
             this.Output.WriteLine("  FullClone:     " + this.FullClone);
 
-            string authErrorMessage;
-            GitAuthentication.Result authResult = this.TryAuthenticate(this.tracer, this.enlistment, out authErrorMessage);
+            string authErrorMessage = null;
+            GitAuthentication.Result authResult = GitAuthentication.Result.UnableToDetermine;
+
+            // Do not try authentication on SSH URLs.
+            if (this.enlistment.RepoUrl.StartsWith("https://"))
+            {
+                authResult = this.TryAuthenticate(this.tracer, this.enlistment, out authErrorMessage);
+            }
 
             if (authResult == GitAuthentication.Result.UnableToDetermine)
             {
