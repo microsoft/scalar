@@ -315,7 +315,9 @@ namespace Scalar.CommandLine
 
             GitProcess git = new GitProcess(this.enlistment);
 
-            git.SetInLocalConfig("protocol.version", "2");
+            // protocol.version=2 is broken right now.
+            git.SetInLocalConfig("protocol.version", "1");
+
             git.SetInLocalConfig("remote.origin.url", this.RepositoryURL);
             git.SetInLocalConfig("remote.origin.fetch", "+refs/heads/*:refs/remotes/origin/*");
             git.SetInLocalConfig("remote.origin.promisor", "true");
@@ -349,8 +351,11 @@ namespace Scalar.CommandLine
             GitProcess.Result fetchResult = null;
             if (!this.ShowStatusWhileRunning(() =>
             {
-                fetchResult = git.ForegroundFetch("origin");
-                return fetchResult.ExitCodeIsSuccess;
+                using (ITracer activity = this.tracer.StartActivity("git-fetch-partial", EventLevel.LogAlways))
+                {
+                    fetchResult = git.ForegroundFetch("origin");
+                    return fetchResult.ExitCodeIsSuccess;
+                }
             },
                 "Fetching objects from remote"))
             {
@@ -363,10 +368,13 @@ namespace Scalar.CommandLine
             if (fetchResult.ExitCodeIsFailure &&
                 !this.ShowStatusWhileRunning(() =>
                 {
-                    git.DeleteFromLocalConfig("remote.origin.promisor");
-                    git.DeleteFromLocalConfig("remote.origin.partialCloneFilter");
-                    fetchResult = git.ForegroundFetch("origin");
-                    return fetchResult.ExitCodeIsSuccess;
+                    using (ITracer activity = this.tracer.StartActivity("git-fetch", EventLevel.LogAlways))
+                    {
+                        git.DeleteFromLocalConfig("remote.origin.promisor");
+                        git.DeleteFromLocalConfig("remote.origin.partialCloneFilter");
+                        fetchResult = git.ForegroundFetch("origin");
+                        return fetchResult.ExitCodeIsSuccess;
+                    }
                 },
                 "Fetching objects from remote"))
             {
@@ -376,10 +384,13 @@ namespace Scalar.CommandLine
             GitProcess.Result checkoutResult = null;
 
             if (!this.ShowStatusWhileRunning(() =>
-                {
-                    checkoutResult = git.ForceCheckout(branch);
-                    return checkoutResult.ExitCodeIsSuccess;
-                },
+                    {
+                        using (ITracer activity = this.tracer.StartActivity("git-checkout", EventLevel.LogAlways))
+                        {
+                            checkoutResult = git.ForceCheckout(branch);
+                            return checkoutResult.ExitCodeIsSuccess;
+                        }
+                    },
                 $"Checking out '{branch}'"))
             {
                 return new Result($"Failed to complete regular clone: {checkoutResult?.Errors}");
