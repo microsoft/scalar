@@ -38,7 +38,18 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             ProcessResult result = ProcessHelper.Run("ssh-keygen", "-H github.com");
 
             string userDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            this.fileSystem.AppendAllText(Path.Combine(userDir, ".ssh", "known_hosts"), result.Output);
+            string sshDir = Path.Combine(userDir, ".ssh");
+
+            if (this.fileSystem.DirectoryExists(sshDir))
+            {
+                this.fileSystem.CreateDirectory(sshDir);
+            }
+
+            string knownHosts = Path.Combine(sshDir, "known_hosts");
+            if (this.fileSystem.FileExists(knownHosts) && !this.fileSystem.ReadAllText(knownHosts).Contains("github.com"))
+            {
+                this.fileSystem.AppendAllText(knownHosts, result.Output);
+            }
 
             ScalarFunctionalTestEnlistment enlistment = this.CreateNewEnlistment(
                                                                 url: MicrosoftScalarSsh,
