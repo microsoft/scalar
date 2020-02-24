@@ -90,8 +90,6 @@ namespace Scalar.Common.Git
             string filterArg = filterBlobs ? "--filter=blob:none" : string.Empty;
 
             string dir = Paths.ConvertPathToGitFormat(targetDir);
-            dir.Replace(" ", "\\ ");
-            url.Replace(" ", "%20");
 
             GitProcess git = new GitProcess(gitBinPath, workingDirectoryRoot: null);
 
