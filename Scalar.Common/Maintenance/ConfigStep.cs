@@ -248,8 +248,9 @@ namespace Scalar.Common.Maintenance
                     queryWatchmanPath,
                     overwrite: true);
 
+                string dotGitRoot = this.Context.Enlistment.DotGitRoot.Replace(Path.DirectorySeparatorChar, ScalarConstants.GitPathSeparator);
                 this.RunGitCommand(
-                    process => process.SetInLocalConfig("core.fsmonitor", ".git/hooks/query-watchman"),
+                    process => process.SetInLocalConfig("core.fsmonitor",  dotGitRoot + "/hooks/query-watchman"),
                     "config");
 
                 this.Context.Tracer.RelatedInfo("Watchman configured!");
