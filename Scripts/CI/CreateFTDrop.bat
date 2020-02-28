@@ -14,10 +14,10 @@ IF EXIST %SCALAR_STAGEDIR% (
 )
 
 SET scriptsSrc=%SCALAR_SCRIPTSDIR%\*
-SET testsSrc=%SCALAR_OUTPUTDIR%\Scalar.FunctionalTests\bin\%Configuration%\netcoreapp3.0\win10-x64\publish
+SET testsSrc=%SCALAR_OUTPUTDIR%\Scalar.FunctionalTests\bin\%Configuration%\netcoreapp3.1\win10-x64\publish
 
 SET scriptsDest=%SCALAR_STAGEDIR%\src\Scripts
-SET testsDest=%SCALAR_STAGEDIR%\out\Scalar.FunctionalTests\bin\%Configuration%\netcoreapp3.0\win10-x64\publish
+SET testsDest=%SCALAR_STAGEDIR%\out\Scalar.FunctionalTests\bin\%Configuration%\netcoreapp3.1\win10-x64\publish
 
 mkdir %scriptsDest%
 mkdir %testsDest%
