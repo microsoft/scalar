@@ -9,7 +9,7 @@ steps:
       artifactName: FunctionalTests_macOS_$(configuration)
     condition: succeeded()
 
-  - script: Scalar.Installer.Mac/layout.sh $(configuration) 'netcoreapp3.0' 'osx-x64' '$(Build.SourcesDirectory)' '$(Build.SourcesDirectory)/../out' '$(Build.ArtifactStagingDirectory)/layout'
+  - script: Scalar.Installer.Mac/layout.sh $(configuration) 'netcoreapp3.1' 'osx-x64' '$(Build.SourcesDirectory)' '$(Build.SourcesDirectory)/../out' '$(Build.ArtifactStagingDirectory)/layout'
     displayName: Layout installer payload
 
   - task: PublishPipelineArtifact@1

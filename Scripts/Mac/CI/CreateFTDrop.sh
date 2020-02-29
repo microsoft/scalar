@@ -11,10 +11,10 @@ fi
 
 # Set up some paths
 SCRIPTS_SRC=$SCALAR_SCRIPTSDIR
-TESTS_SRC=$SCALAR_OUTPUTDIR/Scalar.FunctionalTests/bin/$CONFIGURATION/netcoreapp3.0/osx-x64/publish
+TESTS_SRC=$SCALAR_OUTPUTDIR/Scalar.FunctionalTests/bin/$CONFIGURATION/netcoreapp3.1/osx-x64/publish
 
 SCRIPTS_DEST=$SCALAR_STAGEDIR/src/Scripts/Mac
-TESTS_DEST=$SCALAR_STAGEDIR/out/Scalar.FunctionalTests/bin/$CONFIGURATION/netcoreapp3.0/osx-x64/publish
+TESTS_DEST=$SCALAR_STAGEDIR/out/Scalar.FunctionalTests/bin/$CONFIGURATION/netcoreapp3.1/osx-x64/publish
 
 # Set up the build drop directory structure
 rm -rf $SCALAR_STAGEDIR
