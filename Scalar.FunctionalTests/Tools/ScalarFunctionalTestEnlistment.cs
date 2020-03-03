@@ -100,10 +100,11 @@ namespace Scalar.FunctionalTests.Tools
             string commitish = null,
             string localCacheRoot = null,
             bool skipFetchCommitsAndTrees = false,
-            bool fullClone = true)
+            bool fullClone = true,
+            string url = null)
         {
             string enlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
-            return Clone(pathToScalar, enlistmentRoot, commitish, localCacheRoot, skipFetchCommitsAndTrees, fullClone);
+            return Clone(pathToScalar, enlistmentRoot, commitish, localCacheRoot, skipFetchCommitsAndTrees, fullClone, url);
         }
 
         public static ScalarFunctionalTestEnlistment CloneEnlistmentWithSpacesInPath(string pathToScalar, string commitish = null)
@@ -268,14 +269,15 @@ namespace Scalar.FunctionalTests.Tools
             string commitish,
             string localCacheRoot,
             bool skipFetchCommitsAndTrees = false,
-            bool fullClone = true)
+            bool fullClone = true,
+            string url = null)
         {
             enlistmentRoot = enlistmentRoot ?? GetUniqueEnlistmentRoot();
 
             ScalarFunctionalTestEnlistment enlistment = new ScalarFunctionalTestEnlistment(
                 pathToScalar,
                 enlistmentRoot,
-                ScalarTestConfig.RepoToClone,
+                url ?? ScalarTestConfig.RepoToClone,
                 commitish ?? Properties.Settings.Default.Commitish,
                 localCacheRoot ?? ScalarTestConfig.LocalCacheRoot,
                 fullClone);
