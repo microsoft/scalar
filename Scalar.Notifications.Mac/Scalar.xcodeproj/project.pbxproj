@@ -48,7 +48,7 @@
 		433FE81D227B594300488730 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		433FE81F227B594300488730 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		433FE820227B594300488730 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		433FE822227B594300488730 /* Scalar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Scalar.entitlements; sourceTree = "<group>"; };
+		433FE822227B594300488730 /* Scalar.UnitTests.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Scalar.UnitTests.entitlements; sourceTree = "<group>"; };
 		433FE8532280C21000488730 /* ScalarStatusBarItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScalarStatusBarItem.h; sourceTree = "<group>"; };
 		433FE8542280C21000488730 /* ScalarStatusBarItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScalarStatusBarItem.m; sourceTree = "<group>"; };
 		433FE8582280E10F00488730 /* ScalarProductInfoFetcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScalarProductInfoFetcher.h; sourceTree = "<group>"; };
@@ -80,6 +80,7 @@
 		43AF0E0722B023F200E54D48 /* ScalarNotificationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScalarNotificationTests.m; sourceTree = "<group>"; };
 		43C021EE22B18BDD00F868F2 /* ScalarNotificationErrors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScalarNotificationErrors.h; sourceTree = "<group>"; };
 		43C021EF22B18BDD00F868F2 /* ScalarNotificationErrors.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScalarNotificationErrors.m; sourceTree = "<group>"; };
+		E689FC53240EB93E003D1459 /* Scalar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Scalar.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,7 +122,6 @@
 		433FE80B227B593500488730 = {
 			isa = PBXGroup;
 			children = (
-				433FE822227B594300488730 /* Scalar.entitlements */,
 				433FE816227B593500488730 /* StatusMenuItem */,
 				43583C2C2285E3E1003357D6 /* Scalar.UnitTests */,
 				433FE815227B593500488730 /* Products */,
@@ -140,6 +140,7 @@
 		433FE816227B593500488730 /* StatusMenuItem */ = {
 			isa = PBXGroup;
 			children = (
+				E689FC53240EB93E003D1459 /* Scalar.entitlements */,
 				43AF0DFF22B01CD400E54D48 /* IPC */,
 				435B1E04228C88E300E853F3 /* Utilities */,
 				430ED36D2281E6B200319408 /* UI */,
@@ -152,6 +153,7 @@
 		43583C2C2285E3E1003357D6 /* Scalar.UnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				433FE822227B594300488730 /* Scalar.UnitTests.entitlements */,
 				43583C3B228A17D4003357D6 /* Mocks */,
 				43583C2F2285E3E1003357D6 /* Info.plist */,
 				43583C372289BE94003357D6 /* ScalarAboutWindowControllerTests.m */,
@@ -468,13 +470,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = Scalar;
-				CODE_SIGN_ENTITLEMENTS = Scalar.entitlements;
+				CODE_SIGN_ENTITLEMENTS = StatusMenuItem/Scalar.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = UBF8T346G9;
-				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = StatusMenuItem/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -492,14 +493,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = Scalar;
-				CODE_SIGN_ENTITLEMENTS = Scalar.entitlements;
+				CODE_SIGN_ENTITLEMENTS = StatusMenuItem/Scalar.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = UBF8T346G9;
-				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = StatusMenuItem/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -518,7 +518,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_ENTITLEMENTS = Scalar.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Scalar.UnitTests/Scalar.UnitTests.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -541,7 +541,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_ENTITLEMENTS = Scalar.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Scalar.UnitTests/Scalar.UnitTests.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
