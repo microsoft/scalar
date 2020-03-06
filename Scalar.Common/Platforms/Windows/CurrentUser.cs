@@ -112,7 +112,7 @@ namespace Scalar.Platform.Windows
         /// with the SE_TCB_NAME privilege.
         /// </summary>
         /// <returns>True on successful process start</returns>
-        public bool RunAs(string processName, string args)
+        public bool RunAs(string processName, string args, bool wait = false)
         {
             IntPtr environment = IntPtr.Zero;
             IntPtr duplicate = IntPtr.Zero;
@@ -153,6 +153,17 @@ namespace Scalar.Platform.Windows
                             try
                             {
                                 this.tracer.RelatedInfo("Started process '{0} {1}' with Id {2}", processName, args, procInfo.ProcessId);
+
+                                if (wait)
+                                {
+                                    WaitForSingleObject(procInfo.ProcessHandle);
+
+                                    this.tracer.RelatedInfo("Finished process '{0} {1}' with Id {2}", processName, args, procInfo.ProcessId);
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                this.tracer.RelatedError("Error when running process '{0} {1}' with Id {2}: {3}", processName, args, procInfo.ProcessId, e.ToString());
                             }
                             finally
                             {
