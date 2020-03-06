@@ -38,7 +38,8 @@ namespace Scalar.Service
 
             return currentUser.RunAs(
                 Configuration.Instance.ScalarLocation,
-                $"run {taskVerbName} \"{repoRoot}\" --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}");
+                $"run {taskVerbName} \"{repoRoot}\" --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}",
+                wait: true);
         }
     }
 }

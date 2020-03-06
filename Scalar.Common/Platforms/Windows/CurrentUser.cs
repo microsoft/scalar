@@ -1,9 +1,11 @@
+using Microsoft.Win32.SafeHandles;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.Threading;
 
 namespace Scalar.Platform.Windows
 {
@@ -112,7 +114,7 @@ namespace Scalar.Platform.Windows
         /// with the SE_TCB_NAME privilege.
         /// </summary>
         /// <returns>True on successful process start</returns>
-        public bool RunAs(string processName, string args)
+        public bool RunAs(string processName, string args, bool wait = false)
         {
             IntPtr environment = IntPtr.Zero;
             IntPtr duplicate = IntPtr.Zero;
@@ -153,6 +155,18 @@ namespace Scalar.Platform.Windows
                             try
                             {
                                 this.tracer.RelatedInfo("Started process '{0} {1}' with Id {2}", processName, args, procInfo.ProcessId);
+
+                                if (wait)
+                                {
+                                    SafeWait waiter = new SafeWait(procInfo.ProcessHandle);
+                                    waiter.WaitOne();
+
+                                    this.tracer.RelatedInfo("Finished process '{0} {1}' with Id {2}", processName, args, procInfo.ProcessId);
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                this.tracer.RelatedError("Error when running process '{0} {1}' with Id {2}: {3}", processName, args, procInfo.ProcessId, e.ToString());
                             }
                             finally
                             {
@@ -264,6 +278,14 @@ namespace Scalar.Platform.Windows
             }
 
             return output;
+        }
+
+        private class SafeWait : WaitHandle
+        {
+            public SafeWait(IntPtr handle)
+            {
+                this.SafeWaitHandle = new SafeWaitHandle(handle, false);
+            }
         }
 
         [DllImport("kernel32.dll")]
