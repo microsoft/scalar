@@ -1,11 +1,9 @@
-using Microsoft.Win32.SafeHandles;
 using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
-using System.Threading;
 
 namespace Scalar.Platform.Windows
 {
@@ -158,8 +156,7 @@ namespace Scalar.Platform.Windows
 
                                 if (wait)
                                 {
-                                    SafeWait waiter = new SafeWait(procInfo.ProcessHandle);
-                                    waiter.WaitOne();
+                                    WaitForSingleObject(procInfo.ProcessHandle);
 
                                     this.tracer.RelatedInfo("Finished process '{0} {1}' with Id {2}", processName, args, procInfo.ProcessId);
                                 }
@@ -278,14 +275,6 @@ namespace Scalar.Platform.Windows
             }
 
             return output;
-        }
-
-        private class SafeWait : WaitHandle
-        {
-            public SafeWait(IntPtr handle)
-            {
-                this.SafeWaitHandle = new SafeWaitHandle(handle, false);
-            }
         }
 
         [DllImport("kernel32.dll")]
