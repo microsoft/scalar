@@ -87,9 +87,8 @@ namespace Scalar.FunctionalTests.Tools
             ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command, environmentVariables);
             ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command, environmentVariables);
 
-            ErrorsShouldMatch(command, expectedResult, actualResult);
-            actualResult.Output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                .ShouldMatchInOrder(expectedResult.Output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries), LinesAreEqual, command + " Output Lines");
+            LinesShouldMatch(command + " Errors Lines", actualResult.Errors, expectedResult.Errors);
+            LinesShouldMatch(command + " Output Lines", actualResult.Output, expectedResult.Output);
 
             if (command != "status")
             {
@@ -97,10 +96,18 @@ namespace Scalar.FunctionalTests.Tools
             }
         }
 
-        public static void ErrorsShouldMatch(string command, ProcessResult expectedResult, ProcessResult actualResult)
+        public static void LinesShouldMatch(string message, string expected, string actual)
         {
-            actualResult.Errors.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                .ShouldMatchInOrder(expectedResult.Errors.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries), LinesAreEqual, command + " Errors Lines");
+            IEnumerable<string> actualLines = NonEmptyLines(actual);
+            IEnumerable<string> expectedLines = NonEmptyLines(expected);
+            actualLines.ShouldMatchInOrder(expectedLines, LinesAreEqual, message);
+        }
+
+        private static IEnumerable<string> NonEmptyLines(string data)
+        {
+            return data
+                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Where(s => !string.IsNullOrWhiteSpace(s));
         }
 
         private static bool LinesAreEqual(string actualLine, string expectedLine)

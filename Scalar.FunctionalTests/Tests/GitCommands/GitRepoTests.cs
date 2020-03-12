@@ -261,7 +261,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
             if (!ignoreErrors)
             {
-                GitHelpers.ErrorsShouldMatch(command, expectedResult, actualResult);
+                GitHelpers.LinesShouldMatch(command, expectedResult.Errors, actualResult.Errors);
             }
 
             if (command != "status" && checkStatus)
