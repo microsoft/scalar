@@ -19,9 +19,10 @@ tasks are:
   commits. After writing a new file, verify the file was computed successfully.
   This drastically improves the performance of commands like `git log --graph`.
 
-* `fetch`: Fetch the latest data from the remote server. If using the GVFS
+* `fetch`: Fetch the latest data from the remote servers. If using the GVFS
    protocol, download the latest set of commit and tree packs from
-   the cache server or the origin remote. This will not update your local
+   the cache server or the origin remote. Otherwise, this step will fetch
+   the latest objects from each remote. This will not update your local
    refs, so your `git fetch` commands will report all ref updates. Those
    `git fetch` commands will be much faster as they will require much less
    data transfer.
