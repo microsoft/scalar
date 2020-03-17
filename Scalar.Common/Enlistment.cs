@@ -41,26 +41,17 @@ namespace Scalar.Common
                         throw new InvalidRepoException(this.WorkingDirectoryRoot, $"Failed to load remotes with error: {error}");
                     }
 
-                    if (remotes.Length == 0)
-                    {
-                        originUrl = string.Empty;
-                    }
-                    else
+                    if (remotes.Length > 0)
                     {
                         GitProcess.ConfigResult remoteResult = gitProcess.GetFromLocalConfig($"remote.{remotes[0]}.url");
                         if (!remoteResult.TryParseAsString(out originUrl, out error))
                         {
-                            originUrl = string.Empty;
+                            originUrl = null;
                         }
                     }
                 }
 
-                if (originUrl == null)
-                {
-                    throw new InvalidRepoException(this.WorkingDirectoryRoot, "Could not get origin url. remote 'origin' is not configured for this repo.'");
-                }
-
-                this.RepoUrl = originUrl.Trim();
+                this.RepoUrl = originUrl?.Trim() ?? string.Empty;
             }
 
             this.Authentication = authentication ?? new GitAuthentication(gitProcess, this.RepoUrl, this.WorkingDirectoryRoot);
