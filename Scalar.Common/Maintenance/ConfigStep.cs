@@ -235,9 +235,18 @@ namespace Scalar.Common.Maintenance
 
             try
             {
+                string hooksDir = ScalarPlatform.Instance.GetTemplateHooksDirectory();
+
+                if (string.IsNullOrEmpty(hooksDir))
+                {
+                    this.Context.Tracer.RelatedError("Could not find hook templates directory. Skipping watchman integration.");
+                    return;
+                }
+
+                // Install query-watchman hook from latest Git path
                 string fsMonitorWatchmanSampleHookPath = Path.Combine(
-                    this.Context.Enlistment.WorkingDirectoryRoot,
-                    ScalarConstants.DotGit.Hooks.FsMonitorWatchmanSamplePath);
+                    hooksDir,
+                    ScalarConstants.DotGit.Hooks.FsMonitorWatchmanSampleName);
 
                 string queryWatchmanPath = Path.Combine(
                     this.Context.Enlistment.WorkingDirectoryRoot,
@@ -250,7 +259,10 @@ namespace Scalar.Common.Maintenance
 
                 string dotGitRoot = this.Context.Enlistment.DotGitRoot.Replace(Path.DirectorySeparatorChar, ScalarConstants.GitPathSeparator);
                 this.RunGitCommand(
-                    process => process.SetInLocalConfig("core.fsmonitor",  dotGitRoot + "/hooks/query-watchman"),
+                    process => process.SetInLocalConfig("core.fsmonitor", dotGitRoot + "/hooks/query-watchman"),
+                    "config");
+                this.RunGitCommand(
+                    process => process.SetInLocalConfig("core.fsmonitorHookVersion", "2"),
                     "config");
 
                 this.Context.Tracer.RelatedInfo("Watchman configured!");

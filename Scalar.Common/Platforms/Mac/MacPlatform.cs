@@ -146,6 +146,11 @@ namespace Scalar.Platform.Mac
             running = installed && scalarService.IsRunning;
         }
 
+        public override string GetTemplateHooksDirectory()
+        {
+            return Path.Combine("usr", "local", ScalarConstants.InstalledGit.HookTemplateDir);
+        }
+
         public class MacPlatformConstants : POSIXPlatformConstants
         {
             public override string InstallerExtension
