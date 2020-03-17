@@ -102,7 +102,7 @@ namespace Scalar.UnitTests.Common
             private MockGitProcess gitProcess;
 
             public TestScalarEnlistment()
-                : base("mock:\\path", "mock://repoUrl", "mock:\\git", authentication: null)
+                : base("mock:\\path", "mock:\\path", "mock://repoUrl", "mock:\\git", authentication: null)
             {
                 this.gitProcess = new MockGitProcess();
                 this.gitProcess.SetExpectedCommandResult(

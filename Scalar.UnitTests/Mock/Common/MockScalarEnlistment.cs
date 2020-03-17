@@ -10,7 +10,7 @@ namespace Scalar.UnitTests.Mock.Common
         private MockGitProcess gitProcess;
 
         public MockScalarEnlistment()
-            : base(Path.Combine("mock:", "path"), "mock://repoUrl", Path.Combine("mock:", "git"), authentication: null)
+            : base(Path.Combine("mock:", "path"), Path.Combine("mock:", "path"), "mock://repoUrl", Path.Combine("mock:", "git"), authentication: null)
         {
             this.GitObjectsRoot = Path.Combine("mock:", "path", ".git", "objects");
             this.LocalObjectsRoot = this.GitObjectsRoot;
@@ -18,7 +18,7 @@ namespace Scalar.UnitTests.Mock.Common
         }
 
         public MockScalarEnlistment(string enlistmentRoot, string repoUrl, string gitBinPath, MockGitProcess gitProcess)
-            : base(enlistmentRoot, repoUrl, gitBinPath, authentication: null)
+            : base(enlistmentRoot, enlistmentRoot, repoUrl, gitBinPath, authentication: null)
         {
             this.gitProcess = gitProcess;
         }

@@ -10,19 +10,7 @@ namespace Scalar.Common
         private string gitVersion;
         private string scalarVersion;
 
-        // New enlistment
-        public ScalarEnlistment(string enlistmentRoot, string repoUrl, string gitBinPath, GitAuthentication authentication)
-            : this(
-                  enlistmentRoot,
-                  Path.Combine(enlistmentRoot, ScalarConstants.WorkingDirectoryRootName),
-                  repoUrl,
-                  gitBinPath,
-                  authentication)
-        {
-        }
-
-        // Existing, configured enlistment
-        private ScalarEnlistment(string enlistmentRoot, string workingDirectory, string repoUrl, string gitBinPath, GitAuthentication authentication)
+        public ScalarEnlistment(string enlistmentRoot, string workingDirectory, string repoUrl, string gitBinPath, GitAuthentication authentication)
             : base(
                   enlistmentRoot,
                   workingDirectory,
@@ -74,7 +62,7 @@ namespace Scalar.Common
 
                 if (createWithoutRepoURL)
                 {
-                    return new ScalarEnlistment(enlistmentRoot, string.Empty, gitBinRoot, authentication);
+                    return new ScalarEnlistment(enlistmentRoot, workingDirectory, string.Empty, gitBinRoot, authentication);
                 }
 
                 return new ScalarEnlistment(enlistmentRoot, workingDirectory, null, gitBinRoot, authentication);
