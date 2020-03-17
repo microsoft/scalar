@@ -427,6 +427,7 @@ namespace Scalar.CommandLine
             {
                 enlistment = new ScalarEnlistment(
                     normalizedEnlistementRootPath,
+                    Path.Combine(normalizedEnlistementRootPath, ScalarConstants.WorkingDirectoryRootName),
                     this.RepositoryURL,
                     gitBinPath,
                     authentication: null);

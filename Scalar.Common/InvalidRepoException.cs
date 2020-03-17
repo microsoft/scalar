@@ -7,7 +7,7 @@ namespace Scalar.Common
         public string RepoPath { get; }
 
         public InvalidRepoException(string repoPath, string message)
-            : base(message)
+            : base($"path: '{repoPath}', message: '{message}'")
         {
             this.RepoPath = repoPath;
         }
