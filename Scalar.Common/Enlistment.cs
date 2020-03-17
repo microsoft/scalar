@@ -36,7 +36,23 @@ namespace Scalar.Common
                 GitProcess.ConfigResult originResult = gitProcess.GetOriginUrl();
                 if (!originResult.TryParseAsString(out string originUrl, out string error))
                 {
-                    throw new InvalidRepoException(this.WorkingDirectoryRoot, "Could not get origin url. git error: " + error);
+                    if (!gitProcess.TryGetRemotes(out string[] remotes, out error))
+                    {
+                        throw new InvalidRepoException(this.WorkingDirectoryRoot, $"Failed to load remotes with error: {error}");
+                    }
+
+                    if (remotes.Length == 0)
+                    {
+                        originUrl = string.Empty;
+                    }
+                    else
+                    {
+                        GitProcess.ConfigResult remoteResult = gitProcess.GetFromLocalConfig($"remote.{remotes[0]}.url");
+                        if (!remoteResult.TryParseAsString(out originUrl, out error))
+                        {
+                            originUrl = string.Empty;
+                        }
+                    }
                 }
 
                 if (originUrl == null)
