@@ -980,7 +980,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             string command = "checkout -b tests/functional/OpenFileThenCheckout_2";
             ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command);
             ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command);
-            GitHelpers.ErrorsShouldMatch(command, expectedResult, actualResult);
+            GitHelpers.LinesShouldMatch(command, expectedResult.Errors, actualResult.Errors);
             actualResult.Errors.ShouldContain("Switched to a new branch");
 
             this.ValidateGitCommand("status");

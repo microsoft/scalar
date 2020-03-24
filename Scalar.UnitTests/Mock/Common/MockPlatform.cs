@@ -173,6 +173,11 @@ namespace Scalar.UnitTests.Mock.Common
             return true;
         }
 
+        public override string GetTemplateHooksDirectory()
+        {
+            throw new NotSupportedException();
+        }
+
         public class MockPlatformConstants : ScalarPlatformConstants
         {
             public override string ExecutableExtension

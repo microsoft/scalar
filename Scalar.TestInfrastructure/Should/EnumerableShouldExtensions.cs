@@ -136,12 +136,12 @@ namespace Scalar.Tests.Should
 
             foreach (T groupExtraItem in groupExtraItems)
             {
-                errorMessage.AppendLine(string.Format("Extra: {0}", groupExtraItem));
+                errorMessage.AppendLine(string.Format("Extra: '{0}'", groupExtraItem));
             }
 
             foreach (T groupMissingItem in groupMissingItems)
             {
-                errorMessage.AppendLine(string.Format("Missing: {0}", groupMissingItem));
+                errorMessage.AppendLine(string.Format("Missing: '{0}'", groupMissingItem));
             }
 
             if (shouldMatchInOrder)
@@ -150,7 +150,7 @@ namespace Scalar.Tests.Should
                 {
                     if (!equals(groupList[i], expectedValuesList[i]))
                     {
-                        errorMessage.AppendLine($"Items ordered differently, found: {groupList[i]} expected: {expectedValuesList[i]}");
+                        errorMessage.AppendLine($"Items ordered differently, found: '{groupList[i]}' expected: '{expectedValuesList[i]}'");
                     }
                 }
             }

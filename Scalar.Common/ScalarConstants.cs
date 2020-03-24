@@ -187,6 +187,11 @@ namespace Scalar.Common
             }
         }
 
+        public static class InstalledGit
+        {
+            public static readonly string HookTemplateDir = Path.Combine("share", "git-core", "templates", "hooks");
+        }
+
         public static class VerbParameters
         {
             public const string InternalUseOnly = "internal_use_only";

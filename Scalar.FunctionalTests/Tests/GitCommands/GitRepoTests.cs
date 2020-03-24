@@ -212,6 +212,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
                                                                 ScalarTestConfig.PathToScalar,
                                                                 commitish: commitish,
                                                                 fullClone: this.validateWorkingTree != Settings.ValidateWorkingTreeMode.SparseMode);
+            GitProcess.Invoke(this.Enlistment.RepoRoot, "config core.editor true");
             GitProcess.Invoke(this.Enlistment.RepoRoot, "config advice.statusUoption false");
             this.ControlGitRepo = ControlGitRepo.Create(commitish);
             this.ControlGitRepo.Initialize();
@@ -261,7 +262,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
 
             if (!ignoreErrors)
             {
-                GitHelpers.ErrorsShouldMatch(command, expectedResult, actualResult);
+                GitHelpers.LinesShouldMatch(command, expectedResult.Errors, actualResult.Errors);
             }
 
             if (command != "status" && checkStatus)
