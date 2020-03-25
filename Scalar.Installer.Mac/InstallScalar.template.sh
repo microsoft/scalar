@@ -36,6 +36,10 @@ echo "Welcome - running Scalar installation script"
 
 CURRENT_USER=$(/usr/bin/logname)
 
+if [ "$CURRENT_USER" = "root" ]; then
+	CURRENT_USER=$(/usr/bin/whoami)
+fi
+
 if [ -z GIT_INSTALLER_PKG ]; then
     echo "ERROR: GIT_INSTALLER_PKG environment variable not set - exiting"
     exit 1;
