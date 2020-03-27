@@ -114,8 +114,6 @@ namespace Scalar.Common
             PhysicalFileSystem fileSystem,
             ITracer tracer);
 
-        public abstract string GetTemplateHooksDirectory();
-
         public bool TryGetNormalizedPathRoot(string path, out string pathRoot, out string errorMessage)
         {
             pathRoot = null;

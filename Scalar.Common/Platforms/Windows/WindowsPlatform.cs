@@ -337,20 +337,6 @@ namespace Scalar.Platform.Windows
             return new WindowsProductUpgraderPlatformStrategy(fileSystem, tracer);
         }
 
-        public override string GetTemplateHooksDirectory()
-        {
-            string gitBinPath = GitInstallation.GetInstalledGitBinPath();
-
-            string tail = Path.Combine("cmd", "git.exe");
-            if (gitBinPath.EndsWith(tail))
-            {
-                string gitBasePath = gitBinPath.Substring(0, gitBinPath.Length - tail.Length);
-                return Path.Combine(gitBasePath, "mingw64", ScalarConstants.InstalledGit.HookTemplateDir);
-            }
-
-            return null;
-        }
-
         public override bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError)
         {
             string pathRoot;
