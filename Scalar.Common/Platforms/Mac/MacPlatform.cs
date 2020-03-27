@@ -148,7 +148,7 @@ namespace Scalar.Platform.Mac
 
         public override string GetTemplateHooksDirectory()
         {
-            return Path.Combine("usr", "local", ScalarConstants.InstalledGit.HookTemplateDir);
+            return Path.Combine("/usr", "local", ScalarConstants.InstalledGit.HookTemplateDir);
         }
 
         public class MacPlatformConstants : POSIXPlatformConstants
