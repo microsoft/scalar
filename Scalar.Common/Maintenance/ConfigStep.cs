@@ -237,9 +237,10 @@ namespace Scalar.Common.Maintenance
                     this.Context.Enlistment.WorkingDirectoryRoot,
                     ScalarConstants.DotGit.Hooks.QueryWatchmanPath);
 
+                // Double-check that the hook data uses LF not CRLF
                 this.Context.FileSystem.WriteAllText(
                     queryWatchmanPath,
-                    queryWatchmanHookData);
+                    queryWatchmanHookData.Replace("\r\n", "\n"));
 
                 string dotGitRoot = this.Context.Enlistment.DotGitRoot.Replace(Path.DirectorySeparatorChar, ScalarConstants.GitPathSeparator);
                 this.RunGitCommand(
@@ -434,6 +435,7 @@ sub get_working_dir {
 	}
 
 	return $working_dir;
-}";
+}
+";
     }
 }
