@@ -163,10 +163,7 @@ namespace Scalar.Common.Maintenance
                 return false;
             }
 
-            this.ConfigureWatchmanIntegration();
-
-            error = null;
-            return true;
+            return this.ConfigureWatchmanIntegration(out error);
         }
 
         protected override void PerformMaintenance()
@@ -224,13 +221,14 @@ namespace Scalar.Common.Maintenance
             return true;
         }
 
-        private void ConfigureWatchmanIntegration()
+        private bool ConfigureWatchmanIntegration(out string error)
         {
             string watchmanLocation = ProcessHelper.GetProgramLocation(ScalarPlatform.Instance.Constants.ProgramLocaterCommand, "watchman");
             if (string.IsNullOrEmpty(watchmanLocation))
             {
                 this.Context.Tracer.RelatedWarning("Watchman is not installed - skipping Watchman configuration.");
-                return;
+                error = null;
+                return true;
             }
 
             try
@@ -239,8 +237,9 @@ namespace Scalar.Common.Maintenance
 
                 if (string.IsNullOrEmpty(hooksDir))
                 {
-                    this.Context.Tracer.RelatedError("Could not find hook templates directory. Skipping watchman integration.");
-                    return;
+                    error = "Could not find hook templates directory. Skipping watchman integration.";
+                    this.Context.Tracer.RelatedError(error);
+                    return false;
                 }
 
                 // Install query-watchman hook from latest Git path
@@ -266,11 +265,15 @@ namespace Scalar.Common.Maintenance
                     "config");
 
                 this.Context.Tracer.RelatedInfo("Watchman configured!");
+                error = null;
+                return true;
             }
             catch (IOException ex)
             {
                 EventMetadata metadata = this.CreateEventMetadata(ex);
-                this.Context.Tracer.RelatedError(metadata, $"Failed to configure Watchman integration: {ex.Message}");
+                error = $"Failed to configure Watchman integration: {ex.Message}";
+                this.Context.Tracer.RelatedError(metadata, error);
+                return false;
             }
         }
     }
