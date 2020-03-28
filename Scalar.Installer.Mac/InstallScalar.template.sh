@@ -109,6 +109,7 @@ if [ $INSTALL_WATCHMAN -eq 1 ]; then
     echo "=============================="
     echo "Installing watchman as: $CURRENT_USER"
 
+    sudo chown -R $CURRENT_USER /usr/local/Cellar
     sudo -u $CURRENT_USER brew update
     sudo -u $CURRENT_USER brew unlink python@2 || echo "Python 2 was not installed"
     sudo -u $CURRENT_USER brew install watchman
