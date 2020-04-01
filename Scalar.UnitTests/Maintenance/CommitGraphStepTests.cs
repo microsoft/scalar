@@ -18,7 +18,8 @@ namespace Scalar.UnitTests.Maintenance
         private MockGitProcess gitProcess;
         private ScalarContext context;
 
-        private string CommitGraphWriteCommand => $"commit-graph write --reachable --split --size-multiple=4 --expire-time=3600 --object-dir \"{this.context.Enlistment.GitObjectsRoot}\"";
+        private string CommitGraphWriteCommand => $"commit-graph write --reachable --split --size-multiple=4 --expire-time={GitProcess.ExpireTimeDateString} --object-dir \"{this.context.Enlistment.GitObjectsRoot}\"";
+
         private string CommitGraphVerifyCommand => $"commit-graph verify --shallow --object-dir \"{this.context.Enlistment.GitObjectsRoot}\"";
 
         [TestCase]
