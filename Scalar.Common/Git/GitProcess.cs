@@ -13,6 +13,24 @@ namespace Scalar.Common.Git
 {
     public class GitProcess : ICredentialStore
     {
+        /// <remarks>
+        /// For UnitTest purposes
+        /// </remarks>
+        public static string ExpireTimeDateString
+        {
+            get
+            {
+                if (expireTimeDateString == null)
+                {
+                    expireTimeDateString = DateTime.Now.Subtract(TimeSpan.FromDays(1)).ToShortDateString();
+                }
+
+                return expireTimeDateString;
+            }
+        }
+
+        private static string expireTimeDateString;
+
         private const int HResultEHANDLE = -2147024890; // 0x80070006 E_HANDLE
 
         private static readonly Encoding UTF8NoBOM = new UTF8Encoding(false);
@@ -572,9 +590,10 @@ namespace Scalar.Common.Git
         {
             // Do not expire commit-graph files that have been modified in the last hour.
             // This will prevent deleting any commit-graph files that are currently in the commit-graph-chain.
-            string command = $"commit-graph write --reachable --split --size-multiple=4 --expire-time={1 * 60 * 60} --object-dir \"{objectDir}\"";
+            string command = $"commit-graph write --reachable --split --size-multiple=4 --expire-time={ExpireTimeDateString} --object-dir \"{objectDir}\"";
             return this.InvokeGitInWorkingDirectoryRoot(command, fetchMissingObjects: true);
         }
+
 
         public Result VerifyCommitGraph(string objectDir)
         {
