@@ -27,8 +27,6 @@ namespace Scalar.Platform.POSIX
 
         public bool SupportsFileMode { get; } = true;
 
-        public bool SupportsUntrackedCache { get; } = true;
-
         public void FlushFileBuffers(string path)
         {
             // TODO(#1057): Use native API to flush file

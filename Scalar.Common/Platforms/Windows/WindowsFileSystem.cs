@@ -14,8 +14,6 @@ namespace Scalar.Platform.Windows
     {
         public bool SupportsFileMode { get; } = false;
 
-        public bool SupportsUntrackedCache { get; } = false;
-
         /// <summary>
         /// Adds a new FileSystemAccessRule granting read (and optionally modify) access for all users.
         /// </summary>

@@ -105,7 +105,7 @@ namespace Scalar.Common.Maintenance
                 { "core.multiPackIndex", "true" },
                 { "core.preloadIndex", "true" },
                 { "core.safecrlf", "false" },
-                { "core.untrackedCache", ScalarPlatform.Instance.FileSystem.SupportsUntrackedCache ? "true" : "false" },
+                { "core.untrackedCache", "true" },
                 { "core.filemode", ScalarPlatform.Instance.FileSystem.SupportsFileMode ? "true" : "false" },
                 { "core.bare", "false" },
                 { "core.logallrefupdates", "true" },
