@@ -204,6 +204,7 @@ namespace Scalar.Common
                 public const string FetchTaskName = "fetch";
                 public const string LooseObjectsTaskName = "loose-objects";
                 public const string PackFilesTaskName = "pack-files";
+                public const string StatusTaskName = "status";
 
                 public const string BatchSizeOptionName = "batch-size";
             }

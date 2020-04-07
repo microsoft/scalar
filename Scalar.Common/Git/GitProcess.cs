@@ -641,6 +641,11 @@ namespace Scalar.Common.Git
             return this.InvokeGitAgainstDotGitFolder("symbolic-ref " + refToUpdate + " " + targetRef);
         }
 
+        public Result UpdateUntrackedCache()
+        {
+            return this.InvokeGitInWorkingDirectoryRoot("update-index --untracked-cache", fetchMissingObjects: true);
+        }
+
         public Result UpdateBranchSha(string refToUpdate, string targetSha)
         {
             // If oldCommitResult doesn't fail, then the branch exists and update-ref will want the old sha

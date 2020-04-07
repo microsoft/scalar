@@ -162,6 +162,11 @@ namespace Scalar.CommandLine
                                 steps.Add(new ConfigStep(context));
                                 break;
 
+                            case ScalarConstants.VerbParameters.Maintenance.StatusTaskName:
+                                this.FailIfBatchSizeSet(tracer);
+                                steps.Add(new StatusStep(context));
+                                break;
+
                             default:
                                 this.ReportErrorAndExit($"Unknown maintenance task requested: '{this.MaintenanceTask}'");
                                 break;

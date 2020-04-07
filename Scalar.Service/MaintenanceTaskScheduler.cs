@@ -27,6 +27,9 @@ namespace Scalar.Service
         private readonly TimeSpan configDueTime = TimeSpan.FromSeconds(0);
         private readonly TimeSpan configPeriod = TimeSpan.FromHours(24);
 
+        private readonly TimeSpan statusDueTime = TimeSpan.FromSeconds(5);
+        private readonly TimeSpan statusPeriod = TimeSpan.FromHours(1);
+
         private readonly ITracer tracer;
         private readonly PhysicalFileSystem fileSystem;
         private readonly IScalarVerbRunner scalarVerb;
@@ -110,6 +113,11 @@ namespace Scalar.Service
                     MaintenanceTasks.Task.Config,
                     dueTime: this.configDueTime,
                     period: this.configPeriod,
+                    ignorePause: true),
+                new MaintenanceSchedule(
+                    MaintenanceTasks.Task.Status,
+                    dueTime: this.statusDueTime,
+                    period: this.statusPeriod,
                     ignorePause: true),
             };
 

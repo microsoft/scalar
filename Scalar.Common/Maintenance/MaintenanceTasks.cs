@@ -12,6 +12,7 @@ namespace Scalar.Common.Maintenance
             PackFiles,
             CommitGraph,
             Config,
+            Status,
         }
 
         public static string GetVerbTaskName(Task task)
