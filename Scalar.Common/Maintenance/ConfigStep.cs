@@ -124,6 +124,7 @@ namespace Scalar.Common.Maintenance
                 { "reset.quiet", "true" },
                 { "feature.manyFiles", "false" },
                 { "feature.experimental", "false" },
+                { "fetch.unpackLimit", "1" },
                 { "fetch.writeCommitGraph", "false" },
             };
 
