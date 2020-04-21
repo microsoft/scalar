@@ -43,7 +43,7 @@
        VFS for Git (which is less flexible). Only update that version if we rely upon a
        new command-line interface in Git or if there is a truly broken interaction.
     -->
-    <GitPackageVersion>2.20200414.2</GitPackageVersion>
+    <GitPackageVersion>2.20200420.2</GitPackageVersion>
     <MinimumGitVersion>v2.25.0.vfs.1.1</MinimumGitVersion>
 
     <WatchmanPackageUrl>https://github.com/facebook/watchman/suites/307436006/artifacts/304557</WatchmanPackageUrl>
