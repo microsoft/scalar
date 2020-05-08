@@ -143,6 +143,8 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
                     sb.Append("\n");
                 }
 
+                GitProcess.InvokeProcess(this.ControlGitRepo.RootPath, "sparse-checkout init --cone", string.Empty);
+                GitProcess.InvokeProcess(this.ControlGitRepo.RootPath, "sparse-checkout set --stdin", sb.ToString());
                 GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "sparse-checkout set --stdin", sb.ToString());
                 this.pathPrefixes = SparseModeFolders;
             }
