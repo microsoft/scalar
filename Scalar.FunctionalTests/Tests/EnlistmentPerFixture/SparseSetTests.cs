@@ -14,7 +14,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
     [Category(Categories.GitCommands)]
     public class SparseSetTests : TestsWithEnlistmentPerFixture
     {
-        private const string SetOverwriteMessage = "would be overwritten by sparse checkout update";
+        private const string SetOverwriteMessage = "The following paths were already present and thus not updated despite sparse patterns";
         private const string SetIndexStateMessage = "you need to resolve your current index first";
 
         private const string FolderDotGit = ".git";
@@ -292,28 +292,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Attempt to cherry-pick the commit we know will result in a merge conflict
             GitProcess.Invoke(this.Enlistment.RepoRoot, "cherry-pick " + commitId);
 
-            // Should not be able to add which we have a merge conflict
+            // This should succeed!
             this.currentFolderList.Add(FolderTrailingSlashTests);
             string result = this.SparseSet();
-            result.ShouldContain(SetIndexStateMessage);
-
-            // New directory should not be listed because of the error
-            this.VerifyDirectory(this.Enlistment.RepoRoot, new List<string>
-            {
-                FolderDotGit,
-                FolderEnumerateAndReadTestFiles,
-                FolderFileNameEncoding,
-                FolderGitCommandsTests,
-                FolderGVFS,
-                FolderScripts,
-                FolderTest_MoveRenameFileTests,
-                FolderTest_MoveRenameFileTests2
-             });
-
-            // Fix the error, switch to the new branch, and switch back and we should have all directories
-            GitProcess.Invoke(this.Enlistment.RepoRoot, "cherry-pick --abort");
-
-            result = this.SparseSet();
             result.ShouldNotContain(true, SetIndexStateMessage);
 
             GitProcess.Invoke(this.Enlistment.RepoRoot, "checkout branch_with_conflict");
