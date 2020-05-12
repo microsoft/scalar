@@ -16,6 +16,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
     {
         private const string SetOverwriteMessage = "The following paths were already present and thus not updated despite sparse patterns";
         private const string SetIndexStateMessage = "you need to resolve your current index first";
+        private const string UnmergedPathsMessage = "The following paths are unmerged and were left despite sparse patterns";
 
         private const string FolderDotGit = ".git";
         private const string FolderDeleteFileTests = "DeleteFileTests";
@@ -145,18 +146,10 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Contents before 'set'
             this.VerifyContentsForSparseSetFileAlreadyExists();
 
-            // If a file already exists that would conflict with a sparse checkout, the 'set' should fail
+            // If a file already exists that would conflict with a sparse checkout, the 'set' will partially succeed.
             this.currentFolderList.Add(FolderEnumerateAndReadTestFiles);
             string result = this.SparseSet();
             result.ShouldContain(SetOverwriteMessage);
-
-            // Contents should be unchanged after failure
-            this.VerifyContentsForSparseSetFileAlreadyExists();
-
-            // After deleting the conflicting file you should be able to 'set'
-            this.fileSystem.DeleteFile(existingFile);
-            result = this.SparseSet();
-            result.ShouldNotContain(true, SetOverwriteMessage);
 
             // Should now have multiple files under EnumerateAndReadTestFiles
             Directory.GetFiles(folderEnumerateDirectory).Length.ShouldEqual(18);
@@ -231,14 +224,10 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             this.VerifyContentsSparseSetWithOneFolderConflict();
 
-            // One folder conflict should fail the entire 'set', and this does not modify the sparse-checkout file
             this.currentFolderList.Add(FolderTest_MoveRenameFileTests);
             this.currentFolderList.Add(FolderTest_MoveRenameFileTests2);
             string result = this.SparseSet();
             result.ShouldContain(SetOverwriteMessage);
-
-            // Results should be unchanged
-            this.VerifyContentsSparseSetWithOneFolderConflict();
 
             // Checkout new_branch
             GitProcess.Invoke(this.Enlistment.RepoRoot, "checkout -b new_branch");
@@ -249,7 +238,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             this.fileSystem.DeleteFile(existingFile);
             result = this.SparseSet();
-            result.ShouldNotContain(false, SetOverwriteMessage);
+            result.ShouldBeEmpty();
 
             // Verify the folders are now populated
             this.VerifyDirectory(folderRenameDirectory, new List<string>
@@ -269,9 +258,10 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase, Order(8)]
         public void AddWhileInMergeConflict()
         {
-            // Attempt to 'set' while you have a cherry-pick merge conflict.  It will say it failed.
+            string result = this.SparseSet();
+
+            // Attempt to 'set' while you have a cherry-pick merge conflict. It will succeed.
             // Abort the cherry-pick, switch branches, and switch back. Now the folders will be fully populated.
-            // The correct behavior should be that if the 'set' fails the folders should not be added to sparse
             string conflictFilename = "conflict";
             string fileToConflict = this.Enlistment.GetSourcePath(conflictFilename);
 
@@ -294,8 +284,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // This should succeed!
             this.currentFolderList.Add(FolderTrailingSlashTests);
-            string result = this.SparseSet();
-            result.ShouldNotContain(true, SetIndexStateMessage);
+            result = this.SparseSet();
+            result.ShouldContain(UnmergedPathsMessage);
 
             GitProcess.Invoke(this.Enlistment.RepoRoot, "checkout branch_with_conflict");
             GitProcess.Invoke(this.Enlistment.RepoRoot, "checkout " + this.Enlistment.Commitish);
@@ -324,7 +314,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // Add the folder with the commit out of the cone
             this.currentFolderList.Add(FolderTest_WorkingDirectoryTests);
-            this.SparseSet();
+            string result = this.SparseSet();
+            result.ShouldContain(UnmergedPathsMessage);
 
             // New Folder should exist
             string newFolder = this.Enlistment.GetSourcePath(FolderTest_WorkingDirectoryTests);
@@ -344,7 +335,8 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // New changes should exist in the recently added file
             string fileWithCherryPick = Path.Combine(newFolder, "AllNullObjectRedownloaded.txt");
-            this.fileSystem.ReadAllText(fileWithCherryPick).ShouldContain("TestTest contents for AllNullObjectRedownloaded");
+            this.fileSystem.ReadAllText(fileWithCherryPick).ShouldContain("Test contents for AllNullObjectRedownloaded");
+            GitProcess.Invoke(this.Enlistment.RepoRoot, "cherry-pick --abort");
         }
 
         [TestCase, Order(10)]
@@ -358,6 +350,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             string conflictTargetBranch = "FunctionalTests/20170206_Conflict_Target";
             GitProcess.Invoke(this.Enlistment.RepoRoot, $"checkout {conflictTargetBranch}");
             GitProcess.Invoke(this.Enlistment.RepoRoot, $"checkout {conflictSourceBranch}");
+
             ProcessResult checkoutResult = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, $"merge {conflictTargetBranch}");
             checkoutResult.Output.ShouldContain("Merge conflict");
 
@@ -492,9 +485,14 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 sb.Append("\n");
             }
 
-            ProcessResult result = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "sparse-checkout set --stdin", sb.ToString());
+            string lockfile = Path.Combine(this.Enlistment.RepoRoot, ".git", "info", "sparse-checkout.lock");
+            this.fileSystem.FileExists(lockfile).ShouldBeFalse(message: $"{lockfile} exists");
 
-            return result.Errors;
+            ProcessResult result = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "sparse-checkout set --stdin", sb.ToString());
+            result.ExitCode.ShouldEqual(0, $"Errors: {result.Errors}\nOutput: {result.Output}");
+
+            this.fileSystem.FileExists(lockfile).ShouldBeFalse(message: $"{lockfile} exists");
+            return result.Errors + result.Output;
         }
     }
 }
