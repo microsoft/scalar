@@ -333,7 +333,7 @@ namespace Scalar.CommandLine
                 git.SetInLocalConfig($"core.sparseCheckoutCone", "true");
 
                 this.fileSystem.CreateDirectory(Path.Combine(this.enlistment.DotGitRoot, "info"));
-                this.fileSystem.WriteAllText(Path.Combine(this.enlistment.DotGitRoot, "info", "sparse-checkout"), "/*\n!/*/*");
+                this.fileSystem.WriteAllText(Path.Combine(this.enlistment.DotGitRoot, "info", "sparse-checkout"), "/*\n!/*/");
             }
 
             this.context = new ScalarContext(this.tracer, this.fileSystem, this.enlistment);
