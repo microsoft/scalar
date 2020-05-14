@@ -329,11 +329,7 @@ namespace Scalar.CommandLine
 
             if (!this.FullClone)
             {
-                git.SetInLocalConfig($"core.sparseCheckout", "true");
-                git.SetInLocalConfig($"core.sparseCheckoutCone", "true");
-
-                this.fileSystem.CreateDirectory(Path.Combine(this.enlistment.DotGitRoot, "info"));
-                this.fileSystem.WriteAllText(Path.Combine(this.enlistment.DotGitRoot, "info", "sparse-checkout"), "/*\n!/*/");
+                GitProcess.SparseCheckoutInit(this.enlistment);
             }
 
             this.context = new ScalarContext(this.tracer, this.fileSystem, this.enlistment);
