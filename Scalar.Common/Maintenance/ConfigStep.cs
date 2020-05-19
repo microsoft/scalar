@@ -116,6 +116,7 @@ namespace Scalar.Common.Maintenance
                 { "gui.gcwarning", "false" },
                 { "index.threads", "true" },
                 { "index.version", "4" },
+                { "log.excludeDecoration", "refs/scalar/*" },
                 { "merge.stat", "false" },
                 { "merge.renames", "false" },
                 { "pack.useBitmaps", "false" },
