@@ -670,7 +670,7 @@ namespace Scalar.Common.Git
 
         public Result MultiPackIndexRepack(string gitObjectDirectory, string batchSize)
         {
-            return this.InvokeGitAgainstDotGitFolder($"-c pack.threads=1 multi-pack-index repack --object-dir=\"{gitObjectDirectory}\" --batch-size={batchSize}");
+            return this.InvokeGitAgainstDotGitFolder($"-c pack.threads=1 -c repack.packKeptObjects=true multi-pack-index repack --object-dir=\"{gitObjectDirectory}\" --batch-size={batchSize}");
         }
 
         public Process GetGitProcess(
