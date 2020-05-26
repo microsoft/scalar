@@ -413,6 +413,24 @@ You can specify a URL, a name of a configured cache server, or the special names
             }
         }
 
+        protected void ValidateUrlParameter(string url)
+        {
+            if (url.StartsWith("http://") ||
+                url.StartsWith("https://") ||
+                url.StartsWith("ssh://"))
+            {
+                return;
+            }
+
+            // Do not allow other protocols or absolute file paths.
+            if (url.Contains("://") || url.StartsWith('/'))
+            {
+                this.ReportErrorAndExit($"Invalid URL: '{url}'. Only HTTP, HTTPS, and SSH URLs are supported.");
+            }
+
+            // Everything else _could_ be a valid SSH URL.
+        }
+
         protected bool TryDownloadCommit(
             string commitId,
             Enlistment enlistment,

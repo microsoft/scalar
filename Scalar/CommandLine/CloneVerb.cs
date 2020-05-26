@@ -97,6 +97,7 @@ namespace Scalar.CommandLine
 
             this.ValidatePathParameter(this.EnlistmentRootPathParameter);
             this.ValidatePathParameter(this.LocalCacheRoot);
+            this.ValidateUrlParameter(this.RepositoryURL);
 
             string fullEnlistmentRootPathParameter;
             string normalizedEnlistmentRootPath = this.GetCloneRoot(out fullEnlistmentRootPathParameter);
