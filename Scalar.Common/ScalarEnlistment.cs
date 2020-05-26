@@ -7,9 +7,6 @@ namespace Scalar.Common
 {
     public partial class ScalarEnlistment : Enlistment
     {
-        private string gitVersion;
-        private string scalarVersion;
-
         public ScalarEnlistment(string enlistmentRoot, string workingDirectory, string repoUrl, string gitBinPath, GitAuthentication authentication)
             : base(
                   enlistmentRoot,
@@ -32,17 +29,6 @@ namespace Scalar.Common
         public override string GitPackRoot { get; protected set; }
 
         public bool UsesGvfsProtocol { get; protected set; }
-
-        // These version properties are only used in logging during clone to track version numbers
-        public string GitVersion
-        {
-            get { return this.gitVersion; }
-        }
-
-        public string ScalarVersion
-        {
-            get { return this.scalarVersion; }
-        }
 
         public static ScalarEnlistment CreateFromDirectory(
             string directory,
@@ -154,16 +140,6 @@ namespace Scalar.Common
             return false;
         }
 
-        public void SetGitVersion(string gitVersion)
-        {
-            this.SetOnce(gitVersion, ref this.gitVersion);
-        }
-
-        public void SetScalarVersion(string scalarVersion)
-        {
-            this.SetOnce(scalarVersion, ref this.scalarVersion);
-        }
-
         public void InitializeCachePathsFromKey(string localCacheRoot, string localCacheKey)
         {
             this.InitializeCachePaths(
@@ -200,16 +176,6 @@ namespace Scalar.Common
         public string GetEnlistmentId()
         {
             return this.GetId(ScalarConstants.GitConfig.EnlistmentId);
-        }
-
-        private void SetOnce<T>(T value, ref T valueToSet)
-        {
-            if (valueToSet != null)
-            {
-                throw new InvalidOperationException("Value already set.");
-            }
-
-            valueToSet = value;
         }
 
         /// <summary>
