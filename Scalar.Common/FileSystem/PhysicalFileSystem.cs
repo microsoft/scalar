@@ -2,7 +2,6 @@ using Scalar.Common.Tracing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Security;
 using System.Threading;
@@ -130,11 +129,6 @@ namespace Scalar.Common.FileSystem
             ScalarPlatform.Instance.FileSystem.MoveAndOverwriteFile(sourceFileName, destinationFilename);
         }
 
-        public virtual bool TryGetNormalizedPath(string path, out string normalizedPath, out string errorMessage)
-        {
-            return ScalarPlatform.Instance.FileSystem.TryGetNormalizedPath(path, out normalizedPath, out errorMessage);
-        }
-
         public virtual Stream OpenFileStream(string path, FileMode fileMode, FileAccess fileAccess, FileShare shareMode, FileOptions options, bool callFlushFileBuffers)
         {
             if (callFlushFileBuffers)
@@ -143,11 +137,6 @@ namespace Scalar.Common.FileSystem
             }
 
             return new FileStream(path, fileMode, fileAccess, shareMode, DefaultStreamBufferSize, options);
-        }
-
-        public virtual void FlushFileBuffers(string path)
-        {
-            ScalarPlatform.Instance.FileSystem.FlushFileBuffers(path);
         }
 
         public virtual void CreateDirectory(string path)
@@ -163,11 +152,6 @@ namespace Scalar.Common.FileSystem
         public virtual bool TryCreateOrUpdateDirectoryToAdminModifyPermissions(ITracer tracer, string directoryPath, out string error)
         {
             return ScalarPlatform.Instance.FileSystem.TryCreateOrUpdateDirectoryToAdminModifyPermissions(tracer, directoryPath, out error);
-        }
-
-        public virtual bool IsSymLink(string path)
-        {
-            return (this.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint && NativeMethods.IsSymLink(path);
         }
 
         public virtual IEnumerable<DirectoryItemInfo> ItemsInDirectory(string path)
@@ -201,24 +185,6 @@ namespace Scalar.Common.FileSystem
             return Directory.EnumerateFiles(path, searchPattern);
         }
 
-        public virtual FileProperties GetFileProperties(string path)
-        {
-            FileInfo entry = new FileInfo(path);
-            if (entry.Exists)
-            {
-                return new FileProperties(
-                    entry.Attributes,
-                    entry.CreationTimeUtc,
-                    entry.LastAccessTimeUtc,
-                    entry.LastWriteTimeUtc,
-                    entry.Length);
-            }
-            else
-            {
-                return FileProperties.DefaultFile;
-            }
-        }
-
         public virtual FileAttributes GetAttributes(string path)
         {
             return File.GetAttributes(path);
@@ -229,29 +195,9 @@ namespace Scalar.Common.FileSystem
             File.SetAttributes(path, fileAttributes);
         }
 
-        public virtual void MoveFile(string sourcePath, string targetPath)
-        {
-            File.Move(sourcePath, targetPath);
-        }
-
         public virtual string[] GetFiles(string directoryPath, string mask)
         {
             return Directory.GetFiles(directoryPath, mask);
-        }
-
-        public virtual FileVersionInfo GetVersionInfo(string path)
-        {
-            return FileVersionInfo.GetVersionInfo(path);
-        }
-
-        public virtual bool FileVersionsMatch(FileVersionInfo versionInfo1, FileVersionInfo versionInfo2)
-        {
-            return versionInfo1.FileVersion == versionInfo2.FileVersion;
-        }
-
-        public virtual bool ProductVersionsMatch(FileVersionInfo versionInfo1, FileVersionInfo versionInfo2)
-        {
-            return versionInfo1.ProductVersion == versionInfo2.ProductVersion;
         }
 
         public bool TryWriteTempFileAndRename(string destinationPath, string contents, out Exception handledException)
@@ -289,54 +235,6 @@ namespace Scalar.Common.FileSystem
                 handledException = e;
                 return false;
             }
-        }
-
-        public bool TryCopyToTempFileAndRename(string sourcePath, string destinationPath, out Exception handledException)
-        {
-            handledException = null;
-            string tempFilePath = destinationPath + ".temp";
-
-            try
-            {
-                File.Copy(sourcePath, tempFilePath, overwrite: true);
-                ScalarPlatform.Instance.FileSystem.FlushFileBuffers(tempFilePath);
-                this.MoveAndOverwriteFile(tempFilePath, destinationPath);
-                return true;
-            }
-            catch (Win32Exception e)
-            {
-                handledException = e;
-                return false;
-            }
-            catch (IOException e)
-            {
-                handledException = e;
-                return false;
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                handledException = e;
-                return false;
-            }
-        }
-
-        public bool TryCreateDirectory(string path, out Exception exception)
-        {
-            try
-            {
-                Directory.CreateDirectory(path);
-            }
-            catch (Exception e) when (e is IOException ||
-                                      e is UnauthorizedAccessException ||
-                                      e is ArgumentException ||
-                                      e is NotSupportedException)
-            {
-                exception = e;
-                return false;
-            }
-
-            exception = null;
-            return true;
         }
 
         /// <summary>

@@ -20,11 +20,6 @@ namespace Scalar.UnitTests.Mock.FileSystem
             throw new NotSupportedException();
         }
 
-        public void ChangeMode(string path, ushort mode)
-        {
-            throw new NotSupportedException();
-        }
-
         public bool TryGetNormalizedPath(string path, out string normalizedPath, out string errorMessage)
         {
             errorMessage = null;
