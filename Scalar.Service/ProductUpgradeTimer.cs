@@ -220,21 +220,11 @@ namespace Scalar.Service
 
                     this.DisplayUpgradeAvailableToast(newerVersion.ToString());
                 }
-                catch (Exception ex) when (
-                    ex is IOException ||
-                    ex is UnauthorizedAccessException ||
-                    ex is NotSupportedException)
+                catch (Exception ex)
                 {
                     this.tracer.RelatedWarning(
                         CreateEventMetadata(ex),
                         "Exception encountered recording highest available version");
-                }
-                catch (Exception ex)
-                {
-                    this.tracer.RelatedError(
-                        CreateEventMetadata(ex),
-                        "Unhanlded exception encountered recording highest available version");
-                    Environment.Exit((int)ReturnCode.GenericError);
                 }
             }
         }
