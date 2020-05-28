@@ -1,12 +1,10 @@
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.NamedPipes;
-using Scalar.Common.NuGetUpgrade;
 using Scalar.Common.Tracing;
 using Scalar.Service.Handlers;
 using Scalar.Upgrader;
 using System;
-using System.IO;
 using System.Threading;
 
 namespace Scalar.Service
@@ -111,57 +109,6 @@ namespace Scalar.Service
 
                         info.RecordHighestAvailableVersion(highestAvailableVersion: null);
                         return;
-                    }
-
-                    if (!productUpgrader.SupportsAnonymousVersionQuery)
-                    {
-                        // If this is a NuGetUpgrader that does not support anonymous version query,
-                        // fall back to using the GitHubUpgrader, to preserve existing behavior.
-                        // Once we have completely transitioned to using the anonymous endpoint,
-                        // we can remove this code.
-                        if (productUpgrader is NuGetUpgrader)
-                        {
-                            productUpgrader = GitHubUpgrader.Create(
-                                this.tracer,
-                                this.fileSystem,
-                                new LocalScalarConfig(),
-                                dryRun: false,
-                                noVerify: false,
-                                error: out errorMessage);
-
-                            if (productUpgrader == null)
-                            {
-                                string gitHubUpgraderFailedMessage = string.Format(
-                                    "{0}.{1}: GitHubUpgrader.Create failed to create upgrader: {2}",
-                                    nameof(ProductUpgradeTimer),
-                                    nameof(this.TimerCallback),
-                                    errorMessage);
-
-                                activity.RelatedWarning(
-                                    metadata: new EventMetadata(),
-                                    message: gitHubUpgraderFailedMessage,
-                                    keywords: Keywords.Telemetry);
-
-                                info.RecordHighestAvailableVersion(highestAvailableVersion: null);
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            errorMessage = string.Format(
-                                "{0}.{1}: Configured Product Upgrader does not support anonymous version queries.",
-                                nameof(ProductUpgradeTimer),
-                                nameof(this.TimerCallback),
-                                errorMessage);
-
-                            activity.RelatedWarning(
-                                metadata: new EventMetadata(),
-                                message: errorMessage,
-                                keywords: Keywords.Telemetry);
-
-                            info.RecordHighestAvailableVersion(highestAvailableVersion: null);
-                            return;
-                        }
                     }
 
                     InstallerPreRunChecker prerunChecker = new InstallerPreRunChecker(this.tracer, string.Empty);

@@ -88,9 +88,9 @@ namespace Scalar.UnitTests.Common
         }
 
         [TestCase]
-        public void CreatesGitHubUpgraderWhenConfigured()
+        public void FailsWithDefaultConfiguration()
         {
-            MockLocalScalarConfig scalarConfig = this.ConstructDefaultGitHubConfigBuilder()
+            MockLocalScalarConfig scalarConfig = this.ConstructDefaultConfigBuilder()
                 .Build();
 
             bool success = ProductUpgrader.TryCreateUpgrader(
@@ -103,10 +103,9 @@ namespace Scalar.UnitTests.Common
                 out ProductUpgrader productUpgrader,
                 out string error);
 
-            success.ShouldBeTrue();
-            productUpgrader.ShouldNotBeNull();
-            productUpgrader.ShouldBeOfType<GitHubUpgrader>();
-            error.ShouldBeNull();
+            success.ShouldBeFalse();
+            productUpgrader.ShouldBeNull();
+            error.ShouldNotBeNull();
         }
 
         [TestCase]
@@ -240,7 +239,7 @@ namespace Scalar.UnitTests.Common
             return configBuilder;
         }
 
-        private MockLocalScalarConfigBuilder ConstructDefaultGitHubConfigBuilder()
+        private MockLocalScalarConfigBuilder ConstructDefaultConfigBuilder()
         {
             MockLocalScalarConfigBuilder configBuilder = this.ConstructMockLocalScalarConfigBuilder()
                             .WithUpgradeRing();

@@ -92,68 +92,62 @@ namespace Scalar.Common
             bool containsUpgradePackageName = entries.ContainsKey(ScalarConstants.LocalScalarConfig.UpgradeFeedPackageName);
             bool containsOrgInfoServerUrl = entries.ContainsKey(ScalarConstants.LocalScalarConfig.OrgInfoServerUrl);
 
-            if (containsUpgradeFeedUrl || containsUpgradePackageName)
+            if (!containsUpgradeFeedUrl && !containsUpgradePackageName)
             {
-                // We are configured for NuGet - determine if we are using OrgNuGetUpgrader or not
-                if (containsOrgInfoServerUrl)
+                error = "Custom upgrade feed is not configured";
+                tracer.RelatedWarning(error);
+                newUpgrader = null;
+                return false;
+            }
+
+            // We are configured for NuGet - determine if we are using OrgNuGetUpgrader or not
+            if (containsOrgInfoServerUrl)
+            {
+                if (OrgNuGetUpgrader.TryCreate(
+                    tracer,
+                    fileSystem,
+                    scalarConfig,
+                    new HttpClient(),
+                    credentialStore,
+                    dryRun,
+                    noVerify,
+                    out OrgNuGetUpgrader orgNuGetUpgrader,
+                    out error))
                 {
-                    if (OrgNuGetUpgrader.TryCreate(
-                        tracer,
-                        fileSystem,
-                        scalarConfig,
-                        new HttpClient(),
-                        credentialStore,
-                        dryRun,
-                        noVerify,
-                        out OrgNuGetUpgrader orgNuGetUpgrader,
-                        out error))
-                    {
-                        // We were successfully able to load a NuGetUpgrader - use that.
-                        newUpgrader = orgNuGetUpgrader;
-                        return true;
-                    }
-                    else
-                    {
-                        tracer.RelatedError($"{nameof(TryCreateUpgrader)}: Could not create organization based upgrader. {error}");
-                        newUpgrader = null;
-                        return false;
-                    }
+                    // We were successfully able to load a NuGetUpgrader - use that.
+                    newUpgrader = orgNuGetUpgrader;
+                    return true;
                 }
                 else
                 {
-                    if (NuGetUpgrader.TryCreate(
-                        tracer,
-                        fileSystem,
-                        scalarConfig,
-                        credentialStore,
-                        dryRun,
-                        noVerify,
-                        out NuGetUpgrader nuGetUpgrader,
-                        out bool isConfigured,
-                        out error))
-                    {
-                        // We were successfully able to load a NuGetUpgrader - use that.
-                        newUpgrader = nuGetUpgrader;
-                        return true;
-                    }
-                    else
-                    {
-                        tracer.RelatedError($"{nameof(TryCreateUpgrader)}: Could not create NuGet based upgrader. {error}");
-                        newUpgrader = null;
-                        return false;
-                    }
+                    tracer.RelatedError($"{nameof(TryCreateUpgrader)}: Could not create organization based upgrader. {error}");
+                    newUpgrader = null;
+                    return false;
                 }
             }
             else
             {
-                newUpgrader = GitHubUpgrader.Create(tracer, fileSystem, scalarConfig, dryRun, noVerify, out error);
-                if (newUpgrader == null)
+                if (NuGetUpgrader.TryCreate(
+                    tracer,
+                    fileSystem,
+                    scalarConfig,
+                    credentialStore,
+                    dryRun,
+                    noVerify,
+                    out NuGetUpgrader nuGetUpgrader,
+                    out bool isConfigured,
+                    out error))
                 {
-                    tracer.RelatedError($"{nameof(TryCreateUpgrader)}: Could not create GitHub based upgrader. {error}");
+                    // We were successfully able to load a NuGetUpgrader - use that.
+                    newUpgrader = nuGetUpgrader;
+                    return true;
+                }
+                else
+                {
+                    tracer.RelatedError($"{nameof(TryCreateUpgrader)}: Could not create NuGet based upgrader. {error}");
+                    newUpgrader = null;
                     return false;
                 }
-
-                return true;
             }
         }
 
