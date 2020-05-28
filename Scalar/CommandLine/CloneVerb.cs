@@ -97,6 +97,7 @@ namespace Scalar.CommandLine
 
             this.ValidatePathParameter(this.EnlistmentRootPathParameter);
             this.ValidatePathParameter(this.LocalCacheRoot);
+            this.ValidateUrlParameter(this.RepositoryURL);
 
             string fullEnlistmentRootPathParameter;
             string normalizedEnlistmentRootPath = this.GetCloneRoot(out fullEnlistmentRootPathParameter);
@@ -209,14 +210,6 @@ namespace Scalar.CommandLine
             {
                 resolvedLocalCacheRoot = Path.GetFullPath(this.LocalCacheRoot);
             }
-
-            this.Output.WriteLine("Clone parameters:");
-            this.Output.WriteLine("  Repo URL:     " + this.enlistment.RepoUrl);
-            this.Output.WriteLine("  Branch:       " + (string.IsNullOrWhiteSpace(this.Branch) ? "Default" : this.Branch));
-            this.Output.WriteLine("  Cache Server: " + this.cacheServer);
-            this.Output.WriteLine("  Local Cache:  " + resolvedLocalCacheRoot);
-            this.Output.WriteLine("  Destination:  " + this.enlistment.EnlistmentRoot);
-            this.Output.WriteLine("  FullClone:     " + this.FullClone);
 
             string authErrorMessage = null;
             GitAuthentication.Result authResult = GitAuthentication.Result.UnableToDetermine;
