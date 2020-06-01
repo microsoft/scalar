@@ -21,7 +21,7 @@ namespace Scalar.FunctionalTests.Tools
             return Run(startInfo);
         }
 
-        public static ProcessResult Run(ProcessStartInfo processInfo, string errorMsgDelimeter = "\r\n", object executionLock = null, Stream inputStream = null)
+        public static ProcessResult Run(ProcessStartInfo processInfo, string errorMsgDelimeter = "\r\n", object executionLock = null, Stream inputStream = null, int? timeoutSeconds = null)
         {
             using (Process executingProcess = new Process())
             {
@@ -44,12 +44,12 @@ namespace Scalar.FunctionalTests.Tools
                 {
                     lock (executionLock)
                     {
-                        output = StartProcess(executingProcess, inputStream);
+                        output = StartProcess(executingProcess, inputStream, timeoutSeconds);
                     }
                 }
                 else
                 {
-                    output = StartProcess(executingProcess, inputStream);
+                    output = StartProcess(executingProcess, inputStream, timeoutSeconds);
                 }
 
                 return new ProcessResult(output.ToString(), errors.ToString(), executingProcess.ExitCode);
@@ -95,7 +95,7 @@ namespace Scalar.FunctionalTests.Tools
             }
         }
 
-        private static string StartProcess(Process executingProcess, Stream inputStream = null)
+        private static string StartProcess(Process executingProcess, Stream inputStream = null, int? timeoutSeconds = null)
         {
             executingProcess.Start();
 
@@ -116,7 +116,13 @@ namespace Scalar.FunctionalTests.Tools
                 output = executingProcess.StandardOutput.ReadToEnd();
             }
 
-            executingProcess.WaitForExit();
+            executingProcess.WaitForExit(timeoutSeconds.HasValue ? timeoutSeconds.Value * 1000 : 5 * 60 * 1000);
+
+            if (!executingProcess.HasExited)
+            {
+                executingProcess.Kill();
+                throw new Exception("Command failed to exit on time");
+            }
 
             return output;
         }

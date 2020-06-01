@@ -1,0 +1,57 @@
+steps:
+  - bash: mkdir -p $(Build.ArtifactStagingDirectory)/logs
+    displayName: Create logs directory
+
+  - task: UseDotNet@2
+    displayName: Use .NET Core SDK 3.1.101
+    inputs:
+      packageType: sdk
+      version: 3.1.101
+
+  - task: DownloadPipelineArtifact@2
+    displayName: Download functional tests drop
+    inputs:
+      artifact: FunctionalTests_macOS_$(configuration)
+      path: $(Build.BinariesDirectory)/ft
+
+  - task: DownloadPipelineArtifact@2
+    displayName: Download installers drop
+    inputs:
+      artifact: Installers_macOS_$(configuration)
+      path: $(Build.BinariesDirectory)/install
+
+  - bash: |
+      chmod +x $(Build.BinariesDirectory)/ft/src/Scripts/Mac/*.sh
+      chmod +x $(Build.BinariesDirectory)/install/*.sh
+    displayName: Ensure all scripts are executable
+
+  - bash: $(Build.BinariesDirectory)/install/InstallScalar.sh
+    displayName: Install product
+
+  - bash: $(Build.BinariesDirectory)/ft/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --test-scalar-on-path --stress --trace2-output=$(Build.ArtifactStagingDirectory)/logs/trace2-event.log
+    displayName: Run stress tests
+
+  - task: PublishTestResults@2
+    displayName: Publish stress tests results
+    inputs:
+      testRunner: NUnit
+      testResultsFiles: "**\\TestResult*.xml"
+      searchFolder: $(System.DefaultWorkingDirectory)
+      testRunTitle: macOS $(configuration) Stress Tests
+      publishRunAttachments: true
+    condition: succeededOrFailed()
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish test and installation logs
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)/logs
+      artifactName: Logs_macOS_Stress
+    condition: failed()
+
+  - bash: $(Build.BinariesDirectory)/ft/src/Scripts/Mac/CleanupFunctionalTests.sh
+    displayName: Cleanup
+    condition: always()
+
+  - bash: sudo rm -rf $(Build.BinariesDirectory)/ft
+    displayName: Cleanup phase 2
+    condition: always()

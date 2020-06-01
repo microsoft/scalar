@@ -93,3 +93,29 @@ jobs:
       - template: templates/osx/functional-test.yml
         parameters:
           useWatchman: true
+
+  - job: win_stresstest
+    displayName: Windows Stress Tests
+    timeoutInMinutes: 45
+    variables:
+      configuration: Release
+    pool:
+      vmImage: windows-2019
+    dependsOn: win_build
+    condition: succeeded()
+    steps:
+      - checkout: none
+      - template: templates/win/stress-test.yml
+
+  - job: osx_stresstest
+    displayName: macOS Stress Tests
+    timeoutInMinutes: 45
+    variables:
+      configuration: Release
+    pool:
+      name: 'Hosted macOS'
+    dependsOn: osx_build
+    condition: succeeded()
+    steps:
+      - checkout: none
+      - template: templates/osx/stress-test.yml

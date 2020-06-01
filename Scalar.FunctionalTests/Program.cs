@@ -39,7 +39,7 @@ namespace Scalar.FunctionalTests
             ScalarTestConfig.LocalCacheRoot = runner.GetCustomArgWithParam("--shared-scalar-cache-root");
 
             HashSet<string> includeCategories = new HashSet<string>();
-            HashSet<string> excludeCategories = new HashSet<string>();
+            HashSet<string> excludeCategories = new HashSet<string>() { Categories.Stress };
 
             // Run all GitRepoTests with sparse mode
             ScalarTestConfig.GitRepoTestsValidateWorkTree =
@@ -83,6 +83,12 @@ namespace Scalar.FunctionalTests
                 // RunTests unions all includeCategories.  Remove ExtraCoverage to
                 // ensure that we only run tests flagged as WindowsOnly
                 includeCategories.Remove(Categories.ExtraCoverage);
+            }
+
+            if (runner.HasCustomArg("--stress"))
+            {
+                includeCategories.Add(Categories.Stress);
+                excludeCategories.Remove(Categories.Stress);
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
