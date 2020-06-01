@@ -1,0 +1,45 @@
+steps:
+
+  - task: UseDotNet@2
+    displayName: Use .NET Core SDK 3.1.101
+    inputs:
+      packageType: sdk
+      version: 3.1.101
+
+  - task: DownloadPipelineArtifact@2
+    displayName: Download functional tests drop
+    inputs:
+      artifact: FunctionalTests_Windows_$(configuration)
+      Path: $(Build.BinariesDirectory)\ft
+
+  - task: DownloadPipelineArtifact@2
+    displayName: Download installers drop
+    inputs:
+      artifact: Installers_Windows_$(configuration)
+      path: $(Build.BinariesDirectory)\install
+
+  - script: $(Build.BinariesDirectory)\install\InstallScalar.bat $(Build.ArtifactStagingDirectory)\logs
+    displayName: Install product
+
+  - script: git config --global credential.interactive never
+    displayName: Disable interactive auth
+
+  - script: $(Build.BinariesDirectory)\ft\src\Scripts\RunFunctionalTests.bat $(configuration) --test-scalar-on-path --stress "--trace2-output=$(Build.ArtifactStagingDirectory)\logs\trace2-event.log"
+    displayName: Run stress tests
+
+  - task: PublishTestResults@2
+    displayName: Publish stress tests results
+    inputs:
+      testRunner: NUnit
+      testResultsFiles: "**\\TestResult*.xml"
+      searchFolder: $(System.DefaultWorkingDirectory)
+      testRunTitle: Windows $(configuration) Stress Tests
+      publishRunAttachments: true
+    condition: succeededOrFailed()
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish test and installation logs
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)\logs
+      artifactName: Logs_Windows_Stress
+    condition: failed()

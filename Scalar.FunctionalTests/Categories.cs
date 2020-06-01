@@ -10,6 +10,8 @@ namespace Scalar.FunctionalTests
 
         public const string GitRepository = "GitRepository";
 
+        public const string Stress = "Stress";
+
         public const string NeedsUpdatesForNonVirtualizedMode = "NeedsUpdatesForNonVirtualizedMode";
 
         public static class MacTODO
