@@ -127,7 +127,7 @@ namespace Scalar.Common.Maintenance
                 GitProcess.Result expireResult = this.RunGitCommand((process) => process.MultiPackIndexExpire(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.MultiPackIndexExpire));
 
                 List<string> staleIdxFiles = this.CleanStaleIdxFiles(out int numDeletionBlocked);
-                this.GetPackFilesInfo(out int expireCount, out long expireSize, out long expireMaxSize, out hasKeep);
+                this.GetPackFilesInfo(out int expireCount, out long expireSize, out long expireSize2, out hasKeep);
 
                 GitProcess.Result verifyAfterExpire = this.RunGitCommand((process) => process.VerifyMultiPackIndex(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.VerifyMultiPackIndex));
 
@@ -136,15 +136,18 @@ namespace Scalar.Common.Maintenance
                     this.LogErrorAndRewriteMultiPackIndex(activity);
                 }
 
-                if (this.batchSize.Equals(DefaultBatchSizeBytes.ToString()) && expireSize - expireMaxSize < DefaultBatchSizeBytes && expireCount > 2)
+                if (this.batchSize.Equals(DefaultBatchSizeBytes.ToString()) &&
+                    expireSize < DefaultBatchSizeBytes &&
+                    expireCount > 2)
                 {
-                    // Ignoring the largest pack, try repacking the rest of the packs into a single pack.
-                    // Allow a 3% error rate due to the esitmations made in the repack command.
-                    this.batchSize = ((long)((expireSize - expireMaxSize) * 0.97)).ToString();
+                    // Ignoring the largest pack, repack the rest up to the size of the
+                    // second-smallest pack. This results in a geometrically-decreasing
+                    // list of pack sizes after the largest pack.
+                    this.batchSize = expireSize2.ToString();
                 }
 
                 GitProcess.Result repackResult = this.RunGitCommand((process) => process.MultiPackIndexRepack(this.Context.Enlistment.GitObjectsRoot, this.batchSize), nameof(GitProcess.MultiPackIndexRepack));
-                this.GetPackFilesInfo(out int afterCount, out long afterSize, out long afterMaxSize, out hasKeep);
+                this.GetPackFilesInfo(out int afterCount, out long afterSize, out long afterSize2, out hasKeep);
 
                 GitProcess.Result verifyAfterRepack = this.RunGitCommand((process) => process.VerifyMultiPackIndex(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.VerifyMultiPackIndex));
 
@@ -160,10 +163,10 @@ namespace Scalar.Common.Maintenance
                 metadata.Add(nameof(beforeSize), beforeSize);
                 metadata.Add(nameof(expireCount), expireCount);
                 metadata.Add(nameof(expireSize), expireSize);
-                metadata.Add(nameof(expireMaxSize), expireMaxSize);
+                metadata.Add(nameof(expireSize2), expireSize2);
                 metadata.Add(nameof(afterCount), afterCount);
                 metadata.Add(nameof(afterSize), afterSize);
-                metadata.Add(nameof(afterMaxSize), afterMaxSize);
+                metadata.Add(nameof(afterSize2), afterSize2);
                 metadata.Add("VerifyAfterExpireExitCode", verifyAfterExpire.ExitCode);
                 metadata.Add("VerifyAfterRepackExitCode", verifyAfterRepack.ExitCode);
                 metadata.Add("NumStaleIdxFiles", staleIdxFiles.Count);

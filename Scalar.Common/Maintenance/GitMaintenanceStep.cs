@@ -142,11 +142,12 @@ namespace Scalar.Common.Maintenance
         }
 
         // public only for unit tests
-        public void GetPackFilesInfo(out int count, out long size, out long maxSize, out bool hasKeep)
+        public void GetPackFilesInfo(out int count, out long size, out long secondLargestSize, out bool hasKeep)
         {
             count = 0;
             size = 0;
-            maxSize = 0;
+            long maxSize = 0;
+            secondLargestSize = 0;
             hasKeep = false;
 
             foreach (DirectoryItemInfo info in this.Context.FileSystem.ItemsInDirectory(this.Context.Enlistment.GitPackRoot))
@@ -160,6 +161,7 @@ namespace Scalar.Common.Maintenance
 
                     if (info.Length > maxSize)
                     {
+                        secondLargestSize = maxSize;
                         maxSize = info.Length;
                     }
                 }
