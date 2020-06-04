@@ -158,6 +158,15 @@ namespace Scalar.Common.Maintenance
                 { "status.aheadbehind", "false" },
             };
 
+            if (this.UseGvfsProtocol.Value)
+            {
+                // If a user's global config has "status.submoduleSummary=true", then
+                // that could slow "git status" significantly here, even though the
+                // GVFS protocol forbids submodules. Still, disable it optionally in
+                // case the user really wants it in their local config.
+                optionalSettings.Add("status.submoduleSummary", "false");
+            }
+
             if (!this.TrySetConfig(optionalSettings, isRequired: false, out error))
             {
                 error = $"Failed to set some optional settings: {error}";
