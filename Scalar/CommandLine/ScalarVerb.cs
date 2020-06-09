@@ -302,28 +302,6 @@ namespace Scalar.CommandLine
             return vstsInfo;
         }
 
-        protected void ValidateClientVersions(ITracer tracer, ScalarEnlistment enlistment, ServerScalarConfig scalarConfig, bool showWarnings)
-        {
-            this.CheckGitVersion(tracer, enlistment, out string gitVersion);
-            enlistment.SetGitVersion(gitVersion);
-
-            string errorMessage = null;
-            bool errorIsFatal = false;
-            if (!this.TryValidateScalarVersion(enlistment, tracer, scalarConfig, out errorMessage, out errorIsFatal))
-            {
-                if (errorIsFatal)
-                {
-                    this.ReportErrorAndExit(tracer, errorMessage);
-                }
-                else if (showWarnings)
-                {
-                    this.Output.WriteLine();
-                    this.Output.WriteLine(errorMessage);
-                    this.Output.WriteLine();
-                }
-            }
-        }
-
         protected bool TrySetObjectCacheLocation(PhysicalFileSystem fileSystem, ScalarEnlistment enlistment, out string errorMessage)
         {
             try
@@ -534,64 +512,6 @@ You can specify a URL, a name of a configured cache server, or the special names
                     gitVersion,
                     ScalarConstants.SupportedGitVersion);
             }
-        }
-
-        private bool TryValidateScalarVersion(ScalarEnlistment enlistment, ITracer tracer, ServerScalarConfig config, out string errorMessage, out bool errorIsFatal)
-        {
-            errorMessage = null;
-            errorIsFatal = false;
-
-            using (ITracer activity = tracer.StartActivity("ValidateScalarVersion", EventLevel.Informational))
-            {
-                Version currentVersion = new Version(ProcessHelper.GetCurrentProcessVersion());
-
-                IEnumerable<ServerScalarConfig.VersionRange> allowedGvfsClientVersions =
-                    config != null
-                    ? config.AllowedScalarClientVersions
-                    : null;
-
-                if (allowedGvfsClientVersions == null || !allowedGvfsClientVersions.Any())
-                {
-                    errorMessage = "WARNING: Unable to validate your Scalar version" + Environment.NewLine;
-                    if (config == null)
-                    {
-                        errorMessage += "Could not query valid Scalar versions from: " + Uri.EscapeUriString(enlistment.RepoUrl);
-                    }
-                    else
-                    {
-                        errorMessage += "Server not configured to provide supported Scalar versions";
-                    }
-
-                    EventMetadata metadata = this.CreateEventMetadata();
-                    tracer.RelatedError(metadata, errorMessage, Keywords.Network);
-
-                    return false;
-                }
-
-                foreach (ServerScalarConfig.VersionRange versionRange in config.AllowedScalarClientVersions)
-                {
-                    if (currentVersion >= versionRange.Min &&
-                        (versionRange.Max == null || currentVersion <= versionRange.Max))
-                    {
-                        activity.RelatedEvent(
-                            EventLevel.Informational,
-                            "ScalarVersionValidated",
-                            this.AddVerbDataToMetadata(new EventMetadata
-                            {
-                                { "SupportedVersionRange", versionRange },
-                            }));
-
-                        enlistment.SetScalarVersion(currentVersion.ToString());
-                        return true;
-                    }
-                }
-
-                activity.RelatedError("Scalar version {0} is not supported", currentVersion);
-            }
-
-            errorMessage = "ERROR: Your Scalar version is no longer supported.  Install the latest and try again.";
-            errorIsFatal = true;
-            return false;
         }
 
         public abstract class ForExistingEnlistment : ScalarVerb

@@ -236,8 +236,6 @@ namespace Scalar.CommandLine
 
             this.cacheServer = this.ResolveCacheServer(this.tracer, this.cacheServer, this.cacheServerResolver, this.serverScalarConfig);
 
-            this.ValidateClientVersions(this.tracer, this.enlistment, this.serverScalarConfig, showWarnings: true);
-
             using (this.objectRequestor = new GitObjectsHttpRequestor(this.tracer, this.enlistment, this.cacheServer, this.retryConfig))
             {
                 cloneResult = this.CreateScalarDirctories(resolvedLocalCacheRoot);
