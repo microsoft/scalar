@@ -128,7 +128,7 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             this.fileSystem.DirectoryExists(refsHeads).ShouldBeFalse("background fetch should not have created refs/heads/*");
             this.fileSystem.DirectoryExists(refsRemotesOrigin).ShouldBeFalse("background fetch should not have created refs/remotes/origin/*");
 
-            // This is the SHA-1 for the master branch
+            // This is the SHA-1 for the main branch
             string sha1 = Settings.Default.CommitId;
             this.fileSystem.WriteAllText(refsHiddenOriginFake, sha1);
 

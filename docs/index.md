@@ -22,7 +22,7 @@ these features for that repo and start running suggested maintenance in the
 background.
 
 Repos cloned with the `scalar clone` command use the
-[GVFS protocol](https://github.com/microsoft//VFSForGit/blob/master/Protocol.md)
+[GVFS protocol](https://github.com/microsoft//VFSForGit/blob/main/Protocol.md)
 to significantly reduce the amount of data required to get started
 using a repository. By delaying all blob downloads until they are required,
 Scalar allows you to work with very large repositories quickly. This protocol
