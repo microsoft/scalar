@@ -247,8 +247,6 @@ namespace Scalar.CommandLine
                     cacheServer = cacheServerResolver.ResolveNameFromRemote(cacheServerUrl, serverScalarConfig);
                 }
 
-                this.ValidateClientVersions(tracer, enlistment, serverScalarConfig, showWarnings: false);
-
                 this.Output.WriteLine("Configured cache server: " + cacheServer);
             }
 
