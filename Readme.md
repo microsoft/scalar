@@ -1,6 +1,6 @@
 # Scalar
 
-[![Build Status](https://dev.azure.com/mseng/Scalar/_apis/build/status/microsoft.scalar?branchName=master)](https://dev.azure.com/mseng/Scalar/_build/latest?definitionId=9297&branchName=master)
+[![Build Status](https://dev.azure.com/mseng/Scalar/_apis/build/status/microsoft.scalar?branchName=main)](https://dev.azure.com/mseng/Scalar/_build/latest?definitionId=9297&branchName=main)
 
 ## What is Scalar?
 
@@ -10,7 +10,7 @@ Run `scalar register` in an existing Git repo to enable recommended config
 settings and start background maintenance.
 
 If your repo is hosted on a service that supports the
-[GVFS Protocol](https://github.com/microsoft/VFSForGit/blob/master/Protocol.md),
+[GVFS Protocol](https://github.com/microsoft/VFSForGit/blob/main/Protocol.md),
 such as Azure Repos, then `scalar clone <url>` will create a local enlistment with
 abilities like on-demand object retrieval, background maintenance tasks, and
 automatically sets Git config values and hooks that enable performance enhancements.

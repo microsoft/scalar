@@ -277,7 +277,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             GitProcess.Invoke(this.Enlistment.RepoRoot, "checkout " + this.Enlistment.Commitish);
             this.fileSystem.WriteAllText(fileToConflict, "DEF");
             GitProcess.Invoke(this.Enlistment.RepoRoot, "add " + conflictFilename);
-            GitProcess.Invoke(this.Enlistment.RepoRoot, "commit -m \"conflict on master\"");
+            GitProcess.Invoke(this.Enlistment.RepoRoot, "commit -m \"conflict on main\"");
 
             // Attempt to cherry-pick the commit we know will result in a merge conflict
             GitProcess.Invoke(this.Enlistment.RepoRoot, "cherry-pick " + commitId);

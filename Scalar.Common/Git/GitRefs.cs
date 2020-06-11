@@ -65,7 +65,7 @@ namespace Scalar.Common.Git
 
             if (headRefMatches.Count() == 0 || headRefMatches.Count(reference => reference.Key == (OriginRemoteRefPrefix + Master)) > 0)
             {
-                // Default to master if no HEAD or if the commit ID or the dafult branch matches master (this is
+                // Default to master if no HEAD or if the commit ID or the default branch matches master (this is
                 //  the same behavior as git.exe)
                 return Master;
             }

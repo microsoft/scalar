@@ -284,7 +284,7 @@ The design review process is as follows:
 
 - *Add new unit and functional tests when making changes*
 
-  Comprehensive tests are essential for maintaining the health and quality of the product.  For more details on writing tests see [Authoring Tests](https://github.com/Microsoft/Scalar/blob/master/AuthoringTests.md).
+  Comprehensive tests are essential for maintaining the health and quality of the product.  For more details on writing tests see [Authoring Tests](https://github.com/Microsoft/Scalar/blob/main/AuthoringTests.md).
 
 - *Functional tests are black-box tests and should not build against any Scalar product code*
 

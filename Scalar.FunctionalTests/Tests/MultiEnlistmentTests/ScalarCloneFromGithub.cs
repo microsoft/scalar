@@ -26,7 +26,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         {
             ScalarFunctionalTestEnlistment enlistment = this.CreateNewEnlistment(
                                                                 url: MicrosoftScalarHttp,
-                                                                branch: "master",
+                                                                branch: "main",
                                                                 fullClone: false);
 
             VerifyPartialCloneBehavior(enlistment);

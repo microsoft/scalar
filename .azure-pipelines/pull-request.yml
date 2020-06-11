@@ -1,9 +1,9 @@
 trigger:
-  - master
+  - main
   - releases/*
 
 pr:
-  - master
+  - main
   - milestones/*
   - releases/*
   - servicing/*

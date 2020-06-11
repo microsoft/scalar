@@ -112,7 +112,7 @@ as the base class, because NUnit treats namespaces like test suites, and we have
 
 ## Updating the Remote Test Branch
 
-By default, the functional tests clone `master`, check out the branch "FunctionalTests/YYYYMMDD" (with the day the FunctionalTests branch was created), 
+By default, the functional tests clone `main`, check out the branch "FunctionalTests/YYYYMMDD" (with the day the FunctionalTests branch was created), 
 and then remove all remote tracking information. This is done to guarantee that remote changes to tip cannot break functional tests. If you need to update 
 the functional tests to use a new FunctionalTests branch, you'll need to create a new "FunctionalTests/YYYYMMDD" branch and update the `Commitish` setting in `Settings.cs` to have this new branch name.  
 Once you have verified your scenarios locally you can push the new FunctionalTests branch and then your changes.
