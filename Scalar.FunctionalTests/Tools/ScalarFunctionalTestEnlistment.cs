@@ -211,7 +211,6 @@ namespace Scalar.FunctionalTests.Tools
 
         public void DeleteAll()
         {
-            this.DeleteEnlistment();
         }
 
         public string GetSourcePath(string path)
