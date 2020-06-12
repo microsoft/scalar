@@ -173,7 +173,7 @@ namespace Scalar.Common.Maintenance
                 return false;
             }
 
-            return this.ConfigureWatchmanIntegration(out error);
+            return this.ConfigureFSMonitor(out error);
         }
 
         protected override void PerformMaintenance()
@@ -231,60 +231,14 @@ namespace Scalar.Common.Maintenance
             return true;
         }
 
-        private bool ConfigureWatchmanIntegration(out string error)
+        private bool ConfigureFSMonitor(out string error)
         {
-            string watchmanLocation = ProcessHelper.GetProgramLocation(ScalarPlatform.Instance.Constants.ProgramLocaterCommand, "watchman");
-            if (string.IsNullOrEmpty(watchmanLocation))
-            {
-                this.Context.Tracer.RelatedWarning("Watchman is not installed - skipping Watchman configuration.");
-                error = null;
-                return true;
-            }
+            this.RunGitCommand(
+                process => process.SetInLocalConfig("core.fsmonitor", ":internal:"), "config");
 
-            try
-            {
-                string hooksDir = ScalarPlatform.Instance.GetTemplateHooksDirectory();
-
-                if (string.IsNullOrEmpty(hooksDir))
-                {
-                    error = "Could not find hook templates directory. Skipping watchman integration.";
-                    this.Context.Tracer.RelatedError(error);
-                    return false;
-                }
-
-                // Install query-watchman hook from latest Git path
-                string fsMonitorWatchmanSampleHookPath = Path.Combine(
-                    hooksDir,
-                    ScalarConstants.DotGit.Hooks.FsMonitorWatchmanSampleName);
-
-                string queryWatchmanPath = Path.Combine(
-                    this.Context.Enlistment.WorkingDirectoryRoot,
-                    ScalarConstants.DotGit.Hooks.QueryWatchmanPath);
-
-                this.Context.FileSystem.CopyFile(
-                    fsMonitorWatchmanSampleHookPath,
-                    queryWatchmanPath,
-                    overwrite: true);
-
-                string dotGitRoot = this.Context.Enlistment.DotGitRoot.Replace(Path.DirectorySeparatorChar, ScalarConstants.GitPathSeparator);
-                this.RunGitCommand(
-                    process => process.SetInLocalConfig("core.fsmonitor", dotGitRoot + "/hooks/query-watchman"),
-                    "config");
-                this.RunGitCommand(
-                    process => process.SetInLocalConfig("core.fsmonitorHookVersion", "2"),
-                    "config");
-
-                this.Context.Tracer.RelatedInfo("Watchman configured!");
-                error = null;
-                return true;
-            }
-            catch (IOException ex)
-            {
-                EventMetadata metadata = this.CreateEventMetadata(ex);
-                error = $"Failed to configure Watchman integration: {ex.Message}";
-                this.Context.Tracer.RelatedError(metadata, error);
-                return false;
-            }
+            this.Context.Tracer.RelatedInfo("FSMonitor configured!");
+            error = null;
+            return true;
         }
     }
 }
