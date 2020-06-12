@@ -15,9 +15,12 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
     {
         private static readonly string MicrosoftScalarHttp = "https://github.com/microsoft/scalar";
 
+        private const int enlistmentCount = 10;
         private const int worktreeCount = 10;
-        private const int loopCount = 100;
+        private const int parallelCount = 3;
+        private const int loopCount = 25;
         private const int filesToCreate = 25;
+        private const int timeout = 30;
 
         private FileSystemRunner fileSystem;
         private int numSuccesses;
@@ -28,19 +31,81 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
+        public void SingleEnlistmentStatus()
+        {
+            Environment.SetEnvironmentVariable("GIT_TRACE2_EVENT", "C:\\_git\\scalar\\stress.txt");
+            ScalarFunctionalTestEnlistment enlistment = this.CreateNewEnlistment(
+                                                                url: MicrosoftScalarHttp,
+                                                                branch: "main",
+                                                                fullClone: false);
+
+            List<ScalarFunctionalTestEnlistment> enlistments = new List<ScalarFunctionalTestEnlistment>();
+
+            TaskFactory factory = new TaskFactory();
+            List<Task> tasks = new List<Task>();
+
+            tasks.Add(factory.StartNew(() => VerifyWorktreeBehaviorLoop(enlistment, enlistment.RepoRoot)));
+
+            for (int i = 0; i < parallelCount; i++)
+            {
+                tasks.Add(factory.StartNew(() => VerifyStatusBehaviorLoop(enlistment.RepoRoot)));
+            }
+
+            for (int i = 0; i < tasks.Count; i++)
+            {
+                tasks[i].Wait();
+            }
+
+            this.numSuccesses.ShouldEqual(tasks.Count, "Not all threads succeeded");
+        }
+
+        [TestCase]
+        public void MultiEnlistmentStatus()
+        {
+            Environment.SetEnvironmentVariable("GIT_TRACE2_EVENT", "C:\\_git\\scalar\\stress.txt");
+
+            List<ScalarFunctionalTestEnlistment> enlistments = new List<ScalarFunctionalTestEnlistment>();
+
+            for (int i = 0; i < enlistmentCount; i++)
+            {
+                ScalarFunctionalTestEnlistment enlistment = this.CreateNewEnlistment(
+                                                                    url: MicrosoftScalarHttp,
+                                                                    branch: "main",
+                                                                    fullClone: false);
+
+                enlistments.Add(enlistment);
+            }
+
+            TaskFactory factory = new TaskFactory();
+            List<Task> tasks = new List<Task>();
+            for (int i = 0; i < enlistments.Count; i++)
+            {
+                ScalarFunctionalTestEnlistment enlistment = enlistments[i];
+                tasks.Add(factory.StartNew(() => VerifyWorktreeBehaviorLoop(enlistment, enlistment.RepoRoot)));
+            }
+
+            for (int i = 0; i < tasks.Count; i++)
+            {
+                tasks[i].Wait();
+            }
+
+            this.numSuccesses.ShouldEqual(enlistmentCount, "Not all threads succeeded");
+        }
+
+        [TestCase]
         public void MultiWorktreeStatus()
         {
             Environment.SetEnvironmentVariable("GIT_TRACE2_EVENT", "C:\\_git\\scalar\\stress.txt");
             ScalarFunctionalTestEnlistment enlistment = this.CreateNewEnlistment(
                                                                 url: MicrosoftScalarHttp,
-                                                                branch: "master",
+                                                                branch: "main",
                                                                 fullClone: false);
 
             List<string> worktrees = new List<string>();
             for (int i = 0; i < worktreeCount; i++)
             {
                 string workdir = Path.Combine(enlistment.EnlistmentRoot, $"src-{i}");
-                this.VerifySuccessfulGitCommand(enlistment.RepoRoot, $"-c core.fsmonitor= worktree add {workdir} origin/master");
+                this.VerifySuccessfulGitCommand(enlistment.RepoRoot, $"-c core.fsmonitor= worktree add {workdir} origin/main");
                 worktrees.Add(workdir);
             }
 
@@ -65,6 +130,16 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             for (int i = 0; i < loopCount; i++)
             {
                 this.VerifyWorktreeBehavior(enlistment, worktree, i);
+            }
+
+            Interlocked.Increment(ref this.numSuccesses);
+        }
+
+        private void VerifyStatusBehaviorLoop(string worktree)
+        {
+            for (int i = 0; i < loopCount; i++)
+            {
+                this.VerifySuccessfulGitCommand(worktree, "status");
             }
 
             Interlocked.Increment(ref this.numSuccesses);
@@ -101,14 +176,14 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
                 // If the "git commit" command succeeds, then we had some extra modified files
                 // that were not included in this run
                 this.VerifySuccessfulGitCommand(worktree, $"-c core.fsmonitor=\"\" add .");
-                ProcessResult result = GitProcess.InvokeProcess(worktree, "commit -m empty-should-fail");
+                ProcessResult result = GitProcess.InvokeProcess(worktree, "commit -m empty-should-fail", timeoutSeconds: timeout);
                 result.ExitCode.ShouldNotEqual(0, $"'git commit -m empty-should-fail' succeeded?");
             }
         }
 
         private void VerifySuccessfulGitCommand(string dir, string args)
         {
-            ProcessResult result = GitProcess.InvokeProcess(dir, args);
+            ProcessResult result = GitProcess.InvokeProcess(dir, args, timeoutSeconds: timeout);
             result.ExitCode.ShouldEqual(0, $"'git {args}' in '{dir}' failed.\n\nOutput: {result.Output}\n\nErrors: {result.Errors}");
         }
     }
