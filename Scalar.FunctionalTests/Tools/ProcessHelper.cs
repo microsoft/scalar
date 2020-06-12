@@ -116,9 +116,7 @@ namespace Scalar.FunctionalTests.Tools
                 output = executingProcess.StandardOutput.ReadToEnd();
             }
 
-            executingProcess.WaitForExit(timeoutSeconds.HasValue ? timeoutSeconds.Value * 1000 : 60 * 1000);
-
-            if (!executingProcess.HasExited)
+            if (!executingProcess.WaitForExit(timeoutSeconds.HasValue ? timeoutSeconds.Value * 1000 : 60 * 1000))
             {
                 executingProcess.Kill();
                 throw new Exception("Command failed to exit on time");
