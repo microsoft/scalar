@@ -32,7 +32,7 @@ namespace Scalar.FunctionalTests.Tools
             }
         }
 
-        public static ProcessResult InvokeProcess(string executionWorkingDirectory, string command, Dictionary<string, string> environmentVariables = null, Stream inputStream = null)
+        public static ProcessResult InvokeProcess(string executionWorkingDirectory, string command, Dictionary<string, string> environmentVariables = null, Stream inputStream = null, int? timeoutSeconds = null)
         {
             ProcessStartInfo processInfo = new ProcessStartInfo(Properties.Settings.Default.PathToGit);
             processInfo.WorkingDirectory = executionWorkingDirectory;
@@ -56,7 +56,7 @@ namespace Scalar.FunctionalTests.Tools
                 }
             }
 
-            return ProcessHelper.Run(processInfo, inputStream: inputStream);
+            return ProcessHelper.Run(processInfo, inputStream: inputStream, timeoutSeconds: timeoutSeconds);
         }
     }
 }
