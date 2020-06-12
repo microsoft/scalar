@@ -46,7 +46,6 @@
     <GitPackageVersion>2.20200622.2</GitPackageVersion>
     <MinimumGitVersion>v2.25.0.vfs.1.1</MinimumGitVersion>
 
-    <WatchmanPackageUrl>https://github.com/facebook/watchman/suites/307436006/artifacts/304557</WatchmanPackageUrl>
     <GcmCoreOSXPackageUrl>https://github.com/microsoft/Git-Credential-Manager-Core/releases/download/v2.0.79-beta/gcmcore-osx-2.0.79.64449.pkg</GcmCoreOSXPackageUrl>
 
     <!-- Signing certificates -->

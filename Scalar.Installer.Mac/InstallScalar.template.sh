@@ -14,23 +14,6 @@ SCALAR_INSTALLER_PKG="##SCALAR_INSTALLER_PKG_PLACEHOLDER##"
 
 SCALAR_DISTRIBUTION_ROOT="$(dirname ${BASH_SOURCE[0]})"
 
-# Default installation flags
-INSTALL_WATCHMAN=1
-
-# Check the presence of known installation flags
-for arg in "$@"
-do
-    if [ "$arg" = "--no-watchman" ]; then
-        INSTALL_WATCHMAN=0
-    fi
-done
-
-# Check if any of the installation options require Homebrew
-REQUIRE_HOMEBREW=0
-if [ $INSTALL_WATCHMAN -eq 1 ]; then
-    REQUIRE_HOMEBREW=1
-fi
-
 echo ""
 echo "Welcome - running Scalar installation script"
 
@@ -60,31 +43,6 @@ echo "Git installer pkg: $GIT_INSTALLER_PKG"
 echo "GCM installer pkg: $GCM_CORE_INSTALLER_PKG"
 echo "Scalar installer pkg: $SCALAR_INSTALLER_PKG"
 
-echo ""
-echo "=============================="
-echo "Checking prerequisites..."
-
-if [ $REQUIRE_HOMEBREW -eq 1 ]; then
-    ## Check for brew installation
-    BREW_INSTALLED=0
-
-    if which -s brew; then
-        BREW_INSTALLED=1
-    else
-        BREW_INSTALLED=0
-    fi
-
-    if [ $BREW_INSTALLED -eq 0 ]; then
-        echo ""
-        echo "Homebrew is required to install watchman. Please install Homebrew with the following command and run the installation script again:"
-        echo "/usr/bin/ruby -e \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\""
-        exit 1
-    else
-        echo "Homebrew already installed!"
-    fi
-fi
-
-
 # Install Git
 echo ""
 echo "=============================="
@@ -102,23 +60,6 @@ echo ""
 echo "=============================="
 echo "Installing Scalar"
 sudo /usr/sbin/installer -pkg "$SCALAR_DISTRIBUTION_ROOT/Scalar/$SCALAR_INSTALLER_PKG" -target /
-
-# Install Watchman
-if [ $INSTALL_WATCHMAN -eq 1 ]; then
-    echo ""
-    echo "=============================="
-    echo "Installing watchman as: $CURRENT_USER"
-
-    sudo chown -R $CURRENT_USER /usr/local/Cellar
-    sudo -u $CURRENT_USER brew update
-    sudo -u $CURRENT_USER brew unlink python@2 || echo "Python 2 was not installed"
-    sudo -u $CURRENT_USER brew install watchman
-else
-    echo ""
-    echo "=============================="
-    echo "Skipping watchman installation"
-    echo "(--no-watchman was specified)"
-fi
 
 # Install optional package if specified
 if [ ! -z "$OPTIONAL_INSTALLER_PKG" ]; then

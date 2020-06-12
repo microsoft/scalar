@@ -4,7 +4,7 @@ CALL %~dp0\InitializeEnvironment.bat || EXIT /b 10
 IF "%1"=="" (SET "Configuration=Debug") ELSE (SET "Configuration=%1")
 
 SETLOCAL
-SET PATH=C:\Program Files\Scalar;C:\Program Files\watchman;C:\Program Files\Git\cmd;%PATH%
+SET PATH=C:\Program Files\Scalar;C:\Program Files\Git\cmd;%PATH%
 
 SET publishFragment=bin\%Configuration%\netcoreapp3.1\win10-x64\publish
 SET functionalTestsDir=%SCALAR_OUTPUTDIR%\Scalar.FunctionalTests\%publishFragment%
