@@ -84,23 +84,6 @@ jobs:
     steps:
       - checkout: none
       - template: templates/win/functional-test.yml
-        parameters:
-          useWatchman: false
-
-  - job: win_functionaltest_watchman
-    displayName: Windows Functional Test (with Watchman)
-    timeoutInMinutes: 45
-    variables:
-      configuration: Release
-    pool:
-      vmImage: $(winImage)
-    dependsOn: win_build
-    condition: succeeded()
-    steps:
-      - checkout: none
-      - template: templates/win/functional-test.yml
-        parameters:
-          useWatchman: true
 
   - job: osx_functionaltest
     displayName: macOS Functional Test
@@ -112,20 +95,3 @@ jobs:
     steps:
       - checkout: none
       - template: templates/osx/functional-test.yml
-        parameters:
-          useWatchman: false
-
-  - job: osx_functionaltest_watchman
-    displayName: macOS Functional Test (with Watchman)
-    variables:
-      configuration: Release
-    timeoutInMinutes: 30
-    pool:
-      vmImage: $(osxImage)
-    dependsOn: osx_build_step5
-    condition: succeeded()
-    steps:
-      - checkout: none
-      - template: templates/osx/functional-test.yml
-        parameters:
-          useWatchman: true

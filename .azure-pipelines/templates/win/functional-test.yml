@@ -1,6 +1,3 @@
-parameters:
-  useWatchman: true
-
 steps:
 
   - task: UseDotNet@2
@@ -21,13 +18,8 @@ steps:
       artifact: Installers_Windows_$(configuration)
       path: $(Build.BinariesDirectory)\install
 
-  - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - script: $(Build.BinariesDirectory)\install\InstallScalar.bat --watchman $(Build.ArtifactStagingDirectory)\logs
-      displayName: Install product (with watchman)
-
-  - ${{ if ne(parameters.useWatchman, 'true') }}:
-    - script: $(Build.BinariesDirectory)\install\InstallScalar.bat --no-watchman $(Build.ArtifactStagingDirectory)\logs
-      displayName: Install product (without watchman)
+  - script: $(Build.BinariesDirectory)\install\InstallScalar.bat $(Build.ArtifactStagingDirectory)\logs
+    displayName: Install product
 
   - script: git config --global credential.interactive never
     displayName: Disable interactive auth
@@ -35,40 +27,19 @@ steps:
   - script: $(Build.BinariesDirectory)\ft\src\Scripts\RunFunctionalTests.bat $(configuration) --test-scalar-on-path "--trace2-output=$(Build.ArtifactStagingDirectory)\logs\trace2-event.log"
     displayName: Run functional tests
 
-  - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - task: PublishTestResults@2
-      displayName: Publish functional tests results
-      inputs:
-        testRunner: NUnit
-        testResultsFiles: "**\\TestResult*.xml"
-        searchFolder: $(System.DefaultWorkingDirectory)
-        testRunTitle: Windows $(configuration) Functional Tests (with watchman)
-        publishRunAttachments: true
-      condition: succeededOrFailed()
+  - task: PublishTestResults@2
+    displayName: Publish functional tests results
+    inputs:
+      testRunner: NUnit
+      testResultsFiles: "**\\TestResult*.xml"
+      searchFolder: $(System.DefaultWorkingDirectory)
+      testRunTitle: Windows $(configuration) Functional Tests
+      publishRunAttachments: true
+    condition: succeededOrFailed()
 
-  - ${{ if eq(parameters.useWatchman, 'true') }}:
-    - task: PublishPipelineArtifact@1
-      displayName: Publish test and installation logs
-      inputs:
-        targetPath: $(Build.ArtifactStagingDirectory)\logs
-        artifactName: Logs_Windows_Watchman
-      condition: failed()
-
-  - ${{ if ne(parameters.useWatchman, 'true') }}:
-    - task: PublishTestResults@2
-      displayName: Publish functional tests results
-      inputs:
-        testRunner: NUnit
-        testResultsFiles: "**\\TestResult*.xml"
-        searchFolder: $(System.DefaultWorkingDirectory)
-        testRunTitle: Windows $(configuration) Functional Tests (without watchman)
-        publishRunAttachments: true
-      condition: succeededOrFailed()
-
-  - ${{ if ne(parameters.useWatchman, 'true') }}:
-    - task: PublishPipelineArtifact@1
-      displayName: Publish test and installation logs
-      inputs:
-        targetPath: $(Build.ArtifactStagingDirectory)\logs
-        artifactName: Logs_Windows
-      condition: failed()
+  - task: PublishPipelineArtifact@1
+    displayName: Publish test and installation logs
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)\logs
+      artifactName: Logs_Windows
+    condition: failed()
