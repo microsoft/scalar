@@ -33,7 +33,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void SingleEnlistmentStatus()
         {
-            Environment.SetEnvironmentVariable("GIT_TRACE2_EVENT", "C:\\_git\\scalar\\stress.txt");
             ScalarFunctionalTestEnlistment enlistment = this.CreateNewEnlistment(
                                                                 url: MicrosoftScalarHttp,
                                                                 branch: "main",
@@ -62,8 +61,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void MultiEnlistmentStatus()
         {
-            Environment.SetEnvironmentVariable("GIT_TRACE2_EVENT", "C:\\_git\\scalar\\stress.txt");
-
             List<ScalarFunctionalTestEnlistment> enlistments = new List<ScalarFunctionalTestEnlistment>();
 
             for (int i = 0; i < enlistmentCount; i++)
@@ -95,7 +92,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         [TestCase]
         public void MultiWorktreeStatus()
         {
-            Environment.SetEnvironmentVariable("GIT_TRACE2_EVENT", "C:\\_git\\scalar\\stress.txt");
             ScalarFunctionalTestEnlistment enlistment = this.CreateNewEnlistment(
                                                                 url: MicrosoftScalarHttp,
                                                                 branch: "main",
