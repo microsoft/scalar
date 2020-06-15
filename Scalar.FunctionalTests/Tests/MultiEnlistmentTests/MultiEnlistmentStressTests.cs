@@ -19,7 +19,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         private const int parallelCount = 3;
         private const int loopCount = 25;
         private const int filesToCreate = 25;
-        private const int timeout = 30;
+        private const int timeoutSeconds = 30;
 
         private FileSystemRunner fileSystem;
         private int numSuccesses;
@@ -185,14 +185,14 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
                 // that were not included in this run
                 this.VerifySuccessfulGitCommand(worktree, $"-c core.fsmonitor=\"\" add .");
                 string status = this.VerifySuccessfulGitCommand(worktree, "status");
-                ProcessResult result = GitProcess.InvokeProcess(worktree, "commit -m empty-should-fail", timeoutSeconds: timeout);
+                ProcessResult result = GitProcess.InvokeProcess(worktree, "commit -m empty-should-fail", timeoutSeconds: timeoutSeconds);
                 result.ExitCode.ShouldNotEqual(0, $"'git commit -m empty-should-fail' succeeded? Last edited {fileI}. Status:\n{status}");
             }
         }
 
         private string VerifySuccessfulGitCommand(string dir, string args)
         {
-            ProcessResult result = GitProcess.InvokeProcess(dir, args, timeoutSeconds: timeout);
+            ProcessResult result = GitProcess.InvokeProcess(dir, args, timeoutSeconds: timeoutSeconds);
             result.ExitCode.ShouldEqual(0, $"'git {args}' in '{dir}' failed.\n\nOutput: {result.Output}\n\nErrors: {result.Errors}");
             return result.Output;
         }
