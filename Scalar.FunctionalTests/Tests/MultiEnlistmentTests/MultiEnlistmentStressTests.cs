@@ -2,7 +2,6 @@
 using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -43,11 +42,11 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             TaskFactory factory = new TaskFactory();
             List<Task> tasks = new List<Task>();
 
-            tasks.Add(factory.StartNew(() => VerifyWorktreeBehaviorLoop(enlistment, enlistment.RepoRoot)));
+            tasks.Add(factory.StartNew(() => VerifyStatusBehaviorLoop(enlistment.RepoRoot)));
 
             for (int i = 0; i < parallelCount; i++)
             {
-                tasks.Add(factory.StartNew(() => VerifyStatusBehaviorLoop(enlistment.RepoRoot)));
+                tasks.Add(factory.StartNew(() => VerifyWriteBehaviorLoop(enlistment.RepoRoot)));
             }
 
             for (int i = 0; i < tasks.Count; i++)
@@ -141,6 +140,19 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
             Interlocked.Increment(ref this.numSuccesses);
         }
 
+        private void VerifyWriteBehaviorLoop(string worktree)
+        {
+            for (int i = 0; i < loopCount; i++)
+            {
+                string nameI = $"file{i}.txt";
+                string localI = Path.Combine(worktree, nameI);
+                this.fileSystem.WriteAllText(localI, $"{worktree} {i}\n");
+                Thread.Sleep(500);
+            }
+
+            Interlocked.Increment(ref this.numSuccesses);
+        }
+
         private void VerifyWorktreeBehavior(ScalarFunctionalTestEnlistment enlistment, string worktree, int iteration)
         {
             string dirName = $"dir{iteration}";
@@ -172,15 +184,17 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
                 // If the "git commit" command succeeds, then we had some extra modified files
                 // that were not included in this run
                 this.VerifySuccessfulGitCommand(worktree, $"-c core.fsmonitor=\"\" add .");
+                string status = this.VerifySuccessfulGitCommand(worktree, "status");
                 ProcessResult result = GitProcess.InvokeProcess(worktree, "commit -m empty-should-fail", timeoutSeconds: timeout);
-                result.ExitCode.ShouldNotEqual(0, $"'git commit -m empty-should-fail' succeeded?");
+                result.ExitCode.ShouldNotEqual(0, $"'git commit -m empty-should-fail' succeeded? Last edited {fileI}. Status:\n{status}");
             }
         }
 
-        private void VerifySuccessfulGitCommand(string dir, string args)
+        private string VerifySuccessfulGitCommand(string dir, string args)
         {
             ProcessResult result = GitProcess.InvokeProcess(dir, args, timeoutSeconds: timeout);
             result.ExitCode.ShouldEqual(0, $"'git {args}' in '{dir}' failed.\n\nOutput: {result.Output}\n\nErrors: {result.Errors}");
+            return result.Output;
         }
     }
 }

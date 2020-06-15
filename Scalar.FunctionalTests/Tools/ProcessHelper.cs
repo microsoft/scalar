@@ -116,7 +116,7 @@ namespace Scalar.FunctionalTests.Tools
                 output = executingProcess.StandardOutput.ReadToEnd();
             }
 
-            executingProcess.WaitForExit(timeoutSeconds.HasValue ? timeoutSeconds.Value * 1000 : 5 * 60 * 1000);
+            executingProcess.WaitForExit(timeoutSeconds.HasValue ? timeoutSeconds.Value * 1000 : 60 * 1000);
 
             if (!executingProcess.HasExited)
             {
