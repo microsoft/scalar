@@ -18,7 +18,7 @@ Creating a new Scalar clone using the GVFS Protocol
 ---------------------------------------------------
 
 The `clone` verb creates a local enlistment of a remote repository using the
-[GVFS protocol](https://github.com/microsoft//VFSForGit/blob/main/Protocol.md).
+[GVFS protocol](https://github.com/microsoft/VFSForGit/blob/HEAD/Protocol.md).
 
 ```
 scalar clone [options] <url> [<dir>]

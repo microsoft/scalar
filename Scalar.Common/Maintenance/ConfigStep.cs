@@ -99,12 +99,9 @@ namespace Scalar.Common.Maintenance
             Dictionary<string, string> requiredSettings = new Dictionary<string, string>
             {
                 { "am.keepcr", "true" },
-                { "core.autocrlf", "false" },
-                { "checkout.optimizenewbranch", "true" },
                 { "core.fscache", "true" },
                 { "core.multiPackIndex", "true" },
                 { "core.preloadIndex", "true" },
-                { "core.safecrlf", "false" },
                 { "core.untrackedCache", ScalarPlatform.Instance.FileSystem.SupportsUntrackedCache ? "true" : "false" },
                 { "core.filemode", ScalarPlatform.Instance.FileSystem.SupportsFileMode ? "true" : "false" },
                 { "core.bare", "false" },
@@ -156,6 +153,8 @@ namespace Scalar.Common.Maintenance
             Dictionary<string, string> optionalSettings = new Dictionary<string, string>
             {
                 { "status.aheadbehind", "false" },
+                { "core.autocrlf", "false" },
+                { "core.safecrlf", "false" },
             };
 
             if (this.UseGvfsProtocol.Value)
