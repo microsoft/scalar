@@ -100,7 +100,6 @@ namespace Scalar.Common.Maintenance
             {
                 { "am.keepcr", "true" },
                 { "core.autocrlf", "false" },
-                { "checkout.optimizenewbranch", "true" },
                 { "core.fscache", "true" },
                 { "core.multiPackIndex", "true" },
                 { "core.preloadIndex", "true" },
