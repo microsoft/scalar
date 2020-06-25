@@ -16,7 +16,7 @@ function UnInstallScalar()
         echo "$rmCmd..."
         eval $rmCmd || { echo "Error: Could not delete ${LAUNCHDAEMONDIRECTORY}/$LOGDAEMONLAUNCHDFILENAME. Delete it manually."; exit 1; }
     fi
-        
+
     # Unloading Service LaunchAgent for each user
     # There will be one loginwindow instance for each logged in user, 
     # get its uid (this will correspond to the logged in user's id.) 
@@ -27,33 +27,38 @@ function UnInstallScalar()
     "org.scalar.service"
     )
     for nextLaunchAgent in "${launchAgents[@]}"; do
-    	for uid in $(ps -Ac -o uid,command | grep -iw "loginwindow" | awk '{print $1}'); do
-			isLoadedCmd="sudo launchctl kill SIGCONT gui/$uid/$nextLaunchAgent"
+        for uid in $(ps -Ac -o uid,command | grep -iw "loginwindow" | awk '{print $1}'); do
+            isLoadedCmd="sudo launchctl kill SIGCONT gui/$uid/$nextLaunchAgent"
             echo "$isLoadedCmd"
             if $isLoadedCmd; then
                 unloadCmd="launchctl bootout gui/$uid /Library/LaunchAgents/$nextLaunchAgent.plist"
                 echo "Unloading Service: '$unloadCmd'..."
-                eval $unloadCmd || exit 1                
+                eval $unloadCmd
+                error=$?
+                # Ignore error 113: Could not find specified service
+                if [ $error -ne 113 ] && [ $error -ne 0 ]; then
+                    exit 1
+                fi
             fi
-    	done
-    	
-		rmCmd="sudo /bin/rm -Rf ${LAUNCHAGENTDIRECTORY}/$nextLaunchAgent.plist"
-		echo "$rmCmd..."
-		eval $rmCmd || { echo "Error: Could not delete ${LAUNCHAGENTDIRECTORY}/$nextLaunchAgent.plist. Delete it manually."; exit 1; }
-	done
-        
+        done
+
+        rmCmd="sudo /bin/rm -Rf ${LAUNCHAGENTDIRECTORY}/$nextLaunchAgent.plist"
+        echo "$rmCmd..."
+        eval $rmCmd || { echo "Error: Could not delete ${LAUNCHAGENTDIRECTORY}/$nextLaunchAgent.plist. Delete it manually."; exit 1; }
+    done
+
     if [ -s "${ScalarCOMMANDPATH}" ]; then
         rmCmd="sudo /bin/rm -Rf ${ScalarCOMMANDPATH}"
         echo "$rmCmd..."
         eval $rmCmd || { echo "Error: Could not delete ${ScalarCOMMANDPATH}. Delete it manually."; exit 1; }
     fi
-    
+
     if [ -d "${LIBRARYAPPSUPPORTDIRECTORY}" ]; then
         rmCmd="sudo /bin/rm -Rf \"${LIBRARYAPPSUPPORTDIRECTORY}\""
         echo "$rmCmd..."
         eval $rmCmd || { echo "Error: Could not delete ${LIBRARYAPPSUPPORTDIRECTORY}. Delete it manually."; exit 1; }
     fi
-    
+
     if [ -d "${ScalarFORDIRECTORY}" ]; then
         rmCmd="sudo /bin/rm -Rf ${ScalarFORDIRECTORY}"
         echo "$rmCmd..."
