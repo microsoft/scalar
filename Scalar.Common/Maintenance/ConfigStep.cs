@@ -155,6 +155,7 @@ namespace Scalar.Common.Maintenance
                 { "status.aheadbehind", "false" },
                 { "core.autocrlf", "false" },
                 { "core.safecrlf", "false" },
+                { "core.repositoryFormatVersion", "1" },
             };
 
             if (this.UseGvfsProtocol.Value)
