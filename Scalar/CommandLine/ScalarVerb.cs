@@ -489,37 +489,6 @@ You can specify a URL, a name of a configured cache server, or the special names
             return Path.Combine(enlistment.WorkingDirectoryRoot, ScalarConstants.DotGit.Objects.Info.Alternates);
         }
 
-        private void CheckGitVersion(ITracer tracer, ScalarEnlistment enlistment, out string version)
-        {
-            GitVersion gitVersion = null;
-            if (string.IsNullOrEmpty(enlistment.GitBinPath))
-            {
-                this.ReportErrorAndExit(tracer, "Unable to find Git version on PATH");
-            }
-
-            if (!GitProcess.TryGetVersion(enlistment.GitBinPath, out gitVersion, out string error))
-            {
-                this.ReportErrorAndExit(tracer, $"Unable to parse Git version at '{enlistment.GitBinPath}':\n{error}");
-            }
-
-            version = gitVersion.ToString();
-
-            if (gitVersion.Platform != ScalarConstants.SupportedGitVersion.Platform)
-            {
-                this.ReportErrorAndExit(tracer, "Error: Invalid version of git {0} at {1}.  Must use scalar version.", version, enlistment.GitBinPath);
-            }
-
-            if (gitVersion.IsLessThan(ScalarConstants.SupportedGitVersion))
-            {
-                this.ReportErrorAndExit(
-                    tracer,
-                    "Error: Installed git version {0} at {1} is less than the supported version of {2}.",
-                    gitVersion,
-                    enlistment.GitBinPath,
-                    ScalarConstants.SupportedGitVersion);
-            }
-        }
-
         public abstract class ForExistingEnlistment : ScalarVerb
         {
             public ForExistingEnlistment(bool validateOrigin = true) : base(validateOrigin)
