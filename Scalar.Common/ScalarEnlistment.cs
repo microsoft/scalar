@@ -172,30 +172,5 @@ namespace Scalar.Common
 
             return true;
         }
-
-        public string GetEnlistmentId()
-        {
-            return this.GetId(ScalarConstants.GitConfig.EnlistmentId);
-        }
-
-        /// <summary>
-        /// Creates a hidden directory @ the given path.
-        /// If directory already exists, hides it.
-        /// </summary>
-        /// <param name="path">Path to desired hidden directory</param>
-        private void CreateHiddenDirectory(string path)
-        {
-            DirectoryInfo dir = Directory.CreateDirectory(path);
-            dir.Attributes = FileAttributes.Hidden;
-        }
-
-        private string GetId(string key)
-        {
-            GitProcess.ConfigResult configResult = this.CreateGitProcess().GetFromLocalConfig(key);
-            string value;
-            string error;
-            configResult.TryParseAsString(out value, out error, defaultValue: string.Empty);
-            return value.Trim();
-        }
     }
 }
