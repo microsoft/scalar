@@ -277,7 +277,7 @@ var
 begin
   // TODO: #185 Instead of calling --help, use the correct action for stopping the
   // maintenance task
-  Exec('scalar.exe', 'service --help', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec('scalar.exe', '--help', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
 function EnsureScalarNotRunning(): Boolean;
