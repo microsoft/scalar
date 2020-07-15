@@ -9,6 +9,22 @@ namespace Scalar.UnitTests.Common
     public class GitVersionTests
     {
         [TestCase]
+        public void GetFeatureFlags_VfsGitVersion_ReturnsGvfsProtocolSupported()
+        {
+            var version = new GitVersion(2, 28, 0, "vfs", 1, 0);
+            GitFeatureFlags features = version.GetFeatures();
+            features.HasFlag(GitFeatureFlags.GvfsProtocol).ShouldBeTrue();
+        }
+
+        [TestCase]
+        public void GetFeatureFlags_NormalGitVersion_ReturnsGvfsProtocolSupported()
+        {
+            var winGitVersion = new GitVersion(2, 28, 0, "windows", 1, 1);
+            GitFeatureFlags winGitFeatures = winGitVersion.GetFeatures();
+            winGitFeatures.HasFlag(GitFeatureFlags.GvfsProtocol).ShouldBeFalse();
+        }
+
+        [TestCase]
         public void TryParseInstallerName()
         {
             this.ParseAndValidateInstallerVersion("Git-1.2.3.scalar.4.5.gb16030b-64-bit" + ScalarPlatform.Instance.Constants.InstallerExtension);

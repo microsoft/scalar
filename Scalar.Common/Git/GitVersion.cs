@@ -21,6 +21,22 @@ namespace Scalar.Common.Git
         public int Revision { get; private set; }
         public int MinorRevision { get; private set; }
 
+        /// <summary>
+        /// Determine the set of Git features that are supported this version of Git.
+        /// </summary>
+        /// <returns>Set of Git features.</returns>
+        public GitFeatureFlags GetFeatures()
+        {
+            var flags = GitFeatureFlags.None;
+
+            if (StringComparer.OrdinalIgnoreCase.Equals(Platform, "vfs"))
+            {
+                flags |= GitFeatureFlags.GvfsProtocol;
+            }
+
+            return flags;
+        }
+
         public static bool TryParseGitVersionCommandResult(string input, out GitVersion version)
         {
             // git version output is of the form
