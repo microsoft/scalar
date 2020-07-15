@@ -10,11 +10,6 @@ namespace Scalar.UnitTests.Mock.FileSystem
 
         public Func<string, FileMode, FileAccess, Stream> OnOpenFileStream { get; set; }
 
-        public override FileProperties GetFileProperties(string path)
-        {
-            throw new InvalidOperationException("GetFileProperties has not been implemented.");
-        }
-
         public override bool FileExists(string path)
         {
             if (this.OnFileExists == null)
@@ -64,11 +59,6 @@ namespace Scalar.UnitTests.Mock.FileSystem
 
         public override void SetAttributes(string path, FileAttributes fileAttributes)
         {
-        }
-
-        public override void MoveFile(string sourcePath, string targetPath)
-        {
-            throw new NotImplementedException();
         }
 
         public override string[] GetFiles(string directoryPath, string mask)

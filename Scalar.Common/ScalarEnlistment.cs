@@ -7,9 +7,6 @@ namespace Scalar.Common
 {
     public partial class ScalarEnlistment : Enlistment
     {
-        private string gitVersion;
-        private string scalarVersion;
-
         public ScalarEnlistment(string enlistmentRoot, string workingDirectory, string repoUrl, string gitBinPath, GitAuthentication authentication)
             : base(
                   enlistmentRoot,
@@ -32,17 +29,6 @@ namespace Scalar.Common
         public override string GitPackRoot { get; protected set; }
 
         public bool UsesGvfsProtocol { get; protected set; }
-
-        // These version properties are only used in logging during clone to track version numbers
-        public string GitVersion
-        {
-            get { return this.gitVersion; }
-        }
-
-        public string ScalarVersion
-        {
-            get { return this.scalarVersion; }
-        }
 
         public static ScalarEnlistment CreateFromDirectory(
             string directory,
@@ -154,16 +140,6 @@ namespace Scalar.Common
             return false;
         }
 
-        public void SetGitVersion(string gitVersion)
-        {
-            this.SetOnce(gitVersion, ref this.gitVersion);
-        }
-
-        public void SetScalarVersion(string scalarVersion)
-        {
-            this.SetOnce(scalarVersion, ref this.scalarVersion);
-        }
-
         public void InitializeCachePathsFromKey(string localCacheRoot, string localCacheKey)
         {
             this.InitializeCachePaths(
@@ -195,41 +171,6 @@ namespace Scalar.Common
             }
 
             return true;
-        }
-
-        public string GetEnlistmentId()
-        {
-            return this.GetId(ScalarConstants.GitConfig.EnlistmentId);
-        }
-
-        private void SetOnce<T>(T value, ref T valueToSet)
-        {
-            if (valueToSet != null)
-            {
-                throw new InvalidOperationException("Value already set.");
-            }
-
-            valueToSet = value;
-        }
-
-        /// <summary>
-        /// Creates a hidden directory @ the given path.
-        /// If directory already exists, hides it.
-        /// </summary>
-        /// <param name="path">Path to desired hidden directory</param>
-        private void CreateHiddenDirectory(string path)
-        {
-            DirectoryInfo dir = Directory.CreateDirectory(path);
-            dir.Attributes = FileAttributes.Hidden;
-        }
-
-        private string GetId(string key)
-        {
-            GitProcess.ConfigResult configResult = this.CreateGitProcess().GetFromLocalConfig(key);
-            string value;
-            string error;
-            configResult.TryParseAsString(out value, out error, defaultValue: string.Empty);
-            return value.Trim();
         }
     }
 }

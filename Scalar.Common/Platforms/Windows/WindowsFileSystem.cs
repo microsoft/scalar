@@ -1,10 +1,8 @@
-using Microsoft.Win32.SafeHandles;
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Tracing;
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 
@@ -92,10 +90,6 @@ namespace Scalar.Platform.Windows
                 sourceFileName,
                 destinationFilename,
                 NativeMethods.MoveFileFlags.MoveFileReplaceExisting);
-        }
-
-        public void ChangeMode(string path, ushort mode)
-        {
         }
 
         public bool TryGetNormalizedPath(string path, out string normalizedPath, out string errorMessage)
@@ -187,54 +181,6 @@ namespace Scalar.Platform.Windows
         {
             error = null;
             return true;
-        }
-
-        private class NativeFileReader
-        {
-            private const uint GenericRead = 0x80000000;
-            private const uint OpenExisting = 3;
-
-            public static bool TryReadFirstByteOfFile(string fileName, byte[] buffer)
-            {
-                using (SafeFileHandle handle = Open(fileName))
-                {
-                    if (!handle.IsInvalid)
-                    {
-                        return ReadOneByte(handle, buffer);
-                    }
-                }
-
-                return false;
-            }
-
-            private static SafeFileHandle Open(string fileName)
-            {
-                return CreateFile(fileName, GenericRead, (uint)(FileShare.ReadWrite | FileShare.Delete), 0, OpenExisting, 0, 0);
-            }
-
-            private static bool ReadOneByte(SafeFileHandle handle, byte[] buffer)
-            {
-                int bytesRead = 0;
-                return ReadFile(handle, buffer, 1, ref bytesRead, 0);
-            }
-
-            [DllImport("kernel32", SetLastError = true, ThrowOnUnmappableChar = true, CharSet = CharSet.Unicode)]
-            private static extern SafeFileHandle CreateFile(
-                string fileName,
-                uint desiredAccess,
-                uint shareMode,
-                uint securityAttributes,
-                uint creationDisposition,
-                uint flagsAndAttributes,
-                int hemplateFile);
-
-            [DllImport("kernel32", SetLastError = true)]
-            private static extern bool ReadFile(
-                SafeFileHandle file,
-                [Out] byte[] buffer,
-                int numberOfBytesToRead,
-                ref int numberOfBytesRead,
-                int overlapped);
         }
     }
 }

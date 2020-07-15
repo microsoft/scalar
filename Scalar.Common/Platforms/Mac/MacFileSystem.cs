@@ -8,11 +8,6 @@ namespace Scalar.Platform.Mac
 {
     public class MacFileSystem : POSIXFileSystem
     {
-        public override void ChangeMode(string path, ushort mode)
-        {
-            Chmod(path, mode);
-        }
-
         public override bool IsExecutable(string fileName)
         {
             NativeStat.StatBuffer statBuffer = this.StatFile(fileName);
@@ -50,9 +45,6 @@ namespace Scalar.Platform.Mac
                 return false;
             }
         }
-
-        [DllImport("libc", EntryPoint = "chmod", SetLastError = true)]
-        private static extern int Chmod(string pathname, ushort mode);
 
         private NativeStat.StatBuffer StatFile(string fileName)
         {
@@ -127,53 +119,6 @@ namespace Scalar.Platform.Mac
 
                 [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
                 public long[] QSpare;     /* RESERVED: DO NOT USE! */
-            }
-        }
-
-        private static class NativeFileReader
-        {
-            // #define O_RDONLY 0x0000     /* open for reading only */
-            private const int ReadOnly = 0x0000;
-
-            internal static bool TryReadFirstByteOfFile(string fileName, byte[] buffer)
-            {
-                int fileDescriptor = -1;
-                bool readStatus = false;
-                try
-                {
-                    fileDescriptor = Open(fileName, ReadOnly);
-                    if (fileDescriptor != -1)
-                    {
-                        readStatus = TryReadOneByte(fileDescriptor, buffer);
-                    }
-                }
-                finally
-                {
-                    Close(fileDescriptor);
-                }
-
-                return readStatus;
-            }
-
-            [DllImport("libc", EntryPoint = "open", SetLastError = true)]
-            private static extern int Open(string path, int flag);
-
-            [DllImport("libc", EntryPoint = "close", SetLastError = true)]
-            private static extern int Close(int fd);
-
-            [DllImport("libc", EntryPoint = "read", SetLastError = true)]
-            private static extern int Read(int fd, [Out] byte[] buf, int count);
-
-            private static bool TryReadOneByte(int fileDescriptor, byte[] buffer)
-            {
-                int numBytes = Read(fileDescriptor, buffer, 1);
-
-                if (numBytes == -1)
-                {
-                    return false;
-                }
-
-                return true;
             }
         }
     }

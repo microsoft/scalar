@@ -5,7 +5,6 @@ using Scalar.Common.Tracing;
 using Scalar.Tests.Should;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 
 namespace Scalar.UnitTests.Mock.FileSystem
@@ -138,13 +137,6 @@ namespace Scalar.UnitTests.Mock.FileSystem
             this.RootDirectory.RemoveFile(sourcePath);
         }
 
-        public override bool TryGetNormalizedPath(string path, out string normalizedPath, out string errorMessage)
-        {
-            normalizedPath = path;
-            errorMessage = null;
-            return true;
-        }
-
         public override Stream OpenFileStream(string path, FileMode fileMode, FileAccess fileAccess, FileShare shareMode, FileOptions options, bool flushesToDisk)
         {
             MockFile file = this.RootDirectory.FindFile(path);
@@ -171,11 +163,6 @@ namespace Scalar.UnitTests.Mock.FileSystem
             }
 
             return file.GetContentStream();
-        }
-
-        public override void FlushFileBuffers(string path)
-        {
-            throw new NotImplementedException();
         }
 
         public override void WriteAllText(string path, string contents)
@@ -356,19 +343,6 @@ namespace Scalar.UnitTests.Mock.FileSystem
             }
         }
 
-        public override FileProperties GetFileProperties(string path)
-        {
-            MockFile file = this.RootDirectory.FindFile(path);
-            if (file != null)
-            {
-                return file.FileProperties;
-            }
-            else
-            {
-                return FileProperties.DefaultFile;
-            }
-        }
-
         public override FileAttributes GetAttributes(string path)
         {
             return FileAttributes.Normal;
@@ -376,18 +350,6 @@ namespace Scalar.UnitTests.Mock.FileSystem
 
         public override void SetAttributes(string path, FileAttributes fileAttributes)
         {
-        }
-
-        public override void MoveFile(string sourcePath, string targetPath)
-        {
-            if (this.AllowMoveFile)
-            {
-                return;
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
         }
 
         public override string[] GetFiles(string directoryPath, string mask)
@@ -407,21 +369,6 @@ namespace Scalar.UnitTests.Mock.FileSystem
             }
 
             return files.ToArray();
-        }
-
-        public override FileVersionInfo GetVersionInfo(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool FileVersionsMatch(FileVersionInfo versionInfo1, FileVersionInfo versionInfo2)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool ProductVersionsMatch(FileVersionInfo versionInfo1, FileVersionInfo versionInfo2)
-        {
-            throw new NotImplementedException();
         }
 
         private Stream CreateAndOpenFileStream(string path)

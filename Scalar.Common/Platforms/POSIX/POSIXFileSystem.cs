@@ -42,8 +42,6 @@ namespace Scalar.Platform.POSIX
             }
         }
 
-        public abstract void ChangeMode(string path, ushort mode);
-
         public bool TryGetNormalizedPath(string path, out string normalizedPath, out string errorMessage)
         {
             return POSIXFileSystem.TryGetNormalizedPathImplementation(path, out normalizedPath, out errorMessage);

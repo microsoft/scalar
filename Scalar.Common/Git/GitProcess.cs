@@ -102,24 +102,6 @@ namespace Scalar.Common.Git
 
         public bool LowerPriority { get; set; }
 
-        public static Result Clone(string gitBinPath, string url, string targetDir, bool sparse, bool filterBlobs)
-        {
-            string sparseArg = sparse ? "--sparse " : string.Empty;
-            string filterArg = filterBlobs ? "--filter=blob:none" : string.Empty;
-
-            string dir = Paths.ConvertPathToGitFormat(targetDir);
-
-            GitProcess git = new GitProcess(gitBinPath, workingDirectoryRoot: null);
-
-            return git.InvokeGitImpl($"clone {sparseArg} {filterArg} {url} {dir}",
-                                     workingDirectory: Directory.GetCurrentDirectory(),
-                                     dotGitDirectory: null,
-                                     fetchMissingObjects: false,
-                                     writeStdIn: null,
-                                     parseStdOutLine: null,
-                                     timeoutMs: -1);
-        }
-
         public static Result Init(Enlistment enlistment)
         {
             return new GitProcess(enlistment).InvokeGitOutsideEnlistment("init \"" + enlistment.WorkingDirectoryRoot + "\"");
@@ -258,7 +240,7 @@ namespace Scalar.Common.Git
         /// path=[http.sslCert value]
         /// username =</code>
         /// </summary>
-        public virtual bool TryGetCertificatePassword(
+        public bool TryGetCertificatePassword(
             ITracer tracer,
             string certificatePath,
             out string password,
@@ -354,17 +336,6 @@ namespace Scalar.Common.Git
             }
         }
 
-        public bool IsValidRepo()
-        {
-            Result result = this.InvokeGitAgainstDotGitFolder("rev-parse --show-toplevel");
-            return result.ExitCodeIsSuccess;
-        }
-
-        public Result RevParse(string gitRef)
-        {
-            return this.InvokeGitAgainstDotGitFolder("rev-parse " + gitRef);
-        }
-
         public Result DeleteFromLocalConfig(string settingName)
         {
             return this.InvokeGitAgainstDotGitFolder("config --local --unset-all " + settingName);
@@ -416,7 +387,7 @@ namespace Scalar.Common.Git
         /// otherwise it will run it from outside the enlistment.
         /// </param>
         /// <returns>The value found for the setting.</returns>
-        public virtual ConfigResult GetFromConfig(string settingName, bool forceOutsideEnlistment = false, PhysicalFileSystem fileSystem = null)
+        public ConfigResult GetFromConfig(string settingName, bool forceOutsideEnlistment = false, PhysicalFileSystem fileSystem = null)
         {
             string command = string.Format("config {0}", settingName);
             fileSystem = fileSystem ?? new PhysicalFileSystem();
@@ -438,11 +409,6 @@ namespace Scalar.Common.Git
             return new ConfigResult(this.InvokeGitAgainstDotGitFolder("config --local remote.origin.url"), "remote.origin.url");
         }
 
-        public Result DiffTree(string sourceTreeish, string targetTreeish, Action<string> onResult)
-        {
-            return this.InvokeGitAgainstDotGitFolder("diff-tree -r -t " + sourceTreeish + " " + targetTreeish, null, onResult);
-        }
-
         public Result CreateBranchWithUpstream(string branchToCreate, string upstreamBranch)
         {
             return this.InvokeGitInWorkingDirectoryRoot(
@@ -453,11 +419,6 @@ namespace Scalar.Common.Git
         public Result ForceCheckout(string target)
         {
             return this.InvokeGitInWorkingDirectoryRoot("checkout -f " + target, fetchMissingObjects: true);
-        }
-
-        public Result ForceCheckoutAllFiles()
-        {
-            return this.InvokeGitInWorkingDirectoryRoot("checkout HEAD -- .", fetchMissingObjects: true);
         }
 
         public Result ForegroundFetch(string remote)
@@ -507,21 +468,6 @@ namespace Scalar.Common.Git
             return true;
         }
 
-        public Result SparseCheckoutSet(List<string> foldersToSet)
-        {
-            return this.InvokeGitInWorkingDirectoryRoot(
-                $"sparse-checkout set --stdin",
-                fetchMissingObjects: true,
-                writeStdIn: writer =>
-                {
-                    foreach (string path in foldersToSet)
-                    {
-                        string normalizedPath = Paths.ConvertPathToGitFormat(path).Trim(ScalarConstants.GitPathSeparator);
-                        writer.Write(normalizedPath + "\n");
-                    }
-                });
-        }
-
         public Result GvfsHelperDownloadCommit(string commitId)
         {
             return this.InvokeGitInWorkingDirectoryRoot(
@@ -537,34 +483,6 @@ namespace Scalar.Common.Git
         {
             string configString = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "-c http.sslBackend=schannel " : string.Empty;
             return this.InvokeGitInWorkingDirectoryRoot($"{configString}gvfs-helper prefetch", fetchMissingObjects: false);
-        }
-
-        public Result Status(bool allowObjectDownloads, bool useStatusCache, bool showUntracked = false)
-        {
-            string command = "status";
-            if (!useStatusCache)
-            {
-                command += " --no-deserialize";
-            }
-
-            if (showUntracked)
-            {
-                command += " -uall";
-            }
-
-            return this.InvokeGitInWorkingDirectoryRoot(command, fetchMissingObjects: allowObjectDownloads);
-        }
-
-        public Result UnpackObjects(Stream packFileStream)
-        {
-            return this.InvokeGitAgainstDotGitFolder(
-                "unpack-objects",
-                stdin =>
-                {
-                    packFileStream.CopyTo(stdin.BaseStream);
-                    stdin.Write('\n');
-                },
-                null);
         }
 
         public Result PackObjects(string filenamePrefix, string gitObjectsDirectory, Action<StreamWriter> packFileStream)
@@ -627,33 +545,6 @@ namespace Scalar.Common.Git
             return this.InvokeGitAgainstDotGitFolder("remote add " + remoteName + " " + url);
         }
 
-        public Result LsTree(string treeish, Action<string> parseStdOutLine, bool recursive, bool showAllTrees = false, bool showDirectories = false)
-        {
-            return this.InvokeGitInWorkingDirectoryRoot(
-                "ls-tree " + (recursive ? "-r " : string.Empty) + (showAllTrees ? "-t " : string.Empty) + (showDirectories ? "-d " : string.Empty) + treeish,
-                fetchMissingObjects: true,
-                writeStdIn: null,
-                parseStdOutLine: parseStdOutLine);
-        }
-
-        public Result UpdateBranchSymbolicRef(string refToUpdate, string targetRef)
-        {
-            return this.InvokeGitAgainstDotGitFolder("symbolic-ref " + refToUpdate + " " + targetRef);
-        }
-
-        public Result UpdateBranchSha(string refToUpdate, string targetSha)
-        {
-            // If oldCommitResult doesn't fail, then the branch exists and update-ref will want the old sha
-            Result oldCommitResult = this.RevParse(refToUpdate);
-            string oldSha = string.Empty;
-            if (oldCommitResult.ExitCodeIsSuccess)
-            {
-                oldSha = oldCommitResult.Output.TrimEnd('\n');
-            }
-
-            return this.InvokeGitAgainstDotGitFolder("update-ref --no-deref " + refToUpdate + " " + targetSha + " " + oldSha);
-        }
-
         public Result PrunePacked(string gitObjectDirectory)
         {
             return this.InvokeGitAgainstDotGitFolder(
@@ -673,7 +564,7 @@ namespace Scalar.Common.Git
             return this.InvokeGitAgainstDotGitFolder($"-c pack.threads=1 -c repack.packKeptObjects=true multi-pack-index repack --object-dir=\"{gitObjectDirectory}\" --batch-size={batchSize}");
         }
 
-        public Process GetGitProcess(
+        private Process GetGitProcess(
             string command,
             string workingDirectory,
             string dotGitDirectory,
