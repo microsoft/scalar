@@ -2,9 +2,12 @@ using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Tracing;
 using Scalar.Platform.POSIX;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -148,7 +151,19 @@ namespace Scalar.Platform.Mac
 
         public override string GetTemplateHooksDirectory()
         {
-            return Path.Combine("/usr", "local", "git", ScalarConstants.InstalledGit.HookTemplateDir);
+            string gitExecPath = GitInstallation.GetInstalledGitBinPath();
+
+            // Resolve symlinks
+            string resolvedExecPath = NativeMethods.ResolveSymlink(gitExecPath);
+
+            // Get the containing bin directory
+            string gitBinDir = Path.GetDirectoryName(resolvedExecPath);
+
+            // Compute the base installation path (../)
+            string installBaseDir = Path.GetDirectoryName(gitBinDir);
+            installBaseDir = Path.GetFullPath(installBaseDir);
+
+            return Path.Combine(installBaseDir, ScalarConstants.InstalledGit.HookTemplateDir);
         }
 
         public class MacPlatformConstants : POSIXPlatformConstants
@@ -170,6 +185,45 @@ namespace Scalar.Platform.Mac
 
             // Documented here (in the addressing section): https://www.unix.com/man-page/mojave/4/unix/
             public override int MaxPipePathLength => 104;
+        }
+
+        private static class NativeMethods
+        {
+            // Definitions from
+            // /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+
+            // stdlib.h
+            [DllImport("libc", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+            private static extern IntPtr realpath([In] IntPtr file_name, [In, Out] IntPtr resolved_name);
+
+            public static string ResolveSymlink(string path)
+            {
+                // Defined in sys/syslimits.h
+                const int PATH_MAX = 1024;
+
+                IntPtr pathBuf = IntPtr.Zero;
+                IntPtr resolvedBuf = IntPtr.Zero;
+
+                try
+                {
+                    pathBuf = Marshal.StringToHGlobalAuto(path);
+                    resolvedBuf = Marshal.AllocHGlobal(PATH_MAX + 1);
+                    IntPtr result = realpath(pathBuf, resolvedBuf);
+
+                    if (result == IntPtr.Zero)
+                    {
+                        // Failed!
+                        return null;
+                    }
+
+                    return Marshal.PtrToStringUTF8(resolvedBuf);
+                }
+                finally
+                {
+                    if (pathBuf != IntPtr.Zero) Marshal.FreeHGlobal(pathBuf);
+                    if (resolvedBuf != IntPtr.Zero) Marshal.FreeHGlobal(resolvedBuf);
+                }
+            }
         }
     }
 }
