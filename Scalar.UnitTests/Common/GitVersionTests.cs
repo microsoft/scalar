@@ -17,8 +17,12 @@ namespace Scalar.UnitTests.Common
         }
 
         [TestCase]
-        public void GetFeatureFlags_NormalGitVersion_ReturnsGvfsProtocolSupported()
+        public void GetFeatureFlags_NormalGitVersion_ReturnsGvfsProtocolNotSupported()
         {
+            var gitGitVersion = new GitVersion(2, 28, 0);
+            GitFeatureFlags gitGitFeatures = gitGitVersion.GetFeatures();
+            gitGitFeatures.HasFlag(GitFeatureFlags.GvfsProtocol).ShouldBeFalse();
+
             var winGitVersion = new GitVersion(2, 28, 0, "windows", 1, 1);
             GitFeatureFlags winGitFeatures = winGitVersion.GetFeatures();
             winGitFeatures.HasFlag(GitFeatureFlags.GvfsProtocol).ShouldBeFalse();
@@ -52,7 +56,7 @@ namespace Scalar.UnitTests.Common
         public void Version_Data_Not_Enough_Numbers_Returns_False()
         {
             GitVersion version;
-            bool success = GitVersion.TryParseVersion("2.0.1.test", out version);
+            bool success = GitVersion.TryParseVersion("2.0", out version);
             success.ShouldEqual(false);
         }
 

@@ -1,10 +1,11 @@
 using System;
+using System.Text;
 
 namespace Scalar.Common.Git
 {
     public class GitVersion
     {
-        public GitVersion(int major, int minor, int build, string platform, int revision, int minorRevision)
+        public GitVersion(int major, int minor, int build, string platform = null, int revision = 0, int minorRevision = 0)
         {
             this.Major = major;
             this.Minor = minor;
@@ -22,7 +23,7 @@ namespace Scalar.Common.Git
         public int MinorRevision { get; private set; }
 
         /// <summary>
-        /// Determine the set of Git features that are supported this version of Git.
+        /// Determine the set of Git features that are supported in this version of Git.
         /// </summary>
         /// <returns>Set of Git features.</returns>
         public GitFeatureFlags GetFeatures()
@@ -75,16 +76,25 @@ namespace Scalar.Common.Git
         public static bool TryParseVersion(string input, out GitVersion version)
         {
             version = null;
+
             int major, minor, build, revision, minorRevision;
+            string platform = null;
 
             if (string.IsNullOrWhiteSpace(input))
             {
                 return false;
             }
 
-            string[] parsedComponents = input.Split(new char[] { '.' });
-            int parsedComponentsLength = parsedComponents.Length;
-            if (parsedComponentsLength < 5)
+            string[] parsedComponents = input.Split('.');
+
+            // We minimally accept the official Git version number format which
+            // consists of three components: "major.minor.build".
+            //
+            // The other supported formats are the Git for Windows and Microsoft Git
+            // formats which look like: "major.minor.build.platform.revision.minorRevision".
+            //
+            int numComponents = parsedComponents.Length;
+            if (numComponents < 2)
             {
                 return false;
             }
@@ -99,22 +109,25 @@ namespace Scalar.Common.Git
                 return false;
             }
 
-            if (!TryParseComponent(parsedComponents[2], out build))
+            if (numComponents < 3 || !TryParseComponent(parsedComponents[2], out build))
             {
                 return false;
             }
 
-            if (!TryParseComponent(parsedComponents[4], out revision))
+            if (numComponents >= 4)
             {
-                return false;
+                platform = parsedComponents[3];
             }
 
-            if (parsedComponentsLength < 6 || !TryParseComponent(parsedComponents[5], out minorRevision))
+            if (numComponents < 5 || !TryParseComponent(parsedComponents[4], out revision))
+            {
+                revision = 0;
+            }
+
+            if (numComponents < 6 || !TryParseComponent(parsedComponents[5], out minorRevision))
             {
                 minorRevision = 0;
             }
-
-            string platform = parsedComponents[3];
 
             version = new GitVersion(major, minor, build, platform, revision, minorRevision);
             return true;
@@ -137,7 +150,16 @@ namespace Scalar.Common.Git
 
         public override string ToString()
         {
-            return string.Format("{0}.{1}.{2}.{3}.{4}.{5}", this.Major, this.Minor, this.Build, this.Platform, this.Revision, this.MinorRevision);
+            var sb = new StringBuilder();
+
+            sb.AppendFormat("{0}.{1}.{2}", this.Major, this.Minor, this.Build);
+
+            if (!string.IsNullOrWhiteSpace(this.Platform))
+            {
+                sb.AppendFormat(".{0}.{1}.{2}", this.Platform, this.Revision, this.MinorRevision);
+            }
+
+            return sb.ToString();
         }
 
         private static bool TryParseComponent(string component, out int parsedComponent)
