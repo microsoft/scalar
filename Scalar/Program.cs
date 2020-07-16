@@ -26,7 +26,6 @@ namespace Scalar
                 typeof(RegisterVerb),
                 typeof(ResumeVerb),
                 typeof(RunVerb),
-                typeof(ServiceVerb),
                 typeof(UnregisterVerb),
                 typeof(UpgradeVerb),
             };

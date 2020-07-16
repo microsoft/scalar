@@ -95,11 +95,6 @@ namespace Scalar.FunctionalTests.Tools
             return this.CallScalar("cache-server " + args + " \"" + this.enlistmentRoot + "\"");
         }
 
-        public string RunServiceVerb(string argument)
-        {
-            return this.CallScalar("service " + argument, expectedExitCode: SuccessExitCode);
-        }
-
         public string ReadConfig(string key, bool failOnError)
         {
             return this.CallScalar($"config {key}", failOnError ? SuccessExitCode : DoNotCheckExitCode).TrimEnd('\r', '\n');
