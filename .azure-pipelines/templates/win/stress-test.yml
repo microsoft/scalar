@@ -1,5 +1,16 @@
 steps:
 
+  - script: mkdir $(Build.ArtifactStagingDirectory)\logs
+    displayName: Create logs directory
+
+  # Create a directory to for the Trace2 data.  Then we will get a
+  # per-Git-command trace file (rather than a single file with
+  # everything, which is way too hard to investigate when we have
+  # the output of 16k commands mixed together).
+
+  - script: mkdir $(Build.ArtifactStagingDirectory)\trace2_events
+    displayName: Create trace2_events directory
+
   - task: UseDotNet@2
     displayName: Use .NET Core SDK 3.1.101
     inputs:
@@ -24,7 +35,7 @@ steps:
   - script: git config --global credential.interactive never
     displayName: Disable interactive auth
 
-  - script: $(Build.BinariesDirectory)\ft\src\Scripts\RunFunctionalTests.bat $(configuration) --test-scalar-on-path --stress "--trace2-output=$(Build.ArtifactStagingDirectory)\logs\trace2-event.log"
+  - script: $(Build.BinariesDirectory)\ft\src\Scripts\RunFunctionalTests.bat $(configuration) --test-scalar-on-path --stress "--trace2-output=$(Build.ArtifactStagingDirectory)\trace2_events"
     displayName: Run stress tests
 
   - task: PublishTestResults@2
@@ -35,6 +46,30 @@ steps:
       searchFolder: $(System.DefaultWorkingDirectory)
       testRunTitle: Windows $(configuration) Stress Tests
       publishRunAttachments: true
+    condition: succeededOrFailed()
+
+  # Zip up the individual Trace2 files.  The functional test suite runs
+  # almost 16k Git commands and that is way too many to be stored as
+  # individual artifacts.
+  #
+  # TODO Currently, `PublishPipelineArtifact@1` throws an exception if
+  # TODO any of the Trace2 files are still open.  Something of the form:
+  # TODO    System.IO.IOException: The process cannot access the file '<path>'
+  # TODO    because it is being used by another process.
+  # TODO (I'm guessing it is FSMonitor daemon processes that were not stopped,
+  # TODO but I can't prove that yet.)
+  #
+  # However, Zip just prints a warning for the ~90 files that are still busy
+  # and creates the archive with the rest -- some data is better than no data.
+  #
+  # Finally, put the Zip file into the logs directory with the installation logs.
+
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: $(Build.ArtifactStagingDirectory)\trace2_events
+      includeRootFolder: true
+      archiveType: zip
+      archiveFile: $(Build.ArtifactStagingDirectory)\logs\trace2_events.zip
     condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1
