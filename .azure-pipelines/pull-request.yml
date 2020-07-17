@@ -26,15 +26,15 @@ jobs:
       - template: templates/win/build-and-unit-test.yml
       - template: templates/win/pack.unsigned.yml
 
-  - job: osx_build
-    displayName: macOS Build and Unit Test
-    pool:
-      name: 'Hosted macOS'
-    steps:
-      - powershell: Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
-        displayName: "Compute product version"
-      - template: templates/osx/build-and-unit-test.yml
-      - template: templates/osx/pack.unsigned.yml
+#  - job: osx_build
+#    displayName: macOS Build and Unit Test
+#    pool:
+#      name: 'Hosted macOS'
+#    steps:
+#      - powershell: Scripts/CI/Set-Version.ps1 -SourceBranchCounter $(branchCounter)
+#        displayName: "Compute product version"
+#      - template: templates/osx/build-and-unit-test.yml
+#      - template: templates/osx/pack.unsigned.yml
 
   - job: win_functionaltest
     displayName: Windows Functional Test
@@ -49,39 +49,39 @@ jobs:
       - checkout: none
       - template: templates/win/functional-test.yml
 
-  - job: osx_functionaltest
-    displayName: macOS Functional Test
-    timeoutInMinutes: 45
-    pool:
-      name: 'Hosted macOS'
-    dependsOn: osx_build
-    condition: succeeded()
-    steps:
-      - checkout: none
-      - template: templates/osx/functional-test.yml
+#  - job: osx_functionaltest
+#    displayName: macOS Functional Test
+#    timeoutInMinutes: 45
+#    pool:
+#      name: 'Hosted macOS'
+#    dependsOn: osx_build
+#    condition: succeeded()
+#    steps:
+#      - checkout: none
+#      - template: templates/osx/functional-test.yml
 
-  - job: win_stresstest
-    displayName: Windows Stress Tests
-    timeoutInMinutes: 45
-    variables:
-      configuration: Release
-    pool:
-      vmImage: windows-2019
-    dependsOn: win_build
-    condition: succeeded()
-    steps:
-      - checkout: none
-      - template: templates/win/stress-test.yml
+#  - job: win_stresstest
+#    displayName: Windows Stress Tests
+#    timeoutInMinutes: 45
+#    variables:
+#      configuration: Release
+#    pool:
+#      vmImage: windows-2019
+#    dependsOn: win_build
+#    condition: succeeded()
+#    steps:
+#      - checkout: none
+#      - template: templates/win/stress-test.yml
 
-  - job: osx_stresstest
-    displayName: macOS Stress Tests
-    timeoutInMinutes: 45
-    variables:
-      configuration: Release
-    pool:
-      name: 'Hosted macOS'
-    dependsOn: osx_build
-    condition: succeeded()
-    steps:
-      - checkout: none
-      - template: templates/osx/stress-test.yml
+#  - job: osx_stresstest
+#    displayName: macOS Stress Tests
+#    timeoutInMinutes: 45
+#    variables:
+#      configuration: Release
+#    pool:
+#      name: 'Hosted macOS'
+#    dependsOn: osx_build
+#    condition: succeeded()
+#    steps:
+#      - checkout: none
+#      - template: templates/osx/stress-test.yml
