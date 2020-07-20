@@ -211,24 +211,45 @@ namespace Scalar.CommandLine
                 resolvedLocalCacheRoot = Path.GetFullPath(this.LocalCacheRoot);
             }
 
-            string authErrorMessage = null;
-            GitAuthentication.Result authResult = GitAuthentication.Result.UnableToDetermine;
-
-            // Do not try authentication on SSH URLs.
-            if (this.enlistment.RepoUrl.StartsWith("https://"))
+            // Determine what features of Git we have available to guide how we init/clone the repository
+            var gitFeatures = GitFeatureFlags.None;
+            string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+            if (GitProcess.TryGetVersion(gitBinPath, out var gitVersion, out string gitVersionError))
             {
-                authResult = this.TryAuthenticate(this.tracer, this.enlistment, out authErrorMessage);
+                gitFeatures = gitVersion.GetFeatures();
+            }
+            else
+            {
+                this.Output.WriteLine($"Warning: unable to detect Git features: {gitVersionError}");
             }
 
-            if (authResult == GitAuthentication.Result.UnableToDetermine)
+            // Do not try GVFS authentication on SSH URLs or when we don't have Git support for the GVFS protocol
+            bool isSshRemote = this.enlistment.RepoUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+            bool supportsGvfsProtocol = (gitFeatures & GitFeatureFlags.GvfsProtocol) != 0;
+            if (isSshRemote || !supportsGvfsProtocol)
             {
-                // We can't tell, because we don't have the right endpoint!
+                // Perform a normal Git clone because we cannot use the GVFS protocol
+                this.Output.WriteLine("Skipping GVFS protocol check...");
                 return this.GitClone();
             }
 
-            if (authResult == GitAuthentication.Result.Failed)
+            // Check if we can authenticate with a GVFS protocol supporting endpoint (gvfs/config)
+            string authErrorMessage;
+            GitAuthentication.Result authResult = this.TryAuthenticate(this.tracer, this.enlistment, out authErrorMessage);
+            switch (authResult)
             {
-                this.ReportErrorAndExit(this.tracer, "Cannot clone because authentication failed: " + authErrorMessage);
+                case GitAuthentication.Result.Success:
+                    // Continue
+                    break;
+                case GitAuthentication.Result.Failed:
+                    this.ReportErrorAndExit(this.tracer, "Cannot clone because authentication failed: " + authErrorMessage);
+                    break;
+                case GitAuthentication.Result.UnableToDetermine:
+                    // We cannot determine if the GVFS protocol is supported so do a normal Git clone
+                    this.Output.WriteLine("GVFS protocol is not supported.");
+                    return this.GitClone();
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(GitAuthentication.Result), authResult, "Unknown value");
             }
 
             this.retryConfig = this.GetRetryConfig(this.tracer, this.enlistment, TimeSpan.FromMinutes(RetryConfig.FetchAndCloneTimeoutMinutes));
