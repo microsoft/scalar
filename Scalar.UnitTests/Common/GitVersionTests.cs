@@ -72,7 +72,31 @@ namespace Scalar.UnitTests.Common
         public void Version_Data_Valid_Returns_True()
         {
             GitVersion version;
+            bool success = GitVersion.TryParseVersion("2.0.1", out version);
+            success.ShouldEqual(true);
+        }
+
+        [TestCase]
+        public void Version_Data_Valid_With_RC_Returns_True()
+        {
+            GitVersion version;
+            bool success = GitVersion.TryParseVersion("2.0.1-rc3", out version);
+            success.ShouldEqual(true);
+        }
+
+        [TestCase]
+        public void Version_Data_Valid_With_Platform_Returns_True()
+        {
+            GitVersion version;
             bool success = GitVersion.TryParseVersion("2.0.1.test.1.2", out version);
+            success.ShouldEqual(true);
+        }
+
+        [TestCase]
+        public void Version_Data_Valid_With_RC_And_Platform_Returns_True()
+        {
+            GitVersion version;
+            bool success = GitVersion.TryParseVersion("2.0.1-rc3.test.1.2", out version);
             success.ShouldEqual(true);
         }
 
@@ -205,6 +229,7 @@ namespace Scalar.UnitTests.Common
             version.Major.ShouldEqual(1);
             version.Minor.ShouldEqual(2);
             version.Build.ShouldEqual(3);
+            version.ReleaseCandidate.ShouldEqual(null);
             version.Platform.ShouldEqual("test");
             version.Revision.ShouldEqual(4);
             version.MinorRevision.ShouldEqual(0);
@@ -219,8 +244,54 @@ namespace Scalar.UnitTests.Common
             version.Major.ShouldEqual(1);
             version.Minor.ShouldEqual(2);
             version.Build.ShouldEqual(3);
+            version.ReleaseCandidate.ShouldEqual(null);
             version.Platform.ShouldEqual("test");
             version.Revision.ShouldEqual(4);
+            version.MinorRevision.ShouldEqual(0);
+        }
+
+        [TestCase]
+        public void Allow_ReleaseCandidate()
+        {
+            GitVersion version;
+            GitVersion.TryParseVersion("1.2.3-rc4", out version).ShouldEqual(true);
+
+            version.Major.ShouldEqual(1);
+            version.Minor.ShouldEqual(2);
+            version.Build.ShouldEqual(3);
+            version.ReleaseCandidate.ShouldEqual(4);
+            version.Platform.ShouldBeNull();
+            version.Revision.ShouldEqual(0);
+            version.MinorRevision.ShouldEqual(0);
+        }
+
+        [TestCase]
+        public void Allow_ReleaseCandidate_Platform()
+        {
+            GitVersion version;
+            GitVersion.TryParseVersion("1.2.3-rc4.test", out version).ShouldEqual(true);
+
+            version.Major.ShouldEqual(1);
+            version.Minor.ShouldEqual(2);
+            version.Build.ShouldEqual(3);
+            version.ReleaseCandidate.ShouldEqual(4);
+            version.Platform.ShouldEqual("test");
+            version.Revision.ShouldEqual(0);
+            version.MinorRevision.ShouldEqual(0);
+        }
+
+        [TestCase]
+        public void Allow_LocalGitBuildVersion_ParseMajorMinorBuildOnly()
+        {
+            GitVersion version;
+            GitVersion.TryParseVersion("1.2.3.456.abcdefg.hijk", out version).ShouldEqual(true);
+
+            version.Major.ShouldEqual(1);
+            version.Minor.ShouldEqual(2);
+            version.Build.ShouldEqual(3);
+            version.ReleaseCandidate.ShouldEqual(null);
+            version.Platform.ShouldEqual("456");
+            version.Revision.ShouldEqual(0);
             version.MinorRevision.ShouldEqual(0);
         }
 
@@ -233,6 +304,7 @@ namespace Scalar.UnitTests.Common
             version.Major.ShouldEqual(1);
             version.Minor.ShouldEqual(2);
             version.Build.ShouldEqual(3);
+            version.ReleaseCandidate.ShouldEqual(null);
             version.Platform.ShouldEqual("scalar");
             version.Revision.ShouldEqual(4);
             version.MinorRevision.ShouldEqual(5);

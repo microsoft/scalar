@@ -5,11 +5,12 @@ namespace Scalar.Common.Git
 {
     public class GitVersion
     {
-        public GitVersion(int major, int minor, int build, string platform = null, int revision = 0, int minorRevision = 0)
+        public GitVersion(int major, int minor, int build, string platform = null, int revision = 0, int minorRevision = 0, int? rc = null)
         {
             this.Major = major;
             this.Minor = minor;
             this.Build = build;
+            this.ReleaseCandidate = rc;
             this.Platform = platform;
             this.Revision = revision;
             this.MinorRevision = minorRevision;
@@ -17,8 +18,9 @@ namespace Scalar.Common.Git
 
         public int Major { get; private set; }
         public int Minor { get; private set; }
-        public string Platform { get; private set; }
         public int Build { get; private set; }
+        public int? ReleaseCandidate { get; private set; }
+        public string Platform { get; private set; }
         public int Revision { get; private set; }
         public int MinorRevision { get; private set; }
 
@@ -77,7 +79,8 @@ namespace Scalar.Common.Git
         {
             version = null;
 
-            int major, minor, build, revision, minorRevision;
+            int major, minor, build, revision = 0, minorRevision = 0;
+            int? rc = null;
             string platform = null;
 
             if (string.IsNullOrWhiteSpace(input))
@@ -86,50 +89,67 @@ namespace Scalar.Common.Git
             }
 
             string[] parsedComponents = input.Split('.');
+            int numComponents = parsedComponents.Length;
 
             // We minimally accept the official Git version number format which
-            // consists of three components: "major.minor.build".
+            // consists of three components: "major.minor.build" or "major.minor.build-rc<N>".
             //
             // The other supported formats are the Git for Windows and Microsoft Git
-            // formats which look like: "major.minor.build.platform.revision.minorRevision".
+            // formats which look like: "major.minor.build.platform.revision.minorRevision"
+            // or "major.minor.build-rc<N>.platform.revision.minorRevision".
+            //      0     1     2            3        4        5
+            // len  1     2     3            4        5        6
             //
-            int numComponents = parsedComponents.Length;
-            if (numComponents < 2)
+            if (numComponents < 3)
             {
                 return false;
             }
 
+            // Major version
             if (!TryParseComponent(parsedComponents[0], out major))
             {
                 return false;
             }
 
+            // Minor version
             if (!TryParseComponent(parsedComponents[1], out minor))
             {
                 return false;
             }
 
-            if (numComponents < 3 || !TryParseComponent(parsedComponents[2], out build))
+            // Check if this is a release candidate version and if so split
+            // it from the build number.
+            string[] buildParts = parsedComponents[2].Split("-rc", StringSplitOptions.RemoveEmptyEntries);
+            if (buildParts.Length > 1 && TryParseComponent(buildParts[1], out int rcInt))
+            {
+                rc = rcInt;
+            }
+
+            // Build number
+            if (!TryParseComponent(buildParts[0], out build))
             {
                 return false;
             }
 
+            // Take the platform component verbatim
             if (numComponents >= 4)
             {
                 platform = parsedComponents[3];
             }
 
+            // Platform revision
             if (numComponents < 5 || !TryParseComponent(parsedComponents[4], out revision))
             {
                 revision = 0;
             }
 
+            // Minor platform revision
             if (numComponents < 6 || !TryParseComponent(parsedComponents[5], out minorRevision))
             {
                 minorRevision = 0;
             }
 
-            version = new GitVersion(major, minor, build, platform, revision, minorRevision);
+            version = new GitVersion(major, minor, build, platform, revision, minorRevision, rc);
             return true;
         }
 
@@ -153,6 +173,11 @@ namespace Scalar.Common.Git
             var sb = new StringBuilder();
 
             sb.AppendFormat("{0}.{1}.{2}", this.Major, this.Minor, this.Build);
+
+            if (this.ReleaseCandidate.HasValue)
+            {
+                sb.AppendFormat("-rc{0}", this.ReleaseCandidate.Value);
+            }
 
             if (!string.IsNullOrWhiteSpace(this.Platform))
             {
