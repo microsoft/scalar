@@ -227,13 +227,13 @@ namespace Scalar.CommandLine
             }
 
             // Do not try GVFS authentication on SSH URLs or when we don't have Git support for the GVFS protocol
-            bool isSshRemote = this.enlistment.RepoUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+            bool isHttpsRemote = this.enlistment.RepoUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
             bool supportsGvfsProtocol = (gitFeatures & GitFeatureFlags.GvfsProtocol) != 0;
-            if (isSshRemote || !supportsGvfsProtocol)
+            if (!isHttpsRemote || !supportsGvfsProtocol)
             {
                 // Perform a normal Git clone because we cannot use the GVFS protocol
-                this.tracer.RelatedInfo("Skipping GVFS protocol check (isSshRemote={0}, supportsGvfsProtocol={1})",
-                    isSshRemote, supportsGvfsProtocol);
+                this.tracer.RelatedInfo("Skipping GVFS protocol check (isHttpsRemote={0}, supportsGvfsProtocol={1})",
+                    isHttpsRemote, supportsGvfsProtocol);
                 this.Output.WriteLine("Skipping GVFS protocol check...");
                 return this.GitClone();
             }
