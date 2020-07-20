@@ -2,12 +2,18 @@ using Scalar.Tests.Should;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+
 namespace Scalar.FunctionalTests.Tools
 {
     public static class GitHelpers
     {
         private const string WindowsPathSeparator = "\\";
         private const string GitPathSeparator = "/";
+
+        // A command sequence number added to the Trace2 stream to help tie the control
+        // and the corresponding enlistment commands together.
+        private static int TraceCommandSequenceId = 0;
 
         public static string ConvertPathToGitFormat(string relativePath)
         {
@@ -80,10 +86,12 @@ namespace Scalar.FunctionalTests.Tools
             command = string.Format(command, args);
             string controlRepoRoot = controlGitRepo.RootPath;
             string scalarRepoRoot = enlistment.RepoRoot;
+            int pair_id = Interlocked.Increment(ref TraceCommandSequenceId);
 
             Dictionary<string, string> environmentVariables = new Dictionary<string, string>();
             environmentVariables["GIT_QUIET"] = "true";
             environmentVariables["GIT_COMMITTER_DATE"] = "Thu Feb 16 10:07:35 2017 -0700";
+            environmentVariables["XXX_SEQUENCE_ID"] = pair_id.ToString();
 
             ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command, environmentVariables);
             ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command, environmentVariables);
