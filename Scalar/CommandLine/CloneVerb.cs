@@ -214,13 +214,16 @@ namespace Scalar.CommandLine
             // Determine what features of Git we have available to guide how we init/clone the repository
             var gitFeatures = GitFeatureFlags.None;
             string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+            this.tracer.RelatedInfo("Attempting to determine Git version for installation '{0}'", gitBinPath);
             if (GitProcess.TryGetVersion(gitBinPath, out var gitVersion, out string gitVersionError))
             {
+                this.tracer.RelatedInfo("Git installation '{0}' has version '{1}", gitBinPath, gitVersion);
                 gitFeatures = gitVersion.GetFeatures();
             }
             else
             {
-                this.Output.WriteLine($"Warning: unable to detect Git features: {gitVersionError}");
+                this.tracer.RelatedWarning("Unable to detect Git features for installation '{0}'. Failed to get Git version: '{1}", gitBinPath, gitVersionError);
+                this.Output.WriteLine("Warning: unable to detect Git features: {0}", gitVersionError);
             }
 
             // Do not try GVFS authentication on SSH URLs or when we don't have Git support for the GVFS protocol
@@ -229,6 +232,8 @@ namespace Scalar.CommandLine
             if (isSshRemote || !supportsGvfsProtocol)
             {
                 // Perform a normal Git clone because we cannot use the GVFS protocol
+                this.tracer.RelatedInfo("Skipping GVFS protocol check (isSshRemote={0}, supportsGvfsProtocol={1})",
+                    isSshRemote, supportsGvfsProtocol);
                 this.Output.WriteLine("Skipping GVFS protocol check...");
                 return this.GitClone();
             }
@@ -240,12 +245,15 @@ namespace Scalar.CommandLine
             {
                 case GitAuthentication.Result.Success:
                     // Continue
+                    this.tracer.RelatedInfo("Successfully authenticated to gvfs/config");
                     break;
                 case GitAuthentication.Result.Failed:
+                    this.tracer.RelatedInfo("Failed to authenticate to gvfs/config");
                     this.ReportErrorAndExit(this.tracer, "Cannot clone because authentication failed: " + authErrorMessage);
                     break;
                 case GitAuthentication.Result.UnableToDetermine:
                     // We cannot determine if the GVFS protocol is supported so do a normal Git clone
+                    this.tracer.RelatedInfo("Cannot determine authentication success to gvfs/config");
                     this.Output.WriteLine("GVFS protocol is not supported.");
                     return this.GitClone();
                 default:
