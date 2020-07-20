@@ -62,7 +62,7 @@ namespace Scalar.FunctionalTests.Tools
             GitProcess.Invoke(this.RootPath, "config user.email \"functional@test.com\"");
             GitProcess.Invoke(this.RootPath, "remote add origin " + CachePath);
             this.Fetch(this.Commitish);
-            GitProcess.Invoke(this.RootPath, "branch --set-upstream " + this.Commitish + " origin/" + this.Commitish);
+            GitProcess.Invoke(this.RootPath, "branch --set-upstream-to " + this.Commitish + " origin/" + this.Commitish);
             GitProcess.Invoke(this.RootPath, "checkout " + this.Commitish);
             GitProcess.Invoke(this.RootPath, "branch --unset-upstream");
         }
