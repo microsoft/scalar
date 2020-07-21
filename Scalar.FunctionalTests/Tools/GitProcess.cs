@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -47,6 +48,36 @@ namespace Scalar.FunctionalTests.Tools
             }
 
             processInfo.EnvironmentVariables["GIT_TERMINAL_PROMPT"] = "0";
+
+            // Add some test-specific info to the Trace2 stream to help us
+            // identify which TestCase is running.  GIT_TRACE2_ENV_VARS
+            // takes a comma-separated list of all of the environment
+            // variables we are interested in.
+            //
+            // [1] "XXX_TEST_FULLNAME" -- The full name of the current
+            //     TestCase (along with the test parameters).
+            // [2] "XXX_SEQUENCE_ID"   -- The sequence-id for
+            //     control-vs-enlistment command pairs.  (This env var
+            //     is set in Scalar.FunctionalTests/Tools/GitHelpers.cs
+            //     when applicable.)
+            //
+            // Notes:
+            // [a] This only catches Git commands from the functional test
+            //     harness and NOT Git commands from GitAPI.  See
+            //     `Scalar.FunctionalTests/Tools/GitProcess.cs` and
+            //     `Scalar.Common/Git/GitProcess.cs`.
+            //
+            // [b] This Trace2 decoration may introduce a little confusion
+            //     for fsmonitor--daemon.exe instances that are implicitly
+            //     spawned by fsmonitor_query_daemon() in a client process
+            //     and that persist for the duration of a multi-test-case
+            //     fixture.  (The daemon process will (correctly) inherit
+            //     the env vars from the spawning client test, but since
+            //     it is long-running it may later talk to other test case
+            //     clients (which is correct, but confusing.))
+            //
+            processInfo.EnvironmentVariables["XXX_TEST_FULLNAME"] = TestContext.CurrentContext.Test.FullName;
+            processInfo.EnvironmentVariables["GIT_TRACE2_ENV_VARS"] = "XXX_TEST_FULLNAME,XXX_SEQUENCE_ID";
 
             if (environmentVariables != null)
             {
