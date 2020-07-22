@@ -295,6 +295,21 @@ namespace Scalar.UnitTests.Common
             version.MinorRevision.ShouldEqual(0);
         }
 
+        [TestCase]
+        public void Allow_GarbageBuildVersion_ParseMajorMinorBuildOnly()
+        {
+            GitVersion version;
+            GitVersion.TryParseVersion("1.2.3.test.4.5.6.7.g1234abcd.8.9.😀.10.11.dirty.MSVC", out version).ShouldEqual(true);
+
+            version.Major.ShouldEqual(1);
+            version.Minor.ShouldEqual(2);
+            version.Build.ShouldEqual(3);
+            version.ReleaseCandidate.ShouldEqual(null);
+            version.Platform.ShouldEqual("test");
+            version.Revision.ShouldEqual(4);
+            version.MinorRevision.ShouldEqual(5);
+        }
+
         private void ParseAndValidateInstallerVersion(string installerName)
         {
             GitVersion version;
