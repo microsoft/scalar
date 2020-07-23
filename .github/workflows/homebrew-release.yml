@@ -1,0 +1,40 @@
+name: Update Homebrew Tap
+on:
+  release:
+    types: [released]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - id: version
+      name: Compute version number
+      run: |
+        echo "::set-output name=result::$(echo $GITHUB_REF | sed -e "s/^refs\/tags\/v//")"
+    - id: hash
+      name: Compute release asset hash
+      uses: mjcheetham/asset-hash@v1
+      with:
+        asset: Installers_macOS_Release.zip
+        hash: sha256
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Update scalar Cask
+      uses: mjcheetham/update-homebrew@v1.1
+      with:
+        token: ${{ secrets.HOMEBREW_TOKEN }}
+        tap: microsoft/git
+        name: scalar
+        type: cask
+        version: ${{ steps.version.outputs.result }}
+        sha256: ${{ steps.hash.outputs.result }}
+        alwaysUsePullRequest: true
+    - name: Update scalar-azrepos Cask
+      uses: mjcheetham/update-homebrew@v1.1
+      with:
+        token: ${{ secrets.HOMEBREW_TOKEN }}
+        tap: microsoft/git
+        name: scalar-azrepos
+        type: cask
+        version: ${{ steps.version.outputs.result }}
+        sha256: ${{ steps.hash.outputs.result }}
+        alwaysUsePullRequest: true
