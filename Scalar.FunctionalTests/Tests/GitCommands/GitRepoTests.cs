@@ -132,23 +132,6 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
                 this.CreateEnlistment();
             }
 
-            if (this.validateWorkingTree == Settings.ValidateWorkingTreeMode.SparseMode)
-            {
-                StringBuilder sb = new StringBuilder();
-
-                foreach (string folder in SparseModeFolders)
-                {
-                    sb.Append(folder.Replace(Path.DirectorySeparatorChar, TestConstants.GitPathSeparator)
-                                    .Trim(TestConstants.GitPathSeparator));
-                    sb.Append("\n");
-                }
-
-                GitProcess.InvokeProcess(this.ControlGitRepo.RootPath, "sparse-checkout init --cone", string.Empty);
-                GitProcess.InvokeProcess(this.ControlGitRepo.RootPath, "sparse-checkout set --stdin", sb.ToString());
-                GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "sparse-checkout set --stdin", sb.ToString());
-                this.pathPrefixes = SparseModeFolders;
-            }
-
             this.ValidateGitCommand("checkout " + this.ControlGitRepo.Commitish);
 
             this.CheckHeadCommitTree();
@@ -218,6 +201,26 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             GitProcess.Invoke(this.Enlistment.RepoRoot, "config advice.statusUoption false");
             this.ControlGitRepo = ControlGitRepo.Create(commitish);
             this.ControlGitRepo.Initialize();
+
+            if (this.validateWorkingTree == Settings.ValidateWorkingTreeMode.SparseMode)
+            {
+                StringBuilder sb = new StringBuilder();
+
+                foreach (string folder in SparseModeFolders)
+                {
+                    sb.Append(folder.Replace(Path.DirectorySeparatorChar, TestConstants.GitPathSeparator)
+                                    .Trim(TestConstants.GitPathSeparator));
+                    sb.Append("\n");
+                }
+
+                GitProcess.InvokeProcess(this.ControlGitRepo.RootPath, "sparse-checkout init --cone", string.Empty);
+                GitProcess.InvokeProcess(this.ControlGitRepo.RootPath, "sparse-checkout set --stdin", sb.ToString());
+
+                // This line shouldn't be necessary!
+                GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "sparse-checkout init --cone", string.Empty);
+                GitProcess.InvokeProcess(this.Enlistment.RepoRoot, "sparse-checkout set --stdin", sb.ToString());
+                this.pathPrefixes = SparseModeFolders;
+            }
         }
 
         protected virtual void DeleteEnlistment()
