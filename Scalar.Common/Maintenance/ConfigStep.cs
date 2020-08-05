@@ -155,6 +155,19 @@ namespace Scalar.Common.Maintenance
                 { "core.autocrlf", "false" },
                 { "core.safecrlf", "false" },
                 { "core.repositoryFormatVersion", "1" },
+                { "maintenance.gc.enabled", "false" },
+                { "maintenance.prefetch.enabled", "true" },
+                { "maintenance.prefetch.auto", "0" },
+                { "maintenance.prefetch.schedule", "hourly" },
+                { "maintenance.commit-graph.enabled", "true" },
+                { "maintenance.commit-graph.auto", "0" },
+                { "maintenance.commit-graph.schedule", "hourly" },
+                { "maintenance.loose-objects.enabled", "true" },
+                { "maintenance.loose-objects.auto", "0" },
+                { "maintenance.loose-objects.schedule", "daily" },
+                { "maintenance.incremental-repack.enabled", "true" },
+                { "maintenance.incremental-repack.auto", "0" },
+                { "maintenance.incremental-repack.schedule", "daily" },
             };
 
             if (this.UseGvfsProtocol.Value)
