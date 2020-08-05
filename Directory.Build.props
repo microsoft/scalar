@@ -46,7 +46,7 @@
     <GitPackageVersion>2.20200728.1</GitPackageVersion>
     <MinimumGitVersion>v2.25.0.vfs.1.1</MinimumGitVersion>
 
-    <WatchmanPackageUrl>https://github.com/facebook/watchman/suites/307436006/artifacts/304557</WatchmanPackageUrl>
+    <WatchmanPackageUrl>https://github.com/facebook/watchman/releases/download/v2020.08.03.00/watchman-v2020.08.03.00-windows.zip</WatchmanPackageUrl>
     <GcmCoreOSXPackageUrl>https://github.com/microsoft/Git-Credential-Manager-Core/releases/download/v2.0.79-beta/gcmcore-osx-2.0.79.64449.pkg</GcmCoreOSXPackageUrl>
 
     <!-- Signing certificates -->

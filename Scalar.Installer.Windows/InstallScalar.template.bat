@@ -43,9 +43,20 @@ IF "%1"=="--watchman" (
 	ECHO ===============================
 	ECHO Installing Watchman for Windows
 	curl -s -L %WATCHMAN_CI_URL% >watchman.zip
-	unzip watchman.zip
+
+	rem clear existing watchman dir, if necessary
+	rd /s /q watchman
+	powershell -command "Expand-Archive watchman.zip"
+
+	rem Move to consistent directory name
+	rd /s /q watchman-zip
+	ren watchman watchman-zip
+	move watchman-zip\watchman-* watchman
+
+	REM Kill 'watchman' process, if it is running, and reinstall
+	taskkill /IM "watchman.exe" /F
 	mkdir "C:\Program Files\watchman"
-	copy watchman\windows\bin\* "C:\Program Files\watchman\"
+	copy /y watchman\bin\* "C:\Program Files\watchman\"
 	setx /m PATH "C:\Program Files\watchman\;%PATH%"
 )
 
