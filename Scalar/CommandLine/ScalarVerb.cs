@@ -417,7 +417,17 @@ You can specify a URL, a name of a configured cache server, or the special names
             GitProcess process = new GitProcess(enlistment);
             GitProcess.Result downloadResult = process.GvfsHelperDownloadCommit(commitId);
 
-            error = downloadResult.Errors;
+            if (downloadResult.ExitCodeIsFailure)
+            {
+                error = string.IsNullOrEmpty(downloadResult.Errors)
+                            ? "Error while downloading tip commit"
+                            : "Error while downloading tip commit:\n" + downloadResult.Errors;
+            }
+            else
+            {
+                error = null;
+            }
+
             return downloadResult.ExitCodeIsSuccess;
         }
 
