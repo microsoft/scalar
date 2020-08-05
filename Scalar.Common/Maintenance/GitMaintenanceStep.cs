@@ -272,30 +272,6 @@ namespace Scalar.Common.Maintenance
             }
         }
 
-        protected void LogErrorAndRewriteMultiPackIndex(ITracer activity)
-        {
-            EventMetadata errorMetadata = this.CreateEventMetadata();
-            string multiPackIndexPath = Path.Combine(this.Context.Enlistment.GitPackRoot, "multi-pack-index");
-            errorMetadata["TryDeleteFileResult"] = this.Context.FileSystem.TryDeleteFile(multiPackIndexPath);
-
-            GitProcess.Result rewriteResult = this.RunGitCommand((process) => process.WriteMultiPackIndex(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.WriteMultiPackIndex));
-            errorMetadata["RewriteResultExitCode"] = rewriteResult.ExitCode;
-
-            activity.RelatedWarning(errorMetadata, "multi-pack-index is corrupt after write. Deleting and rewriting.", Keywords.Telemetry);
-        }
-
-        protected void LogErrorAndRewriteCommitGraph(ITracer activity)
-        {
-            EventMetadata errorMetadata = this.CreateEventMetadata();
-            string commitGraphPath = Path.Combine(this.Context.Enlistment.GitObjectsRoot, "info", "commit-graph");
-            errorMetadata["TryDeleteFileResult"] = this.Context.FileSystem.TryDeleteFile(commitGraphPath);
-
-            GitProcess.Result rewriteResult = this.RunGitCommand((process) => process.WriteCommitGraph(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.WriteCommitGraph));
-            errorMetadata["RewriteResultExitCode"] = rewriteResult.ExitCode;
-
-            activity.RelatedWarning(errorMetadata, "commit-graph is corrupt after write. Deleting and rewriting.", Keywords.Telemetry);
-        }
-
         private void CreateProcessAndRun()
         {
             lock (this.gitProcessLock)

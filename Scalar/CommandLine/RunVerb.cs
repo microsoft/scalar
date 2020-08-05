@@ -30,13 +30,6 @@ namespace Scalar.CommandLine
                 + ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName + "'")]
         public string MaintenanceTask { get; set; }
 
-        [Option(
-            ScalarConstants.VerbParameters.Maintenance.BatchSizeOptionName,
-            Required = false,
-            Default = "",
-            HelpText = "Batch size.  This option can only be used with the '" + ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName + "' task")]
-        public string PackfileMaintenanceBatchSize { get; set; }
-
         public bool SkipVersionCheck { get; set; }
         public CacheServerInfo ResolvedCacheServer { get; set; }
         public ServerScalarConfig ServerScalarConfig { get; set; }
@@ -99,7 +92,6 @@ namespace Scalar.CommandLine
                         new EventMetadata
                         {
                             { nameof(this.MaintenanceTask), this.MaintenanceTask },
-                            { nameof(this.PackfileMaintenanceBatchSize), this.PackfileMaintenanceBatchSize },
                             { nameof(this.EnlistmentRootPathParameter), this.EnlistmentRootPathParameter },
                             { nameof(this.StartedByService), this.StartedByService },
                         }));
@@ -123,42 +115,28 @@ namespace Scalar.CommandLine
                                 steps.Add(new FetchStep(context, gitObjects, requireCacheLock: false, forceRun: !this.StartedByService));
                                 steps.Add(new CommitGraphStep(context, requireObjectCacheLock: false));
                                 steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService));
-                                steps.Add(new PackfileMaintenanceStep(
-                                        context,
-                                        forceRun: !this.StartedByService,
-                                        batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
-                                            PackfileMaintenanceStep.DefaultBatchSizeBytes.ToString() :
-                                            this.PackfileMaintenanceBatchSize));
+                                steps.Add(new PackfileMaintenanceStep(context, forceRun: !this.StartedByService));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName:
-                                this.FailIfBatchSizeSet(tracer);
                                 steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName:
-                                steps.Add(new PackfileMaintenanceStep(
-                                        context,
-                                        forceRun: !this.StartedByService,
-                                        batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
-                                            PackfileMaintenanceStep.DefaultBatchSizeBytes.ToString() :
-                                            this.PackfileMaintenanceBatchSize));
+                                steps.Add(new PackfileMaintenanceStep(context, forceRun: !this.StartedByService));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.FetchTaskName:
-                                this.FailIfBatchSizeSet(tracer);
                                 this.InitializeServerConnection(tracer, enlistment, cacheServerUrl, out objectRequestor, out cacheServer);
                                 gitObjects = new GitObjects(tracer, enlistment, objectRequestor, fileSystem);
                                 steps.Add(new FetchStep(context, gitObjects, requireCacheLock: false, forceRun: !this.StartedByService));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName:
-                                this.FailIfBatchSizeSet(tracer);
                                 steps.Add(new CommitGraphStep(context, requireObjectCacheLock: false));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.ConfigTaskName:
-                                this.FailIfBatchSizeSet(tracer);
                                 steps.Add(new ConfigStep(context));
                                 break;
 
@@ -196,17 +174,6 @@ namespace Scalar.CommandLine
                         this.ReportErrorAndExit(tracer, ReturnCode.GenericError, error);
                     }
                 }
-            }
-        }
-
-        private void FailIfBatchSizeSet(ITracer tracer)
-        {
-            if (!string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize))
-            {
-                this.ReportErrorAndExit(
-                    tracer,
-                    ReturnCode.UnsupportedOption,
-                    $"--{ScalarConstants.VerbParameters.Maintenance.BatchSizeOptionName} can only be used with the '{ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName}' task");
             }
         }
 

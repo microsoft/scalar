@@ -509,20 +509,17 @@ namespace Scalar.Common.Git
             return this.InvokeGitAgainstDotGitFolder($"index-pack -o \"{idxOutputPath}\" \"{packfilePath}\"");
         }
 
-        /// <summary>
-        /// Write a new multi-pack-index (MIDX) in the specified pack directory.
-        ///
-        /// If no new packfiles are found, then this is a no-op.
-        /// </summary>
-        public Result WriteMultiPackIndex(string objectDir)
+        public Result MaintenanceFetch(bool forceRun)
         {
-            // We override the config settings so we keep writing the MIDX file even if it is disabled for reads.
-            return this.InvokeGitAgainstDotGitFolder("-c core.multiPackIndex=true multi-pack-index write --object-dir=\"" + objectDir + "\"");
+            string scheduledArg = forceRun ? string.Empty : " --scheduled";
+            return this.InvokeGitAgainstDotGitFolder($"maintenance run --task=prefetch{scheduledArg}");
         }
 
-        public Result VerifyMultiPackIndex(string objectDir)
+        public Result MaintenancePackFiles(string objectDir)
         {
-            return this.InvokeGitAgainstDotGitFolder("-c core.multiPackIndex=true multi-pack-index verify --object-dir=\"" + objectDir + "\"");
+            return this.InvokeGitAgainstDotGitFolder("-c core.multiPackIndex=true -c pack.threads=1 -c repack.packKeptObjects=true maintenance run --task=incremental-repack",
+                                                     null, null,
+                                                     gitObjectsDirectory: objectDir);
         }
 
         public Result RemoteAdd(string remoteName, string url)
@@ -530,26 +527,7 @@ namespace Scalar.Common.Git
             return this.InvokeGitAgainstDotGitFolder("remote add " + remoteName + " " + url);
         }
 
-        public Result PrunePacked(string gitObjectDirectory)
-        {
-            return this.InvokeGitAgainstDotGitFolder(
-                "prune-packed -q",
-                writeStdIn: null,
-                parseStdOutLine: null,
-                gitObjectsDirectory: gitObjectDirectory);
-        }
-
-        public Result MultiPackIndexExpire(string gitObjectDirectory)
-        {
-            return this.InvokeGitAgainstDotGitFolder($"multi-pack-index expire --object-dir=\"{gitObjectDirectory}\"");
-        }
-
-        public Result MultiPackIndexRepack(string gitObjectDirectory, string batchSize)
-        {
-            return this.InvokeGitAgainstDotGitFolder($"-c pack.threads=1 -c repack.packKeptObjects=true multi-pack-index repack --object-dir=\"{gitObjectDirectory}\" --batch-size={batchSize}");
-        }
-
-        private Process GetGitProcess(
+        public Process GetGitProcess(
             string command,
             string workingDirectory,
             string dotGitDirectory,

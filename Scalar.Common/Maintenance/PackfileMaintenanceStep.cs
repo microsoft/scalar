@@ -36,7 +36,6 @@ namespace Scalar.Common.Maintenance
             ScalarContext context,
             bool requireObjectCacheLock = true,
             bool forceRun = false,
-            string batchSize = null,
             GitProcessChecker gitProcessChecker = null)
             : base(context, requireObjectCacheLock, gitProcessChecker)
         {
@@ -111,66 +110,19 @@ namespace Scalar.Common.Maintenance
                     }
                 }
 
-                this.GetPackFilesInfo(out int beforeCount, out long beforeSize, out _, out bool hasKeep);
+                this.GetPackFilesInfo(out int beforeCount, out long beforeSize, out long beforeSize2, out bool hasKeep);
 
-                if (!hasKeep && this.Context.Enlistment.UsesGvfsProtocol)
-                {
-                    activity.RelatedWarning(this.CreateEventMetadata(), "Skipping pack maintenance due to no .keep file.");
-                    return;
-                }
-
-                string multiPackIndexLockPath = Path.Combine(this.Context.Enlistment.GitPackRoot, MultiPackIndexLock);
-                this.Context.FileSystem.TryDeleteFile(multiPackIndexLockPath);
-
-                this.RunGitCommand((process) => process.WriteMultiPackIndex(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.WriteMultiPackIndex));
-
-                GitProcess.Result expireResult = this.RunGitCommand((process) => process.MultiPackIndexExpire(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.MultiPackIndexExpire));
-
-                List<string> staleIdxFiles = this.CleanStaleIdxFiles(out int numDeletionBlocked);
-                this.GetPackFilesInfo(out int expireCount, out long expireSize, out long expireSize2, out hasKeep);
-
-                GitProcess.Result verifyAfterExpire = this.RunGitCommand((process) => process.VerifyMultiPackIndex(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.VerifyMultiPackIndex));
-
-                if (!this.Stopping && verifyAfterExpire.ExitCodeIsFailure)
-                {
-                    this.LogErrorAndRewriteMultiPackIndex(activity);
-                }
-
-                if (this.batchSize.Equals(DefaultBatchSizeBytes.ToString()) &&
-                    expireSize < DefaultBatchSizeBytes &&
-                    expireCount > 2)
-                {
-                    // Ignoring the largest pack, repack the rest up to the size of the
-                    // second-smallest pack. This results in a geometrically-decreasing
-                    // list of pack sizes after the largest pack.
-                    this.batchSize = expireSize2.ToString();
-                }
-
-                GitProcess.Result repackResult = this.RunGitCommand((process) => process.MultiPackIndexRepack(this.Context.Enlistment.GitObjectsRoot, this.batchSize), nameof(GitProcess.MultiPackIndexRepack));
+                GitProcess.Result repackResult = this.RunGitCommand((process) => process.MaintenancePackFiles(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.MaintenancePackFiles));
                 this.GetPackFilesInfo(out int afterCount, out long afterSize, out long afterSize2, out hasKeep);
-
-                GitProcess.Result verifyAfterRepack = this.RunGitCommand((process) => process.VerifyMultiPackIndex(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.VerifyMultiPackIndex));
-
-                if (!this.Stopping && verifyAfterRepack.ExitCodeIsFailure)
-                {
-                    this.LogErrorAndRewriteMultiPackIndex(activity);
-                }
 
                 EventMetadata metadata = new EventMetadata();
                 metadata.Add("GitObjectsRoot", this.Context.Enlistment.GitObjectsRoot);
                 metadata.Add("BatchSize", this.batchSize);
                 metadata.Add(nameof(beforeCount), beforeCount);
                 metadata.Add(nameof(beforeSize), beforeSize);
-                metadata.Add(nameof(expireCount), expireCount);
-                metadata.Add(nameof(expireSize), expireSize);
-                metadata.Add(nameof(expireSize2), expireSize2);
                 metadata.Add(nameof(afterCount), afterCount);
                 metadata.Add(nameof(afterSize), afterSize);
                 metadata.Add(nameof(afterSize2), afterSize2);
-                metadata.Add("VerifyAfterExpireExitCode", verifyAfterExpire.ExitCode);
-                metadata.Add("VerifyAfterRepackExitCode", verifyAfterRepack.ExitCode);
-                metadata.Add("NumStaleIdxFiles", staleIdxFiles.Count);
-                metadata.Add("NumIdxDeletionsBlocked", numDeletionBlocked);
                 activity.RelatedEvent(EventLevel.Informational, $"{this.Area}_{nameof(this.PerformMaintenance)}", metadata, Keywords.Telemetry);
 
                 this.SaveLastRunTimeToFile();

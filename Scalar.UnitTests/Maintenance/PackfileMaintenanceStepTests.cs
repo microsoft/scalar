@@ -22,11 +22,7 @@ namespace Scalar.UnitTests.Maintenance
         private MockTracer tracer;
         private MockGitProcess gitProcess;
         private ScalarContext context;
-
-        private string ExpireCommand => $"multi-pack-index expire --object-dir=\"{this.context.Enlistment.GitObjectsRoot}\"";
-        private string VerifyCommand => $"-c core.multiPackIndex=true multi-pack-index verify --object-dir=\"{this.context.Enlistment.GitObjectsRoot}\"";
-        private string WriteCommand => $"-c core.multiPackIndex=true multi-pack-index write --object-dir=\"{this.context.Enlistment.GitObjectsRoot}\"";
-        private string RepackCommand => $"-c pack.threads=1 -c repack.packKeptObjects=true multi-pack-index repack --object-dir=\"{this.context.Enlistment.GitObjectsRoot}\" --batch-size=3";
+        private string MaintenanceCommand => $"-c core.multiPackIndex=true -c pack.threads=1 -c repack.packKeptObjects=true maintenance run --task=incremental-repack";
 
         [TestCase]
         public void PackfileMaintenanceIgnoreTimeRestriction()
@@ -39,12 +35,8 @@ namespace Scalar.UnitTests.Maintenance
             this.tracer.StartActivityTracer.RelatedErrorEvents.Count.ShouldEqual(0);
             this.tracer.StartActivityTracer.RelatedWarningEvents.Count.ShouldEqual(0);
             List<string> commands = this.gitProcess.CommandsRun;
-            commands.Count.ShouldEqual(5);
-            commands[0].ShouldEqual(this.WriteCommand);
-            commands[1].ShouldEqual(this.ExpireCommand);
-            commands[2].ShouldEqual(this.VerifyCommand);
-            commands[3].ShouldEqual(this.RepackCommand);
-            commands[4].ShouldEqual(this.VerifyCommand);
+            commands.Count.ShouldEqual(1);
+            commands[0].ShouldEqual(this.MaintenanceCommand);
         }
 
         [TestCase]
@@ -83,12 +75,8 @@ namespace Scalar.UnitTests.Maintenance
             this.tracer.StartActivityTracer.RelatedErrorEvents.Count.ShouldEqual(0);
             this.tracer.StartActivityTracer.RelatedWarningEvents.Count.ShouldEqual(0);
             List<string> commands = this.gitProcess.CommandsRun;
-            commands.Count.ShouldEqual(5);
-            commands[0].ShouldEqual(this.WriteCommand);
-            commands[1].ShouldEqual(this.ExpireCommand);
-            commands[2].ShouldEqual(this.VerifyCommand);
-            commands[3].ShouldEqual(this.RepackCommand);
-            commands[4].ShouldEqual(this.VerifyCommand);
+            commands.Count.ShouldEqual(1);
+            commands[0].ShouldEqual(this.MaintenanceCommand);
         }
 
         [TestCase]
@@ -114,32 +102,6 @@ namespace Scalar.UnitTests.Maintenance
             this.tracer.StartActivityTracer.RelatedWarningEvents.Count.ShouldEqual(1);
             List<string> commands = this.gitProcess.CommandsRun;
             commands.Count.ShouldEqual(0);
-        }
-
-        [TestCase]
-        public void PackfileMaintenanceRewriteOnBadVerify()
-        {
-            this.TestSetup(DateTime.UtcNow, failOnVerify: true);
-
-            this.gitProcess.SetExpectedCommandResult(
-                this.WriteCommand,
-                () => new GitProcess.Result(string.Empty, string.Empty, GitProcess.Result.SuccessCode));
-
-            PackfileMaintenanceStep step = new PackfileMaintenanceStep(this.context, requireObjectCacheLock: false, forceRun: true);
-            step.Execute();
-
-            this.tracer.StartActivityTracer.RelatedErrorEvents.Count.ShouldEqual(0);
-            this.tracer.StartActivityTracer.RelatedWarningEvents.Count.ShouldEqual(2);
-
-            List<string> commands = this.gitProcess.CommandsRun;
-            commands.Count.ShouldEqual(7);
-            commands[0].ShouldEqual(this.WriteCommand);
-            commands[1].ShouldEqual(this.ExpireCommand);
-            commands[2].ShouldEqual(this.VerifyCommand);
-            commands[3].ShouldEqual(this.WriteCommand);
-            commands[4].ShouldEqual(this.RepackCommand);
-            commands[5].ShouldEqual(this.VerifyCommand);
-            commands[6].ShouldEqual(this.WriteCommand);
         }
 
         [TestCase]
@@ -228,16 +190,7 @@ namespace Scalar.UnitTests.Maintenance
             this.context = new ScalarContext(this.tracer, fileSystem, enlistment);
 
             this.gitProcess.SetExpectedCommandResult(
-                this.WriteCommand,
-                () => new GitProcess.Result(string.Empty, string.Empty, GitProcess.Result.SuccessCode));
-            this.gitProcess.SetExpectedCommandResult(
-                this.ExpireCommand,
-                () => new GitProcess.Result(string.Empty, string.Empty, GitProcess.Result.SuccessCode));
-            this.gitProcess.SetExpectedCommandResult(
-                this.VerifyCommand,
-                () => new GitProcess.Result(string.Empty, string.Empty, failOnVerify ? GitProcess.Result.GenericFailureCode : GitProcess.Result.SuccessCode));
-            this.gitProcess.SetExpectedCommandResult(
-                this.RepackCommand,
+                this.MaintenanceCommand,
                 () => new GitProcess.Result(string.Empty, string.Empty, GitProcess.Result.SuccessCode));
         }
     }

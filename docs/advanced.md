@@ -41,9 +41,6 @@ tasks are:
   combines pack-files into larger files to reduce the total pack-file count.
   This step is designed to work without blocking concurrent processes by only
   deleting pack-files after they were marked as "unused" for at least a day.
-  This step allows using the `--batch-size=<size>` option. By default, the
-  batch-size is "2g" for two gigabytes. This batch size signifies the goal
-  size of a repacked pack-file.
 
 * `all`: This task runs all of the above steps in the following order:
   1. `config` ensures our recommended values are set for the remaining steps.
