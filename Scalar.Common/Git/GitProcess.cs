@@ -341,11 +341,12 @@ namespace Scalar.Common.Git
             return this.InvokeGitAgainstDotGitFolder("config --local --unset-all " + settingName);
         }
 
-        public Result SetInLocalConfig(string settingName, string value, bool replaceAll = false)
+        public Result SetInLocalConfig(string settingName, string value, bool replaceAll = false, bool add = false)
         {
             return this.InvokeGitAgainstDotGitFolder(string.Format(
-                "config --local {0} \"{1}\" \"{2}\"",
+                "config --local {0} {1} \"{2}\" \"{3}\"",
                  replaceAll ? "--replace-all " : string.Empty,
+                 add ? "--add" : string.Empty,
                  settingName,
                  value));
         }
@@ -376,6 +377,12 @@ namespace Scalar.Common.Git
             }
 
             return result;
+        }
+
+        public Result GetMultiConfig(string settingName)
+        {
+            string command = $"config --local --get-all {settingName}";
+            return this.InvokeGitAgainstDotGitFolder(command);
         }
 
         /// <summary>
@@ -950,6 +957,18 @@ namespace Scalar.Common.Git
                 }
 
                 return true;
+            }
+        }
+
+        public class MultiConfigResult
+        {
+            public Result Result { get; }
+            public HashSet<string> Values { get; }
+
+            public MultiConfigResult(Result result)
+            {
+                this.Result = result;
+                this.Values = new HashSet<string>(this.Result.Output.Split("\n", StringSplitOptions.RemoveEmptyEntries));
             }
         }
     }
