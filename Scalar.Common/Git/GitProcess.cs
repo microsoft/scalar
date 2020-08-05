@@ -492,38 +492,16 @@ namespace Scalar.Common.Git
             return this.InvokeGitInWorkingDirectoryRoot($"{configString}gvfs-helper prefetch", fetchMissingObjects: false);
         }
 
-        public Result PackObjects(string filenamePrefix, string gitObjectsDirectory, Action<StreamWriter> packFileStream)
+        public Result MaintenanceLooseObjects(string objectDir)
         {
-            string packFilePath = Path.Combine(gitObjectsDirectory, ScalarConstants.DotGit.Objects.Pack.Name, filenamePrefix);
-
-            // Since we don't provide paths we won't be able to complete good deltas
-            // avoid the unnecessary computation by setting window/depth to 0
-            return this.InvokeGitAgainstDotGitFolder(
-                $"pack-objects {packFilePath} --non-empty --window=0 --depth=0 -q",
-                packFileStream,
-                parseStdOutLine: null,
-                gitObjectsDirectory: gitObjectsDirectory);
+            return this.InvokeGitAgainstDotGitFolder($"-c pack.window=0 -c pack.depth=0 maintenance run --task=loose-objects",
+                                                     null, null, gitObjectsDirectory: objectDir);
         }
 
-        /// <summary>
-        /// Write a new commit graph in the specified pack directory. Walk starting at refs.
-        ///
-        /// This will update the graph-head file to point to the new commit graph and delete
-        /// any expired graph files that previously existed.
-        /// </summary>
-        public Result WriteCommitGraph(string objectDir)
+        public Result MaintenanceCommitGraph(string objectDir)
         {
-            // Do not expire commit-graph files that have been modified in the last hour.
-            // This will prevent deleting any commit-graph files that are currently in the commit-graph-chain.
-            string command = $"commit-graph write --reachable --split --size-multiple=4 --expire-time={ExpireTimeDateString} --object-dir \"{objectDir}\"";
-            return this.InvokeGitInWorkingDirectoryRoot(command, fetchMissingObjects: true);
-        }
-
-
-        public Result VerifyCommitGraph(string objectDir)
-        {
-            string command = "commit-graph verify --shallow --object-dir \"" + objectDir + "\"";
-            return this.InvokeGitInWorkingDirectoryRoot(command, fetchMissingObjects: true);
+            string command = $"maintenance run --task=commit-graph";
+            return this.InvokeGitAgainstDotGitFolder(command, null, null, gitObjectsDirectory: objectDir);
         }
 
         public Result IndexPack(string packfilePath, string idxOutputPath)

@@ -36,39 +36,7 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
         {
             this.fileSystem.FileExists(CommitGraphChain).ShouldBeFalse();
             this.Enlistment.RunVerb("commit-graph");
-            this.fileSystem.FileExists(CommitGraphChain).ShouldBeTrue();
-        }
-
-        [TestCase]
-        [Order(2)]
-        public void PackfileMaintenanceStep()
-        {
-            this.GetPackSizes(out int packCount, out long maxSize, out long minSize, out long totalSize);
-            minSize.ShouldNotEqual(0, "min size means empty pack-file?");
-
-            GitProcess.InvokeProcess(
-                this.Enlistment.RepoRoot,
-                $"repack -adf --max-pack-size={totalSize / 4}");
-
-            this.GetPackSizes(out int countAfterRepack, out maxSize, out minSize, out totalSize);
-            minSize.ShouldNotEqual(0, "min size means empty pack-file?");
-
-            this.Enlistment
-                .RunVerb("pack-files", batchSize: totalSize - minSize + 1)
-                .ShouldNotContain(false, "Skipping pack maintenance due to no .keep file.");
-
-            this.GetPackSizes(out int countAfterStep, out maxSize, out minSize, out totalSize);
-            minSize.ShouldNotEqual(0, "min size means empty pack-file?");
-
-            countAfterStep.ShouldEqual(countAfterRepack + 1, nameof(countAfterStep));
-
-            this.Enlistment
-                .RunVerb("pack-files", batchSize: totalSize - minSize + 1)
-                .ShouldNotContain(false, "Skipping pack maintenance due to no .keep file.");
-
-            this.GetPackSizes(out int countAfterStep2, out maxSize, out minSize, out totalSize);
-            minSize.ShouldNotEqual(0, "min size means empty pack-file?");
-            countAfterStep2.ShouldEqual(1, nameof(countAfterStep2));
+            this.fileSystem.FileExists(CommitGraphChain).ShouldBeTrue($"{CommitGraphChain} file does not exist");
         }
 
         [TestCase]

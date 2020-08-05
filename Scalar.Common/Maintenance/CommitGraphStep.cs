@@ -26,7 +26,7 @@ namespace Scalar.Common.Maintenance
                 string commitGraphLockPath = Path.Combine(this.Context.Enlistment.GitObjectsRoot, "info", "commit-graphs", CommitGraphChainLock);
                 this.Context.FileSystem.TryDeleteFile(commitGraphLockPath);
 
-                GitProcess.Result writeResult = this.RunGitCommand((process) => process.WriteCommitGraph(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.WriteCommitGraph));
+                GitProcess.Result maintenanceResult = this.RunGitCommand((process) => process.MaintenanceCommitGraph(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.MaintenanceCommitGraph));
 
                 StringBuilder sb = new StringBuilder();
                 string commitGraphsDir = Path.Combine(this.Context.Enlistment.GitObjectsRoot, "info", "commit-graphs");
@@ -41,18 +41,6 @@ namespace Scalar.Common.Maintenance
                 }
 
                 activity.RelatedInfo($"commit-graph list after write: {sb}");
-
-                if (writeResult.ExitCodeIsFailure)
-                {
-                    this.LogErrorAndRewriteCommitGraph(activity);
-                }
-
-                GitProcess.Result verifyResult = this.RunGitCommand((process) => process.VerifyCommitGraph(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.VerifyCommitGraph));
-
-                if (!this.Stopping && verifyResult.ExitCodeIsFailure)
-                {
-                    this.LogErrorAndRewriteCommitGraph(activity);
-                }
             }
         }
     }
