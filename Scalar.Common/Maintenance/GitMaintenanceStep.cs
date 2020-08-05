@@ -91,6 +91,7 @@ namespace Scalar.Common.Maintenance
                         metadata: this.CreateEventMetadata(e),
                         message: "Exception while running action: " + e.Message,
                         keywords: Keywords.Telemetry);
+                    throw e;
                 }
                 else
                 {
@@ -98,8 +99,6 @@ namespace Scalar.Common.Maintenance
                         metadata: this.CreateEventMetadata(e),
                         message: "Exception while running action inside a repo that's not ready: " + e.Message);
                 }
-
-                Environment.Exit((int)ReturnCode.GenericError);
             }
         }
 
