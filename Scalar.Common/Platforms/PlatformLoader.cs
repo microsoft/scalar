@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Scalar.Common;
+using Scalar.Platform.Linux;
 using Scalar.Platform.Mac;
 using Scalar.Platform.Windows;
 
@@ -17,6 +18,10 @@ namespace Scalar.PlatformLoader
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 ScalarPlatform.Register(new MacPlatform());
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                ScalarPlatform.Register(new LinuxPlatform());
             }
             else
             {
