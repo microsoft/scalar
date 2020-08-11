@@ -86,48 +86,11 @@ function CopyUninstaller()
     eval $copyUninstaller || exit 1
 }
 
-function CopyNativeApp()
-{
-    SCALAR_NOTIFICATION_APP="${BIN_DIR}/Scalar.Notifications.Mac/bin/${CONFIGURATION}/native/${RUNTIMEIDENTIFIER}/Scalar.app"
-
-    if [ ! -d "$SCALAR_NOTIFICATION_APP" ] ; then
-        echo "Error: Could not find native notification app at ${SCALAR_NOTIFICATION_APP}."
-        exit 1
-    fi
-
-    copyNotificationApp="cp -Rf \"${SCALAR_NOTIFICATION_APP}\" \"${LIBRARYAPPSUPPORT_DESTINATION}\""
-    eval $copyNotificationApp || exit 1
-}
-
-function CopyAgentPlists()
-{
-    NOTIFICATION_PLIST_PATH="${SRC_DIR}/Scalar.Notifications.Mac/org.scalar.usernotification.plist"
-    SERVICE_PLIST_PATH="${SRC_DIR}/Scalar.Service/Mac/org.scalar.service.plist"
-
-    if [ ! -f "$NOTIFICATION_PLIST_PATH" ] ; then
-        echo "Error: Could not find notification app agent plist at ${NOTIFICATION_PLIST_PATH}."
-        exit 1
-    fi
-
-    if [ ! -f "$SERVICE_PLIST_PATH" ] ; then
-        echo "Error: Could not find service agent plist at ${SERVICE_PLIST_PATH}."
-        exit 1
-    fi
-
-    copyNotificationPlist="cp -Rf \"${NOTIFICATION_PLIST_PATH}\" \"${AGENTPLIST_DESTINATION}/.\""
-    eval $copyNotificationPlist || exit 1
-
-    copyServicePlist="cp -Rf \"${SERVICE_PLIST_PATH}\" \"${AGENTPLIST_DESTINATION}/.\""
-    eval $copyServicePlist || exit 1
-}
-
 function Run()
 {
     CreateLayoutDirectories
     CopyScalar
     CopyUninstaller
-    CopyNativeApp
-    CopyAgentPlists
 }
 
 Run

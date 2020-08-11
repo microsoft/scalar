@@ -32,48 +32,11 @@ namespace Scalar.Service
                         ServiceBase.Run(service);
                     }
                 }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    AppDomain.CurrentDomain.UnhandledException += JsonUnhandledExceptionHandler;
-
-                    CreateMacService(tracer, args).Run();
-                }
                 else
                 {
                     throw new NotImplementedException();
                 }
             }
-        }
-
-        private static MacScalarService CreateMacService(JsonTracer tracer, string[] args)
-        {
-            string serviceName = args.FirstOrDefault(arg => arg.StartsWith(MacScalarService.ServiceNameArgPrefix, StringComparison.OrdinalIgnoreCase));
-            if (serviceName != null)
-            {
-                serviceName = serviceName.Substring(MacScalarService.ServiceNameArgPrefix.Length);
-            }
-            else
-            {
-                serviceName = ScalarConstants.Service.ServiceName;
-            }
-
-            ScalarPlatform scalarPlatform = ScalarPlatform.Instance;
-
-            string logFilePath = ScalarPlatform.Instance.GetLogsDirectoryForGVFSComponent(serviceName);
-            Directory.CreateDirectory(logFilePath);
-
-            tracer.AddLogFileEventListener(
-                ScalarEnlistment.GetNewScalarLogFileName(logFilePath, ScalarConstants.LogFileTypes.Service),
-                EventLevel.Informational,
-                Keywords.Any);
-
-            string repoRegistryLocation = scalarPlatform.GetCommonAppDataRootForScalarComponent(ScalarConstants.RepoRegistry.RegistryDirectoryName);
-            ScalarRepoRegistry repoRegistry = new ScalarRepoRegistry(
-                tracer,
-                new PhysicalFileSystem(),
-                repoRegistryLocation);
-
-            return new MacScalarService(tracer, serviceName, repoRegistry);
         }
 
         private static void JsonUnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)

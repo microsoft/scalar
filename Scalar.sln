@@ -31,8 +31,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Installer.Windows", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Service.UI", "Scalar.Service.UI\Scalar.Service.UI.csproj", "{32D8335E-E9E8-4AD8-BAE5-162F53AA4D72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Notifications.Mac", "Scalar.Notifications.Mac\Scalar.Notifications.Mac.csproj", "{ED367118-BFB1-41CA-A010-E46C28796ED8}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,10 +85,6 @@ Global
 		{32D8335E-E9E8-4AD8-BAE5-162F53AA4D72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32D8335E-E9E8-4AD8-BAE5-162F53AA4D72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32D8335E-E9E8-4AD8-BAE5-162F53AA4D72}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

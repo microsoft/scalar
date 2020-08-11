@@ -25,6 +25,8 @@ namespace Scalar.UnitTests.Mock.Common
 
         public override string Name { get => "Mock"; }
 
+        public override bool HasScalarService => false;
+
         public override string ScalarConfigPath { get => Path.Combine("mock:", LocalScalarConfig.FileName); }
 
         public override ScalarPlatformConstants Constants { get; } = new MockPlatformConstants();

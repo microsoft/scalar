@@ -17,9 +17,6 @@ mkdir "%SIGNDIR%\pe"
 mkdir "%SIGNDIR%\macho"
 xcopy "%LAYOUTDIR%\usr\local\scalar\scalar.dll"                   "%SIGNDIR%\pe"    /k/h/y
 xcopy "%LAYOUTDIR%\usr\local\scalar\scalar.common.dll"            "%SIGNDIR%\pe"    /k/h/y
-xcopy "%LAYOUTDIR%\usr\local\scalar\scalar.service.dll"           "%SIGNDIR%\pe"    /k/h/y
 xcopy "%LAYOUTDIR%\usr\local\scalar\scalar.upgrader.dll"          "%SIGNDIR%\pe"    /k/h/y
 xcopy "%LAYOUTDIR%\usr\local\scalar\scalar"                       "%SIGNDIR%\macho" /k/h/y
-xcopy "%LAYOUTDIR%\usr\local\scalar\scalar.service"               "%SIGNDIR%\macho" /k/h/y
 xcopy "%LAYOUTDIR%\usr\local\scalar\scalar.upgrader"              "%SIGNDIR%\macho" /k/h/y
-xcopy "%LAYOUTDIR%\Library\Application Support\Scalar\Scalar.app" "%SIGNDIR%\macho\Scalar.app\" /s/h/e/k/f/c/y
