@@ -31,6 +31,7 @@ namespace Scalar.Platform.Windows
         public override IGitInstallation GitInstallation { get; } = new WindowsGitInstallation();
         public override IPlatformFileSystem FileSystem { get; } = new WindowsFileSystem();
         public override string Name { get => "Windows"; }
+        public override bool HasScalarService => true;
         public override ScalarPlatformConstants Constants { get; } = new WindowsPlatformConstants();
 
         public override string ScalarConfigPath

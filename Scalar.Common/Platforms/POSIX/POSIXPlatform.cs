@@ -35,6 +35,8 @@ namespace Scalar.Platform.POSIX
 
         public override IGitInstallation GitInstallation { get; } = new POSIXGitInstallation();
 
+        public override bool HasScalarService => false;
+
         public override void ConfigureVisualStudio(string gitBinPath, ITracer tracer)
         {
         }

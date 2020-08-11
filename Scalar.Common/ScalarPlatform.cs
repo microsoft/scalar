@@ -27,6 +27,8 @@ namespace Scalar.Common
 
         public abstract string ScalarConfigPath { get; }
 
+        public abstract bool HasScalarService { get; }
+
         public static void Register(ScalarPlatform platform)
         {
             if (ScalarPlatform.Instance != null)

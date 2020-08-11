@@ -130,6 +130,7 @@ namespace Scalar.Common.Maintenance
                 requiredSettings.Add("core.gvfs", coreGVFSFlags);
                 requiredSettings.Add(ScalarConstants.GitConfig.UseGvfsHelper, "true");
                 requiredSettings.Add("http.version", "HTTP/1.1");
+                requiredSettings.Add("maintenance.objectDir", this.Context.Enlistment.GitObjectsRoot);
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -198,6 +199,14 @@ namespace Scalar.Common.Maintenance
                 error = $"Failed to set some multi-value settings: {error}";
                 this.Context.Tracer.RelatedError(error);
                 return false;
+            }
+
+            if (!ScalarPlatform.Instance.HasScalarService) {
+                if (!this.StartBackgroundMaintenance(out error))
+                {
+                    this.Context.Tracer.RelatedError($"Failed to start maintenance with error: {error}");
+                    return false;
+                }
             }
 
             return this.ConfigureWatchmanIntegration(out error);
@@ -284,6 +293,13 @@ namespace Scalar.Common.Maintenance
 
             error = null;
             return true;
+        }
+
+        public bool StartBackgroundMaintenance(out string error)
+        {
+            GitProcess.Result result = this.RunGitCommand(process => process.MaintenanceStart(), nameof(GitProcess.MaintenanceStart));
+            error = result.Errors;
+            return result.ExitCodeIsSuccess;
         }
 
         private bool ConfigureWatchmanIntegration(out string error)

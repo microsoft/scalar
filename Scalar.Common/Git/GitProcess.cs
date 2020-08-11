@@ -515,6 +515,11 @@ namespace Scalar.Common.Git
             return this.InvokeGitAgainstDotGitFolder($"maintenance run --task=prefetch{scheduledArg}");
         }
 
+        public Result MaintenanceStart()
+        {
+            return this.InvokeGitInWorkingDirectoryRoot($"maintenance start", fetchMissingObjects: false);
+        }
+
         public Result MaintenancePackFiles(string objectDir)
         {
             return this.InvokeGitAgainstDotGitFolder("-c core.multiPackIndex=true -c pack.threads=1 -c repack.packKeptObjects=true maintenance run --task=incremental-repack",
