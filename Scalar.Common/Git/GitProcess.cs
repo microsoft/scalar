@@ -624,7 +624,7 @@ namespace Scalar.Common.Git
 
             if (gitObjectsDirectory != null)
             {
-                gitObjectsDirectory = gitObjectsDirectory.Replace(Path.DirectorySeparatorChar, '/');
+                gitObjectsDirectory = Paths.ConvertPathToGitFormat(gitObjectsDirectory);
                 processInfo.EnvironmentVariables["GIT_OBJECT_DIRECTORY"] = gitObjectsDirectory;
             }
 
