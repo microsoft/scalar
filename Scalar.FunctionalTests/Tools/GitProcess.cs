@@ -49,6 +49,9 @@ namespace Scalar.FunctionalTests.Tools
 
             processInfo.EnvironmentVariables["GIT_TERMINAL_PROMPT"] = "0";
 
+            // Enforce that Git never calls 'crontab' during tests.
+            processInfo.EnvironmentVariables["GIT_TEST_CRONTAB"] = "echo";
+
             // Add some test-specific info to the Trace2 stream to help us
             // identify which TestCase is running.  GIT_TRACE2_ENV_VARS
             // takes a comma-separated list of all of the environment

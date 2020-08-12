@@ -155,6 +155,9 @@ namespace Scalar.FunctionalTests.Tools
                 processInfo.EnvironmentVariables["GIT_TRACE"] = trace;
             }
 
+            // Enforce that Git never calls 'crontab' during tests.
+            processInfo.EnvironmentVariables["GIT_TEST_CRONTAB"] = "echo";
+
             if (!string.IsNullOrEmpty(workingDirectory))
             {
                 processInfo.WorkingDirectory = workingDirectory;
