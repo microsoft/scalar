@@ -113,7 +113,6 @@ namespace Scalar.Common.Maintenance
                 { "gui.gcwarning", "false" },
                 { "index.threads", "true" },
                 { "index.version", "4" },
-                { "log.excludeDecoration", "refs/scalar/*" },
                 { "merge.stat", "false" },
                 { "merge.renames", "false" },
                 { "pack.useBitmaps", "false" },
@@ -174,6 +173,20 @@ namespace Scalar.Common.Maintenance
                 return false;
             }
 
+            string excludeDecoration = "log.excludeDecoration";
+            List<string> excludeValues = new List<string>
+            {
+                "refs/scalar/*",
+                "refs/prefetch/*",
+            };
+
+            if (!this.TrySetMultiConfig(excludeDecoration, excludeValues, out error))
+            {
+                error = $"Failed to set some multi-value settings: {error}";
+                this.Context.Tracer.RelatedError(error);
+                return false;
+            }
+
             return this.ConfigureWatchmanIntegration(out error);
         }
 
@@ -182,7 +195,7 @@ namespace Scalar.Common.Maintenance
             this.TrySetConfig(out _);
         }
 
-        private bool TrySetConfig(Dictionary<string, string> configSettings, bool isRequired, out string error)
+        private bool TrySetConfig(Dictionary<string, string> configSettings, bool isRequired, out string error, bool add = false)
         {
             Dictionary<string, GitConfigSetting> existingConfigSettings = null;
 
@@ -208,7 +221,7 @@ namespace Scalar.Common.Maintenance
                     {
                         this.Context.Tracer.RelatedInfo($"Setting config value {setting.Key}={setting.Value}");
                         GitProcess.Result setConfigResult = this.RunGitCommand(
-                                                                    process => process.SetInLocalConfig(setting.Key, setting.Value),
+                                                                    process => process.SetInLocalConfig(setting.Key, setting.Value, add: add),
                                                                     nameof(GitProcess.SetInLocalConfig));
                         if (setConfigResult.ExitCodeIsFailure)
                         {
@@ -224,6 +237,34 @@ namespace Scalar.Common.Maintenance
                         this.RunGitCommand(
                                 process => process.DeleteFromLocalConfig(setting.Key),
                                 nameof(GitProcess.DeleteFromLocalConfig));
+                    }
+                }
+            }
+
+            error = null;
+            return true;
+        }
+
+        private bool TrySetMultiConfig(string key, List<string> values, out string error)
+        {
+            GitProcess.Result result = this.RunGitCommand(process => process.GetMultiConfig(key),
+                                                                     nameof(GitProcess.GetMultiConfig));
+
+            // Note: if the result fails, then it means there are no matching values.
+            GitProcess.MultiConfigResult configResult = new GitProcess.MultiConfigResult(result);
+
+            foreach (string value in values)
+            {
+                if (!configResult.Values.Contains(value))
+                {
+                    this.Context.Tracer.RelatedInfo($"Adding config value {key}={value}");
+                    GitProcess.Result setConfigResult = this.RunGitCommand(
+                                                                process => process.SetInLocalConfig(key, value, add: true),
+                                                                nameof(GitProcess.SetInLocalConfig));
+                    if (setConfigResult.ExitCodeIsFailure)
+                    {
+                        error = setConfigResult.Errors;
+                        return false;
                     }
                 }
             }
@@ -267,7 +308,7 @@ namespace Scalar.Common.Maintenance
                     queryWatchmanPath,
                     overwrite: true);
 
-                string dotGitRoot = this.Context.Enlistment.DotGitRoot.Replace(Path.DirectorySeparatorChar, ScalarConstants.GitPathSeparator);
+                string dotGitRoot = Paths.ConvertPathToGitFormat(this.Context.Enlistment.DotGitRoot);
                 this.RunGitCommand(
                     process => process.SetInLocalConfig("core.fsmonitor", dotGitRoot + "/hooks/query-watchman"),
                     "config");
