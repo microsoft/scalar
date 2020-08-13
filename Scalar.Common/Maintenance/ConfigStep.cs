@@ -204,8 +204,12 @@ namespace Scalar.Common.Maintenance
             if (!ScalarPlatform.Instance.HasScalarService) {
                 if (!this.StartBackgroundMaintenance(out error))
                 {
-                    this.Context.Tracer.RelatedError($"Failed to start maintenance with error: {error}");
-                    return false;
+                    // This fails when cron doesn't exist, such as on build
+                    // machines. Don't make the full step fail but just warn.
+                    // This is OK for full clients, too, as we report a warning
+                    // and a way for users to self-help.
+                    this.Context.Tracer.RelatedError($"Failed to start maintenance with error: {error}\n" +
+                                            "Run 'git maintenance start' to start maintenance yourself.");
                 }
             }
 
