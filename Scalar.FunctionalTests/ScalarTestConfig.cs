@@ -14,6 +14,20 @@ namespace Scalar.FunctionalTests
 
         public static object[] GitRepoTestsValidateWorkTree { get; set; }
 
+        public static bool TestGitOnPath { get; set; }
+
+        public static string PathToGit
+        {
+            get
+            {
+		string gitBinaryFileName = "git" + Properties.Settings.Default.BinaryFileNameExtension;
+                return
+                    TestGitOnPath ?
+                    gitBinaryFileName :
+                    Path.Combine(Properties.Settings.Default.PathToGitRoot, gitBinaryFileName);
+            }
+        }
+
         public static bool TestScalarOnPath { get; set; }
 
         public static string PathToScalar

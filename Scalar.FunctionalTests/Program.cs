@@ -23,6 +23,12 @@ namespace Scalar.FunctionalTests
                 ScalarTestConfig.NoSharedCache = true;
             }
 
+            if (runner.HasCustomArg("--test-git-on-path"))
+            {
+                Console.WriteLine("Running tests against Git on path");
+                ScalarTestConfig.TestGitOnPath = true;
+            }
+
             if (runner.HasCustomArg("--test-scalar-on-path"))
             {
                 Console.WriteLine("Running tests against Scalar on path");
