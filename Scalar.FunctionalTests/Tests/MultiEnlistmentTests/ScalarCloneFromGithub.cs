@@ -12,7 +12,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
     public class ScalarCloneFromGithub : TestsWithMultiEnlistment
     {
         private static readonly string MicrosoftScalarHttp = "https://github.com/microsoft/scalar";
-        private static readonly string MicrosoftScalarSsh = "git@github.com:microsoft/scalar.git";
 
         private FileSystemRunner fileSystem;
 
