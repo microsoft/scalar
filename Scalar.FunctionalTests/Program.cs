@@ -62,9 +62,10 @@ namespace Scalar.FunctionalTests
                 {
                     ScalarTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.AllWindowsRunners;
                 }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+                         RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    ScalarTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.AllMacRunners;
+                    ScalarTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.AllPOSIXRunners;
                 }
             }
             else
