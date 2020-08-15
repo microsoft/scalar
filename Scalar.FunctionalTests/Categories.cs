@@ -5,7 +5,7 @@ namespace Scalar.FunctionalTests
         public const string GitCommands = "GitCommands";
 
         public const string WindowsOnly = "WindowsOnly";
-        public const string MacOnly = "MacOnly";
+        public const string POSIXOnly = "POSIXOnly";
 
         public const string GitRepository = "GitRepository";
 

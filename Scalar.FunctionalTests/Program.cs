@@ -73,13 +73,14 @@ namespace Scalar.FunctionalTests
                 ScalarTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.DefaultRunners;
             }
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+                RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 excludeCategories.Add(Categories.WindowsOnly);
             }
             else
             {
-                excludeCategories.Add(Categories.MacOnly);
+                excludeCategories.Add(Categories.POSIXOnly);
             }
 
             // For now, run all of the tests not flagged as needing to be updated to work

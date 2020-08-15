@@ -548,17 +548,17 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             this.CommitChangesSwitchBranchSwitchBack(fileSystemAction: this.RenameFile);
         }
 
-        // MacOnly because renames of partial folders are blocked on Windows
+        // Mac and Linux only because renames of partial folders are blocked on Windows
         [TestCase]
-        [Category(Categories.MacOnly)]
+        [Category(Categories.POSIXOnly)]
         public void MoveFolderCommitChangesSwitchBranchSwitchBackTest()
         {
             this.CommitChangesSwitchBranchSwitchBack(fileSystemAction: this.MoveFolder);
         }
 
-        // MacOnly because Windows does not support file mode
+        // Mac and Linux only because Windows does not support file mode
         [TestCase]
-        [Category(Categories.MacOnly)]
+        [Category(Categories.POSIXOnly)]
         public void UpdateFileModeOnly()
         {
             const string TestFileName = "test-file-mode";

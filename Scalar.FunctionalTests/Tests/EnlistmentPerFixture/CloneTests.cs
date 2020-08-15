@@ -57,7 +57,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase]
-        [Category(Categories.MacOnly)]
+        [Category(Categories.POSIXOnly)]
         public void CloneWithDefaultLocalCacheLocation()
         {
             FileSystemRunner fileSystem = FileSystemRunner.DefaultRunner;
