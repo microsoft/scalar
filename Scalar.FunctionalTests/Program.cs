@@ -101,11 +101,6 @@ namespace Scalar.FunctionalTests
             // with the non-virtualized solution
             excludeCategories.Add(Categories.NeedsUpdatesForNonVirtualizedMode);
 
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                excludeCategories.Add(Categories.MacOnly);
-            }
-
             ScalarTestConfig.RepoToClone =
                 runner.GetCustomArgWithParam("--repo-to-clone")
                 ?? Properties.Settings.Default.RepoToClone;
