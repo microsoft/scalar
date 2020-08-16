@@ -17,9 +17,6 @@ namespace Scalar.FunctionalTests
             // Tests that require Config to be built
             public const string NeedsScalarConfig = "NeedsConfig";
 
-            // Tests that require Scalar Service
-            public const string NeedsServiceVerb = "NeedsServiceVerb";
-
             // Tests requires code updates so that we lock the file instead of looking for a .lock file
             public const string TestNeedsToLockFile = "TestNeedsToLockFile";
         }

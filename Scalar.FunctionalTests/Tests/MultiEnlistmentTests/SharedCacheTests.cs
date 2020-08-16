@@ -91,7 +91,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         }
 
         [TestCase]
-        [Category(Categories.MacTODO.NeedsServiceVerb)]
         public void SecondCloneSucceedsWithMissingTrees()
         {
             string newCachePath = Path.Combine(this.localCacheParentPath, ".customScalarCache2");
