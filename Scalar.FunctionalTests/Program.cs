@@ -76,15 +76,6 @@ namespace Scalar.FunctionalTests
                 ScalarTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.DefaultRunners;
             }
 
-            if (runner.HasCustomArg("--windows-only"))
-            {
-                includeCategories.Add(Categories.WindowsOnly);
-
-                // RunTests unions all includeCategories.  Remove ExtraCoverage to
-                // ensure that we only run tests flagged as WindowsOnly
-                includeCategories.Remove(Categories.ExtraCoverage);
-            }
-
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 excludeCategories.Add(Categories.MacTODO.TestNeedsToLockFile);
@@ -92,6 +83,15 @@ namespace Scalar.FunctionalTests
             }
             else
             {
+                if (runner.HasCustomArg("--windows-only"))
+                {
+                    includeCategories.Add(Categories.WindowsOnly);
+
+                    // RunTests unions all includeCategories.  Remove ExtraCoverage to
+                    // ensure that we only run tests flagged as WindowsOnly
+                    includeCategories.Remove(Categories.ExtraCoverage);
+                }
+
                 excludeCategories.Add(Categories.MacOnly);
             }
 
