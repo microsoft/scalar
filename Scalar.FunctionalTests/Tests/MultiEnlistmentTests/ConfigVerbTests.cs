@@ -8,7 +8,6 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {
     [TestFixture]
     [Category(Categories.ExtraCoverage)]
-    [Category(Categories.MacTODO.NeedsScalarConfig)]
     [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class ConfigVerbTests : TestsWithMultiEnlistment
     {

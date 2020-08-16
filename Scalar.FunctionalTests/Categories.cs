@@ -14,9 +14,6 @@ namespace Scalar.FunctionalTests
 
         public static class MacTODO
         {
-            // Tests that require Config to be built
-            public const string NeedsScalarConfig = "NeedsConfig";
-
             // Tests requires code updates so that we lock the file instead of looking for a .lock file
             public const string TestNeedsToLockFile = "TestNeedsToLockFile";
         }
