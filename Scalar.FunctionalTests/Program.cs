@@ -117,7 +117,7 @@ namespace Scalar.FunctionalTests
             {
                 // Shutdown the watchman server now that the tests are complete.
                 // Allows deleting the unwatched directories.
-                ProcessHelper.Run("watchman", "shudown-server");
+                ProcessHelper.Run("watchman", "shutdown-server");
             }
             catch (Exception)
             {
