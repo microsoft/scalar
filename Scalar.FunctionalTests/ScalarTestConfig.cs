@@ -20,7 +20,7 @@ namespace Scalar.FunctionalTests
         {
             get
             {
-		string gitBinaryFileName = "git" + Properties.Settings.Default.BinaryFileNameExtension;
+                string gitBinaryFileName = "git" + Properties.Settings.Default.BinaryFileNameExtension;
                 return
                     TestGitOnPath ?
                     gitBinaryFileName :
