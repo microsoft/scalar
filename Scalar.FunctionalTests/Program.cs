@@ -76,35 +76,28 @@ namespace Scalar.FunctionalTests
                 ScalarTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.DefaultRunners;
             }
 
-            if (runner.HasCustomArg("--windows-only"))
-            {
-                includeCategories.Add(Categories.WindowsOnly);
-
-                // RunTests unions all includeCategories.  Remove ExtraCoverage to
-                // ensure that we only run tests flagged as WindowsOnly
-                includeCategories.Remove(Categories.ExtraCoverage);
-            }
-
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                excludeCategories.Add(Categories.MacTODO.NeedsScalarConfig);
-                excludeCategories.Add(Categories.MacTODO.NeedsServiceVerb);
                 excludeCategories.Add(Categories.MacTODO.TestNeedsToLockFile);
                 excludeCategories.Add(Categories.WindowsOnly);
             }
             else
             {
+                if (runner.HasCustomArg("--windows-only"))
+                {
+                    includeCategories.Add(Categories.WindowsOnly);
+
+                    // RunTests unions all includeCategories.  Remove ExtraCoverage to
+                    // ensure that we only run tests flagged as WindowsOnly
+                    includeCategories.Remove(Categories.ExtraCoverage);
+                }
+
                 excludeCategories.Add(Categories.MacOnly);
             }
 
             // For now, run all of the tests not flagged as needing to be updated to work
             // with the non-virtualized solution
             excludeCategories.Add(Categories.NeedsUpdatesForNonVirtualizedMode);
-
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                excludeCategories.Add(Categories.MacOnly);
-            }
 
             ScalarTestConfig.RepoToClone =
                 runner.GetCustomArgWithParam("--repo-to-clone")
@@ -117,7 +110,7 @@ namespace Scalar.FunctionalTests
             {
                 // Shutdown the watchman server now that the tests are complete.
                 // Allows deleting the unwatched directories.
-                ProcessHelper.Run("watchman", "shudown-server");
+                ProcessHelper.Run("watchman", "shutdown-server");
             }
             catch (Exception)
             {
