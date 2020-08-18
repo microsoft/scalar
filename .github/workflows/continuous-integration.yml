@@ -12,8 +12,12 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, windows-2019, macos-10.15]
+
+    env:
+      BUILD_FRAGMENT: bin/Release/netcoreapp3.1
 
     steps:
     - uses: actions/checkout@v2
@@ -25,13 +29,72 @@ jobs:
       with:
         dotnet-version: 3.1.302
 
-    - name: Install Dependencies
+    - name: Install dependencies
       run: dotnet restore
       env:
         DOTNET_NOLOGO: 1
 
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release --no-restore -p:UseAppHost=true # Force generation of executable on macOS.
 
-    - name: Unit Test
+    - name: Unit test
       run: dotnet test --no-restore
+
+    - name: Setup platform (Linux)
+      if: runner.os == 'Linux'
+      run: echo "::set-env name=BUILD_PLATFORM::${{ runner.os }}"
+
+    - name: Setup platform (Mac)
+      if: runner.os == 'macOS'
+      run: echo '::set-env name=BUILD_PLATFORM::Mac'
+
+    - name: Setup platform (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        echo "::set-env name=BUILD_PLATFORM::${{ runner.os }}"
+        echo '::set-env name=BUILD_FILE_EXT::.exe'
+
+    - name: Setup Git installer
+      shell: bash
+      run: |
+        GIT_VERSION=$(grep '<GitPackageVersion>' Directory.Build.props | grep -Eo '[0-9.]+(-\w+)*')
+        cd ../out
+        dotnet new classlib -n Scalar.GitInstaller
+        cd Scalar.GitInstaller
+        cp ../../scalar/nuget.config .
+        dotnet add Scalar.GitInstaller.csproj package "GitFor${BUILD_PLATFORM}.GVFS.Installer" --package-directory . --version "$GIT_VERSION"
+
+    - name: Install Git (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        cd ../out/Scalar.GitInstaller
+        sudo apt-get install -y $(find . -type f -name '*.deb')
+
+    - name: Install Git (Mac)
+      if: runner.os == 'macOS'
+      run: |
+        cd ../out/Scalar.GitInstaller
+        sudo /usr/sbin/installer -pkg $(find . -type f -name '*.pkg') -target /
+
+    - name: Install Git (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        Set-Location -Path ..\out\Scalar.GitInstaller
+        Write-Host 'Uninstalling Git ...'
+        foreach ($file in Get-ChildItem 'C:\Program Files\Git' -Recurse -File -Include 'unins*.exe') {
+          & $file.Fullname /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+          Wait-Process -Name $file.Basename
+        }
+        Remove-Item 'C:\Program Files\Git' -Recurse -Force
+        Write-Host 'Installing GitForWindows ...'
+        $files = Get-ChildItem . -Recurse -File -Include 'Git-*.vfs.*.exe'
+        & $files[0].Fullname /DIR="C:\Program Files\Git" /NOICONS /COMPONENTS="ext,ext\shellhere,ext\guihere,assoc,assoc_sh" /GROUP="Git" /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ALLOWDOWNGRADE=1 /LOG=install.log
+        Wait-Process $files[0].Basename
+        Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\GitForWindows'
+
+    - name: Functional test
+      shell: bash
+      run: |
+        cd ../out
+        PATH="$PWD/Scalar/$BUILD_FRAGMENT:$PWD/Scalar.Service/$BUILD_FRAGMENT:$PATH"
+        Scalar.FunctionalTests/$BUILD_FRAGMENT/Scalar.FunctionalTests$BUILD_FILE_EXT --test-scalar-on-path --full-suite
