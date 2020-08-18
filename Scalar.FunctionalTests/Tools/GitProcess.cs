@@ -35,7 +35,7 @@ namespace Scalar.FunctionalTests.Tools
 
         public static ProcessResult InvokeProcess(string executionWorkingDirectory, string command, Dictionary<string, string> environmentVariables = null, Stream inputStream = null)
         {
-            ProcessStartInfo processInfo = new ProcessStartInfo(Properties.Settings.Default.PathToGit);
+            ProcessStartInfo processInfo = new ProcessStartInfo(ScalarTestConfig.PathToGit);
             processInfo.WorkingDirectory = executionWorkingDirectory;
             processInfo.UseShellExecute = false;
             processInfo.RedirectStandardOutput = true;
