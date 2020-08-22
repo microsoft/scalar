@@ -116,18 +116,6 @@ namespace Scalar.FunctionalTests
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 ScalarServiceProcess.InstallService();
-
-                string statusCacheVersionTokenPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolderOption.Create),
-                    "Scalar",
-                    "ProgramData",
-                    "Scalar.Service",
-                    "EnableGitStatusCacheToken.dat");
-
-                if (!File.Exists(statusCacheVersionTokenPath))
-                {
-                    File.WriteAllText(statusCacheVersionTokenPath, string.Empty);
-                }
             }
         }
     }
