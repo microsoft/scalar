@@ -182,42 +182,6 @@ namespace Scalar.Platform.POSIX
             return POSIXPlatform.IsElevatedImplementation();
         }
 
-        public override bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError)
-        {
-            string homeDirectory;
-
-            try
-            {
-                homeDirectory = Environment.GetEnvironmentVariable("HOME");
-            }
-            catch (SecurityException e)
-            {
-                localCacheRoot = null;
-                localCacheRootError = $"Failed to read $HOME, insufficient permission: {e.Message}";
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(homeDirectory))
-            {
-                localCacheRoot = null;
-                localCacheRootError = "$HOME empty or not found";
-                return false;
-            }
-
-            try
-            {
-                localCacheRoot = Path.Combine(homeDirectory, ScalarConstants.DefaultScalarCacheFolderName);
-                localCacheRootError = null;
-                return true;
-            }
-            catch (ArgumentException e)
-            {
-                localCacheRoot = null;
-                localCacheRootError = $"Failed to build local cache path using $HOME('{homeDirectory}'): {e.Message}";
-                return false;
-            }
-        }
-
         public override bool TryKillProcessTree(int processId, out int exitCode, out string error)
         {
             ProcessResult result = ProcessHelper.Run("pkill", $"-P {processId}");
@@ -264,6 +228,82 @@ namespace Scalar.Platform.POSIX
             }
 
             public override bool SupportsUpgradeWhileRunning => true;
+        }
+
+        protected class EnvironmentVariableBasePath
+        {
+            private string environmentVariable;
+            private string subFolder;
+
+            public EnvironmentVariableBasePath (string environmentVariable, string subFolder)
+            {
+                this.environmentVariable = environmentVariable;
+                this.subFolder = subFolder;
+            }
+
+            public string EnvironmentVariable
+            {
+                get { return environmentVariable; }
+            }
+
+            public string SubFolder
+            {
+                get { return subFolder; }
+            }
+        }
+
+        protected static bool TryGetEnvironmentVariableBasePath(EnvironmentVariableBasePath[] environmentVariableBasePaths, out string path, out string error)
+        {
+            if (environmentVariableBasePaths == null || environmentVariableBasePaths.Length == 0)
+            {
+                path = null;
+                error = "Null or empty list of base path environment variables to read";
+                return false;
+            }
+
+            error = null;
+            foreach (EnvironmentVariableBasePath environmentVariableBasePath in environmentVariableBasePaths)
+            {
+                if (TryGetEnvironmentVariable(environmentVariableBasePath.EnvironmentVariable, out path, out error))
+                {
+                    try
+                    {
+                        path = Path.Combine(path, environmentVariableBasePath.SubFolder);
+                        return true;
+                    }
+                    catch (ArgumentException e)
+                    {
+                        error = $"Failed to build base path using ${environmentVariableBasePath.EnvironmentVariable}('{path}'), '{environmentVariableBasePath.SubFolder}': {e.Message}";
+                    }
+                }
+            }
+
+            path = null;
+            return false;
+        }
+
+        private static bool TryGetEnvironmentVariable(string name, out string val, out string error)
+        {
+            try
+            {
+                val = Environment.GetEnvironmentVariable(name);
+            }
+            catch (SecurityException e)
+            {
+                val = null;
+                error = $"Failed to read ${name}, insufficient permission: {e.Message}";
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(val))
+            {
+                val = null;
+                error = $"${name} empty or not found";
+                return false;
+            }
+
+            error = null;
+            return true;
         }
     }
 }

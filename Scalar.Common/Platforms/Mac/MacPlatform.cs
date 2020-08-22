@@ -17,6 +17,12 @@ namespace Scalar.Platform.Mac
     public partial class MacPlatform : POSIXPlatform
     {
         private const string UpgradeProtectedDataDirectory = "/usr/local/scalar_upgrader";
+        private static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseCachePaths = new[] {
+            new EnvironmentVariableBasePath("HOME", ScalarConstants.DefaultScalarCacheFolderName),
+        };
+        protected static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseDataPaths = new[] {
+            new EnvironmentVariableBasePath("HOME", Path.Combine("Library", "Application Support", "Scalar")),
+        };
 
         public MacPlatform() : base(
              underConstruction: new UnderConstructionFlags(
@@ -124,6 +130,11 @@ namespace Scalar.Platform.Mac
             }
 
             return result;
+        }
+
+        public override bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError)
+        {
+            return TryGetEnvironmentVariableBasePath(EnvironmentVariableBaseCachePaths, out localCacheRoot, out localCacheRootError);
         }
 
         public override ProductUpgraderPlatformStrategy CreateProductUpgraderPlatformInteractions(

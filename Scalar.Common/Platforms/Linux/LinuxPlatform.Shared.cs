@@ -9,9 +9,15 @@ namespace Scalar.Platform.Linux
     {
         public static string GetDataRootForScalarImplementation()
         {
-            // TODO(Linux): determine installation location and data path
-            string path = Environment.GetEnvironmentVariable("SCALAR_DATA_PATH");
-            return path ?? "/var/run/scalar";
+            string localDataRoot;
+            string localDataRootError;
+
+            if (!TryGetEnvironmentVariableBasePath(EnvironmentVariableBaseDataPaths, out localDataRoot, out localDataRootError))
+            {
+                throw new ArgumentException(localDataRootError);
+            }
+
+            return localDataRoot;
         }
 
         public static string GetDataRootForScalarComponentImplementation(string componentName)
