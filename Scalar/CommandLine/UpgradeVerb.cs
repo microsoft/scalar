@@ -93,7 +93,7 @@ namespace Scalar.CommandLine
                 return false;
             }
 
-            if (ScalarPlatform.Instance.UnderConstruction.SupportsScalarUpgrade)
+            if (ScalarPlatform.Instance.UnderConstruction.UsesCustomUpgrader)
             {
                 error = null;
                 if (this.upgrader == null)

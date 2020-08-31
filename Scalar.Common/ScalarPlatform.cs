@@ -178,13 +178,13 @@ namespace Scalar.Common
                 bool supportsNuGetEncryption = true,
                 bool supportsNuGetVerification = true)
             {
-                this.SupportsScalarUpgrade = supportsScalarUpgrade;
+                this.UsesCustomUpgrader = supportsScalarUpgrade;
                 this.SupportsScalarConfig = supportsScalarConfig;
                 this.SupportsNuGetEncryption = supportsNuGetEncryption;
                 this.SupportsNuGetVerification = supportsNuGetVerification;
             }
 
-            public bool SupportsScalarUpgrade { get; }
+            public bool UsesCustomUpgrader { get; }
             public bool SupportsScalarConfig { get; }
             public bool SupportsNuGetEncryption { get; }
             public bool SupportsNuGetVerification { get; }
