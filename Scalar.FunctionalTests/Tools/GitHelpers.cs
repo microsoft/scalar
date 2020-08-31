@@ -44,32 +44,10 @@ namespace Scalar.FunctionalTests.Tools
             string scalarRepoRoot,
             string command,
             Dictionary<string, string> environmentVariables = null,
-            bool removeWaitingMessages = true,
-            bool removeUpgradeMessages = true,
             string input = null)
         {
             ProcessResult result = GitProcess.InvokeProcess(scalarRepoRoot, command, input, environmentVariables);
             string errors = result.Errors;
-
-            if (!string.IsNullOrEmpty(errors) && (removeWaitingMessages || removeUpgradeMessages))
-            {
-                IEnumerable<string> errorLines = errors.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-                IEnumerable<string> filteredErrorLines = errorLines.Where(line =>
-                {
-                    if (string.IsNullOrWhiteSpace(line) ||
-                        (removeUpgradeMessages && line.StartsWith("A new version of Scalar is available.")) ||
-                        (removeWaitingMessages && line.StartsWith("Waiting for ")))
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        return true;
-                    }
-                });
-
-                errors = filteredErrorLines.Any() ? string.Join(Environment.NewLine, filteredErrorLines) : string.Empty;
-            }
 
             return new ProcessResult(
                 result.Output,

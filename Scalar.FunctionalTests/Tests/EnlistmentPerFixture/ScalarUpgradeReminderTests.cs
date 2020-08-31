@@ -216,9 +216,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             ProcessResult result = GitHelpers.InvokeGitAgainstScalarRepo(
                                                     this.Enlistment.RepoRoot,
                                                     "status",
-                                                    environmentVariables,
-                                                    removeWaitingMessages: true,
-                                                    removeUpgradeMessages: false);
+                                                    environmentVariables);
 
             if (!string.IsNullOrEmpty(result.Errors) &&
                 result.Errors.Contains("A new version of Scalar is available."))
