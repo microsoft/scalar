@@ -63,9 +63,6 @@ function CopyScalar()
     copyCmd="cp -Rf \"${BIN_DIR}/Scalar.Service/${PUBPATH_FRAGMENT}\" \"${SCALAR_DESTINATION}\"" || exit 1
     eval $copyCmd || exit 1
 
-    copyCmd="cp -Rf \"${BIN_DIR}/Scalar.Upgrader/${PUBPATH_FRAGMENT}\" \"${SCALAR_DESTINATION}\"" || exit 1
-    eval $copyCmd || exit 1
-
     # Create the symlink
     pushd $LOCALBIN_DIR
     linkCommand="ln -sf ../scalar/scalar scalar"

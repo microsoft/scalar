@@ -11,11 +11,6 @@ namespace Scalar.Upgrader
                 return new WindowsUpgradeOrchestrator(options);
             }
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return new MacUpgradeOrchestrator(options);
-            }
-
             throw new System.NotImplementedException();
         }
     }
