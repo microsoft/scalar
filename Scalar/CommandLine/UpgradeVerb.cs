@@ -7,6 +7,7 @@ using Scalar.Upgrader;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Scalar.CommandLine
 {
@@ -93,6 +94,20 @@ namespace Scalar.CommandLine
                 return false;
             }
 
+            JsonTracer jsonTracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "UpgradeVerb");
+            string logFilePath = ScalarEnlistment.GetNewScalarLogFileName(
+                ProductUpgraderInfo.GetLogDirectoryPath(),
+                ScalarConstants.LogFileTypes.UpgradeVerb);
+            jsonTracer.AddLogFileEventListener(logFilePath, EventLevel.Informational, Keywords.Any);
+
+            this.tracer = jsonTracer;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                error = null;
+                return true;
+            }
+
             if (ScalarPlatform.Instance.UnderConstruction.UsesCustomUpgrader)
             {
                 error = null;
@@ -104,13 +119,6 @@ namespace Scalar.CommandLine
                         return false;
                     }
 
-                    JsonTracer jsonTracer = new JsonTracer(ScalarConstants.ScalarEtwProviderName, "UpgradeVerb");
-                    string logFilePath = ScalarEnlistment.GetNewScalarLogFileName(
-                        ProductUpgraderInfo.GetLogDirectoryPath(),
-                        ScalarConstants.LogFileTypes.UpgradeVerb);
-                    jsonTracer.AddLogFileEventListener(logFilePath, EventLevel.Informational, Keywords.Any);
-
-                    this.tracer = jsonTracer;
                     this.prerunChecker = new InstallerPreRunChecker(this.tracer, this.Confirmed ? ScalarConstants.UpgradeVerbMessages.ScalarUpgradeConfirm : ScalarConstants.UpgradeVerbMessages.ScalarUpgrade);
 
                     string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
@@ -142,12 +150,85 @@ namespace Scalar.CommandLine
             }
         }
 
+        private bool TryGetBrewOutput(string args, out string output, out string error)
+        {
+            this.Output.WriteLine($"Running 'brew {args}'");
+            var launcher = new ProcessLauncher();
+            bool result = launcher.TryStart("brew", args, useShellExecute: false, out Exception ex);
+
+            if (!result)
+            {
+                this.tracer.RelatedEvent(EventLevel.Warning, $"Failure during 'brew {args}'", this.CreateEventMetadata(ex));
+                output = null;
+                error = "Failed to start 'brew' process";
+                return false;
+            }
+
+            output = launcher.Process.StandardOutput.ReadToEnd().Trim();
+            error = launcher.Process.StandardError.ReadToEnd().Trim();
+            launcher.WaitForExit();
+            return true;
+        }
+
+        private bool TryUpgradeWithBrew(out string error)
+        {
+            string output;
+            string stderr;
+            if (!this.TryGetBrewOutput("cask list", out output, out stderr))
+            {
+                error = $"Failed to check 'brew' casks: '{stderr}' Is brew installed?";
+                return false;
+            }
+
+            string packageName = string.Empty;
+
+            if (output.IndexOf(ScalarConstants.HomebrewCasks.Scalar + "\n") >= 0)
+            {
+                packageName = ScalarConstants.HomebrewCasks.Scalar;
+            }
+            else if (output.IndexOf(ScalarConstants.HomebrewCasks.ScalarWithGVFS + "\n") >= 0)
+            {
+                packageName = ScalarConstants.HomebrewCasks.ScalarWithGVFS;
+            }
+            else
+            {
+                error = $"Scalar does not appear to be installed with 'brew': {stderr}";
+                return false;
+            }
+
+            this.Output.WriteLine($"Found brew package '{packageName}'");
+
+            if (!this.TryGetBrewOutput("update", out output, out stderr))
+            {
+                error = "An error occurred while updating 'brew' packages";
+                return false;
+            }
+
+            if (!this.TryGetBrewOutput($"upgrade --cask {packageName}", out output, out stderr))
+            {
+                error = $"An error occurred while updating the {packageName} package: {stderr}";
+                return false;
+            }
+
+            error = null;
+            return true;
+        }
+
         private bool TryRunProductUpgrade()
         {
             string errorOutputFormat = Environment.NewLine + "ERROR: {0}";
             string message = null;
             string cannotInstallReason = null;
             Version newestVersion = null;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                if (!this.TryUpgradeWithBrew(out string error)) {
+                    this.tracer.RelatedError(error);
+                    return false;
+                }
+                return true;
+            }
 
             bool isInstallable = this.TryCheckUpgradeInstallable(out cannotInstallReason);
             if (this.ShouldRunUpgraderTool() && !isInstallable)
@@ -410,6 +491,8 @@ namespace Scalar.CommandLine
                     UseShellExecute = useShellExecute,
                     WorkingDirectory = Environment.SystemDirectory,
                     WindowStyle = ProcessWindowStyle.Normal,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                     Arguments = args
                 };
 

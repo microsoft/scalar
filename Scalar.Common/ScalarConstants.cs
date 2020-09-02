@@ -251,5 +251,11 @@ namespace Scalar.Common
             public const string ReminderNotification = "A new version of Scalar is available. Run " + UpgradeVerbMessages.ScalarUpgradeConfirm + " from an elevated command prompt to upgrade.";
             public const string UpgradeInstallAdvice = "When ready, run " + UpgradeVerbMessages.ScalarUpgradeConfirm + " from an elevated command prompt.";
         }
+
+        public static class HomebrewCasks
+        {
+            public const string Scalar = "scalar";
+            public const string ScalarWithGVFS = "scalar-azrepos";
+        }
     }
 }

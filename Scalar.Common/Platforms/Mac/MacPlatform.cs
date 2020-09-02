@@ -16,7 +16,6 @@ namespace Scalar.Platform.Mac
 {
     public partial class MacPlatform : POSIXPlatform
     {
-        private const string UpgradeProtectedDataDirectory = "/usr/local/scalar_upgrader";
         private static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseCachePaths = new[] {
             new EnvironmentVariableBasePath(
                 ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
@@ -92,7 +91,7 @@ namespace Scalar.Platform.Mac
 
         public override string GetUpgradeProtectedDataDirectory()
         {
-            return UpgradeProtectedDataDirectory;
+            throw new NotImplementedException();
         }
 
         public override string GetUpgradeHighestAvailableVersionDirectory()
