@@ -69,16 +69,6 @@ namespace Scalar.FunctionalTests
             }
             else
             {
-                if (runner.HasCustomArg("--extra-only"))
-                {
-                    Console.WriteLine("Running only the tests marked as ExtraCoverage");
-                    includeCategories.Add(Categories.ExtraCoverage);
-                }
-                else
-                {
-                    excludeCategories.Add(Categories.ExtraCoverage);
-                }
-
                 ScalarTestConfig.FileSystemRunners = FileSystemRunners.FileSystemRunner.DefaultRunners;
             }
 
@@ -92,10 +82,6 @@ namespace Scalar.FunctionalTests
                 if (runner.HasCustomArg("--windows-only"))
                 {
                     includeCategories.Add(Categories.WindowsOnly);
-
-                    // RunTests unions all includeCategories.  Remove ExtraCoverage to
-                    // ensure that we only run tests flagged as WindowsOnly
-                    includeCategories.Remove(Categories.ExtraCoverage);
                 }
 
                 excludeCategories.Add(Categories.MacOnly);

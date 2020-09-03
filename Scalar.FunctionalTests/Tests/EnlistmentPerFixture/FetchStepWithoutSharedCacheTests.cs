@@ -8,7 +8,6 @@ using System.IO;
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
-    [Category(Categories.ExtraCoverage)]
     public class FetchStepWithoutSharedCacheTests : TestsWithEnlistmentPerFixture
     {
         private const string PrefetchPackPrefix = "prefetch";

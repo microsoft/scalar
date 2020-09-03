@@ -2,7 +2,6 @@ namespace Scalar.FunctionalTests
 {
     public static class Categories
     {
-        public const string ExtraCoverage = "ExtraCoverage";
         public const string GitCommands = "GitCommands";
 
         public const string WindowsOnly = "WindowsOnly";
