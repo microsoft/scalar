@@ -5,19 +5,8 @@
 #### Runnable functional test projects
 
 - `Scalar.FunctionalTests`
-- `Scalar.FunctionalTests.Windows`
 
-`Scalar.FunctionalTests` is a .NET Core project and contains all cross-platform functional tests.  `Scalar.FunctionalTests.Windows`, contains functional tests that require Windows. Additionally, `Scalar.FunctionalTests.Windows` includes all the `Scalar.FunctionalTests` allowing it to run both cross-platform and Windows-specific functional tests.
-
-#### Other functional test projects
-
-*Scalar.NativeTests*
-
-`Scalar.NativeTests` contains tests written in C++ that use the Windows API directly.  These tests are called from the managed tests (see above) using PInvoke.
-
-*Scalar.FunctionalTests.LockHolder*
-
-The `LockHolder` is a small program that allows the functional tests to request and release the `ScalarLock`.  `LockHolder` is useful for simulating different timing/race conditions.
+`Scalar.FunctionalTests` is a .NET Core project and contains all cross-platform functional tests.
 
 ## Running the Functional Tests
 
@@ -34,7 +23,7 @@ The functional tests are built on NUnit 3, which is available as a set of NuGet 
 2. Run the Scalar installer that was built in step 2.  This will ensure that Scalar will be able to find the correct version of the pre/post-command hooks. The installer will be placed in `BuildOutput\Scalar.Installer.Windows\bin\x64\<Debug or Release>`
 3. Run the tests **with elevation**.  Elevation is required because the functional tests create and delete a test service.
 
-   **Option 1:** Run the `Scalar.FunctionalTests.Windows` project from inside Visual Studio launched as Administrator.
+   **Option 1:** Run the `Scalar.FunctionalTests` project from inside Visual Studio launched as Administrator.
    
    **Option 2:** Run `Scripts\RunFunctionalTests.bat` from CMD launched as Administrator.
 
@@ -73,34 +62,30 @@ Note that the test name must include the class and namespace and that `Debug` or
 
 Windows (Script):
 
-`Scripts\RunFunctionalTests.bat Debug --test=Scalar.FunctionalTests.Tests.EnlistmentPerFixture.GitFilesTests.CreateFileTest`
+`Scripts\RunFunctionalTests.bat Debug --test=Scalar.FunctionalTests.Tests.EnlistmentPerFixture.CloneTests.CloneToPathWithSpaces
 
 Windows (Visual Studio):
 
-1. Set `Scalar.FunctionalTests.Windows` as StartUp project
-2. Project Properties->Debug->Start options->Command line arguments (all on a single line): `--test=Scalar.FunctionalTests.Tests.EnlistmentPerFixture.GitFilesTests.CreateFileTest`
+1. Set `Scalar.FunctionalTests` as StartUp project
+2. Project Properties->Debug->Start options->Command line arguments (all on a single line): `--test=Scalar.FunctionalTests.Tests.EnlistmentPerFixture.CloneTests.CloneToPathWithSpaces
 
 Mac:
 
-`Scripts/Mac/RunFunctionalTests.sh Debug --test=Scalar.FunctionalTests.Tests.EnlistmentPerFixture.GitFilesTests.CreateFileTest`
+`Scripts/Mac/RunFunctionalTests.sh Debug --test=Scalar.FunctionalTests.Tests.EnlistmentPerFixture.CloneTests.CloneToPathWithSpaces`
 
 ## How to Write a Functional Test
 
 Each piece of functionality that we add to Scalar should have corresponding functional tests that clone a repo and use existing tools and filesystem APIs to interact with the virtual repo.
 
 Since these are functional tests that can potentially modify the state of files on disk, you need to be careful to make sure each test can run in a clean 
-environment.  There are three base classes that you can derive from when writing your tests.  It's also important to put your new class into the same namespace
+environment.  There are two base classes that you can derive from when writing your tests.  It's also important to put your new class into the same namespace
 as the base class, because NUnit treats namespaces like test suites, and we have logic that keys off that for deciding when to create enlistments.
 
-1. `TestsWithLongRunningEnlistment`
-
-    Before any test in this namespace is executed, we create a single enlistment.  We then run all tests in this namespace that derive from this base class.  Only put tests in here that are purely readonly and will leave the repo in a good state for future tests.
-
-2. `TestsWithEnlistmentPerFixture`
+1. `TestsWithEnlistmentPerFixture`
 
     For any test fixture (a fixture is the same as a class in NUnit) that derives from this class, we create an enlistment before running any of the tests in the fixture, and then we delete the enlistment after all tests are done (but before any other fixture runs).  If you need to write a sequence of tests that manipulate the same repo, this is the right base class.
 
-3. `TestsWithEnlistmentPerTestCase`
+2. `TestsWithEnlistmentPerTestCase`
 
    Derive from this class if you need a new enlistment created for each test case.  This is the most reliable, but also most expensive option.
 
