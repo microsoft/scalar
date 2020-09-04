@@ -8,7 +8,6 @@ using System.IO;
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
-    [Category(Categories.ExtraCoverage)]
     public class FetchStepWithoutSharedCacheTests : TestsWithEnlistmentPerFixture
     {
         private const string PrefetchPackPrefix = "prefetch";
@@ -101,8 +100,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.TempPackRoot.ShouldBeADirectory(this.fileSystem).WithNoItems();
         }
 
+        // WindowsOnly because the test depends on Windows-specific file sharing behavior
         [TestCase, Order(4)]
-        [Category(Categories.MacTODO.TestNeedsToLockFile)]
+        [Category(Categories.WindowsOnly)]
         public void FetchStepFailsWhenItCannotRemoveABadPrefetchPack()
         {
             this.Enlistment.Unregister();
@@ -119,9 +119,10 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Open a handle to the bad pack that will prevent fetch-commits-and-trees from being able to delete it
             using (FileStream stream = new FileStream(badPackPath, FileMode.Open, FileAccess.Read, FileShare.None))
             {
-                string output = this.Enlistment.RunVerb("fetch", failOnError: false);
-                output.ShouldContain($"Unable to delete {badPackPath}");
+                this.Enlistment.RunVerb("fetch", failOnError: false);
             }
+
+            badPackPath.ShouldBeAFile(this.fileSystem).WithContents(badContents);
 
             // After handle is closed fetching commits and trees should succeed
             this.Enlistment.RunVerb("fetch");

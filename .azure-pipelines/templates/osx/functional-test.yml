@@ -40,7 +40,7 @@ steps:
     - bash: watchman log-level debug
       displayName: Set watchman log level to debug
 
-  - bash: $(Build.BinariesDirectory)/ft/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --test-scalar-on-path --trace2-output=$(Build.ArtifactStagingDirectory)/logs/trace2-event.log
+  - bash: $(Build.BinariesDirectory)/ft/src/Scripts/Mac/RunFunctionalTests.sh $(configuration) --full-suite --test-scalar-on-path --trace2-output=$(Build.ArtifactStagingDirectory)/logs/trace2-event.log
     displayName: Run functional tests
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:

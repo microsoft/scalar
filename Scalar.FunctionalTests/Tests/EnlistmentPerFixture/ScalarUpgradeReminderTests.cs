@@ -12,7 +12,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
     [TestFixture]
     [NonParallelizable]
-    [Category(Categories.ExtraCoverage)]
     [Category(Categories.WindowsOnly)]
     [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class UpgradeReminderTests : TestsWithEnlistmentPerFixture

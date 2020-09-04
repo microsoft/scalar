@@ -18,4 +18,4 @@ shift
 chmod +x $TESTS_EXEC
 
 # Run the tests!
-$TESTS_EXEC --full-suite "$@"
+$TESTS_EXEC "$@"

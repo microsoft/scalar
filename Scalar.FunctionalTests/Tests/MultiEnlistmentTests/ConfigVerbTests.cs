@@ -7,7 +7,6 @@ using System.Collections.Generic;
 namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {
     [TestFixture]
-    [Category(Categories.ExtraCoverage)]
     [Category(Categories.NeedsUpdatesForNonVirtualizedMode)]
     public class ConfigVerbTests : TestsWithMultiEnlistment
     {

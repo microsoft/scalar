@@ -32,7 +32,7 @@ steps:
   - script: git config --global credential.interactive never
     displayName: Disable interactive auth
 
-  - script: $(Build.BinariesDirectory)\ft\src\Scripts\RunFunctionalTests.bat $(configuration) --test-scalar-on-path "--trace2-output=$(Build.ArtifactStagingDirectory)\logs\trace2-event.log"
+  - script: $(Build.BinariesDirectory)\ft\src\Scripts\RunFunctionalTests.bat $(configuration) --full-suite --test-scalar-on-path "--trace2-output=$(Build.ArtifactStagingDirectory)\logs\trace2-event.log"
     displayName: Run functional tests
 
   - ${{ if eq(parameters.useWatchman, 'true') }}:
