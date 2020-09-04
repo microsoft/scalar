@@ -79,11 +79,6 @@ namespace Scalar.FunctionalTests
             }
             else
             {
-                if (runner.HasCustomArg("--windows-only"))
-                {
-                    includeCategories.Add(Categories.WindowsOnly);
-                }
-
                 excludeCategories.Add(Categories.MacOnly);
             }
 
