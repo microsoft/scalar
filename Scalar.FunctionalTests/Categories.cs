@@ -10,11 +10,5 @@ namespace Scalar.FunctionalTests
         public const string GitRepository = "GitRepository";
 
         public const string NeedsUpdatesForNonVirtualizedMode = "NeedsUpdatesForNonVirtualizedMode";
-
-        public static class MacTODO
-        {
-            // Tests requires code updates so that we lock the file instead of looking for a .lock file
-            public const string TestNeedsToLockFile = "TestNeedsToLockFile";
-        }
     }
 }
