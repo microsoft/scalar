@@ -23,15 +23,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase]
-        [Category(Categories.MacTODO.TestNeedsToLockFile)]
-        public void FetchStepCleansUpStaleFetchLock()
+        public void FetchStepReleasesFetchLockFile()
         {
             this.Enlistment.RunVerb("fetch");
             string fetchCommitsLockFile = Path.Combine(
                 ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot),
                 "pack",
                 FetchCommitsAndTreesLock);
-            fetchCommitsLockFile.ShouldNotExistOnDisk(this.fileSystem);
             this.fileSystem.WriteAllText(fetchCommitsLockFile, this.Enlistment.EnlistmentRoot);
             fetchCommitsLockFile.ShouldBeAFile(this.fileSystem);
 
@@ -43,7 +41,14 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 .ShouldEqual(1, "Incorrect number of .keep files in pack directory");
 
             this.Enlistment.RunVerb("fetch");
-            fetchCommitsLockFile.ShouldNotExistOnDisk(this.fileSystem);
+
+            // Using FileShare.None ensures we test on both Windows, where WindowsFileBasedLock uses
+            // FileShare.Read to open the lock file, and on Mac/Linux, where the .NET Core libraries
+            // implement FileShare.None using flock(2) with LOCK_EX and thus will collide with our
+            // Mac/Linux FileBasedLock implementations which do the same, should the FetchStep
+            // have failed to release its lock.
+            FileStream stream = new FileStream(fetchCommitsLockFile, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None);
+            stream.Dispose();
         }
     }
 }

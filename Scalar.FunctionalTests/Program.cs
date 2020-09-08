@@ -74,7 +74,6 @@ namespace Scalar.FunctionalTests
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                excludeCategories.Add(Categories.MacTODO.TestNeedsToLockFile);
                 excludeCategories.Add(Categories.WindowsOnly);
             }
             else
