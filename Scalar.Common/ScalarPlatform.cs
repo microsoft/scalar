@@ -173,12 +173,12 @@ namespace Scalar.Common
         public class UnderConstructionFlags
         {
             public UnderConstructionFlags(
-                bool supportsScalarUpgrade = true,
+                bool usesCustomUpgrader = true,
                 bool supportsScalarConfig = true,
                 bool supportsNuGetEncryption = true,
                 bool supportsNuGetVerification = true)
             {
-                this.UsesCustomUpgrader = supportsScalarUpgrade;
+                this.UsesCustomUpgrader = usesCustomUpgrader;
                 this.SupportsScalarConfig = supportsScalarConfig;
                 this.SupportsNuGetEncryption = supportsNuGetEncryption;
                 this.SupportsNuGetVerification = supportsNuGetVerification;

@@ -21,7 +21,7 @@ namespace Scalar.Platform.POSIX
 
         protected POSIXPlatform() : this(
             underConstruction: new UnderConstructionFlags(
-                supportsScalarUpgrade: false,
+                usesCustomUpgrader: false,
                 supportsScalarConfig: false,
                 supportsNuGetEncryption: false,
                 supportsNuGetVerification: false))
