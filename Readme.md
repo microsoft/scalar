@@ -38,6 +38,13 @@ The script may prompt for your password as it installs the following components:
 * Scalar
 * [Watchman](https://github.com/facebook/watchman), unless you use the `--no-watchman` argument.
 
+Alternatively, install with Homebrew:
+
+```sh
+brew tap microsoft/git
+brew cask install scalar
+```
+
 Installing on Windows
 --------------------
 
