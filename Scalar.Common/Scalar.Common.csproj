@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.Windows.Compatibility" />
     <PackageReference Include="GitForWindows.GVFS.Installer" PrivateAssets="all" />
     <PackageReference Include="GitForMac.GVFS.Installer" PrivateAssets="all" />
+    <PackageReference Include="GitForLinux.GVFS.Installer" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

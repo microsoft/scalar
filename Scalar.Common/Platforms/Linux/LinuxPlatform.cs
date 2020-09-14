@@ -19,6 +19,37 @@ namespace Scalar.Platform.Linux
         // TODO(Linux): determine installation location and upgrader path
         private const string UpgradeProtectedDataDirectory = "/usr/local/scalar_upgrader";
 
+        // TODO(Linux): We should ideally consider any colon-separated paths
+        // in $XDG_CONFIG_DIRS and $XDG_DATA_DIRS, as well as their defaults
+        // (i.e., /etc/xdg and /usr/local/share:/usr/share).
+        // We should also ideally create any missing directories using a 0700
+        // permission mode via a native wrapper for mkdir(2) instead of
+        // relying on our caller's use of Directory.CreateDirectory().
+        private static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseCachePaths = new[] {
+            new EnvironmentVariableBasePath(
+                ScalarConstants.LinuxPlatform.EnvironmentVariables.LocalUserCacheFolder,
+                ScalarConstants.LinuxPlatform.LocalScalarFolderName),
+            new EnvironmentVariableBasePath(
+                ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
+                ScalarConstants.LinuxPlatform.LocalScalarCachePath),
+        };
+        protected static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseConfigPaths = new[] {
+            new EnvironmentVariableBasePath(
+                ScalarConstants.LinuxPlatform.EnvironmentVariables.LocalUserConfigFolder,
+                ScalarConstants.LinuxPlatform.LocalScalarFolderName),
+            new EnvironmentVariableBasePath(
+                ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
+                ScalarConstants.LinuxPlatform.LocalScalarConfigPath),
+        };
+        protected static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseDataPaths = new[] {
+            new EnvironmentVariableBasePath(
+                ScalarConstants.LinuxPlatform.EnvironmentVariables.LocalUserDataFolder,
+                ScalarConstants.LinuxPlatform.LocalScalarFolderName),
+            new EnvironmentVariableBasePath(
+                ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
+                ScalarConstants.LinuxPlatform.LocalScalarDataPath),
+        };
+
         public LinuxPlatform() : base(
              underConstruction: new UnderConstructionFlags(
                 supportsScalarUpgrade: false,
@@ -36,7 +67,15 @@ namespace Scalar.Platform.Linux
         {
             get
             {
-                return Path.Combine(this.Constants.ScalarBinDirectoryPath, LocalScalarConfig.FileName);
+                string localConfigRoot;
+                string localConfigRootError;
+
+                if (!TryGetEnvironmentVariableBasePath(EnvironmentVariableBaseConfigPaths, out localConfigRoot, out localConfigRootError))
+                {
+                    throw new ArgumentException(localConfigRootError);
+                }
+
+                return Path.Combine(localConfigRoot, LocalScalarConfig.FileName);
             }
         }
 
@@ -101,6 +140,11 @@ namespace Scalar.Platform.Linux
             return this.GetUpgradeNonProtectedDataDirectory();
         }
 
+        public override bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError)
+        {
+            return TryGetEnvironmentVariableBasePath(EnvironmentVariableBaseCachePaths, out localCacheRoot, out localCacheRootError);
+        }
+
         public override ProductUpgraderPlatformStrategy CreateProductUpgraderPlatformInteractions(
             PhysicalFileSystem fileSystem,
             ITracer tracer)
@@ -138,6 +182,7 @@ namespace Scalar.Platform.Linux
                 get { return ".deb"; }
             }
 
+            // TODO(Linux): determine installation location
             public override string ScalarBinDirectoryPath
             {
                 get { return Path.Combine("/usr", "local", this.ScalarBinDirectoryName); }

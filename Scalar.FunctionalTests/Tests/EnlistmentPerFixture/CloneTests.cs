@@ -57,12 +57,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase]
-        [Category(Categories.MacOnly)]
+        [Category(Categories.POSIXOnly)]
         public void CloneWithDefaultLocalCacheLocation()
         {
             FileSystemRunner fileSystem = FileSystemRunner.DefaultRunner;
-            string homeDirectory = Environment.GetEnvironmentVariable("HOME");
-            homeDirectory.ShouldBeADirectory(fileSystem);
+            string defaultLocalCacheRoot = ScalarTestConfig.DefaultLocalCacheRoot;
+            fileSystem.CreateDirectory(defaultLocalCacheRoot);
+            defaultLocalCacheRoot.ShouldBeADirectory(fileSystem);
 
             string newEnlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
 
@@ -80,8 +81,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             string gitObjectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(Path.Combine(newEnlistmentRoot, "src"));
 
-            string defaultScalarCacheRoot = Path.Combine(homeDirectory, ".scalarCache");
-            gitObjectsRoot.StartsWith(defaultScalarCacheRoot, StringComparison.Ordinal).ShouldBeTrue($"Git objects root did not default to using {homeDirectory}");
+            gitObjectsRoot.StartsWith(defaultLocalCacheRoot, StringComparison.Ordinal).ShouldBeTrue($"Git objects root did not default to using {defaultLocalCacheRoot}");
 
             RepositoryHelpers.DeleteTestDirectory(newEnlistmentRoot);
         }

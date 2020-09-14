@@ -9,11 +9,15 @@ namespace Scalar.Platform.Mac
     {
         public static string GetDataRootForScalarImplementation()
         {
-            return Path.Combine(
-                Environment.GetEnvironmentVariable("HOME"),
-                "Library",
-                "Application Support",
-                "Scalar");
+            string localDataRoot;
+            string localDataRootError;
+
+            if (!TryGetEnvironmentVariableBasePath(EnvironmentVariableBaseDataPaths, out localDataRoot, out localDataRootError))
+            {
+                throw new ArgumentException(localDataRootError);
+            }
+
+            return localDataRoot;
         }
 
         public static string GetDataRootForScalarComponentImplementation(string componentName)

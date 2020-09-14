@@ -94,6 +94,35 @@ namespace Scalar.Common
             public const string UpgradeProcess = UpgradePrefix + "_process";
         }
 
+        public static class POSIXPlatform
+        {
+            public static class EnvironmentVariables
+            {
+                public const string LocalUserFolder = "HOME";
+            }
+        }
+
+        public static class LinuxPlatform
+        {
+            public static class EnvironmentVariables
+            {
+                public const string LocalUserCacheFolder = "XDG_CACHE_HOME";
+                public const string LocalUserConfigFolder = "XDG_CONFIG_HOME";
+                public const string LocalUserDataFolder = "XDG_DATA_HOME";
+            }
+
+            public const string LocalScalarFolderName = "scalar";
+
+            public static readonly string LocalScalarCachePath = Path.Combine(".cache", LocalScalarFolderName);
+            public static readonly string LocalScalarConfigPath = Path.Combine(".config", LocalScalarFolderName);
+            public static readonly string LocalScalarDataPath = Path.Combine(".local", "share", LocalScalarFolderName);
+        }
+
+        public static class MacPlatform
+        {
+            public static readonly string LocalScalarDataPath = Path.Combine("Library", "Application Support", "Scalar");
+        }
+
         public static class DotGit
         {
             public const string Root = ".git";
