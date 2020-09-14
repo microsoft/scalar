@@ -1,3 +1,4 @@
+using Scalar.FunctionalTests.Tools;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -16,7 +17,7 @@ namespace Scalar.FunctionalTests
             get
             {
                 string homeDirectory = null;
-                string cachePath = ".scalarCache";
+                string cachePath = TestConstants.DefaultScalarCacheFolderName;
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
@@ -24,20 +25,23 @@ namespace Scalar.FunctionalTests
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    homeDirectory = Environment.GetEnvironmentVariable("HOME");
+                    homeDirectory = Environment.GetEnvironmentVariable(
+                        TestConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder);
                 }
                 else
                 {
                     // On Linux we use a local cache path per the XDG Base Directory Specification.
-                    homeDirectory = Environment.GetEnvironmentVariable("XDG_CACHE_HOME");
+                    homeDirectory = Environment.GetEnvironmentVariable(
+                        TestConstants.LinuxPlatform.EnvironmentVariables.LocalUserCacheFolder);
                     if (!string.IsNullOrEmpty(homeDirectory))
                     {
-                        cachePath = "scalar";
+                        cachePath = TestConstants.LinuxPlatform.LocalScalarFolderName;
                     }
                     else
                     {
-                        homeDirectory = Environment.GetEnvironmentVariable("HOME");
-                        cachePath = Path.Combine(".cache", "scalar");
+                        homeDirectory = Environment.GetEnvironmentVariable(
+                            TestConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder);
+                        cachePath = TestConstants.LinuxPlatform.LocalScalarCachePath;
                     }
 
                 }

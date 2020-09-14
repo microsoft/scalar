@@ -18,10 +18,14 @@ namespace Scalar.Platform.Mac
     {
         private const string UpgradeProtectedDataDirectory = "/usr/local/scalar_upgrader";
         private static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseCachePaths = new[] {
-            new EnvironmentVariableBasePath("HOME", ScalarConstants.DefaultScalarCacheFolderName),
+            new EnvironmentVariableBasePath(
+                ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
+                ScalarConstants.DefaultScalarCacheFolderName),
         };
         protected static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseDataPaths = new[] {
-            new EnvironmentVariableBasePath("HOME", Path.Combine("Library", "Application Support", "Scalar")),
+            new EnvironmentVariableBasePath(
+                ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
+                ScalarConstants.MacPlatform.LocalScalarDataPath),
         };
 
         public MacPlatform() : base(

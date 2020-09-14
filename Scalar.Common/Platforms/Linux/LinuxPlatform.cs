@@ -26,16 +26,28 @@ namespace Scalar.Platform.Linux
         // permission mode via a native wrapper for mkdir(2) instead of
         // relying on our caller's use of Directory.CreateDirectory().
         private static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseCachePaths = new[] {
-            new EnvironmentVariableBasePath("XDG_CACHE_HOME", "scalar"),
-            new EnvironmentVariableBasePath("HOME", Path.Combine(".cache", "scalar")),
+            new EnvironmentVariableBasePath(
+                ScalarConstants.LinuxPlatform.EnvironmentVariables.LocalUserCacheFolder,
+                ScalarConstants.LinuxPlatform.LocalScalarFolderName),
+            new EnvironmentVariableBasePath(
+                ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
+                ScalarConstants.LinuxPlatform.LocalScalarCachePath),
         };
         protected static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseConfigPaths = new[] {
-            new EnvironmentVariableBasePath("XDG_CONFIG_HOME", "scalar"),
-            new EnvironmentVariableBasePath("HOME", Path.Combine(".config", "scalar")),
+            new EnvironmentVariableBasePath(
+                ScalarConstants.LinuxPlatform.EnvironmentVariables.LocalUserConfigFolder,
+                ScalarConstants.LinuxPlatform.LocalScalarFolderName),
+            new EnvironmentVariableBasePath(
+                ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
+                ScalarConstants.LinuxPlatform.LocalScalarConfigPath),
         };
         protected static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseDataPaths = new[] {
-            new EnvironmentVariableBasePath("XDG_DATA_HOME", "scalar"),
-            new EnvironmentVariableBasePath("HOME", Path.Combine(".local", "share", "scalar")),
+            new EnvironmentVariableBasePath(
+                ScalarConstants.LinuxPlatform.EnvironmentVariables.LocalUserDataFolder,
+                ScalarConstants.LinuxPlatform.LocalScalarFolderName),
+            new EnvironmentVariableBasePath(
+                ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
+                ScalarConstants.LinuxPlatform.LocalScalarDataPath),
         };
 
         public LinuxPlatform() : base(
