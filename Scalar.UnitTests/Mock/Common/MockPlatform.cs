@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
+using System.Runtime.InteropServices;
 
 namespace Scalar.UnitTests.Mock.Common
 {
@@ -212,12 +213,14 @@ namespace Scalar.UnitTests.Mock.Common
 
             public override HashSet<string> UpgradeBlockingProcesses
             {
-                get { return new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Scalar", "git", "wish", "bash" }; }
+                get { return new HashSet<string>(this.PathComparer) { "Scalar", "git", "wish", "bash" }; }
             }
 
             public override bool SupportsUpgradeWhileRunning => false;
 
             public override int MaxPipePathLength => 250;
+
+            public override bool CaseSensitiveFileSystem => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         }
     }
 }

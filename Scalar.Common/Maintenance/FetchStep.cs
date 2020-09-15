@@ -200,7 +200,7 @@ namespace Scalar.Common.Maintenance
         private static long? GetTimestamp(string packName)
         {
             string filename = Path.GetFileName(packName);
-            if (!filename.StartsWith(ScalarConstants.PrefetchPackPrefix, StringComparison.OrdinalIgnoreCase))
+            if (!filename.StartsWith(ScalarConstants.PrefetchPackPrefix, ScalarPlatform.Instance.Constants.PathComparison))
             {
                 return null;
             }
@@ -362,8 +362,8 @@ namespace Scalar.Common.Maintenance
             DirectoryItemInfo info = this.Context
                                          .FileSystem
                                          .ItemsInDirectory(this.Context.Enlistment.GitPackRoot)
-                                         .Where(item => item.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
-                                                        && string.Equals(Path.GetExtension(item.Name), ".pack", StringComparison.OrdinalIgnoreCase))
+                                         .Where(item => item.Name.StartsWith(prefix, ScalarPlatform.Instance.Constants.PathComparison)
+                                                        && string.Equals(Path.GetExtension(item.Name), ".pack", ScalarPlatform.Instance.Constants.PathComparison))
                                          .FirstOrDefault();
             if (info == null)
             {
@@ -382,7 +382,7 @@ namespace Scalar.Common.Maintenance
             foreach (string keepFile in this.Context
                                      .FileSystem
                                      .ItemsInDirectory(this.Context.Enlistment.GitPackRoot)
-                                     .Where(item => item.Name.EndsWith(".keep", StringComparison.OrdinalIgnoreCase))
+                                     .Where(item => item.Name.EndsWith(".keep", ScalarPlatform.Instance.Constants.PathComparison))
                                      .Select(item => item.FullName))
             {
                 if (!keepFile.Equals(newKeepFile))

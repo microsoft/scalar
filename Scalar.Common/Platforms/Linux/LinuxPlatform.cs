@@ -195,6 +195,8 @@ namespace Scalar.Platform.Linux
 
             // Documented here (in the addressing section): https://www.unix.com/man-page/linux/7/unix/
             public override int MaxPipePathLength => 108;
+
+            public override bool CaseSensitiveFileSystem => true;
         }
 
         private static class NativeMethods

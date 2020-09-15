@@ -244,7 +244,7 @@ namespace Scalar.UnitTests.Mock.FileSystem
                 // if it's called for one of those paths remap the paths to be inside the mock: root
                 string mockDirectoryPath = directoryPath;
                 string scalarProgramData = @"C:\ProgramData\Scalar";
-                if (directoryPath.StartsWith(scalarProgramData, StringComparison.OrdinalIgnoreCase))
+                if (directoryPath.StartsWith(scalarProgramData, ScalarPlatform.Instance.Constants.PathComparison))
                 {
                     mockDirectoryPath = mockDirectoryPath.Substring(scalarProgramData.Length);
                     mockDirectoryPath = "mock:" + mockDirectoryPath;
@@ -335,7 +335,7 @@ namespace Scalar.UnitTests.Mock.FileSystem
                     {
                         yield return file.FullName;
                     }
-                    else if (file.Name.EndsWith(searchSuffix, StringComparison.OrdinalIgnoreCase))
+                    else if (file.Name.EndsWith(searchSuffix, ScalarPlatform.Instance.Constants.PathComparison))
                     {
                         yield return file.FullName;
                     }

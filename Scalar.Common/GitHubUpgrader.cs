@@ -29,7 +29,7 @@ namespace Scalar.Common
         private const string GitSigner = "Johannes Schindelin";
         private const string GitCertIssuer = "COMODO RSA Code Signing CA";
 
-        private static readonly HashSet<string> ScalarInstallerFileNamePrefixCandidates = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> ScalarInstallerFileNamePrefixCandidates = new HashSet<string>(ScalarPlatform.Instance.Constants.PathComparer)
         {
             "SetupScalar",
             "Scalar"
@@ -152,7 +152,7 @@ namespace Scalar.Common
 
             foreach (Asset asset in this.newestRelease.Assets)
             {
-                bool targetOSMatch = string.Equals(Path.GetExtension(asset.Name), ScalarPlatform.Instance.Constants.InstallerExtension, StringComparison.OrdinalIgnoreCase);
+                bool targetOSMatch = string.Equals(Path.GetExtension(asset.Name), ScalarPlatform.Instance.Constants.InstallerExtension, ScalarPlatform.Instance.Constants.PathComparison);
                 bool isGitAsset = this.IsGitAsset(asset);
                 bool isScalarAsset = isGitAsset ? false : this.IsScalarAsset(asset);
                 if (!targetOSMatch || (!isScalarAsset && !isGitAsset))
@@ -461,7 +461,7 @@ namespace Scalar.Common
         {
             foreach (Asset asset in this.newestRelease.Assets)
             {
-                if (string.Equals(Path.GetExtension(asset.Name), ScalarPlatform.Instance.Constants.InstallerExtension, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(Path.GetExtension(asset.Name), ScalarPlatform.Instance.Constants.InstallerExtension, ScalarPlatform.Instance.Constants.PathComparison))
                 {
                     path = asset.LocalPath;
                     if (assetId == GitAssetId && this.IsGitAsset(asset))
@@ -497,7 +497,7 @@ namespace Scalar.Common
         {
             foreach (string fileNamePrefix in expectedFileNamePrefixes)
             {
-                if (asset.Name.StartsWith(fileNamePrefix, StringComparison.OrdinalIgnoreCase))
+                if (asset.Name.StartsWith(fileNamePrefix, ScalarPlatform.Instance.Constants.PathComparison))
                 {
                     return true;
                 }

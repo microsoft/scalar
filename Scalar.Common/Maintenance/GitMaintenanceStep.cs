@@ -153,7 +153,7 @@ namespace Scalar.Common.Maintenance
             {
                 string extension = Path.GetExtension(info.Name);
 
-                if (string.Equals(extension, ".pack", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(extension, ".pack", ScalarPlatform.Instance.Constants.PathComparison))
                 {
                     count++;
                     size += info.Length;
@@ -164,7 +164,7 @@ namespace Scalar.Common.Maintenance
                         maxSize = info.Length;
                     }
                 }
-                else if (string.Equals(extension, ".keep", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(extension, ".keep", ScalarPlatform.Instance.Constants.PathComparison))
                 {
                     hasKeep = true;
                 }

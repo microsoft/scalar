@@ -81,7 +81,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             string gitObjectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(Path.Combine(newEnlistmentRoot, "src"));
 
-            gitObjectsRoot.StartsWith(defaultLocalCacheRoot, StringComparison.Ordinal).ShouldBeTrue($"Git objects root did not default to using {defaultLocalCacheRoot}");
+            gitObjectsRoot.StartsWith(defaultLocalCacheRoot, FileSystemHelpers.PathComparison).ShouldBeTrue($"Git objects root did not default to using {defaultLocalCacheRoot}");
 
             RepositoryHelpers.DeleteTestDirectory(newEnlistmentRoot);
         }
@@ -102,7 +102,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 Directory.GetFiles(enlistment.EnlistmentRoot).ShouldBeEmpty("There should be no files in the enlistment root after cloning");
                 string[] directories = Directory.GetDirectories(enlistment.EnlistmentRoot);
                 directories.Length.ShouldEqual(1);
-                directories.ShouldContain(x => Path.GetFileName(x).Equals("src", StringComparison.Ordinal));
+                directories.ShouldContain(x => Path.GetFileName(x).Equals("src", FileSystemHelpers.PathComparison));
             }
             finally
             {

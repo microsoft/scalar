@@ -249,7 +249,7 @@ namespace Scalar.FunctionalTests.Should
                 return info;
             }
 
-            private static bool IsMatchedPath(FileSystemInfo info, string repoRoot, string[] prefixes)
+            private static bool IsMatchedPath(FileSystemInfo info, string repoRoot, string[] prefixes, bool ignoreCase)
             {
                 if (prefixes == null || prefixes.Length == 0)
                 {
@@ -258,6 +258,7 @@ namespace Scalar.FunctionalTests.Should
 
                 string localPath = info.FullName.Substring(repoRoot.Length + 1);
                 int parentLength = localPath.LastIndexOf(System.IO.Path.DirectorySeparatorChar);
+                StringComparison pathComparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
                 string parentPath = null;
 
@@ -270,7 +271,7 @@ namespace Scalar.FunctionalTests.Should
                     parentPath = localPath.Substring(0, parentLength + 1);
                 }
 
-                if (localPath.Equals(".git", StringComparison.OrdinalIgnoreCase))
+                if (localPath.Equals(".git", pathComparison))
                 {
                     // Include _just_ the .git folder.
                     // All sub-items are not included in the enumerator.
@@ -286,13 +287,13 @@ namespace Scalar.FunctionalTests.Should
 
                 foreach (string prefixDir in prefixes)
                 {
-                    if (localPath.Equals(prefixDir, StringComparison.OrdinalIgnoreCase) ||
-                        localPath.StartsWith(prefixDir + System.IO.Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    if (localPath.Equals(prefixDir, pathComparison) ||
+                        localPath.StartsWith(prefixDir + System.IO.Path.DirectorySeparatorChar, pathComparison))
                     {
                         return true;
                     }
 
-                    if (parentPath != null && prefixDir.StartsWith(parentPath, StringComparison.OrdinalIgnoreCase))
+                    if (parentPath != null && prefixDir.StartsWith(parentPath, pathComparison))
                     {
                         // For example: localPath = "Scalar\\file.txt", parentPath="Scalar\\" and prefix is "Scalar\\Scalar".
                         return true;
@@ -318,7 +319,7 @@ namespace Scalar.FunctionalTests.Should
                 IEnumerator<FileSystemInfo> expectedEnumerator = expectedEntries
                     .Where(x => !x.FullName.Contains(dotGitFolder))
                     .OrderBy(x => x.FullName)
-                    .Where(x => IsMatchedPath(x, expectedPath, withinPrefixes))
+                    .Where(x => IsMatchedPath(x, expectedPath, withinPrefixes, ignoreCase))
                     .GetEnumerator();
                 IEnumerator<FileSystemInfo> actualEnumerator = actualEntries
                     .Where(x => !x.FullName.Contains(dotGitFolder))
