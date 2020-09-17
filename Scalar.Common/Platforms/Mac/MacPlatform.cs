@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -16,7 +15,6 @@ namespace Scalar.Platform.Mac
 {
     public partial class MacPlatform : POSIXPlatform
     {
-        private const string UpgradeProtectedDataDirectory = "/usr/local/scalar_upgrader";
         private static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseCachePaths = new[] {
             new EnvironmentVariableBasePath(
                 ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
@@ -30,7 +28,7 @@ namespace Scalar.Platform.Mac
 
         public MacPlatform() : base(
              underConstruction: new UnderConstructionFlags(
-                supportsScalarUpgrade: true,
+                usesCustomUpgrader: false,
                 supportsScalarConfig: true,
                 supportsNuGetEncryption: false,
                 supportsNuGetVerification: false))
@@ -92,7 +90,7 @@ namespace Scalar.Platform.Mac
 
         public override string GetUpgradeProtectedDataDirectory()
         {
-            return UpgradeProtectedDataDirectory;
+            throw new NotImplementedException();
         }
 
         public override string GetUpgradeHighestAvailableVersionDirectory()

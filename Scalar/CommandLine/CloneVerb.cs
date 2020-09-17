@@ -211,20 +211,7 @@ namespace Scalar.CommandLine
                 resolvedLocalCacheRoot = Path.GetFullPath(this.LocalCacheRoot);
             }
 
-            // Determine what features of Git we have available to guide how we init/clone the repository
-            var gitFeatures = GitFeatureFlags.None;
-            string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
-            this.tracer.RelatedInfo("Attempting to determine Git version for installation '{0}'", gitBinPath);
-            if (GitProcess.TryGetVersion(gitBinPath, out var gitVersion, out string gitVersionError))
-            {
-                this.tracer.RelatedInfo("Git installation '{0}' has version '{1}", gitBinPath, gitVersion);
-                gitFeatures = gitVersion.GetFeatures();
-            }
-            else
-            {
-                this.tracer.RelatedWarning("Unable to detect Git features for installation '{0}'. Failed to get Git version: '{1}", gitBinPath, gitVersionError);
-                this.Output.WriteLine("Warning: unable to detect Git features: {0}", gitVersionError);
-            }
+            GitFeatureFlags gitFeatures = this.GetAvailableGitFeatures(this.tracer);
 
             // Do not try GVFS authentication on SSH URLs or when we don't have Git support for the GVFS protocol
             bool isHttpsRemote = this.enlistment.RepoUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);

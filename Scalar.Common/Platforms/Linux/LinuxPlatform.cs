@@ -52,7 +52,7 @@ namespace Scalar.Platform.Linux
 
         public LinuxPlatform() : base(
              underConstruction: new UnderConstructionFlags(
-                supportsScalarUpgrade: false,
+                usesCustomUpgrader: false,
                 supportsScalarConfig: true,
                 supportsNuGetEncryption: false,
                 supportsNuGetVerification: false))

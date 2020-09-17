@@ -120,7 +120,7 @@ namespace Scalar.CommandLine
                             ScalarConstants.Service.UIName,
                             copySubFolders: true);
 
-                        if (ScalarPlatform.Instance.UnderConstruction.SupportsScalarUpgrade)
+                        if (ScalarPlatform.Instance.UnderConstruction.UsesCustomUpgrader)
                         {
                             // upgrader
                             this.CopyAllFiles(

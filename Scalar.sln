@@ -1,37 +1,39 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar", "Scalar\Scalar.csproj", "{31208ED8-5B83-4BE6-802A-18EE67434537}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30406.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar", "Scalar\Scalar.csproj", "{31208ED8-5B83-4BE6-802A-18EE67434537}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Common", "Scalar.Common\Scalar.Common.csproj", "{179EAE33-265B-4698-BBC7-130F28F6D768}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Common", "Scalar.Common\Scalar.Common.csproj", "{179EAE33-265B-4698-BBC7-130F28F6D768}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Service", "Scalar.Service\Scalar.Service.csproj", "{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Service", "Scalar.Service\Scalar.Service.csproj", "{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Upgrader", "Scalar.Upgrader\Scalar.Upgrader.csproj", "{424D0102-50EE-4CA6-A937-C8A89CE10103}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Upgrader", "Scalar.Upgrader\Scalar.Upgrader.csproj", "{424D0102-50EE-4CA6-A937-C8A89CE10103}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.UnitTests", "Scalar.UnitTests\Scalar.UnitTests.csproj", "{B1D1E8BE-D633-4624-A821-B222EB1B8020}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.UnitTests", "Scalar.UnitTests\Scalar.UnitTests.csproj", "{B1D1E8BE-D633-4624-A821-B222EB1B8020}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EB9427BB-456A-4319-8916-E782E0F5F6D3}"
 	ProjectSection(SolutionItems) = preProject
+		Dependencies.props = Dependencies.props
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
-		Dependencies.props = Dependencies.props
 		global.json = global.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.FunctionalTests", "Scalar.FunctionalTests\Scalar.FunctionalTests.csproj", "{C7E08779-6F45-4025-89E1-31346C9B234F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.FunctionalTests", "Scalar.FunctionalTests\Scalar.FunctionalTests.csproj", "{C7E08779-6F45-4025-89E1-31346C9B234F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.TestInfrastructure", "Scalar.TestInfrastructure\Scalar.TestInfrastructure.csproj", "{77FC445D-FD03-4EE0-8582-7BD1437D9842}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.TestInfrastructure", "Scalar.TestInfrastructure\Scalar.TestInfrastructure.csproj", "{77FC445D-FD03-4EE0-8582-7BD1437D9842}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.MSBuild", "Scalar.MSBuild\Scalar.MSBuild.csproj", "{6B05E1DE-1C67-48F7-9A2A-E109D7252CF2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.MSBuild", "Scalar.MSBuild\Scalar.MSBuild.csproj", "{6B05E1DE-1C67-48F7-9A2A-E109D7252CF2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Installer.Mac", "Scalar.Installer.Mac\Scalar.Installer.Mac.csproj", "{5CFE04A9-F65A-4EEF-B237-7608D19A87DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Installer.Mac", "Scalar.Installer.Mac\Scalar.Installer.Mac.csproj", "{5CFE04A9-F65A-4EEF-B237-7608D19A87DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Installer.Windows", "Scalar.Installer.Windows\Scalar.Installer.Windows.csproj", "{913C7CBD-876C-45D8-B59E-D0849CD219E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Installer.Windows", "Scalar.Installer.Windows\Scalar.Installer.Windows.csproj", "{913C7CBD-876C-45D8-B59E-D0849CD219E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Service.UI", "Scalar.Service.UI\Scalar.Service.UI.csproj", "{32D8335E-E9E8-4AD8-BAE5-162F53AA4D72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Service.UI", "Scalar.Service.UI\Scalar.Service.UI.csproj", "{32D8335E-E9E8-4AD8-BAE5-162F53AA4D72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.Notifications.Mac", "Scalar.Notifications.Mac\Scalar.Notifications.Mac.csproj", "{ED367118-BFB1-41CA-A010-E46C28796ED8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Notifications.Mac", "Scalar.Notifications.Mac\Scalar.Notifications.Mac.csproj", "{ED367118-BFB1-41CA-A010-E46C28796ED8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,10 +49,6 @@ Global
 		{179EAE33-265B-4698-BBC7-130F28F6D768}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{179EAE33-265B-4698-BBC7-130F28F6D768}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{179EAE33-265B-4698-BBC7-130F28F6D768}.Release|Any CPU.Build.0 = Release|Any CPU
-		{829C7E6B-ABD7-4CE5-8076-FB28821368C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{829C7E6B-ABD7-4CE5-8076-FB28821368C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{829C7E6B-ABD7-4CE5-8076-FB28821368C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{829C7E6B-ABD7-4CE5-8076-FB28821368C5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -92,6 +90,10 @@ Global
 		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED367118-BFB1-41CA-A010-E46C28796ED8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FDE61E04-DC84-437F-A176-40CD62CDE05F}
 	EndGlobalSection
 EndGlobal
