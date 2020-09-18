@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <PropertyGroup>
     <!--
       Set helpful property for detecting the current OS platform.

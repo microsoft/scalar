@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Scalar.Service;
 using Scalar.Tests.Should;
 using Scalar.UnitTests.Mock.Common;
