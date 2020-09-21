@@ -1,64 +1,117 @@
-# Scalar
-
-[![Build Status](https://dev.azure.com/mseng/Scalar/_apis/build/status/microsoft.scalar?branchName=main)](https://dev.azure.com/mseng/Scalar/_build/latest?definitionId=9297&branchName=main)
+![Scalar](Scalar/Images/scalar-card.png)
 
 ## What is Scalar?
 
-Scalar is a C# application that manages large Git repositories.
+Scalar is an opinionated repository management tool. By creating new
+repositories or registering existing repositories with Scalar, your Git
+experience will speed up. Scalar sets advanced Git config settings,
+maintains your repositories in the background, and helps reduce data sent
+across the network.
 
-Run `scalar register` in an existing Git repo to enable recommended config
-settings and start background maintenance.
-
-If your repo is hosted on a service that supports the
-[GVFS Protocol](https://github.com/microsoft/VFSForGit/blob/HEAD/Protocol.md),
-such as Azure Repos, then `scalar clone <url>` will create a local enlistment with
-abilities like on-demand object retrieval, background maintenance tasks, and
-automatically sets Git config values and hooks that enable performance enhancements.
-Scalar also assists in setting up sparse enlistments.
-
-See [the documentation](docs/index.md) for more details.
+You can learn more about Scalar in this video: [Git at Scale for Everyone](https://www.youtube.com/watch?v=USLB1gwl1vA).
 
 ## Table of Contents
 
-* [Installing on macOS](#installing-on-macos)
-* [Installing on Windows](#installing-on-windows)
-* [Quick start](#quick-start)
+* [Getting Started](#getting-started)
+* [Example Workflow](#example-workflow)
 * [License](#license)
+* [Code of Conduct](#code-of-conduct)
 
-Installing on macOS
-------------------
+## Getting Started
 
-To install Scalar on macOS,
-[download the `Installers_macOS_Release.zip` from the releases page](https://github.com/microsoft/scalar/releases).
-Extract the `Installers_macOS_Release` folder, `cd` into it, and run `./InstallScalar.sh` in a Terminal window.
-The script may prompt for your password as it installs the following components:
+Full details can be found in [our documentation page](https://github.com/microsoft/scalar/blob/HEAD/docs/index.md).
 
-* [Git](https://github.com/microsoft/git) (with custom patches)
-* [Git Credential Manager Core](https://github.com/microsoft/Git-Credential-Manager-Core)
-* Scalar
-* [Watchman](https://github.com/facebook/watchman), unless you use the `--no-watchman` argument.
+### Installing on macOS
 
-Installing on Windows
---------------------
+Scalar is installed and updated on macOS via [Homebrew](https://brew.sh/).
 
-To install Scalar on Windows,
-[download the `Installers_Windows_Release.zip` from the releases page](https://github.com/microsoft/scalar/releases).
-Extract the `Installers_Windows_Release` folder, open it in a command prompt, and
-run `InstallScalar.bat`. This will install the following components:
+```sh
+brew tap microsoft/git
+brew cask install scalar
+```
 
-* [Git for Windows](https://github.com/microsoft/git) (with custom patches)
-* Scalar
-* [Watchman](https://github.com/facebook/watchman), if you use the `--watchman` argument.
+If you wish to use the [GVFS Protocol][gvfs-protocol], then you will
+instead need the cask that uses [our custom fork of Git][microsoft-git]:
 
-## Quick start
+```sh
+brew tap microsoft/git
+brew cask install scalar-azrepos
+```
+
+When new versions of Scalar are available, you can upgrade in a few
+different ways. First, you can use `brew`:
+
+```sh
+brew update
+
+# Use only one of the following, depending on which you have installed:
+brew upgrade --cask scalar
+brew upgrade --cask scalar-azrepos
+```
+
+Alternatively, you can run `scalar upgrade` and it will run the necessary
+`brew` commands on your behalf.
+
+If your repository has many files in the working directory, then you might
+want to install [Watchman](https://github.com/facebook/watchman), which
+Scalar will detect and configure with Git's File System Monitor feature.
+
+```sh
+brew install watchman
+```
+
+### Installing on Windows
+
+To install Scalar on Windows, download `Installers_Windows_Release.zip`
+from the [latest release](https://github.com/microsoft/scalar/releases)
+and extract all of the files.  Run the contained installers for Git and
+Scalar, with names matching these patterns:
+
+ * `Git\Git-2.XX.Y-vfs.*.*-64-bit.exe`
+ * `Scalar\SetupScalar.YY.MM.<sprint>.<minor>.exe`
+
+_Note: we are investigating package management tools to have the Windows
+install process be as simple as the `brew` process on macOS. See
+[#433](https://github.com/microsoft/scalar/issues/433) for progress on
+this feature._
+
+### Basic Scalar Use
+
+To create a new local repository from a remote repository, run
+
+```sh
+scalar clone [--full-clone] <url> [<dir>]
+```
+
+If the given `<url>` is hosted by Azure Repos, then the clone will use
+[the GVFS Protocol](gvfs-procool)
+to reduce the amount of data sent across the network. Otherwise, this will
+attempt to use [Git's partial clone feature](https://git-scm.com/docs/git-clone#Documentation/git-clone.txt---filterltfilter-specgt)
+to achieve similar results.
+
+If you already have a local Git repository and do not want to clone a new
+one, you can get many of the benefits of Scalar by registering your repository
+using the `scalar register` command.
+
+```sh
+scalar register
+```
+
+After either of these commands, your repositories will be initialized with
+advanced Git performance features and will be maintained in the background
+according to our recommended maintenance schedule.
+
+## Example Workflow
 
 If you want to get a feel for an initial workflow with a test project, here
 are some commands that clone [our test repo](https://dev.azure.com/gvfs/ci/_git/ForTests)
-and initialize some of the sparse content.
+and initialize the sparse-checkout definition to grow the working directory.
 
-(Run these commands in Mac OSX Terminal or in Git Bash on Windows.)
+Run these commands in Terminal on macOS or in Git Bash on Windows.
 
-```
+First, clone the repository using the GVFS protocol.
+
+```sh
 $ scalar clone https://dev.azure.com/gvfs/ci/_git/ForTests
 Clone parameters:
   Repo URL:     https://dev.azure.com/gvfs/ci/_git/ForTests
@@ -74,34 +127,54 @@ Cloning...Succeeded
 Fetching commits and trees from origin (no cache server)...Succeeded
 Configuring Watchman...Succeeded.
 Validating repo...Succeeded
+```
 
+Then, navigate into the repository's `src` directory.
+(*Related:* [Why does `scalar clone` create a `src` folder?](https://github.com/microsoft/scalar/blob/main/docs/faq.md#why-does-scalar-clone-create-a-reposrc-folder))
+
+```sh
 $ cd ForTests/src
-$ ls
-AuthoringTests.md  GvFlt_EULA.md  GVFS.sln  License.md  nuget.config  Protocol.md  Readme.md  Settings.StyleCop
+$ ls -a
+./   .git/           .gitignore         GvFlt_EULA.md  License.md    Protocol.md  Settings.StyleCop
+../  .gitattributes  AuthoringTests.md  GVFS.sln       nuget.config  Readme.md
+```
 
+This directory is the _working directory_, which contains all files
+tracked by Git. It also includes the `.git` directory and its contents.
+
+The working directory does not contain any subdirectories (other than the
+`.git` directory). This is due to the initial sparse-checkout definition
+which only cares about the files at root. We can expand the sparse-checkout
+using the `git sparse-checkout set` and `git sparse-checkout add` commands:
+
+```sh
 $ git sparse-checkout set GVFS/GVFS.Common GVFS/GVFS.UnitTests GitHooksLoader
-$ ls
-AuthoringTests.md  GitHooksLoader/  GvFlt_EULA.md  GVFS/  GVFS.sln  License.md  nuget.config  Protocol.md  Readme.md  Settings.StyleCop
+$ ls -a
+./   .git/           .gitignore         GitHooksLoader/  GVFS/     License.md    Protocol.md  Settings.StyleCop
+../  .gitattributes  AuthoringTests.md  GvFlt_EULA.md    GVFS.sln  nuget.config  Readme.md
 
 $ ls GVFS
 GVFS.Common/  GVFS.UnitTests/  LibGit2Sharp.NativeBinaries.props  ProjectedFSLib.NativeBinaries.props
 
-$ git sparse-checkout set GVFS/GVFS GVFS/GVFS.Common GVFS/GVFS.UnitTests GitHooksLoader
+$ git sparse-checkout add GVFS/GVFS
 $ ls GVFS
 GVFS/  GVFS.Common/  GVFS.UnitTests/  LibGit2Sharp.NativeBinaries.props  ProjectedFSLib.NativeBinaries.props
 ```
 
+[Learn more about sparse-checkout here](https://github.blog/2020-01-17-bring-your-monorepo-down-to-size-with-sparse-checkout/).
+
 ## License
 
 The Scalar source code in this repo is available under the MIT license. See [License.md](License.md).
-
----
 
 ## Code of Conduct
 
 This project has adopted the [Microsoft Open Source Code of Conduct][conduct-code].
 For more information see the [Code of Conduct FAQ][conduct-FAQ] or contact [opencode@microsoft.com][conduct-email] with any additional questions or comments.
 
+
+[gvfs-protocol]: https://github.com/microsoft/VFSForGit/blob/HEAD/Protocol.md
+[microsoft-git]: https://github.com/microsoft/git
 [conduct-code]: https://opensource.microsoft.com/codeofconduct/
 [conduct-FAQ]: https://opensource.microsoft.com/codeofconduct/faq/
 [conduct-email]: mailto:opencode@microsoft.com

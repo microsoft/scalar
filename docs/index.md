@@ -68,4 +68,7 @@ Documentation
   Collect diagnostic information or update custom settings. Includes
   `scalar diagnose`, `scalar config`, `scalar upgrade`, and `scalar cache-server`.
 
+* [The Philosophy of Scalar](philosophy.md): Why does Scalar work the way
+  it does, and how do we make decisions about its future?
+
 * [Frequently Asked Questions](faq.md)
