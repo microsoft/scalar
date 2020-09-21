@@ -672,7 +672,7 @@ namespace Scalar.CommandLine
             GitProcess.Result initResult = GitProcess.Init(this.enlistment);
             if (initResult.ExitCodeIsFailure)
             {
-                string error = string.Format("Could not init repo at to {0}: {1}", repoPath, initResult.Errors);
+                string error = string.Format("Could not init repo at {0}: {1}", repoPath, initResult.Errors);
                 this.tracer.RelatedError(error);
                 return new Result(error);
             }
@@ -694,7 +694,7 @@ namespace Scalar.CommandLine
                 GitProcess.Result sparseCheckoutResult = GitProcess.SparseCheckoutInit(this.enlistment);
                 if (sparseCheckoutResult.ExitCodeIsFailure)
                 {
-                    string error = string.Format("Could not init sparse-checkout at to {0}: {1}", repoPath, sparseCheckoutResult.Errors);
+                    string error = string.Format("Could not init sparse-checkout at {0}: {1}", repoPath, sparseCheckoutResult.Errors);
                     this.tracer.RelatedError(error);
                     return new Result(error);
                 }
