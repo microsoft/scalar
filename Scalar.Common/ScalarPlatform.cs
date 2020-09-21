@@ -131,6 +131,28 @@ namespace Scalar.Common
             return true;
         }
 
+        public bool IsFileSystemCaseSensitivitySupported(string path, out string errorMessage)
+        {
+            Exception ex = null;
+            bool caseSensitive = IsDirectoryCaseSensitive(path, out ex);
+
+            if (ex != null)
+            {
+                errorMessage = $"Exception when performing {nameof(this.IsFileSystemCaseSensitivitySupported)}: {ex.ToString()}";
+                return false;
+            }
+
+            bool caseSensitiveFileSystem = this.Constants.CaseSensitiveFileSystem;
+            if (caseSensitive != caseSensitiveFileSystem)
+            {
+                errorMessage = $"Scalar does not support case {(caseSensitiveFileSystem ? "in" : "")}sensitive filesystems on {this.Name}";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
+        }
+
         public abstract class ScalarPlatformConstants
         {
             public static readonly char PathSeparator = Path.DirectorySeparatorChar;
@@ -210,6 +232,30 @@ namespace Scalar.Common
             public bool SupportsScalarConfig { get; }
             public bool SupportsNuGetEncryption { get; }
             public bool SupportsNuGetVerification { get; }
+        }
+
+        private bool IsDirectoryCaseSensitive(string path, out Exception exception)
+        {
+            try
+            {
+                string lowerCaseFilePath = Path.Combine(path, $"casetest{Guid.NewGuid().ToString()}");
+                string upperCaseFilePath = lowerCaseFilePath.ToUpper();
+                bool isCaseSensitive;
+
+                using (FileStream fs = File.Create(lowerCaseFilePath))
+                {
+                }
+                isCaseSensitive = !File.Exists(upperCaseFilePath);
+                File.Delete(lowerCaseFilePath);
+
+                exception = null;
+                return isCaseSensitive;
+            }
+            catch (Exception e)
+            {
+                exception = e;
+                return false;
+            }
         }
     }
 }

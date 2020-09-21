@@ -179,8 +179,7 @@ namespace Scalar.Platform.Windows
 
         public bool IsFileSystemSupported(string path, out string error)
         {
-            error = null;
-            return true;
+            return ScalarPlatform.Instance.IsFileSystemCaseSensitivitySupported(path, out error);
         }
     }
 }
