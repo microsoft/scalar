@@ -43,7 +43,10 @@ different ways. First, you can use `brew`:
 
 ```sh
 brew update
-brew upgrade --cask scalar[-azrepos]
+
+# Use only one of the following, depending on which you have installed:
+brew upgrade --cask scalar
+brew upgrade --cask scalar-azrepos
 ```
 
 Alternatively, you can run `scalar upgrade` and it will run the necessary
@@ -127,17 +130,17 @@ Validating repo...Succeeded
 ```
 
 Then, navigate into the repository's `src` directory.
+(*Related:* [Why does `scalar clone` create a `src` folder?](https://github.com/microsoft/scalar/blob/main/docs/faq.md#why-does-scalar-clone-create-a-reposrc-folder))
 
 ```sh
 $ cd ForTests/src
-$ ls
-AuthoringTests.md  GvFlt_EULA.md  GVFS.sln  License.md  nuget.config  Protocol.md  Readme.md  Settings.StyleCop
+$ ls -a
+./   .git/           .gitignore         GvFlt_EULA.md  License.md    Protocol.md  Settings.StyleCop
+../  .gitattributes  AuthoringTests.md  GVFS.sln       nuget.config  Readme.md
 ```
 
 This directory is the _working directory_, which contains all files
 tracked by Git. It also includes the `.git` directory and its contents.
-This allows build outputs to be written to directories next to the `src`
-directory instead of inside it, which speeds up some Git operations.
 
 The working directory does not contain any subdirectories (other than the
 `.git` directory). This is due to the initial sparse-checkout definition
@@ -146,8 +149,9 @@ using the `git sparse-checkout set` and `git sparse-checkout add` commands:
 
 ```sh
 $ git sparse-checkout set GVFS/GVFS.Common GVFS/GVFS.UnitTests GitHooksLoader
-$ ls
-AuthoringTests.md  GitHooksLoader/  GvFlt_EULA.md  GVFS/  GVFS.sln  License.md  nuget.config  Protocol.md  Readme.md  Settings.StyleCop
+$ ls -a
+./   .git/           .gitignore         GitHooksLoader/  GVFS/     License.md    Protocol.md  Settings.StyleCop
+../  .gitattributes  AuthoringTests.md  GvFlt_EULA.md    GVFS.sln  nuget.config  Readme.md
 
 $ ls GVFS
 GVFS.Common/  GVFS.UnitTests/  LibGit2Sharp.NativeBinaries.props  ProjectedFSLib.NativeBinaries.props
