@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.RepoRegistry;

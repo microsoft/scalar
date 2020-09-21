@@ -1,4 +1,4 @@
-﻿namespace Scalar.Service
+namespace Scalar.Service
 {
     public interface IRegisteredUserStore
     {

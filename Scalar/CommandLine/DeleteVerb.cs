@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 using Scalar.Common;
 using System;
 using System.ComponentModel;

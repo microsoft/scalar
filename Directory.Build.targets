@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <!-- Define common properties that rely on SDK/props-defined properties -->
   <PropertyGroup>
     <Version>$(ScalarVersion)</Version>

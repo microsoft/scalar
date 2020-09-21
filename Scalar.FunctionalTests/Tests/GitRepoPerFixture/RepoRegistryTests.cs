@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Scalar.Tests.Should;
 
 namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
