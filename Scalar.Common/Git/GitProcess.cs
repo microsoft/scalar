@@ -305,7 +305,8 @@ namespace Scalar.Common.Git
                 Result gitCredentialOutput = this.InvokeGitAgainstDotGitFolder(
                     GenerateCredentialVerbCommand("fill"),
                     stdin => stdin.Write($"url={repoUrl}\n\n"),
-                    parseStdOutLine: null);
+                    parseStdOutLine: null,
+                    userInteractive: true);
 
                 if (gitCredentialOutput.ExitCodeIsFailure)
                 {
@@ -614,11 +615,11 @@ namespace Scalar.Common.Git
                 }
             }
 
-            processInfo.EnvironmentVariables["GIT_TERMINAL_PROMPT"] = "0";
             processInfo.EnvironmentVariables["GCM_VALIDATE"] = "0";
 
             if (!userInteractive)
             {
+                processInfo.EnvironmentVariables["GIT_TERMINAL_PROMPT"] = "0";
                 processInfo.EnvironmentVariables["GCM_INTERACTIVE"] = "Never";
             }
 
@@ -844,7 +845,8 @@ namespace Scalar.Common.Git
             string command,
             Action<StreamWriter> writeStdIn,
             Action<string> parseStdOutLine,
-            string gitObjectsDirectory = null)
+            string gitObjectsDirectory = null,
+            bool userInteractive = true)
         {
             // This git command should not need/use the working directory of the repo.
             // Run git.exe in Environment.SystemDirectory to ensure the git.exe process
@@ -857,7 +859,8 @@ namespace Scalar.Common.Git
                 writeStdIn: writeStdIn,
                 parseStdOutLine: parseStdOutLine,
                 timeoutMs: -1,
-                gitObjectsDirectory: gitObjectsDirectory);
+                gitObjectsDirectory: gitObjectsDirectory,
+                userInteractive: userInteractive);
         }
 
         public class Result
