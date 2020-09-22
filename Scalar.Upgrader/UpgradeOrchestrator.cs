@@ -143,8 +143,7 @@ namespace Scalar.Upgrader
             return ConsoleHelper.ShowStatusWhileRunning(
                 method,
                 message,
-                this.output,
-                this.output == Console.Out && !ScalarPlatform.Instance.IsConsoleOutputRedirectedToFile());
+                this.output);
         }
 
         private JsonTracer CreateTracer()

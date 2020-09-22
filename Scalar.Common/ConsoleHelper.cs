@@ -16,9 +16,7 @@ namespace Scalar.Common
         public static bool ShowStatusWhileRunning(
             Func<bool> action,
             string message,
-            TextWriter output,
-            bool showSpinner,
-            int initialDelayMs = 0)
+            TextWriter output)
         {
             Func<ActionResult> actionResultAction =
                 () =>
@@ -29,9 +27,7 @@ namespace Scalar.Common
             ActionResult result = ShowStatusWhileRunning(
                 actionResultAction,
                 message,
-                output,
-                showSpinner,
-                initialDelayMs: initialDelayMs);
+                output);
 
             return result == ActionResult.Success;
         }
@@ -39,78 +35,23 @@ namespace Scalar.Common
         public static ActionResult ShowStatusWhileRunning(
             Func<ActionResult> action,
             string message,
-            TextWriter output,
-            bool showSpinner,
-            int initialDelayMs)
+            TextWriter output)
         {
             ActionResult result = ActionResult.Failure;
             bool initialMessageWritten = false;
 
             try
             {
-                if (!showSpinner)
-                {
-                    output.Write(message + "...");
-                    initialMessageWritten = true;
-                    result = action();
-                }
-                else
-                {
-                    ManualResetEvent actionIsDone = new ManualResetEvent(false);
-                    bool isComplete = false;
-                    Thread spinnerThread = new Thread(
-                        () =>
-                        {
-                            int retries = 0;
-                            char[] waiting = { '\u2014', '\\', '|', '/' };
 
-                            while (!isComplete)
-                            {
-                                if (retries == 0)
-                                {
-                                    actionIsDone.WaitOne(initialDelayMs);
-                                }
-                                else
-                                {
-                                    output.Write("\r{0}...{1}", message, waiting[(retries / 2) % waiting.Length]);
-                                    initialMessageWritten = true;
-                                    actionIsDone.WaitOne(100);
-                                }
-
-                                retries++;
-                            }
-
-                            if (initialMessageWritten)
-                            {
-                                // Clear out any trailing waiting character
-                                output.Write("\r{0}...", message);
-                            }
-                        });
-                    spinnerThread.Start();
-
-                    try
-                    {
-                        result = action();
-                    }
-                    finally
-                    {
-                        isComplete = true;
-
-                        actionIsDone.Set();
-                        spinnerThread.Join();
-                    }
-                }
+                output.WriteLine(message + "...");
+                initialMessageWritten = true;
+                result = action();
             }
             finally
             {
                 switch (result)
                 {
                     case ActionResult.Success:
-                        if (initialMessageWritten)
-                        {
-                            output.WriteLine("Succeeded");
-                        }
-
                         break;
 
                     case ActionResult.CompletedWithErrors:

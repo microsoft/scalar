@@ -157,9 +157,7 @@ namespace Scalar.CommandLine
             return ConsoleHelper.ShowStatusWhileRunning(
                 action,
                 message,
-                this.Output,
-                showSpinner: !this.Unattended && this.Output == Console.Out && !ScalarPlatform.Instance.IsConsoleOutputRedirectedToFile(),
-                initialDelayMs: 0);
+                this.Output);
         }
 
         protected GitAuthentication.Result TryAuthenticate(ITracer tracer, ScalarEnlistment enlistment, out string authErrorMessage)
