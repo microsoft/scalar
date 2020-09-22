@@ -309,6 +309,15 @@ namespace Scalar.CommandLine
                 cloneResult = this.TryRegisterRepo();
             }
 
+            if (cloneResult.Success)
+            {
+                this.Output.WriteLine("Complete!");
+            }
+            else
+            {
+                this.Output.WriteLine("Complete with errors.");
+            }
+
             return cloneResult;
         }
 
