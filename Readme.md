@@ -120,13 +120,14 @@ Clone parameters:
   Local Cache:  C:\.scalarCache
   Destination:  C:\_git\ForTests
   FullClone:     False
-Authenticating...Succeeded
-Querying remote for config...Succeeded
+Authenticating...
+Querying remote for config...
 Using cache server: None (https://dev.azure.com/gvfs/ci/_git/ForTests)
-Cloning...Succeeded
-Fetching commits and trees from origin (no cache server)...Succeeded
-Configuring Watchman...Succeeded.
-Validating repo...Succeeded
+Cloning...
+Fetching commits and trees from origin (no cache server)...
+Configuring Watchman...
+Validating repo...
+Complete!
 ```
 
 Then, navigate into the repository's `src` directory.
