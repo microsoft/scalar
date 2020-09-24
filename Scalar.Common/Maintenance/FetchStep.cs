@@ -382,6 +382,7 @@ namespace Scalar.Common.Maintenance
             foreach (string keepFile in this.Context
                                      .FileSystem
                                      .ItemsInDirectory(this.Context.Enlistment.GitPackRoot)
+                                     .Where(item => item.Name.StartsWith(ScalarConstants.PrefetchPackPrefix, ScalarPlatform.Instance.Constants.PathComparison))
                                      .Where(item => item.Name.EndsWith(".keep", ScalarPlatform.Instance.Constants.PathComparison))
                                      .Select(item => item.FullName))
             {
