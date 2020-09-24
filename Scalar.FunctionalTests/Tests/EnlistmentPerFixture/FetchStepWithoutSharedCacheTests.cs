@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;
 using Scalar.FunctionalTests.Should;
+using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System;
 using System.IO;
@@ -100,8 +101,46 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.TempPackRoot.ShouldBeADirectory(this.fileSystem).WithNoItems();
         }
 
-        // WindowsOnly because the test depends on Windows-specific file sharing behavior
         [TestCase, Order(4)]
+        public void FetchStepCleansUpOrIgnoresBadPrefetchPacksWithCaseDifferingNames()
+        {
+            string[] prefetchPacks = this.ReadPrefetchPackFileNames();
+            long mostRecentPackTimestamp = this.GetMostRecentPackTimestamp(prefetchPacks);
+
+            // Create two bad packs that are newer than the most recent pack
+            // and have uppercase versions of the filename prefix and extension
+            string badContents = "BADPACK";
+            string badPackPath1 = Path.Combine(this.PackRoot, $"{PrefetchPackPrefix}-{mostRecentPackTimestamp + 1}-{Guid.NewGuid().ToString("N")}.PACK");
+            string badPackPath2 = Path.Combine(this.PackRoot, $"{PrefetchPackPrefix.ToUpper()}-{mostRecentPackTimestamp + 2}-{Guid.NewGuid().ToString("N")}.pack");
+            this.fileSystem.WriteAllText(badPackPath1, badContents);
+            this.fileSystem.WriteAllText(badPackPath2, badContents);
+            badPackPath1.ShouldBeAFile(this.fileSystem).WithContents(badContents);
+            badPackPath2.ShouldBeAFile(this.fileSystem).WithContents(badContents);
+
+            // fetch should delete the bad packs on Windows and Mac, and
+            // ignore them on Linux due to the different case filenames
+            this.Enlistment.RunVerb("fetch");
+
+            if (FileSystemHelpers.CaseSensitiveFileSystem)
+            {
+                badPackPath1.ShouldBeAFile(this.fileSystem).WithContents(badContents);
+                badPackPath2.ShouldBeAFile(this.fileSystem).WithContents(badContents);
+            }
+            else
+            {
+                badPackPath1.ShouldNotExistOnDisk(this.fileSystem);
+                badPackPath2.ShouldNotExistOnDisk(this.fileSystem);
+            }
+
+            // All of the original prefetch packs should still be present
+            string[] newPrefetchPacks = this.ReadPrefetchPackFileNames();
+            newPrefetchPacks.ShouldContain(prefetchPacks, (item, expectedValue) => { return string.Equals(item, expectedValue); });
+            this.AllPrefetchPacksShouldHaveIdx(newPrefetchPacks);
+            this.TempPackRoot.ShouldBeADirectory(this.fileSystem).WithNoItems();
+        }
+
+        // WindowsOnly because the test depends on Windows-specific file sharing behavior
+        [TestCase, Order(5)]
         [Category(Categories.WindowsOnly)]
         public void FetchStepFailsWhenItCannotRemoveABadPrefetchPack()
         {
@@ -135,7 +174,81 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.TempPackRoot.ShouldBeADirectory(this.fileSystem).WithNoItems();
         }
 
-        [TestCase, Order(5)]
+        [TestCase, Order(6)]
+        public void FetchStepCleansUpBadKeepFiles()
+        {
+            string[] prefetchPacks = this.ReadPrefetchPackFileNames();
+            long mostRecentPackTimestamp = this.GetMostRecentPackTimestamp(prefetchPacks);
+
+            // Create a bad keep file that is newer than the most recent pack
+            string badContents = "BADKEEP";
+            string badKeepPath = Path.Combine(this.PackRoot, $"{PrefetchPackPrefix}-{mostRecentPackTimestamp + 1}-{Guid.NewGuid().ToString("N")}.keep");
+            this.fileSystem.WriteAllText(badKeepPath, badContents);
+            badKeepPath.ShouldBeAFile(this.fileSystem).WithContents(badContents);
+
+            // fetch should delete the bad keep file
+            this.Enlistment.RunVerb("fetch");
+
+            badKeepPath.ShouldNotExistOnDisk(this.fileSystem);
+
+            // All of the original prefetch packs should still be present
+            string[] newPrefetchPacks = this.ReadPrefetchPackFileNames();
+            newPrefetchPacks.ShouldContain(prefetchPacks, (item, expectedValue) => { return string.Equals(item, expectedValue); });
+            this.AllPrefetchPacksShouldHaveIdx(newPrefetchPacks);
+            this.TempPackRoot.ShouldBeADirectory(this.fileSystem).WithNoItems();
+
+            // There should be only a single keep file for the newest pack
+            string[] keepFiles = this.ReadPrefetchKeepFileNames();
+            keepFiles.Length.ShouldEqual(1, "Incorrect number of .keep files in pack directory");
+            this.GetTimestamp(keepFiles[0]).ShouldEqual(mostRecentPackTimestamp, "Incorrect timestamp of .keep file in pack directory");
+            Path.ChangeExtension(keepFiles[0], ".pack").ShouldBeAFile(this.fileSystem);
+        }
+
+        [TestCase, Order(7)]
+        public void FetchStepCleansUpOrIgnoresBadKeepFilesWithCaseDifferingNames()
+        {
+            string[] prefetchPacks = this.ReadPrefetchPackFileNames();
+            long mostRecentPackTimestamp = this.GetMostRecentPackTimestamp(prefetchPacks);
+
+            // Create two bad keep files that are newer than the most recent pack
+            // and have uppercase versions of the filename prefix and extension
+            string badContents = "BADKEEP";
+            string badKeepPath1 = Path.Combine(this.PackRoot, $"{PrefetchPackPrefix}-{mostRecentPackTimestamp + 1}-{Guid.NewGuid().ToString("N")}.KEEP");
+            string badKeepPath2 = Path.Combine(this.PackRoot, $"{PrefetchPackPrefix.ToUpper()}-{mostRecentPackTimestamp + 2}-{Guid.NewGuid().ToString("N")}.keep");
+            this.fileSystem.WriteAllText(badKeepPath1, badContents);
+            this.fileSystem.WriteAllText(badKeepPath2, badContents);
+            badKeepPath1.ShouldBeAFile(this.fileSystem).WithContents(badContents);
+            badKeepPath2.ShouldBeAFile(this.fileSystem).WithContents(badContents);
+
+            // fetch should delete the bad keep files on Windows and Mac, and
+            // ignore the them on Linux due to the different case filenames
+            this.Enlistment.RunVerb("fetch");
+
+            if (FileSystemHelpers.CaseSensitiveFileSystem)
+            {
+                badKeepPath1.ShouldBeAFile(this.fileSystem).WithContents(badContents);
+                badKeepPath2.ShouldBeAFile(this.fileSystem).WithContents(badContents);
+            }
+            else
+            {
+                badKeepPath1.ShouldNotExistOnDisk(this.fileSystem);
+                badKeepPath2.ShouldNotExistOnDisk(this.fileSystem);
+            }
+
+            // All of the original prefetch packs should still be present
+            string[] newPrefetchPacks = this.ReadPrefetchPackFileNames();
+            newPrefetchPacks.ShouldContain(prefetchPacks, (item, expectedValue) => { return string.Equals(item, expectedValue); });
+            this.AllPrefetchPacksShouldHaveIdx(newPrefetchPacks);
+            this.TempPackRoot.ShouldBeADirectory(this.fileSystem).WithNoItems();
+
+            // There should be only a single keep file for the newest pack
+            string[] keepFiles = this.ReadPrefetchKeepFileNames();
+            keepFiles.Length.ShouldEqual(1, "Incorrect number of .keep files in pack directory");
+            this.GetTimestamp(keepFiles[0]).ShouldEqual(mostRecentPackTimestamp, "Incorrect timestamp of .keep file in pack directory");
+            Path.ChangeExtension(keepFiles[0], ".pack").ShouldBeAFile(this.fileSystem);
+        }
+
+        [TestCase, Order(8)]
         public void FetchCommitsAndTreesCleansUpStaleTempPrefetchPacks()
         {
             this.Enlistment.Unregister();
@@ -195,6 +308,11 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         private string[] ReadPrefetchPackFileNames()
         {
             return Directory.GetFiles(this.PackRoot, $"{PrefetchPackPrefix}*.pack");
+        }
+
+        private string[] ReadPrefetchKeepFileNames()
+        {
+            return Directory.GetFiles(this.PackRoot, $"{PrefetchPackPrefix}*.keep");
         }
 
         private long GetTimestamp(string preFetchPackName)
