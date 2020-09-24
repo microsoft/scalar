@@ -23,8 +23,13 @@ echo "Installing dotnet SDK 3.1"
 sudo apt-get update -qq
 sudo apt-get install -y apt-transport-https && sudo apt-get update -qq
 
-sudo apt-get install -y wget
-wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo apt-get install -y lsb-release wget
+LSB_VERSION=$(lsb_release -rs | awk '/^[0-9]+\.[0-9]+$/ { print }')
+if [ -z "$LSB_VERSION" ]
+then
+	LSB_VERSION="20.04"
+fi
+wget https://packages.microsoft.com/config/ubuntu/"$LSB_VERSION"/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 
 if sudo apt-get install -y dotnet-sdk-3.1
