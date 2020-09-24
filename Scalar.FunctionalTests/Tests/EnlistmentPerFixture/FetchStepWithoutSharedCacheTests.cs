@@ -230,23 +230,5 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             mostRecentPackTimestamp.ShouldBeAtLeast(1, "Failed to find the most recent pack");
             return mostRecentPackTimestamp;
         }
-
-        private long GetOldestPackTimestamp(string[] prefetchPacks)
-        {
-            prefetchPacks.Length.ShouldBeAtLeast(1, "prefetchPacks should have at least one item");
-
-            long oldestPackTimestamp = long.MaxValue;
-            foreach (string prefetchPack in prefetchPacks)
-            {
-                long timestamp = this.GetTimestamp(prefetchPack);
-                if (timestamp < oldestPackTimestamp)
-                {
-                    oldestPackTimestamp = timestamp;
-                }
-            }
-
-            oldestPackTimestamp.ShouldBeAtMost(long.MaxValue - 1, "Failed to find the oldest pack");
-            return oldestPackTimestamp;
-        }
     }
 }
