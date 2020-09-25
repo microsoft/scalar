@@ -85,3 +85,21 @@ Finally, as Git gains the features that we need in Scalar, Scalar will need to
 support backwards compatibility with repositories cloned with older versions of
 Scalar. Using the C# layer, we can update the Git version and upgrade old
 repositories to whatever new features are added to Git.
+
+### Why doesn't Scalar support case-sensitive directories (or case-insensitive ones on Linux)?
+
+Although Scalar is agnostic about the contents of your repository and
+largely leaves file handling within your working tree to Git, it does check
+some file paths and manage some cache files, and to do so Scalar assumes
+your filesystem has the filename case-matching semantics typical for your
+operating system.  On Windows and macOS this means being case-insensitive
+when matching filenames, and on Linux it means matching case-sensitively.
+
+Because all three operating systems support exceptions to their case-matching
+conventions (e.g., [case-sensitive NTFS directories][ntfs-case] or
+[case-insensitive ext4 directories][ext4-case]), a possible future
+enhancement for Scalar would be to support these alternatives using
+a per-repository custom Git configuration value.
+
+[ext4-case]: https://github.com/torvalds/linux/blob/171d4ff79f965c1f164705ef0aaea102a6ad238b/Documentation/admin-guide/ext4.rst#case-insensitive-file-name-lookups
+[ntfs-case]: https://devblogs.microsoft.com/commandline/per-directory-case-sensitivity-and-wsl/#per-directory-case-sensitivity
