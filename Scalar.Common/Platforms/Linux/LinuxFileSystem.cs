@@ -20,12 +20,6 @@ namespace Scalar.Platform.Linux
             return NativeStat.IsSock(statBuffer.Mode);
         }
 
-        public override bool IsFileSystemSupported(string path, out string error)
-        {
-            error = null;
-            return true;
-        }
-
         private NativeStat.StatBuffer StatFile(string fileName)
         {
             if (NativeStat.Stat(fileName, out NativeStat.StatBuffer statBuffer) != 0)

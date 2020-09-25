@@ -20,32 +20,6 @@ namespace Scalar.Platform.Mac
             return NativeStat.IsSock(statBuffer.Mode);
         }
 
-        public override bool IsFileSystemSupported(string path, out string error)
-        {
-            error = null;
-            try
-            {
-                string lowerCaseFilePath = Path.Combine(path, $"casetest{Guid.NewGuid().ToString()}");
-                string upperCaseFilePath = lowerCaseFilePath.ToUpper();
-
-                File.Create(lowerCaseFilePath);
-                if (File.Exists(upperCaseFilePath))
-                {
-                    File.Delete(lowerCaseFilePath);
-                    return true;
-                }
-
-                File.Delete(lowerCaseFilePath);
-                error = "Scalar does not support case sensitive filesystems";
-                return false;
-            }
-            catch (Exception ex)
-            {
-                error = $"Exception when performing {nameof(MacFileSystem)}.{nameof(this.IsFileSystemSupported)}: {ex.ToString()}";
-                return false;
-            }
-        }
-
         private NativeStat.StatBuffer StatFile(string fileName)
         {
             if (NativeStat.Stat(fileName, out NativeStat.StatBuffer statBuffer) != 0)

@@ -329,7 +329,7 @@ namespace Scalar.UnitTests.Common
                 if (this.maxFileExistsFailures > 0)
                 {
                     if (this.fileExistsFailureCount < this.maxFileExistsFailures &&
-                        string.Equals(path, this.fileExistsFailurePath, System.StringComparison.OrdinalIgnoreCase))
+                        string.Equals(path, this.fileExistsFailurePath, ScalarPlatform.Instance.Constants.PathComparison))
                     {
                         if (this.ExpectedFiles.ContainsKey(path))
                         {
@@ -342,7 +342,7 @@ namespace Scalar.UnitTests.Common
                 else if (this.failuresAcrossOpenExistsAndOverwritePath != null)
                 {
                     if (this.failuresAcrossOpenExistsAndOverwriteCount == 1 &&
-                        string.Equals(path, this.failuresAcrossOpenExistsAndOverwritePath, System.StringComparison.OrdinalIgnoreCase))
+                        string.Equals(path, this.failuresAcrossOpenExistsAndOverwritePath, ScalarPlatform.Instance.Constants.PathComparison))
                     {
                         if (this.ExpectedFiles.ContainsKey(path))
                         {
@@ -391,7 +391,7 @@ namespace Scalar.UnitTests.Common
                 if (this.maxOpenFileStreamFailures > 0)
                 {
                     if (this.openFileStreamFailureCount < this.maxOpenFileStreamFailures &&
-                        string.Equals(path, this.openFileStreamFailurePath, System.StringComparison.OrdinalIgnoreCase))
+                        string.Equals(path, this.openFileStreamFailurePath, ScalarPlatform.Instance.Constants.PathComparison))
                     {
                         ++this.openFileStreamFailureCount;
 
@@ -408,7 +408,7 @@ namespace Scalar.UnitTests.Common
                 else if (this.failuresAcrossOpenExistsAndOverwritePath != null)
                 {
                     if (this.failuresAcrossOpenExistsAndOverwriteCount == 0 &&
-                        string.Equals(path, this.failuresAcrossOpenExistsAndOverwritePath, System.StringComparison.OrdinalIgnoreCase))
+                        string.Equals(path, this.failuresAcrossOpenExistsAndOverwritePath, ScalarPlatform.Instance.Constants.PathComparison))
                     {
                         ++this.failuresAcrossOpenExistsAndOverwriteCount;
                         throw new IOException();

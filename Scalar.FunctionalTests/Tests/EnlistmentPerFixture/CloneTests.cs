@@ -17,25 +17,63 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         [TestCase]
         public void CloneInsideExistingEnlistment()
         {
-            this.SubfolderCloneShouldFail();
+            ProcessResult result = this.RunCloneCommand(
+                this.Enlistment.EnlistmentRoot,
+                Path.Combine("src", "scalar", "test1"));
+            result.ExitCode.ShouldEqual(ScalarGenericError);
+            result.Output.ShouldContain("You can't clone inside an existing Scalar repo");
+        }
+
+        [TestCase]
+        public void CloneInNonEmptyDirectory()
+        {
+            string newEnlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
+            string newEnlistmentFilePath = Path.Combine(newEnlistmentRoot, "test2");
+
+            FileSystemRunner fileSystem = FileSystemRunner.DefaultRunner;
+            fileSystem.CreateDirectory(newEnlistmentRoot);
+            newEnlistmentRoot.ShouldBeADirectory(fileSystem);
+            fileSystem.CreateEmptyFile(newEnlistmentFilePath);
+            newEnlistmentFilePath.ShouldBeAFile(fileSystem);
+
+            ProcessResult result = this.RunCloneCommand(
+                Path.GetDirectoryName(this.Enlistment.EnlistmentRoot),
+                newEnlistmentRoot);
+            result.ExitCode.ShouldEqual(ScalarGenericError);
+            result.Output.ShouldContain("exists and is not empty");
+
+            RepositoryHelpers.DeleteTestDirectory(newEnlistmentRoot);
         }
 
         [TestCase]
         public void CloneWithLocalCachePathWithinSrc()
         {
             string newEnlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
-
-            ProcessStartInfo processInfo = new ProcessStartInfo(ScalarTestConfig.PathToScalar);
-            processInfo.Arguments = $"clone {Properties.Settings.Default.RepoToClone} {newEnlistmentRoot} --local-cache-path {Path.Combine(newEnlistmentRoot, "src", ".scalarCache")}";
-            processInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            processInfo.CreateNoWindow = true;
-            processInfo.WorkingDirectory = Path.GetDirectoryName(this.Enlistment.EnlistmentRoot);
-            processInfo.UseShellExecute = false;
-            processInfo.RedirectStandardOutput = true;
-
-            ProcessResult result = ProcessHelper.Run(processInfo);
+            string localCachePath = Path.Combine(newEnlistmentRoot, "src", ".scalarCache");
+            ProcessResult result = this.RunCloneCommand(
+                Path.GetDirectoryName(this.Enlistment.EnlistmentRoot),
+                newEnlistmentRoot,
+                $"--local-cache-path {localCachePath}");
             result.ExitCode.ShouldEqual(ScalarGenericError);
             result.Output.ShouldContain("'--local-cache-path' cannot be inside the src folder");
+
+            localCachePath = Path.Combine(newEnlistmentRoot, "SRC", ".scalarCache");
+
+            result = this.RunCloneCommand(
+                Path.GetDirectoryName(this.Enlistment.EnlistmentRoot),
+                newEnlistmentRoot,
+                $"--local-cache-path {localCachePath}");
+            if (FileSystemHelpers.CaseSensitiveFileSystem)
+            {
+                result.ExitCode.ShouldEqual(0, result.Errors);
+            }
+            else
+            {
+                result.ExitCode.ShouldEqual(ScalarGenericError);
+                result.Output.ShouldContain("'--local-cache-path' cannot be inside the src folder");
+            }
+
+            RepositoryHelpers.DeleteTestDirectory(newEnlistmentRoot);
         }
 
         [TestCase]
@@ -67,21 +105,15 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             string newEnlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
 
-            ProcessStartInfo processInfo = new ProcessStartInfo(ScalarTestConfig.PathToScalar);
-
-            processInfo.Arguments = $"clone {Properties.Settings.Default.RepoToClone} {newEnlistmentRoot} --no-fetch-commits-and-trees";
-            processInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            processInfo.CreateNoWindow = true;
-            processInfo.UseShellExecute = false;
-            processInfo.RedirectStandardOutput = true;
-            processInfo.WorkingDirectory = Properties.Settings.Default.EnlistmentRoot;
-
-            ProcessResult result = ProcessHelper.Run(processInfo);
+            ProcessResult result = this.RunCloneCommand(
+                Properties.Settings.Default.EnlistmentRoot,
+                newEnlistmentRoot,
+                "--no-fetch-commits-and-trees");
             result.ExitCode.ShouldEqual(0, result.Errors);
 
             string gitObjectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(Path.Combine(newEnlistmentRoot, "src"));
 
-            gitObjectsRoot.StartsWith(defaultLocalCacheRoot, StringComparison.Ordinal).ShouldBeTrue($"Git objects root did not default to using {defaultLocalCacheRoot}");
+            gitObjectsRoot.StartsWith(defaultLocalCacheRoot, FileSystemHelpers.PathComparison).ShouldBeTrue($"Git objects root did not default to using {defaultLocalCacheRoot}");
 
             RepositoryHelpers.DeleteTestDirectory(newEnlistmentRoot);
         }
@@ -102,7 +134,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 Directory.GetFiles(enlistment.EnlistmentRoot).ShouldBeEmpty("There should be no files in the enlistment root after cloning");
                 string[] directories = Directory.GetDirectories(enlistment.EnlistmentRoot);
                 directories.Length.ShouldEqual(1);
-                directories.ShouldContain(x => Path.GetFileName(x).Equals("src", StringComparison.Ordinal));
+                directories.ShouldContain(x => Path.GetFileName(x).Equals("src", FileSystemHelpers.PathComparison));
             }
             finally
             {
@@ -110,19 +142,17 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             }
         }
 
-        private void SubfolderCloneShouldFail()
+        private ProcessResult RunCloneCommand(string workingDirectoryPath, string enlistmentRootPath, string extraArgs = null)
         {
             ProcessStartInfo processInfo = new ProcessStartInfo(ScalarTestConfig.PathToScalar);
-            processInfo.Arguments = "clone " + ScalarTestConfig.RepoToClone + " src\\scalar\\test1";
+            processInfo.Arguments = $"clone {ScalarTestConfig.RepoToClone} {enlistmentRootPath} {extraArgs}";
+            processInfo.WorkingDirectory = workingDirectoryPath;
             processInfo.WindowStyle = ProcessWindowStyle.Hidden;
             processInfo.CreateNoWindow = true;
-            processInfo.WorkingDirectory = this.Enlistment.EnlistmentRoot;
             processInfo.UseShellExecute = false;
             processInfo.RedirectStandardOutput = true;
 
-            ProcessResult result = ProcessHelper.Run(processInfo);
-            result.ExitCode.ShouldEqual(ScalarGenericError);
-            result.Output.ShouldContain("You can't clone inside an existing Scalar repo");
+            return ProcessHelper.Run(processInfo);
         }
     }
 }

@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Tracing;
 using Scalar.Tests.Should;
@@ -241,7 +242,7 @@ namespace Scalar.UnitTests.Common
                 bool allFilesExist = false,
                 bool noOpDelete = false)
             {
-                this.ExistingFiles = new Dictionary<string, FileAttributes>(StringComparer.OrdinalIgnoreCase);
+                this.ExistingFiles = new Dictionary<string, FileAttributes>(ScalarPlatform.Instance.Constants.PathComparer);
                 foreach (KeyValuePair<string, FileAttributes> kvp in existingFiles)
                 {
                     this.ExistingFiles[kvp.Key] = kvp.Value;

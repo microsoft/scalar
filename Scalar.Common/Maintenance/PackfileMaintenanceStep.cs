@@ -69,7 +69,7 @@ namespace Scalar.Common.Maintenance
 
             foreach (DirectoryItemInfo info in packDirContents)
             {
-                if (string.Equals(Path.GetExtension(info.Name), ".idx", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(Path.GetExtension(info.Name), ".idx", ScalarPlatform.Instance.Constants.PathComparison))
                 {
                     string pairedPack = Path.ChangeExtension(info.FullName, ".pack");
 

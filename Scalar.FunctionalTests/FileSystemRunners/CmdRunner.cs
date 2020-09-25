@@ -1,4 +1,5 @@
 using Scalar.Tests.Should;
+using Scalar.FunctionalTests.Tools;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -143,7 +144,7 @@ namespace Scalar.FunctionalTests.FileSystemRunners
 
             foreach (string directory in directories)
             {
-                if (directory.Equals(targetName, StringComparison.OrdinalIgnoreCase))
+                if (directory.Equals(targetName, FileSystemHelpers.PathComparison))
                 {
                     return true;
                 }

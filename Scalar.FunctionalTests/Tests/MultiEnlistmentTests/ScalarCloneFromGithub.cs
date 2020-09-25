@@ -45,7 +45,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
                 dirContents
                     .Split()
-                    .Where(file => string.Equals(Path.GetExtension(file), ".pack", StringComparison.OrdinalIgnoreCase))
+                    .Where(file => string.Equals(Path.GetExtension(file), ".pack", FileSystemHelpers.PathComparison))
                     .Count()
                     .ShouldEqual(count, $"'{dir}' after '{when}': '{dirContents}'");
             }

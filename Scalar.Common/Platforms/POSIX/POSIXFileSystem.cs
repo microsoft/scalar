@@ -61,10 +61,9 @@ namespace Scalar.Platform.POSIX
             throw new NotImplementedException();
         }
 
-        public virtual bool IsFileSystemSupported(string path, out string error)
+        public bool IsFileSystemSupported(string path, out string error)
         {
-            error = null;
-            return true;
+            return ScalarPlatform.Instance.IsFileSystemCaseSensitivitySupported(path, out error);
         }
 
         [DllImport("libc", EntryPoint = "rename", SetLastError = true)]

@@ -11,7 +11,7 @@ namespace Scalar.Common.Maintenance
         {
             Process[] allProcesses = Process.GetProcesses();
             return allProcesses
-                .Where(x => x.ProcessName.Equals("git", StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.ProcessName.Equals("git", ScalarPlatform.Instance.Constants.PathComparison))
                 .Select(x => x.Id);
         }
     }

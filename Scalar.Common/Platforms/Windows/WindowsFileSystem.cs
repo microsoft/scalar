@@ -100,7 +100,7 @@ namespace Scalar.Platform.Windows
         public bool IsExecutable(string fileName)
         {
             string fileExtension = Path.GetExtension(fileName);
-            return string.Equals(fileExtension, ".exe", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(fileExtension, ".exe", ScalarPlatform.Instance.Constants.PathComparison);
         }
 
         public bool IsSocket(string fileName)
@@ -179,8 +179,7 @@ namespace Scalar.Platform.Windows
 
         public bool IsFileSystemSupported(string path, out string error)
         {
-            error = null;
-            return true;
+            return ScalarPlatform.Instance.IsFileSystemCaseSensitivitySupported(path, out error);
         }
     }
 }
