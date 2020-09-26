@@ -22,7 +22,7 @@ namespace Scalar.Platform.POSIX
         protected POSIXPlatform() : this(
             underConstruction: new UnderConstructionFlags(
                 usesCustomUpgrader: false,
-                supportsScalarConfig: false,
+                supportsScalarConfig: true,
                 supportsNuGetEncryption: false,
                 supportsNuGetVerification: false))
         {
@@ -142,6 +142,23 @@ namespace Scalar.Platform.POSIX
             return pipe;
         }
 
+        public override string GetSecureDataRootForScalar()
+        {
+            // SecureDataRoot is Windows only. On POSIX, it is the same as CommonAppDataRoot
+            return this.GetCommonAppDataRootForScalar();
+        }
+
+        public override string GetSecureDataRootForScalarComponent(string componentName)
+        {
+            // SecureDataRoot is Windows only. On POSIX, it is the same as CommoAppDataRoot
+            return this.GetCommonAppDataRootForScalarComponent(componentName);
+        }
+
+        public override string GetLogsDirectoryForGVFSComponent(string componentName)
+        {
+            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
+        }
+
         public override string GetCurrentUser()
         {
             return Getuid().ToString();
@@ -210,6 +227,11 @@ namespace Scalar.Platform.POSIX
             public override string ExecutableExtension
             {
                 get { return string.Empty; }
+            }
+
+            public override string ScalarBinDirectoryName
+            {
+                get { return "scalar"; }
             }
 
             public override string ScalarExecutableName

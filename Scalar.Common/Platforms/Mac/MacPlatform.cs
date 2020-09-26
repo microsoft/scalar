@@ -26,15 +26,6 @@ namespace Scalar.Platform.Mac
                 ScalarConstants.MacPlatform.LocalScalarDataPath),
         };
 
-        public MacPlatform() : base(
-             underConstruction: new UnderConstructionFlags(
-                usesCustomUpgrader: false,
-                supportsScalarConfig: true,
-                supportsNuGetEncryption: false,
-                supportsNuGetVerification: false))
-        {
-        }
-
         public override string Name { get => "macOS"; }
         public override ScalarPlatformConstants Constants { get; } = new MacPlatformConstants();
         public override IPlatformFileSystem FileSystem { get; } = new MacFileSystem();
@@ -61,23 +52,6 @@ namespace Scalar.Platform.Mac
         public override string GetCommonAppDataRootForScalarComponent(string componentName)
         {
             return MacPlatform.GetDataRootForScalarComponentImplementation(componentName);
-        }
-
-        public override string GetSecureDataRootForScalar()
-        {
-            // SecureDataRoot is Windows only. On the Mac, it is the same as CommoAppDataRoot
-            return this.GetCommonAppDataRootForScalar();
-        }
-
-        public override string GetSecureDataRootForScalarComponent(string componentName)
-        {
-            // SecureDataRoot is Windows only. On the Mac, it is the same as CommoAppDataRoot
-            return this.GetCommonAppDataRootForScalarComponent(componentName);
-        }
-
-        public override string GetLogsDirectoryForGVFSComponent(string componentName)
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
         }
 
         public override FileBasedLock CreateFileBasedLock(
@@ -189,11 +163,6 @@ namespace Scalar.Platform.Mac
             public override string ScalarBinDirectoryPath
             {
                 get { return Path.Combine("/usr", "local", this.ScalarBinDirectoryName); }
-            }
-
-            public override string ScalarBinDirectoryName
-            {
-                get { return "scalar"; }
             }
 
             // Documented here (in the addressing section): https://www.unix.com/man-page/mojave/4/unix/

@@ -50,15 +50,6 @@ namespace Scalar.Platform.Linux
                 ScalarConstants.LinuxPlatform.LocalScalarDataPath),
         };
 
-        public LinuxPlatform() : base(
-             underConstruction: new UnderConstructionFlags(
-                usesCustomUpgrader: false,
-                supportsScalarConfig: true,
-                supportsNuGetEncryption: false,
-                supportsNuGetVerification: false))
-        {
-        }
-
         public override string Name { get => "Linux"; }
         public override ScalarPlatformConstants Constants { get; } = new LinuxPlatformConstants();
         public override IPlatformFileSystem FileSystem { get; } = new LinuxFileSystem();
@@ -93,23 +84,6 @@ namespace Scalar.Platform.Linux
         public override string GetCommonAppDataRootForScalarComponent(string componentName)
         {
             return LinuxPlatform.GetDataRootForScalarComponentImplementation(componentName);
-        }
-
-        public override string GetSecureDataRootForScalar()
-        {
-            // SecureDataRoot is Windows only. On Linux, it is the same as CommoAppDataRoot
-            return this.GetCommonAppDataRootForScalar();
-        }
-
-        public override string GetSecureDataRootForScalarComponent(string componentName)
-        {
-            // SecureDataRoot is Windows only. On Linux, it is the same as CommoAppDataRoot
-            return this.GetCommonAppDataRootForScalarComponent(componentName);
-        }
-
-        public override string GetLogsDirectoryForGVFSComponent(string componentName)
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
         }
 
         public override FileBasedLock CreateFileBasedLock(
@@ -186,11 +160,6 @@ namespace Scalar.Platform.Linux
             public override string ScalarBinDirectoryPath
             {
                 get { return Path.Combine("/usr", "local", this.ScalarBinDirectoryName); }
-            }
-
-            public override string ScalarBinDirectoryName
-            {
-                get { return "scalar"; }
             }
 
             // Documented here (in the addressing section): https://www.unix.com/man-page/linux/7/unix/
