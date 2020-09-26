@@ -207,6 +207,23 @@ namespace Scalar.Platform.POSIX
             return result.ExitCode == 0;
         }
 
+        public override string GetTemplateHooksDirectory()
+        {
+            string gitExecPath = GitInstallation.GetInstalledGitBinPath();
+
+            // Resolve symlinks
+            string resolvedExecPath = NativeMethods.ResolveSymlink(gitExecPath, this.MaxPathLength);
+
+            // Get the containing bin directory
+            string gitBinDir = Path.GetDirectoryName(resolvedExecPath);
+
+            // Compute the base installation path (../)
+            string installBaseDir = Path.GetDirectoryName(gitBinDir);
+            installBaseDir = Path.GetFullPath(installBaseDir);
+
+            return Path.Combine(installBaseDir, ScalarConstants.InstalledGit.HookTemplateDir);
+        }
+
         [DllImport("libc", EntryPoint = "getuid", SetLastError = true)]
         private static extern uint Getuid();
 
@@ -221,6 +238,10 @@ namespace Scalar.Platform.POSIX
 
         [DllImport("libc", EntryPoint = "dup2", SetLastError = true)]
         private static extern int Dup2(int oldfd, int newfd);
+
+        // stdlib.h
+        [DllImport("libc", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr realpath([In] IntPtr file_name, [In, Out] IntPtr resolved_name);
 
         public abstract class POSIXPlatformConstants : ScalarPlatformConstants
         {
@@ -251,6 +272,8 @@ namespace Scalar.Platform.POSIX
 
             public override bool SupportsUpgradeWhileRunning => true;
         }
+
+        protected abstract int MaxPathLength { get; }
 
         protected class EnvironmentVariableBasePath
         {
@@ -326,6 +349,35 @@ namespace Scalar.Platform.POSIX
 
             error = null;
             return true;
+        }
+
+        private static class NativeMethods
+        {
+            public static string ResolveSymlink(string path, int maxPathLength)
+            {
+                IntPtr pathBuf = IntPtr.Zero;
+                IntPtr resolvedBuf = IntPtr.Zero;
+
+                try
+                {
+                    pathBuf = Marshal.StringToHGlobalAuto(path);
+                    resolvedBuf = Marshal.AllocHGlobal(maxPathLength + 1);
+                    IntPtr result = realpath(pathBuf, resolvedBuf);
+
+                    if (result == IntPtr.Zero)
+                    {
+                        // Failed!
+                        return null;
+                    }
+
+                    return Marshal.PtrToStringUTF8(resolvedBuf);
+                }
+                finally
+                {
+                    if (pathBuf != IntPtr.Zero) Marshal.FreeHGlobal(pathBuf);
+                    if (resolvedBuf != IntPtr.Zero) Marshal.FreeHGlobal(resolvedBuf);
+                }
+            }
         }
     }
 }

@@ -132,23 +132,6 @@ namespace Scalar.Platform.Linux
             running = false;
         }
 
-        public override string GetTemplateHooksDirectory()
-        {
-            string gitExecPath = GitInstallation.GetInstalledGitBinPath();
-
-            // Resolve symlinks
-            string resolvedExecPath = NativeMethods.ResolveSymlink(gitExecPath);
-
-            // Get the containing bin directory
-            string gitBinDir = Path.GetDirectoryName(resolvedExecPath);
-
-            // Compute the base installation path (../)
-            string installBaseDir = Path.GetDirectoryName(gitBinDir);
-            installBaseDir = Path.GetFullPath(installBaseDir);
-
-            return Path.Combine(installBaseDir, ScalarConstants.InstalledGit.HookTemplateDir);
-        }
-
         public class LinuxPlatformConstants : POSIXPlatformConstants
         {
             public override string InstallerExtension
@@ -168,43 +151,7 @@ namespace Scalar.Platform.Linux
             public override bool CaseSensitiveFileSystem => true;
         }
 
-        private static class NativeMethods
-        {
-            // Definitions from
-            // /Library/Developer/CommandLineTools/SDKs/LinuxOSX.sdk
-
-            // stdlib.h
-            [DllImport("libc", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-            private static extern IntPtr realpath([In] IntPtr file_name, [In, Out] IntPtr resolved_name);
-
-            public static string ResolveSymlink(string path)
-            {
-                // Defined in linux/limits.h
-                const int PATH_MAX = 4096;
-
-                IntPtr pathBuf = IntPtr.Zero;
-                IntPtr resolvedBuf = IntPtr.Zero;
-
-                try
-                {
-                    pathBuf = Marshal.StringToHGlobalAuto(path);
-                    resolvedBuf = Marshal.AllocHGlobal(PATH_MAX + 1);
-                    IntPtr result = realpath(pathBuf, resolvedBuf);
-
-                    if (result == IntPtr.Zero)
-                    {
-                        // Failed!
-                        return null;
-                    }
-
-                    return Marshal.PtrToStringUTF8(resolvedBuf);
-                }
-                finally
-                {
-                    if (pathBuf != IntPtr.Zero) Marshal.FreeHGlobal(pathBuf);
-                    if (resolvedBuf != IntPtr.Zero) Marshal.FreeHGlobal(resolvedBuf);
-                }
-            }
-        }
+        // Defined in linux/limits.h
+        protected override int MaxPathLength => 4096;
     }
 }
