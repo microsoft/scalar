@@ -597,6 +597,25 @@ namespace Scalar.Common.Git
             // List of environment variables: https://git-scm.com/book/gr/v2/Git-Internals-Environment-Variables
             foreach (string key in processInfo.EnvironmentVariables.Keys.Cast<string>().ToList())
             {
+                if (key.StartsWith("GIT_TRACE2", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Allow Trace2 values to pass thru as is.  Technically, a Trace2 target
+                    // (such as GIT_TRACE2_EVENT, GIT_TRACE2_PERF, or GIT_TRACE2) can be set
+                    // to stderr just like traditional tracing, but these targets can be enabled
+                    // via global or system config settings, so this filtering is not sufficient.
+                    //
+                    // Simply checking for an absolute pathname is not sufficient because Trace2
+                    // allows targets to be set to integer, booleans and Unix domain socket values.
+                    // Only values "1", "2", and "true" (for target keys) cause output to go to
+                    // stderr.
+                    //
+                    // Additionally, there are other non-target Trace2 values that are useful to
+                    // preserve, such as GIT_TRACE2_PERF_BRIEF and GIT_TRACE2_CONFIG_PARAMS.
+                    //
+                    // TODO For now, just let them thru as is.
+                    continue;
+                }
+
                 // If GIT_TRACE is set to a fully-rooted path, then Git sends the trace
                 // output to that path instead of stdout (GIT_TRACE=1) or stderr (GIT_TRACE=2).
                 if (key.StartsWith("GIT_TRACE", StringComparison.OrdinalIgnoreCase))
