@@ -78,17 +78,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             return this.RunProcess(string.Format("/C move \"{0}\" \"{1}\"", sourcePath, targetPath));
         }
 
-        public override void MoveFileShouldFail(string sourcePath, string targetPath)
-        {
-            // CmdRunner does nothing special when a failure is expected
-            this.MoveFile(sourcePath, targetPath);
-        }
-
-        public override void MoveFile_FileShouldNotBeFound(string sourcePath, string targetPath)
-        {
-            this.MoveFile(sourcePath, targetPath).ShouldContainOneOf(missingFileErrorMessages);
-        }
-
         public override string ReplaceFile(string sourcePath, string targetPath)
         {
             return this.RunProcess(string.Format("/C move /Y \"{0}\" \"{1}\"", sourcePath, targetPath));
@@ -126,12 +115,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             // Use echo|set /p with "" to avoid adding any trailing whitespace or newline
             // to the contents
             this.RunProcess(string.Format("/C echo|set /p =\"{0}\" > {1}", contents, path));
-        }
-
-        public override void WriteAllTextShouldFail<ExceptionType>(string path, string contents)
-        {
-            // CmdRunner does nothing special when a failure is expected
-            this.WriteAllText(path, contents);
         }
 
         public override bool DirectoryExists(string path)
@@ -178,51 +161,9 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             this.RunProcess(string.Format("/C ren \"{0}\" \"{1}\"", source, target), workingDirectory);
         }
 
-        public override void MoveDirectory_RequestShouldNotBeSupported(string sourcePath, string targetPath)
-        {
-            this.MoveFile(sourcePath, targetPath).ShouldContain(moveDirectoryFailureMessage);
-        }
-
-        public override void MoveDirectory_TargetShouldBeInvalid(string sourcePath, string targetPath)
-        {
-            this.MoveFile(sourcePath, targetPath).ShouldContain(moveDirectoryFailureMessage);
-        }
-
         public string RunCommand(string command)
         {
             return this.RunProcess(string.Format("/C {0}", command));
-        }
-
-        public override void ReplaceFile_FileShouldNotBeFound(string sourcePath, string targetPath)
-        {
-            this.ReplaceFile(sourcePath, targetPath).ShouldContainOneOf(missingFileErrorMessages);
-        }
-
-        public override void DeleteFile_FileShouldNotBeFound(string path)
-        {
-            this.DeleteFile(path).ShouldContainOneOf(missingFileErrorMessages);
-        }
-
-        public override void DeleteFile_AccessShouldBeDenied(string path)
-        {
-            // CMD does not report any error messages when access is denied, so just confirm the file still exists
-            this.DeleteFile(path);
-            this.FileExists(path).ShouldEqual(true);
-        }
-
-        public override void ReadAllText_FileShouldNotBeFound(string path)
-        {
-            this.ReadAllText(path).ShouldContainOneOf(missingFileErrorMessages);
-        }
-
-        public override void DeleteDirectory_DirectoryShouldNotBeFound(string path)
-        {
-            this.DeleteDirectory(path).ShouldContainOneOf(missingFileErrorMessages);
-        }
-
-        public override void DeleteDirectory_ShouldBeBlockedByProcess(string path)
-        {
-            this.DeleteDirectory(path).ShouldContain(fileUsedByAnotherProcessMessage);
         }
 
         public override void ChangeMode(string path, ushort mode)

@@ -63,17 +63,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             return this.RunProcess(string.Format("-Command \"& {{ Move-Item {0} {1} -force}}\"", sourcePath, targetPath));
         }
 
-        public override void MoveFileShouldFail(string sourcePath, string targetPath)
-        {
-            // PowerShellRunner does nothing special when a failure is expected
-            this.MoveFile(sourcePath, targetPath);
-        }
-
-        public override void MoveFile_FileShouldNotBeFound(string sourcePath, string targetPath)
-        {
-            this.MoveFile(sourcePath, targetPath).ShouldContainOneOf(missingFileErrorMessages);
-        }
-
         public override string ReplaceFile(string sourcePath, string targetPath)
         {
             return this.RunProcess(string.Format("-Command \"& {{ Move-Item {0} {1} -force }}\"", sourcePath, targetPath));
@@ -116,12 +105,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             this.RunProcess(string.Format("-Command \"&{{ Out-File -FilePath {0} -InputObject '{1}' -Encoding ascii -NoNewline}}\"", path, contents));
         }
 
-        public override void WriteAllTextShouldFail<ExceptionType>(string path, string contents)
-        {
-            // PowerShellRunner does nothing special when a failure is expected
-            this.WriteAllText(path, contents);
-        }
-
         public override bool DirectoryExists(string path)
         {
             string command = string.Format("-Command \"&{{ Test-Path {0} -PathType Container }}\"", path);
@@ -145,16 +128,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             this.RunProcess(string.Format("-Command \"& {{ Rename-Item -Path {0} -NewName {1} -force }}\"", Path.Combine(workingDirectory, source), target));
         }
 
-        public override void MoveDirectory_RequestShouldNotBeSupported(string sourcePath, string targetPath)
-        {
-            this.MoveFile(sourcePath, targetPath).ShouldContain(moveDirectoryNotSupportedMessage);
-        }
-
-        public override void MoveDirectory_TargetShouldBeInvalid(string sourcePath, string targetPath)
-        {
-            this.MoveFile(sourcePath, targetPath).ShouldContain(invalidPathErrorMessages);
-        }
-
         public override void CreateDirectory(string path)
         {
             this.RunProcess(string.Format("-Command \"&{{ New-Item {0} -type directory}}\"", path));
@@ -168,37 +141,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
         public override string EnumerateDirectory(string path)
         {
             return this.RunProcess(string.Format("-Command \"&{{ Get-ChildItem {0} }}\"", path));
-        }
-
-        public override void ReplaceFile_FileShouldNotBeFound(string sourcePath, string targetPath)
-        {
-            this.ReplaceFile(sourcePath, targetPath).ShouldContainOneOf(missingFileErrorMessages);
-        }
-
-        public override void DeleteFile_FileShouldNotBeFound(string path)
-        {
-            this.DeleteFile(path).ShouldContainOneOf(missingFileErrorMessages);
-        }
-
-        public override void DeleteFile_AccessShouldBeDenied(string path)
-        {
-            this.DeleteFile(path).ShouldContain(permissionDeniedMessage);
-            this.FileExists(path).ShouldBeTrue($"{path} does not exist when it should");
-        }
-
-        public override void ReadAllText_FileShouldNotBeFound(string path)
-        {
-            this.ReadAllText(path).ShouldContainOneOf(missingFileErrorMessages);
-        }
-
-        public override void DeleteDirectory_DirectoryShouldNotBeFound(string path)
-        {
-            this.DeleteDirectory(path).ShouldContainOneOf(missingFileErrorMessages);
-        }
-
-        public override void DeleteDirectory_ShouldBeBlockedByProcess(string path)
-        {
-            this.DeleteDirectory(path).ShouldContain(fileUsedByAnotherProcessMessage);
         }
 
         public override long FileSize(string path)

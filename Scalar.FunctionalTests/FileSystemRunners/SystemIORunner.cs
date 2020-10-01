@@ -42,48 +42,16 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             return file;
         }
 
-        public override void MoveFileShouldFail(string sourcePath, string targetPath)
-        {
-            if (Debugger.IsAttached)
-            {
-                throw new InvalidOperationException("MoveFileShouldFail should not be run with the debugger attached");
-            }
-
-            this.ShouldFail<IOException>(() => { this.MoveFile(sourcePath, targetPath); });
-        }
-
-        public override void MoveFile_FileShouldNotBeFound(string sourcePath, string targetPath)
-        {
-            this.ShouldFail<IOException>(() => { this.MoveFile(sourcePath, targetPath); });
-        }
-
         public override string ReplaceFile(string sourcePath, string targetPath)
         {
             File.Replace(sourcePath, targetPath, null);
             return string.Empty;
         }
 
-        public override void ReplaceFile_FileShouldNotBeFound(string sourcePath, string targetPath)
-        {
-            this.ShouldFail<IOException>(() => { this.ReplaceFile(sourcePath, targetPath); });
-        }
-
         public override string DeleteFile(string path)
         {
             File.Delete(path);
             return string.Empty;
-        }
-
-        public override void DeleteFile_FileShouldNotBeFound(string path)
-        {
-            // Delete file silently succeeds when file is non-existent
-            this.DeleteFile(path);
-        }
-
-        public override void DeleteFile_AccessShouldBeDenied(string path)
-        {
-            this.ShouldFail<Exception>(() => { this.DeleteFile(path); });
-            this.FileExists(path).ShouldBeTrue($"{path} does not exist when it should");
         }
 
         public override string ReadAllText(string path)
@@ -120,16 +88,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             File.AppendAllText(path, contents);
         }
 
-        public override void WriteAllTextShouldFail<ExceptionType>(string path, string contents)
-        {
-            if (Debugger.IsAttached)
-            {
-                throw new InvalidOperationException("WriteAllTextShouldFail should not be run with the debugger attached");
-            }
-
-            this.ShouldFail<ExceptionType>(() => { this.WriteAllText(path, contents); });
-        }
-
         public override bool DirectoryExists(string path)
         {
             return Directory.Exists(path);
@@ -150,26 +108,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             {
                 Rename(Path.Combine(workingDirectory, source), Path.Combine(workingDirectory, target));
             }
-        }
-
-        public override void MoveDirectory_RequestShouldNotBeSupported(string sourcePath, string targetPath)
-        {
-            if (Debugger.IsAttached)
-            {
-                throw new InvalidOperationException("MoveDirectory_RequestShouldNotBeSupported should not be run with the debugger attached");
-            }
-
-            Assert.Catch<IOException>(() => this.MoveDirectory(sourcePath, targetPath));
-        }
-
-        public override void MoveDirectory_TargetShouldBeInvalid(string sourcePath, string targetPath)
-        {
-            if (Debugger.IsAttached)
-            {
-                throw new InvalidOperationException("MoveDirectory_TargetShouldBeInvalid should not be run with the debugger attached");
-            }
-
-            Assert.Catch<IOException>(() => this.MoveDirectory(sourcePath, targetPath));
         }
 
         public override void CreateDirectory(string path)
@@ -200,21 +138,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
         public override string EnumerateDirectory(string path)
         {
             return string.Join(Environment.NewLine, Directory.GetFileSystemEntries(path));
-        }
-
-        public override void DeleteDirectory_DirectoryShouldNotBeFound(string path)
-        {
-            this.ShouldFail<IOException>(() => { this.DeleteDirectory(path); });
-        }
-
-        public override void DeleteDirectory_ShouldBeBlockedByProcess(string path)
-        {
-            Assert.Fail("DeleteDirectory_ShouldBeBlockedByProcess not supported by SystemIORunner");
-        }
-
-        public override void ReadAllText_FileShouldNotBeFound(string path)
-        {
-            this.ShouldFail<IOException>(() => { this.ReadAllText(path); });
         }
 
         public override void ChangeMode(string path, ushort mode)
@@ -283,11 +206,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             }
 
             throw new Exception(message.ToString());
-        }
-
-        private void ShouldFail<ExceptionType>(Action action) where ExceptionType : Exception
-        {
-            Assert.Catch<ExceptionType>(() => action());
         }
     }
 }
