@@ -18,7 +18,20 @@ namespace Scalar.FunctionalTests.FileSystemRunners
 
         public override string MoveFile(string sourcePath, string targetPath)
         {
-            File.Move(sourcePath, targetPath);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                File.Move(sourcePath, targetPath);
+            }
+            else
+            {
+                // Use rename(2) on POSIX instead of separate link(2)/unlink(2)
+                // calls, which File.Move() uses to avoid overwriting the
+                // target file should it exist.  However, using link(2)
+                // results in unexpected missed event notifications from
+                // Watchman to Git's fsmonitor hook on some macOS versions,
+                // which in turn results in test failures for Scalar.
+                Rename(sourcePath, targetPath);
+            }
             return string.Empty;
         }
 

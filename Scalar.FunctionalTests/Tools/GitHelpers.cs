@@ -74,8 +74,8 @@ namespace Scalar.FunctionalTests.Tools
             ProcessResult expectedResult = GitProcess.InvokeProcess(controlRepoRoot, command, environmentVariables);
             ProcessResult actualResult = GitHelpers.InvokeGitAgainstScalarRepo(scalarRepoRoot, command, environmentVariables);
 
-            LinesShouldMatch(command + " Errors Lines", actualResult.Errors, expectedResult.Errors);
-            LinesShouldMatch(command + " Output Lines", actualResult.Output, expectedResult.Output);
+            LinesShouldMatch(command + " Errors Lines", expectedResult.Errors, actualResult.Errors);
+            LinesShouldMatch(command + " Output Lines", expectedResult.Output, actualResult.Output);
 
             if (command != "status")
             {
