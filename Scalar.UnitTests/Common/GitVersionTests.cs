@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Scalar.Common;
 using Scalar.Common.Git;
 using Scalar.Tests.Should;
+using System.Collections.Generic;
 
 namespace Scalar.UnitTests.Common
 {
@@ -26,6 +27,44 @@ namespace Scalar.UnitTests.Common
             var winGitVersion = new GitVersion(2, 28, 0, "windows", 1, 1);
             GitFeatureFlags winGitFeatures = winGitVersion.GetFeatures();
             winGitFeatures.HasFlag(GitFeatureFlags.GvfsProtocol).ShouldBeFalse();
+        }
+
+        [TestCase]
+        public void GetFeatureFlags_MaintenanceBuiltin()
+        {
+            var notSupportedVerisons = new List<GitVersion>
+            {
+                new GitVersion(2, 27, 1),
+                new GitVersion(2, 28, 0),
+                new GitVersion(2, 28, 1),
+                new GitVersion(2, 29, 0),
+                new GitVersion(2, 27, 1, "windows"),
+                new GitVersion(2, 28, 0, "windows"),
+                new GitVersion(2, 28, 1, "windows"),
+                new GitVersion(2, 29, 0, "windows"),
+                new GitVersion(2, 27, 0, "vfs", 1, 1),
+                new GitVersion(2, 28, 0, "vfs", 0, 0),
+                new GitVersion(2, 28, 0, "vfs", 0, 1),
+            };
+
+            foreach (GitVersion version in notSupportedVerisons)
+            {
+                GitFeatureFlags gitGitFeatures = version.GetFeatures();
+                gitGitFeatures.HasFlag(GitFeatureFlags.MaintenanceBuiltin).ShouldBeFalse($"Incorrect for version {version}");
+            }
+
+            var supportedVerisons = new List<GitVersion>
+            {
+                new GitVersion(2, 28, 0, "vfs", 1, 0),
+                new GitVersion(2, 29, 0, "vfs", 0, 0),
+                new GitVersion(2, 30, 0, "vfs", 0, 0),
+            };
+
+            foreach (GitVersion version in supportedVerisons)
+            {
+                GitFeatureFlags gitGitFeatures = version.GetFeatures();
+                gitGitFeatures.HasFlag(GitFeatureFlags.MaintenanceBuiltin).ShouldBeTrue($"Incorrect for version {version}");
+            }
         }
 
         [TestCase]
