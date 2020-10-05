@@ -120,18 +120,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             return this.RunProcess(string.Format("-c \"mv '{0}' '{1}'\"", sourceBashPath, targetBashPath));
         }
 
-        public override void MoveFileShouldFail(string sourcePath, string targetPath)
-        {
-            // BashRunner does nothing special when a failure is expected, so just confirm source file is still present
-            this.MoveFile(sourcePath, targetPath);
-            this.FileExists(sourcePath).ShouldBeTrue($"{sourcePath} does not exist when it should");
-        }
-
-        public override void MoveFile_FileShouldNotBeFound(string sourcePath, string targetPath)
-        {
-            this.MoveFile(sourcePath, targetPath).ShouldContainOneOf(fileNotFoundMessages);
-        }
-
         public override string ReplaceFile(string sourcePath, string targetPath)
         {
             string sourceBashPath = this.ConvertWinPathToBashPath(sourcePath);
@@ -194,12 +182,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             this.RunProcess(string.Format("-c \"echo \\\"{0}\\\" > '{1}'\"", contents, bashPath));
         }
 
-        public override void WriteAllTextShouldFail<ExceptionType>(string path, string contents)
-        {
-            // BashRunner does nothing special when a failure is expected
-            this.WriteAllText(path, contents);
-        }
-
         public override bool DirectoryExists(string path)
         {
             return this.FileExistsOnDisk(path, FileType.Directory);
@@ -213,16 +195,6 @@ namespace Scalar.FunctionalTests.FileSystemRunners
         public override void RenameDirectory(string workingDirectory, string source, string target)
         {
             this.MoveDirectory(Path.Combine(workingDirectory, source), Path.Combine(workingDirectory, target));
-        }
-
-        public override void MoveDirectory_RequestShouldNotBeSupported(string sourcePath, string targetPath)
-        {
-            this.MoveFile(sourcePath, targetPath).ShouldContain(moveDirectoryNotSupportedMessage);
-        }
-
-        public override void MoveDirectory_TargetShouldBeInvalid(string sourcePath, string targetPath)
-        {
-            this.MoveFile(sourcePath, targetPath).ShouldContainOneOf(invalidMovePathMessages);
         }
 
         public override void CreateDirectory(string path)
@@ -246,45 +218,12 @@ namespace Scalar.FunctionalTests.FileSystemRunners
             return this.RunProcess(string.Format("-c \"ls '{0}'\"", bashPath));
         }
 
-        public override void ReplaceFile_FileShouldNotBeFound(string sourcePath, string targetPath)
-        {
-            this.ReplaceFile(sourcePath, targetPath).ShouldContainOneOf(fileNotFoundMessages);
-        }
-
-        public override void DeleteFile_FileShouldNotBeFound(string path)
-        {
-            this.DeleteFile(path).ShouldContainOneOf(fileNotFoundMessages);
-        }
-
-        public override void DeleteFile_AccessShouldBeDenied(string path)
-        {
-            // bash does not report any error messages when access is denied, so just confirm the file still exists
-            this.DeleteFile(path);
-            this.FileExists(path).ShouldBeTrue($"{path} does not exist when it should");
-        }
-
-        public override void ReadAllText_FileShouldNotBeFound(string path)
-        {
-            this.ReadAllText(path).ShouldContainOneOf(fileNotFoundMessages);
-        }
-
-        public override void DeleteDirectory_DirectoryShouldNotBeFound(string path)
-        {
-            // Delete directory silently succeeds when deleting a non-existent path
-            this.DeleteDirectory(path);
-        }
-
         public override void ChangeMode(string path, ushort mode)
         {
             string octalMode = Convert.ToString(mode, 8);
             string bashPath = this.ConvertWinPathToBashPath(path);
             string command = $"-c \"chmod {octalMode} '{bashPath}'\"";
             this.RunProcess(command);
-        }
-
-        public override void DeleteDirectory_ShouldBeBlockedByProcess(string path)
-        {
-            Assert.Fail("Unlike the other runners, bash.exe does not check folder handle before recusively deleting");
         }
 
         public override long FileSize(string path)
