@@ -167,3 +167,4 @@ jobs:
       with:
         name: ${{ env.TRACE2_BASENAME }}.zip
         path: ${{ env.TRACE2_BASENAME }}.zip
+        retention-days: 7
