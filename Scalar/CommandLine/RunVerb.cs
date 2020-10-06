@@ -123,7 +123,7 @@ namespace Scalar.CommandLine
                                 gitObjects = new GitObjects(tracer, enlistment, objectRequestor, fileSystem);
                                 steps.Add(new FetchStep(context, gitObjects, requireCacheLock: false, forceRun: !this.StartedByService));
                                 steps.Add(new CommitGraphStep(context, gitFeatures, requireObjectCacheLock: false));
-                                steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService));
+                                steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService, gitFeatures: gitFeatures));
                                 steps.Add(new PackfileMaintenanceStep(
                                         context,
                                         forceRun: !this.StartedByService,
@@ -135,7 +135,7 @@ namespace Scalar.CommandLine
 
                             case ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName:
                                 this.FailIfBatchSizeSet(tracer);
-                                steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService));
+                                steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService, gitFeatures: gitFeatures));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName:

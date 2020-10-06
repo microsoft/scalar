@@ -20,8 +20,9 @@ namespace Scalar.Common.Maintenance
             ScalarContext context,
             bool requireCacheLock = true,
             bool forceRun = false,
+            GitFeatureFlags gitFeatures = GitFeatureFlags.None,
             GitProcessChecker gitProcessChecker = null)
-            : base(context, requireCacheLock, gitProcessChecker: gitProcessChecker)
+            : base(context, requireCacheLock, gitFeatures, gitProcessChecker)
         {
             this.forceRun = forceRun;
         }
@@ -188,17 +189,30 @@ namespace Scalar.Common.Maintenance
                         }
                     }
 
+                    EventMetadata metadata = new EventMetadata();
+                    metadata.Add("GitObjectsRoot", this.Context.Enlistment.GitObjectsRoot);
+
                     this.CountLooseObjects(out int beforeLooseObjectsCount, out long beforeLooseObjectsSize);
                     this.GetPackFilesInfo(out int beforePackCount, out long beforePackSize, out long beforeSize2, out bool _);
 
-                    GitProcess.Result gitResult = this.RunGitCommand((process) => process.PrunePacked(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.PrunePacked));
-                    CreatePackResult createPackResult = this.TryCreateLooseObjectsPackFile(out int objectsAddedToPack);
+                    GitProcess.Result gitResult;
+
+                    if (this.GitFeatures.HasFlag(GitFeatureFlags.MaintenanceBuiltin))
+                    {
+                        gitResult = this.RunGitCommand(
+                                            process => process.MaintenanceRunTask(GitProcess.MaintenanceTask.LooseObjects, this.Context.Enlistment.GitObjectsRoot),
+                                            nameof(GitProcess.MaintenanceRunTask));
+                    }
+                    else
+                    {
+                        gitResult = this.RunGitCommand((process) => process.PrunePacked(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.PrunePacked));
+                        CreatePackResult createPackResult = this.TryCreateLooseObjectsPackFile(out int objectsAddedToPack);
+                        metadata.Add("LooseObjectsPutIntoPackFile", objectsAddedToPack);
+                        metadata.Add("CreatePackResult", createPackResult.ToString());
+                    }
 
                     this.CountLooseObjects(out int afterLooseObjectsCount, out long afterLooseObjectsSize);
                     this.GetPackFilesInfo(out int afterPackCount, out long afterPackSize, out long afterSize2, out bool _);
-
-                    EventMetadata metadata = new EventMetadata();
-                    metadata.Add("GitObjectsRoot", this.Context.Enlistment.GitObjectsRoot);
 
                     metadata.Add("PrunedPackedExitCode", gitResult.ExitCode);
                     metadata.Add("StartingCount", beforeLooseObjectsCount);
@@ -214,8 +228,6 @@ namespace Scalar.Common.Maintenance
                     metadata.Add("EndingSize2", afterSize2);
 
                     metadata.Add("RemovedCount", beforeLooseObjectsCount - afterLooseObjectsCount);
-                    metadata.Add("LooseObjectsPutIntoPackFile", objectsAddedToPack);
-                    metadata.Add("CreatePackResult", createPackResult.ToString());
 
                     activity.RelatedEvent(EventLevel.Informational, $"{this.Area}_{nameof(this.PerformMaintenance)}", metadata, Keywords.Telemetry);
                     this.SaveLastRunTimeToFile();
