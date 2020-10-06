@@ -20,8 +20,9 @@ namespace Scalar.Common.Maintenance
                     ScalarContext context,
                     GitObjects gitObjects,
                     bool requireCacheLock = true,
+                    GitFeatureFlags gitFeatures = GitFeatureFlags.None,
                     bool forceRun = false)
-            : base(context, requireCacheLock)
+            : base(context, requireCacheLock, gitFeatures)
         {
             this.GitObjects = gitObjects;
             this.forceRun = forceRun;
@@ -97,37 +98,52 @@ namespace Scalar.Common.Maintenance
 
             using (ITracer activity = this.Context.Tracer.StartActivity(nameof(GitProcess.BackgroundFetch), EventLevel.LogAlways))
             {
-                if (!gitProcess.TryGetRemotes(out string[] remotes, out string errors))
-                {
-                    error = $"Failed to load remotes with error: {errors}";
-                    activity.RelatedError(error);
-                    return false;
-                }
-
                 bool response = true;
-
                 error = "";
-                foreach (string remote in remotes)
+
+                if (this.GitFeatures.HasFlag(GitFeatureFlags.MaintenanceBuiltin))
                 {
-                    activity.RelatedInfo($"Running fetch for remote '{remote}'");
-                    GitProcess.Result result = gitProcess.BackgroundFetch(remote);
-
-                    if (!string.IsNullOrWhiteSpace(result.Output))
-                    {
-                        activity.RelatedError($"Background fetch from '{remote}' completed with stdout: {result.Output}");
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(result.Errors))
-                    {
-                        error += result.Errors;
-                        activity.RelatedError($"Background fetch from '{remote}' completed with stderr: {result.Errors}");
-                    }
-
+                    GitProcess.Result result = gitProcess.MaintenanceRunTask(
+                                                                GitProcess.MaintenanceTask.Prefetch,
+                                                                this.Context.Enlistment.GitObjectsRoot);
                     if (result.ExitCodeIsFailure)
                     {
-                        response = false;
-                        // Keep going through other remotes, but the overall result will still be false.
-                        activity.RelatedError($"Background fetch from '{remote}' failed");
+                        error = $"Failed 'git maintenance run --task=prefetch' with exit code {result.ExitCode} and errors: {result.Errors}";
+                        activity.RelatedError(error);
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!gitProcess.TryGetRemotes(out string[] remotes, out string errors))
+                    {
+                        error = $"Failed to load remotes with error: {errors}";
+                        activity.RelatedError(error);
+                        return false;
+                    }
+
+                    foreach (string remote in remotes)
+                    {
+                        activity.RelatedInfo($"Running fetch for remote '{remote}'");
+                        GitProcess.Result result = gitProcess.BackgroundFetch(remote);
+
+                        if (!string.IsNullOrWhiteSpace(result.Output))
+                        {
+                            activity.RelatedError($"Background fetch from '{remote}' completed with stdout: {result.Output}");
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(result.Errors))
+                        {
+                            error += result.Errors;
+                            activity.RelatedError($"Background fetch from '{remote}' completed with stderr: {result.Errors}");
+                        }
+
+                        if (result.ExitCodeIsFailure)
+                        {
+                            response = false;
+                            // Keep going through other remotes, but the overall result will still be false.
+                            activity.RelatedError($"Background fetch from '{remote}' failed");
+                        }
                     }
                 }
 
