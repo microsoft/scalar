@@ -129,7 +129,8 @@ namespace Scalar.CommandLine
                                         forceRun: !this.StartedByService,
                                         batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
                                             PackfileMaintenanceStep.DefaultBatchSizeBytes.ToString() :
-                                            this.PackfileMaintenanceBatchSize));
+                                            this.PackfileMaintenanceBatchSize,
+                                        gitFeatures: gitFeatures));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName:
@@ -143,7 +144,8 @@ namespace Scalar.CommandLine
                                         forceRun: !this.StartedByService,
                                         batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
                                             PackfileMaintenanceStep.DefaultBatchSizeBytes.ToString() :
-                                            this.PackfileMaintenanceBatchSize));
+                                            this.PackfileMaintenanceBatchSize,
+                                        gitFeatures: gitFeatures));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.FetchTaskName:
