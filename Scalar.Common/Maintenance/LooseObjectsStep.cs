@@ -21,7 +21,7 @@ namespace Scalar.Common.Maintenance
             bool requireCacheLock = true,
             bool forceRun = false,
             GitProcessChecker gitProcessChecker = null)
-            : base(context, requireCacheLock, gitProcessChecker)
+            : base(context, requireCacheLock, gitProcessChecker: gitProcessChecker)
         {
             this.forceRun = forceRun;
         }

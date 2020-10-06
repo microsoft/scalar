@@ -11,11 +11,12 @@ namespace Scalar.Common.Maintenance
         public const string ObjectCacheLock = "git-maintenance-step.lock";
         private readonly object gitProcessLock = new object();
 
-        public GitMaintenanceStep(ScalarContext context, bool requireObjectCacheLock, GitProcessChecker gitProcessChecker = null)
+        public GitMaintenanceStep(ScalarContext context, bool requireObjectCacheLock, GitFeatureFlags gitFeatures = GitFeatureFlags.None, GitProcessChecker gitProcessChecker = null)
         {
             this.Context = context;
             this.RequireObjectCacheLock = requireObjectCacheLock;
             this.GitProcessChecker = gitProcessChecker ?? new GitProcessChecker();
+            this.GitFeatures = gitFeatures;
         }
 
         public abstract string Area { get; }
@@ -29,6 +30,7 @@ namespace Scalar.Common.Maintenance
         protected bool Stopping { get; private set; }
         protected bool RequireObjectCacheLock { get; }
         protected GitProcessChecker GitProcessChecker { get; }
+        protected GitFeatureFlags GitFeatures { get; }
 
         public static bool EnlistmentRootReady(ScalarContext context)
         {

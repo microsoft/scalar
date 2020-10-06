@@ -38,7 +38,7 @@ namespace Scalar.Common.Maintenance
             bool forceRun = false,
             string batchSize = null,
             GitProcessChecker gitProcessChecker = null)
-            : base(context, requireObjectCacheLock, gitProcessChecker)
+            : base(context, requireObjectCacheLock, gitProcessChecker: gitProcessChecker)
         {
             this.forceRun = forceRun;
             this.batchSize = batchSize ?? DefaultBatchSizeBytes.ToString();

@@ -113,6 +113,7 @@ namespace Scalar.CommandLine
                         GitObjectsHttpRequestor objectRequestor = null;
                         CacheServerInfo cacheServer;
                         GitObjects gitObjects;
+                        GitFeatureFlags gitFeatures = this.GetAvailableGitFeatures(tracer);
 
                         switch (this.MaintenanceTask)
                         {
@@ -121,7 +122,7 @@ namespace Scalar.CommandLine
                                 this.InitializeServerConnection(tracer, enlistment, cacheServerUrl, out objectRequestor, out cacheServer);
                                 gitObjects = new GitObjects(tracer, enlistment, objectRequestor, fileSystem);
                                 steps.Add(new FetchStep(context, gitObjects, requireCacheLock: false, forceRun: !this.StartedByService));
-                                steps.Add(new CommitGraphStep(context, requireObjectCacheLock: false));
+                                steps.Add(new CommitGraphStep(context, gitFeatures, requireObjectCacheLock: false));
                                 steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService));
                                 steps.Add(new PackfileMaintenanceStep(
                                         context,
@@ -154,7 +155,7 @@ namespace Scalar.CommandLine
 
                             case ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName:
                                 this.FailIfBatchSizeSet(tracer);
-                                steps.Add(new CommitGraphStep(context, requireObjectCacheLock: false));
+                                steps.Add(new CommitGraphStep(context, gitFeatures, requireObjectCacheLock: false));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.ConfigTaskName:
