@@ -13,6 +13,15 @@ namespace Scalar.Common.Git
 {
     public class GitProcess : ICredentialStore
     {
+        public enum MaintenanceTask
+        {
+            GC,
+            CommitGraph,
+            LooseObjects,
+            IncrementalRepack,
+            Prefetch,
+        }
+
         /// <remarks>
         /// For UnitTest purposes
         /// </remarks>
@@ -429,6 +438,38 @@ namespace Scalar.Common.Git
             return this.InvokeGitInWorkingDirectoryRoot("checkout -f " + target, fetchMissingObjects: true);
         }
 
+        public Result MaintenanceRunTask(MaintenanceTask task, string objectDir)
+        {
+            string taskStr;
+            switch (task)
+            {
+                case MaintenanceTask.CommitGraph:
+                    taskStr = "commit-graph";
+                    break;
+
+                case MaintenanceTask.LooseObjects:
+                    taskStr = "loose-objects";
+                    break;
+
+                case MaintenanceTask.IncrementalRepack:
+                    taskStr = "incremental-repack";
+                    break;
+
+                case MaintenanceTask.Prefetch:
+                    taskStr = "prefetch";
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Cannot run maintenance task {task}");
+            }
+
+            return this.InvokeGitInWorkingDirectoryRoot(
+                            $"-c pack.window=0 -c pack.depth=0 maintenance run --task={taskStr} --quiet",
+                            fetchMissingObjects: true,
+                            userInteractive: false,
+                            gitObjectsDirectory: objectDir);
+        }
+
         public Result ForegroundFetch(string remote)
         {
             // By using "--refmap", we override the configured refspec,
@@ -819,7 +860,8 @@ namespace Scalar.Common.Git
             bool fetchMissingObjects,
             Action<StreamWriter> writeStdIn = null,
             Action<string> parseStdOutLine = null,
-            bool userInteractive = true)
+            bool userInteractive = true,
+            string gitObjectsDirectory = null)
         {
             return this.InvokeGitImpl(
                 command,
@@ -829,7 +871,8 @@ namespace Scalar.Common.Git
                 writeStdIn: writeStdIn,
                 parseStdOutLine: parseStdOutLine,
                 timeoutMs: -1,
-                userInteractive: userInteractive);
+                userInteractive: userInteractive,
+                gitObjectsDirectory: gitObjectsDirectory);
         }
 
         /// <summary>
