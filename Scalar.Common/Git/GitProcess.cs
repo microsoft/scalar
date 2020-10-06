@@ -470,6 +470,14 @@ namespace Scalar.Common.Git
                             gitObjectsDirectory: objectDir);
         }
 
+        public Result MaintenanceStart()
+        {
+            return this.InvokeGitInWorkingDirectoryRoot(
+                            "maintenance start",
+                            fetchMissingObjects: false,
+                            userInteractive: false);
+        }
+
         public Result ForegroundFetch(string remote)
         {
             // By using "--refmap", we override the configured refspec,

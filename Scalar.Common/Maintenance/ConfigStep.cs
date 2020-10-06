@@ -67,7 +67,8 @@ namespace Scalar.Common.Maintenance
 
         private bool? UseGvfsProtocol = true;
 
-        public ConfigStep(ScalarContext context, bool? useGvfsProtocol = null) : base(context, requireObjectCacheLock: false)
+        public ConfigStep(ScalarContext context, bool? useGvfsProtocol = null, GitFeatureFlags gitFeatures = GitFeatureFlags.None)
+            : base(context, requireObjectCacheLock: false, gitFeatures: gitFeatures)
         {
             this.UseGvfsProtocol = useGvfsProtocol;
         }
@@ -200,6 +201,13 @@ namespace Scalar.Common.Maintenance
                 return false;
             }
 
+            if (!this.TryStartBackgroundMaintenance(out error))
+            {
+                error = $"Failed to start background maintenance: {error}";
+                this.Context.Tracer.RelatedError(error);
+                return false;
+            }
+
             return this.ConfigureWatchmanIntegration(out error);
         }
 
@@ -284,6 +292,27 @@ namespace Scalar.Common.Maintenance
 
             error = null;
             return true;
+        }
+
+        private bool TryStartBackgroundMaintenance(out string error)
+        {
+            if (!this.GitFeatures.HasFlag(GitFeatureFlags.MaintenanceBuiltin))
+            {
+                // No error, so move forward.
+                error = null;
+                return true;
+            }
+
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                // We still use Scalar.Service on this platform
+                error = null;
+                return true;
+            }
+
+            GitProcess.Result result = this.RunGitCommand(process => process.MaintenanceStart(), nameof(GitProcess.MaintenanceStart));
+            error = result.Errors;
+            return result.ExitCodeIsSuccess;
         }
 
         private bool ConfigureWatchmanIntegration(out string error)
