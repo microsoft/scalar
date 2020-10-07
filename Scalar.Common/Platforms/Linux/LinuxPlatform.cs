@@ -14,7 +14,7 @@ using System.Xml.XPath;
 
 namespace Scalar.Platform.Linux
 {
-    public partial class LinuxPlatform : POSIXPlatform
+    public class LinuxPlatform : POSIXPlatform
     {
         // TODO(Linux): We should ideally consider any colon-separated paths
         // in $XDG_CONFIG_DIRS and $XDG_DATA_DIRS, as well as their defaults
@@ -30,7 +30,7 @@ namespace Scalar.Platform.Linux
                 ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
                 ScalarConstants.LinuxPlatform.LocalScalarCachePath),
         };
-        protected static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseConfigPaths = new[] {
+        private static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseConfigPaths = new[] {
             new EnvironmentVariableBasePath(
                 ScalarConstants.LinuxPlatform.EnvironmentVariables.LocalUserConfigFolder,
                 ScalarConstants.LinuxPlatform.LocalScalarFolderName),
@@ -38,7 +38,7 @@ namespace Scalar.Platform.Linux
                 ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
                 ScalarConstants.LinuxPlatform.LocalScalarConfigPath),
         };
-        protected static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseDataPaths = new[] {
+        private static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseDataPaths = new[] {
             new EnvironmentVariableBasePath(
                 ScalarConstants.LinuxPlatform.EnvironmentVariables.LocalUserDataFolder,
                 ScalarConstants.LinuxPlatform.LocalScalarFolderName),
@@ -73,37 +73,12 @@ namespace Scalar.Platform.Linux
             return string.IsNullOrWhiteSpace(result.Output) ? result.Errors : result.Output;
         }
 
-        public override string GetCommonAppDataRootForScalar()
-        {
-            return LinuxPlatform.GetDataRootForScalarImplementation();
-        }
-
-        public override string GetCommonAppDataRootForScalarComponent(string componentName)
-        {
-            return LinuxPlatform.GetDataRootForScalarComponentImplementation(componentName);
-        }
-
         public override FileBasedLock CreateFileBasedLock(
             PhysicalFileSystem fileSystem,
             ITracer tracer,
             string lockPath)
         {
             return new LinuxFileBasedLock(fileSystem, tracer, lockPath);
-        }
-
-        public override string GetUpgradeHighestAvailableVersionDirectory()
-        {
-            return GetUpgradeHighestAvailableVersionDirectoryImplementation();
-        }
-
-        /// <summary>
-        /// This is the directory in which the upgradelogs directory should go.
-        /// There can be multiple logs directories, so here we return the containing
-        /// directory.
-        /// </summary>
-        public override string GetUpgradeLogDirectoryParentDirectory()
-        {
-            return this.GetUpgradeNonProtectedDataDirectory();
         }
 
         public override bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError)
@@ -138,5 +113,10 @@ namespace Scalar.Platform.Linux
 
         // Defined in linux/limits.h
         protected override int MaxPathLength => 4096;
+
+        protected override bool TryGetDefaultLocalDataRoot(out string localDataRoot, out string localDataRootError)
+        {
+            return TryGetEnvironmentVariableBasePath(EnvironmentVariableBaseDataPaths, out localDataRoot, out localDataRootError);
+        }
     }
 }

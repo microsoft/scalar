@@ -152,6 +152,24 @@ namespace Scalar.Platform.POSIX
             return pipe;
         }
 
+        public override string GetCommonAppDataRootForScalar()
+        {
+            string localDataRoot;
+            string localDataRootError;
+
+            if (!this.TryGetDefaultLocalDataRoot(out localDataRoot, out localDataRootError))
+            {
+                throw new ArgumentException(localDataRootError);
+            }
+
+            return localDataRoot;
+        }
+
+        public override string GetCommonAppDataRootForScalarComponent(string componentName)
+        {
+            return Path.Combine(this.GetCommonAppDataRootForScalar(), componentName);
+        }
+
         public override string GetSecureDataRootForScalar()
         {
             // SecureDataRoot is Windows only. On POSIX, it is the same as CommonAppDataRoot
@@ -183,6 +201,16 @@ namespace Scalar.Platform.POSIX
         public override string GetUpgradeProtectedDataDirectory()
         {
             throw new NotImplementedException();
+        }
+
+        public override string GetUpgradeLogDirectoryParentDirectory()
+        {
+            return this.GetUpgradeNonProtectedDirectory();
+        }
+
+        public override string GetUpgradeHighestAvailableVersionDirectory()
+        {
+            return this.GetUpgradeNonProtectedDirectory();
         }
 
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly)
@@ -324,6 +352,8 @@ namespace Scalar.Platform.POSIX
             }
         }
 
+        protected abstract bool TryGetDefaultLocalDataRoot(out string localDataRoot, out string localDataRootError);
+
         protected static bool TryGetEnvironmentVariableBasePath(EnvironmentVariableBasePath[] environmentVariableBasePaths, out string path, out string error)
         {
             if (environmentVariableBasePaths == null || environmentVariableBasePaths.Length == 0)
@@ -376,6 +406,11 @@ namespace Scalar.Platform.POSIX
 
             error = null;
             return true;
+        }
+
+        private string GetUpgradeNonProtectedDirectory()
+        {
+            return Path.Combine(this.GetCommonAppDataRootForScalar(), ProductUpgraderInfo.UpgradeDirectoryName);
         }
 
         private static class NativeMethods

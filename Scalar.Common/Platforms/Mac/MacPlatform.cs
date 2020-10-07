@@ -13,14 +13,14 @@ using System.Xml.XPath;
 
 namespace Scalar.Platform.Mac
 {
-    public partial class MacPlatform : POSIXPlatform
+    public class MacPlatform : POSIXPlatform
     {
         private static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseCachePaths = new[] {
             new EnvironmentVariableBasePath(
                 ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
                 ScalarConstants.DefaultScalarCacheFolderName),
         };
-        protected static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseDataPaths = new[] {
+        private static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseDataPaths = new[] {
             new EnvironmentVariableBasePath(
                 ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
                 ScalarConstants.MacPlatform.LocalScalarDataPath),
@@ -44,37 +44,12 @@ namespace Scalar.Platform.Mac
             return string.IsNullOrWhiteSpace(result.Output) ? result.Errors : result.Output;
         }
 
-        public override string GetCommonAppDataRootForScalar()
-        {
-            return MacPlatform.GetDataRootForScalarImplementation();
-        }
-
-        public override string GetCommonAppDataRootForScalarComponent(string componentName)
-        {
-            return MacPlatform.GetDataRootForScalarComponentImplementation(componentName);
-        }
-
         public override FileBasedLock CreateFileBasedLock(
             PhysicalFileSystem fileSystem,
             ITracer tracer,
             string lockPath)
         {
             return new MacFileBasedLock(fileSystem, tracer, lockPath);
-        }
-
-        public override string GetUpgradeHighestAvailableVersionDirectory()
-        {
-            return GetUpgradeHighestAvailableVersionDirectoryImplementation();
-        }
-
-        /// <summary>
-        /// This is the directory in which the upgradelogs directory should go.
-        /// There can be multiple logs directories, so here we return the containing
-        /// directory.
-        /// </summary>
-        public override string GetUpgradeLogDirectoryParentDirectory()
-        {
-            return this.GetUpgradeNonProtectedDataDirectory();
         }
 
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly)
@@ -145,5 +120,10 @@ namespace Scalar.Platform.Mac
         // Defined in
         // /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/syslimits.h
         protected override int MaxPathLength => 1024;
+
+        protected override bool TryGetDefaultLocalDataRoot(out string localDataRoot, out string localDataRootError)
+        {
+            return TryGetEnvironmentVariableBasePath(EnvironmentVariableBaseDataPaths, out localDataRoot, out localDataRootError);
+        }
     }
 }
