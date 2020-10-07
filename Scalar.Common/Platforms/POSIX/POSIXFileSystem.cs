@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace Scalar.Platform.POSIX
 {
-    public abstract partial class POSIXFileSystem : IPlatformFileSystem
+    public abstract class POSIXFileSystem : IPlatformFileSystem
     {
         // https://github.com/dotnet/corefx/blob/103639b6ff5aa6ab6097f70732530e411817f09b/src/Common/src/CoreLib/Interop/Unix/System.Native/Interop.OpenFlags.cs#L12
         [Flags]
@@ -44,7 +44,10 @@ namespace Scalar.Platform.POSIX
 
         public bool TryGetNormalizedPath(string path, out string normalizedPath, out string errorMessage)
         {
-            return POSIXFileSystem.TryGetNormalizedPathImplementation(path, out normalizedPath, out errorMessage);
+            // TODO(#217): Properly determine normalized paths (e.g. across links)
+            errorMessage = null;
+            normalizedPath = path;
+            return true;
         }
 
         public abstract bool IsExecutable(string fileName);
