@@ -28,12 +28,6 @@ namespace Scalar.Platform.POSIX
             return true;
         }
 
-        public static string GetNamedPipeNameImplementation(string enlistmentRoot, string dotScalarRoot)
-        {
-            // Pipes are stored as files on POSIX, use a rooted pipe name to keep full control of the location of the file
-            return Path.Combine(enlistmentRoot, dotScalarRoot, "Scalar_NetCorePipe");
-        }
-
         public static bool IsConsoleOutputRedirectedToFileImplementation()
         {
             // TODO(#1355): Implement proper check
