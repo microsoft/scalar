@@ -14,7 +14,7 @@ using System.Security;
 
 namespace Scalar.Platform.POSIX
 {
-    public abstract partial class POSIXPlatform : ScalarPlatform
+    public abstract class POSIXPlatform : ScalarPlatform
     {
         private const int StdInFileNo = 0;  // STDIN_FILENO  -> standard input file descriptor
         private const int StdOutFileNo = 1; // STDOUT_FILENO -> standard output file descriptor
@@ -47,7 +47,16 @@ namespace Scalar.Platform.POSIX
 
         public override bool IsProcessActive(int processId)
         {
-            return POSIXPlatform.IsProcessActiveImplementation(processId);
+            try
+            {
+                Process process = Process.GetProcessById(processId);
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
@@ -197,12 +206,14 @@ namespace Scalar.Platform.POSIX
 
         public override bool IsConsoleOutputRedirectedToFile()
         {
-            return POSIXPlatform.IsConsoleOutputRedirectedToFileImplementation();
+            // TODO(#1355): Implement proper check
+            return false;
         }
 
         public override bool IsElevated()
         {
-            return POSIXPlatform.IsElevatedImplementation();
+            int euid = GetEuid();
+            return euid == 0;
         }
 
         public override bool TryKillProcessTree(int processId, out int exitCode, out string error)
@@ -239,6 +250,9 @@ namespace Scalar.Platform.POSIX
 
         [DllImport("libc", EntryPoint = "getuid", SetLastError = true)]
         private static extern uint Getuid();
+
+        [DllImport("libc", EntryPoint = "geteuid", SetLastError = true)]
+        private static extern int GetEuid();
 
         [DllImport("libc", EntryPoint = "setsid", SetLastError = true)]
         private static extern int SetSid();
