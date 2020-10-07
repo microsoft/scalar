@@ -1,4 +1,5 @@
 using Scalar.Common;
+using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Tracing;
 using System;
@@ -210,6 +211,13 @@ namespace Scalar.Platform.POSIX
             error = result.Errors;
             exitCode = result.ExitCode;
             return result.ExitCode == 0;
+        }
+
+        public override ProductUpgraderPlatformStrategy CreateProductUpgraderPlatformInteractions(
+            PhysicalFileSystem fileSystem,
+            ITracer tracer)
+        {
+            return new POSIXProductUpgraderPlatformStrategy(fileSystem, tracer);
         }
 
         public override string GetTemplateHooksDirectory()

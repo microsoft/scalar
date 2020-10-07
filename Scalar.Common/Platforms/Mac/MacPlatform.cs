@@ -108,13 +108,6 @@ namespace Scalar.Platform.Mac
             return TryGetEnvironmentVariableBasePath(EnvironmentVariableBaseCachePaths, out localCacheRoot, out localCacheRootError);
         }
 
-        public override ProductUpgraderPlatformStrategy CreateProductUpgraderPlatformInteractions(
-            PhysicalFileSystem fileSystem,
-            ITracer tracer)
-        {
-            return new MacProductUpgraderPlatformStrategy(fileSystem, tracer);
-        }
-
         public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
         {
             string currentUser = this.GetCurrentUser();
