@@ -170,6 +170,11 @@ namespace Scalar.Platform.POSIX
             return sessionId.ToString();
         }
 
+        public override string GetUpgradeProtectedDataDirectory()
+        {
+            throw new NotImplementedException();
+        }
+
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly)
         {
             // TODO(#1356): Collect disk information

@@ -16,9 +16,6 @@ namespace Scalar.Platform.Linux
 {
     public partial class LinuxPlatform : POSIXPlatform
     {
-        // TODO(Linux): determine installation location and upgrader path
-        private const string UpgradeProtectedDataDirectory = "/usr/local/scalar_upgrader";
-
         // TODO(Linux): We should ideally consider any colon-separated paths
         // in $XDG_CONFIG_DIRS and $XDG_DATA_DIRS, as well as their defaults
         // (i.e., /etc/xdg and /usr/local/share:/usr/share).
@@ -92,11 +89,6 @@ namespace Scalar.Platform.Linux
             string lockPath)
         {
             return new LinuxFileBasedLock(fileSystem, tracer, lockPath);
-        }
-
-        public override string GetUpgradeProtectedDataDirectory()
-        {
-            return UpgradeProtectedDataDirectory;
         }
 
         public override string GetUpgradeHighestAvailableVersionDirectory()

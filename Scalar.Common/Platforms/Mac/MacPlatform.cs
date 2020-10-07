@@ -62,11 +62,6 @@ namespace Scalar.Platform.Mac
             return new MacFileBasedLock(fileSystem, tracer, lockPath);
         }
 
-        public override string GetUpgradeProtectedDataDirectory()
-        {
-            throw new NotImplementedException();
-        }
-
         public override string GetUpgradeHighestAvailableVersionDirectory()
         {
             return GetUpgradeHighestAvailableVersionDirectoryImplementation();
