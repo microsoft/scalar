@@ -6,6 +6,7 @@ using Scalar.Tests.Should;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
@@ -60,7 +61,20 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             this.GetPackSizes(out int countAfterStep, out maxSize, out minSize, out totalSize);
             minSize.ShouldNotEqual(0, "min size means empty pack-file?");
 
-            countAfterStep.ShouldEqual(countAfterRepack + 1, nameof(countAfterStep));
+            // The new batch logic in Git depends on the number of pack-files
+            // trying to pack everything except the biggest pack-file. If
+            // there are only two packs, then no work is done.
+            int expectAfterRerun;
+            if (countAfterRepack == 2)
+            {
+                countAfterStep.ShouldEqual(countAfterRepack, nameof(countAfterStep));
+                expectAfterRerun = countAfterRepack;
+            }
+            else
+            {
+                countAfterStep.ShouldEqual(countAfterRepack + 1, nameof(countAfterStep));
+                expectAfterRerun = 1;
+            }
 
             this.Enlistment
                 .RunVerb("pack-files", batchSize: totalSize - minSize + 1)
@@ -68,7 +82,7 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
 
             this.GetPackSizes(out int countAfterStep2, out maxSize, out minSize, out totalSize);
             minSize.ShouldNotEqual(0, "min size means empty pack-file?");
-            countAfterStep2.ShouldEqual(1, nameof(countAfterStep2));
+            countAfterStep2.ShouldEqual(expectAfterRerun, nameof(countAfterStep2));
         }
 
         [TestCase]
@@ -104,8 +118,8 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             string refsRoot = Path.Combine(this.Enlistment.RepoRoot, ".git", "refs");
             string refsHeads = Path.Combine(refsRoot, "heads");
             string refsRemotesOrigin = Path.Combine(refsRoot, "remotes", "origin");
-            string refsHidden = Path.Combine(refsRoot, "scalar", "hidden");
-            string refsHiddenOriginFake = Path.Combine(refsHidden, "origin", "fake");
+            string refsPrefetch = Path.Combine(refsRoot, "prefetch");
+            string refsPrefetchOriginFake = Path.Combine(refsPrefetch, "origin", "fake");
             string packedRefs = Path.Combine(this.Enlistment.RepoRoot, ".git", "packed-refs");
 
             // Removing refs makes the next fetch need to download a new pack
@@ -124,20 +138,20 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
 
             countAfterFetch.ShouldEqual(1, "fetch should download one pack");
 
-            this.fileSystem.DirectoryExists(refsHidden).ShouldBeTrue("background fetch should have created refs/scalar/hidden/*");
+            this.fileSystem.DirectoryExists(refsPrefetch).ShouldBeTrue("background fetch should have created refs/prefetch/*");
             this.fileSystem.DirectoryExists(refsHeads).ShouldBeFalse("background fetch should not have created refs/heads/*");
             this.fileSystem.DirectoryExists(refsRemotesOrigin).ShouldBeFalse("background fetch should not have created refs/remotes/origin/*");
 
             // This is the SHA-1 for the main branch
             string sha1 = Settings.Default.CommitId;
-            this.fileSystem.WriteAllText(refsHiddenOriginFake, sha1);
+            this.fileSystem.WriteAllText(refsPrefetchOriginFake, sha1);
 
             this.Enlistment.RunVerb("fetch");
 
             this.fileSystem.DirectoryExists(refsHeads).ShouldBeFalse("background fetch should not have created refs/heads/*");
             this.fileSystem.DirectoryExists(refsRemotesOrigin).ShouldBeFalse("background fetch should not have created refs/remotes/origin/*");
 
-            this.fileSystem.FileExists(refsHiddenOriginFake).ShouldBeFalse("background fetch should clear deleted refs from refs/scalar/hidden");
+            this.fileSystem.FileExists(refsPrefetchOriginFake).ShouldBeFalse("background fetch should clear deleted refs from refs/prefetch");
 
             this.GetPackSizes(out int countAfterFetch2, out _, out _, out _);
             countAfterFetch2.ShouldEqual(1, "sceond fetch should not download a pack");
