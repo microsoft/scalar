@@ -67,7 +67,8 @@ namespace Scalar.Common.Maintenance
 
         private bool? UseGvfsProtocol = true;
 
-        public ConfigStep(ScalarContext context, bool? useGvfsProtocol = null) : base(context, requireObjectCacheLock: false)
+        public ConfigStep(ScalarContext context, bool? useGvfsProtocol = null, GitFeatureFlags gitFeatures = GitFeatureFlags.None)
+            : base(context, requireObjectCacheLock: false, gitFeatures: gitFeatures)
         {
             this.UseGvfsProtocol = useGvfsProtocol;
         }
@@ -155,6 +156,19 @@ namespace Scalar.Common.Maintenance
                 { "core.autocrlf", "false" },
                 { "core.safecrlf", "false" },
                 { "core.repositoryFormatVersion", "1" },
+                { "maintenance.gc.enabled", "false" },
+                { "maintenance.prefetch.enabled", "true" },
+                { "maintenance.prefetch.auto", "0" },
+                { "maintenance.prefetch.schedule", "hourly" },
+                { "maintenance.commit-graph.enabled", "true" },
+                { "maintenance.commit-graph.auto", "0" },
+                { "maintenance.commit-graph.schedule", "hourly" },
+                { "maintenance.loose-objects.enabled", "true" },
+                { "maintenance.loose-objects.auto", "0" },
+                { "maintenance.loose-objects.schedule", "daily" },
+                { "maintenance.incremental-repack.enabled", "true" },
+                { "maintenance.incremental-repack.auto", "0" },
+                { "maintenance.incremental-repack.schedule", "daily" },
             };
 
             if (this.UseGvfsProtocol.Value)
@@ -183,6 +197,13 @@ namespace Scalar.Common.Maintenance
             if (!this.TrySetMultiConfig(excludeDecoration, excludeValues, out error))
             {
                 error = $"Failed to set some multi-value settings: {error}";
+                this.Context.Tracer.RelatedError(error);
+                return false;
+            }
+
+            if (!this.TryStartBackgroundMaintenance(out error))
+            {
+                error = $"Failed to start background maintenance: {error}";
                 this.Context.Tracer.RelatedError(error);
                 return false;
             }
@@ -271,6 +292,27 @@ namespace Scalar.Common.Maintenance
 
             error = null;
             return true;
+        }
+
+        private bool TryStartBackgroundMaintenance(out string error)
+        {
+            if (!this.GitFeatures.HasFlag(GitFeatureFlags.MaintenanceBuiltin))
+            {
+                // No error, so move forward.
+                error = null;
+                return true;
+            }
+
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                // We still use Scalar.Service on this platform
+                error = null;
+                return true;
+            }
+
+            GitProcess.Result result = this.RunGitCommand(process => process.MaintenanceStart(), nameof(GitProcess.MaintenanceStart));
+            error = result.Errors;
+            return result.ExitCodeIsSuccess;
         }
 
         private bool ConfigureWatchmanIntegration(out string error)

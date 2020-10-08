@@ -113,6 +113,7 @@ namespace Scalar.CommandLine
                         GitObjectsHttpRequestor objectRequestor = null;
                         CacheServerInfo cacheServer;
                         GitObjects gitObjects;
+                        GitFeatureFlags gitFeatures = this.GetAvailableGitFeatures(tracer);
 
                         switch (this.MaintenanceTask)
                         {
@@ -120,20 +121,21 @@ namespace Scalar.CommandLine
                                 steps.Add(new ConfigStep(context));
                                 this.InitializeServerConnection(tracer, enlistment, cacheServerUrl, out objectRequestor, out cacheServer);
                                 gitObjects = new GitObjects(tracer, enlistment, objectRequestor, fileSystem);
-                                steps.Add(new FetchStep(context, gitObjects, requireCacheLock: false, forceRun: !this.StartedByService));
-                                steps.Add(new CommitGraphStep(context, requireObjectCacheLock: false));
-                                steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService));
+                                steps.Add(new FetchStep(context, gitObjects, requireCacheLock: false, gitFeatures: gitFeatures, forceRun: !this.StartedByService));
+                                steps.Add(new CommitGraphStep(context, gitFeatures, requireObjectCacheLock: false));
+                                steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService, gitFeatures: gitFeatures));
                                 steps.Add(new PackfileMaintenanceStep(
                                         context,
                                         forceRun: !this.StartedByService,
                                         batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
                                             PackfileMaintenanceStep.DefaultBatchSizeBytes.ToString() :
-                                            this.PackfileMaintenanceBatchSize));
+                                            this.PackfileMaintenanceBatchSize,
+                                        gitFeatures: gitFeatures));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.LooseObjectsTaskName:
                                 this.FailIfBatchSizeSet(tracer);
-                                steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService));
+                                steps.Add(new LooseObjectsStep(context, forceRun: !this.StartedByService, gitFeatures: gitFeatures));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.PackFilesTaskName:
@@ -142,19 +144,20 @@ namespace Scalar.CommandLine
                                         forceRun: !this.StartedByService,
                                         batchSize: string.IsNullOrWhiteSpace(this.PackfileMaintenanceBatchSize) ?
                                             PackfileMaintenanceStep.DefaultBatchSizeBytes.ToString() :
-                                            this.PackfileMaintenanceBatchSize));
+                                            this.PackfileMaintenanceBatchSize,
+                                        gitFeatures: gitFeatures));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.FetchTaskName:
                                 this.FailIfBatchSizeSet(tracer);
                                 this.InitializeServerConnection(tracer, enlistment, cacheServerUrl, out objectRequestor, out cacheServer);
                                 gitObjects = new GitObjects(tracer, enlistment, objectRequestor, fileSystem);
-                                steps.Add(new FetchStep(context, gitObjects, requireCacheLock: false, forceRun: !this.StartedByService));
+                                steps.Add(new FetchStep(context, gitObjects, requireCacheLock: false, gitFeatures: gitFeatures, forceRun: !this.StartedByService));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.CommitGraphTaskName:
                                 this.FailIfBatchSizeSet(tracer);
-                                steps.Add(new CommitGraphStep(context, requireObjectCacheLock: false));
+                                steps.Add(new CommitGraphStep(context, gitFeatures, requireObjectCacheLock: false));
                                 break;
 
                             case ScalarConstants.VerbParameters.Maintenance.ConfigTaskName:

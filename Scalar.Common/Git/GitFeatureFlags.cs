@@ -14,5 +14,13 @@ namespace Scalar.Common.Git
         /// Support for the GVFS protocol.
         /// </summary>
         GvfsProtocol = 1 << 0,
+
+        /// <summary>
+        /// Supports the 'maintenance' builtin, including:
+        ///
+        /// * Tasks: gc, commit-graph, loose-objects, prefetch, incremental-repack
+        /// * Subcommands: run, register, unregister, start, stop
+        /// </summary>
+        MaintenanceBuiltin = 1 << 1,
     }
 }

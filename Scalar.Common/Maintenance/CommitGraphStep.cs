@@ -10,8 +10,8 @@ namespace Scalar.Common.Maintenance
     {
         private const string CommitGraphChainLock = "commit-graph-chain.lock";
 
-        public CommitGraphStep(ScalarContext context, bool requireObjectCacheLock = true)
-            : base(context, requireObjectCacheLock)
+        public CommitGraphStep(ScalarContext context, GitFeatureFlags gitFeatures = GitFeatureFlags.None, bool requireObjectCacheLock = true)
+            : base(context, requireObjectCacheLock, gitFeatures)
         {
         }
 
@@ -26,7 +26,18 @@ namespace Scalar.Common.Maintenance
                 string commitGraphLockPath = Path.Combine(this.Context.Enlistment.GitObjectsRoot, "info", "commit-graphs", CommitGraphChainLock);
                 this.Context.FileSystem.TryDeleteFile(commitGraphLockPath);
 
-                GitProcess.Result writeResult = this.RunGitCommand((process) => process.WriteCommitGraph(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.WriteCommitGraph));
+                GitProcess.Result writeResult;
+                if (this.GitFeatures.HasFlag(GitFeatureFlags.MaintenanceBuiltin))
+                {
+                    writeResult = this.RunGitCommand(
+                            (process) => process.MaintenanceRunTask(GitProcess.MaintenanceTask.CommitGraph, this.Context.Enlistment.GitObjectsRoot),
+                            nameof(GitProcess.MaintenanceRunTask));
+
+                }
+                else
+                {
+                    writeResult = this.RunGitCommand((process) => process.WriteCommitGraph(this.Context.Enlistment.GitObjectsRoot), nameof(GitProcess.WriteCommitGraph));
+                }
 
                 StringBuilder sb = new StringBuilder();
                 string commitGraphsDir = Path.Combine(this.Context.Enlistment.GitObjectsRoot, "info", "commit-graphs");

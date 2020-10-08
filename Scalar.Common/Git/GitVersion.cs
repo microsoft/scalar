@@ -37,6 +37,12 @@ namespace Scalar.Common.Git
                 flags |= GitFeatureFlags.GvfsProtocol;
             }
 
+            if ((flags & GitFeatureFlags.GvfsProtocol) != 0 &&
+                this.Minor > 28 || (this.Minor == 28 && this.Revision > 0))
+            {
+                flags |= GitFeatureFlags.MaintenanceBuiltin;
+            }
+
             return flags;
         }
 

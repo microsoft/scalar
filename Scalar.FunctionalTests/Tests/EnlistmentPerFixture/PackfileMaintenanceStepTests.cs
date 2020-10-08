@@ -5,6 +5,7 @@ using Scalar.Tests.Should;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
@@ -54,13 +55,10 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // Batch size 0 tells Git to repack everything into a single pack!
             this.Enlistment.RunVerb("pack-files", batchSize: 0);
-            this.GetPackSizes(out int packCount, out maxSize, out minSize, out totalSize);
-
-            // We should not have expired any packs, but created a new one with repack
-            packCount.ShouldEqual(afterPrefetchPackCount + 1, $"incorrect number of packs after repack step: {packCount}");
         }
 
         [TestCase, Order(2)]
+        [Category(Categories.WindowsOnly)]
         public void ExpireAllButOneAndKeep()
         {
             string prefetchPack = Directory.GetFiles(this.PackRoot, "prefetch-*.pack")
