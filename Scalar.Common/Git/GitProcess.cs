@@ -441,6 +441,7 @@ namespace Scalar.Common.Git
         public Result MaintenanceRunTask(MaintenanceTask task, string objectDir)
         {
             string taskStr;
+            string config = string.Empty;
             switch (task)
             {
                 case MaintenanceTask.CommitGraph:
@@ -448,6 +449,7 @@ namespace Scalar.Common.Git
                     break;
 
                 case MaintenanceTask.LooseObjects:
+                    config = "-c pack.window=0 -c pack.depth=0 ";
                     taskStr = "loose-objects";
                     break;
 
@@ -464,7 +466,7 @@ namespace Scalar.Common.Git
             }
 
             return this.InvokeGitInWorkingDirectoryRoot(
-                            $"-c pack.window=0 -c pack.depth=0 maintenance run --task={taskStr} --quiet",
+                            $"{config}maintenance run --task={taskStr} --quiet",
                             fetchMissingObjects: true,
                             userInteractive: false,
                             gitObjectsDirectory: objectDir);
