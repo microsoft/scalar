@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using Microsoft.Win32.SafeHandles;
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
@@ -11,6 +12,7 @@ using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Management.Automation;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.ServiceProcess;
@@ -18,11 +20,29 @@ using System.Text;
 
 namespace Scalar.Platform.Windows
 {
-    public partial class WindowsPlatform : ScalarPlatform
+    public class WindowsPlatform : ScalarPlatform
     {
         private const string WindowsVersionRegistryKey = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
         private const string BuildLabRegistryValue = "BuildLab";
         private const string BuildLabExRegistryValue = "BuildLabEx";
+
+        private const int StillActive = 259; /* from Win32 STILL_ACTIVE */
+
+        private enum StdHandle
+        {
+            Stdin = -10,
+            Stdout = -11,
+            Stderr = -12
+        }
+
+        private enum FileType : uint
+        {
+            Unknown = 0x0000,
+            Disk = 0x0001,
+            Char = 0x0002,
+            Pipe = 0x0003,
+            Remote = 0x8000,
+        }
 
         public WindowsPlatform() : base(underConstruction: new UnderConstructionFlags())
         {
@@ -128,27 +148,32 @@ namespace Scalar.Platform.Windows
 
         public override string GetCommonAppDataRootForScalar()
         {
-            return WindowsPlatform.GetCommonAppDataRootForScalarImplementation();
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.Create),
+                "Scalar");
         }
 
         public override string GetCommonAppDataRootForScalarComponent(string componentName)
         {
-            return WindowsPlatform.GetCommonAppDataRootForScalarComponentImplementation(componentName);
+            return Path.Combine(this.GetCommonAppDataRootForScalar(), componentName);
         }
 
         public override string GetSecureDataRootForScalar()
         {
-            return WindowsPlatform.GetSecureDataRootForScalarImplementation();
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolderOption.Create),
+                "Scalar",
+                "ProgramData");
         }
 
         public override string GetSecureDataRootForScalarComponent(string componentName)
         {
-            return WindowsPlatform.GetSecureDataRootForScalarComponentImplementation(componentName);
+            return Path.Combine(this.GetSecureDataRootForScalar(), componentName);
         }
 
         public override string GetLogsDirectoryForGVFSComponent(string componentName)
         {
-            return WindowsPlatform.GetLogsDirectoryForGVFSComponentImplementation(componentName);
+            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
         }
 
         public override void StartBackgroundScalarProcess(ITracer tracer, string programName, string[] args)
@@ -204,12 +229,41 @@ namespace Scalar.Platform.Windows
 
         public override bool IsElevated()
         {
-            return WindowsPlatform.IsElevatedImplementation();
+            using (WindowsIdentity id = WindowsIdentity.GetCurrent())
+            {
+                return new WindowsPrincipal(id).IsInRole(WindowsBuiltInRole.Administrator);
+            }
         }
 
         public override bool IsProcessActive(int processId)
         {
-            return WindowsPlatform.IsProcessActiveImplementation(processId, tryGetProcessById: true);
+            using (SafeFileHandle process = NativeMethods.OpenProcess(NativeMethods.ProcessAccessFlags.QueryLimitedInformation, false, processId))
+            {
+                if (!process.IsInvalid)
+                {
+                    uint exitCode;
+                    if (NativeMethods.GetExitCodeProcess(process, out exitCode) && exitCode == StillActive)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    // The process.IsInvalid may be true when the process doesn't have access to call
+                    // OpenProcess for the specified processId. Fallback to slow way of finding process.
+                    try
+                    {
+                        Process.GetProcessById(processId);
+                        return true;
+                    }
+                    catch (ArgumentException)
+                    {
+                        return false;
+                    }
+                }
+
+                return false;
+            }
         }
 
         public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
@@ -300,6 +354,11 @@ namespace Scalar.Platform.Windows
             }
         }
 
+        public override string GetUpgradeProtectedDataDirectory()
+        {
+            return Path.Combine(this.GetCommonAppDataRootForScalar(), ProductUpgraderInfo.UpgradeDirectoryName);
+        }
+
         public override string GetUpgradeLogDirectoryParentDirectory()
         {
             return this.GetUpgradeProtectedDataDirectory();
@@ -310,16 +369,11 @@ namespace Scalar.Platform.Windows
             return this.GetUpgradeProtectedDataDirectory();
         }
 
-        public override string GetUpgradeProtectedDataDirectory()
-        {
-            return GetUpgradeProtectedDataDirectoryImplementation();
-        }
-
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly) => WindowsPhysicalDiskInfo.GetPhysicalDiskInfo(path, sizeStatsOnly);
 
         public override bool IsConsoleOutputRedirectedToFile()
         {
-            return WindowsPlatform.IsConsoleOutputRedirectedToFileImplementation();
+            return FileType.Disk == GetFileType(GetStdHandle(StdHandle.Stdout));
         }
 
         public override FileBasedLock CreateFileBasedLock(
@@ -403,6 +457,12 @@ namespace Scalar.Platform.Windows
             object value = localKeySub == null ? null : localKeySub.GetValue(valueName);
             return value;
         }
+
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetStdHandle(StdHandle std);
+
+        [DllImport("kernel32.dll")]
+        private static extern FileType GetFileType(IntPtr hdl);
 
         public class WindowsPlatformConstants : ScalarPlatformConstants
         {
