@@ -75,24 +75,9 @@ namespace Scalar.UnitTests.Mock.Common
                 "Scalar");
         }
 
-        public override string GetCommonAppDataRootForScalarComponent(string componentName)
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalar(), componentName);
-        }
-
         public override string GetSecureDataRootForScalar()
         {
             return this.GetCommonAppDataRootForScalar();
-        }
-
-        public override string GetSecureDataRootForScalarComponent(string componentName)
-        {
-            return this.GetCommonAppDataRootForScalarComponent(componentName);
-        }
-
-        public override string GetLogsDirectoryForGVFSComponent(string componentName)
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
         }
 
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly)

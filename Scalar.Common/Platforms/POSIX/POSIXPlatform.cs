@@ -165,26 +165,10 @@ namespace Scalar.Platform.POSIX
             return localDataRoot;
         }
 
-        public override string GetCommonAppDataRootForScalarComponent(string componentName)
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalar(), componentName);
-        }
-
         public override string GetSecureDataRootForScalar()
         {
             // SecureDataRoot is Windows only. On POSIX, it is the same as CommonAppDataRoot
             return this.GetCommonAppDataRootForScalar();
-        }
-
-        public override string GetSecureDataRootForScalarComponent(string componentName)
-        {
-            // SecureDataRoot is Windows only. On POSIX, it is the same as CommoAppDataRoot
-            return this.GetCommonAppDataRootForScalarComponent(componentName);
-        }
-
-        public override string GetLogsDirectoryForGVFSComponent(string componentName)
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
         }
 
         public override string GetCurrentUser()

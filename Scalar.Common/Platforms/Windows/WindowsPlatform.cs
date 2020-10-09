@@ -153,27 +153,12 @@ namespace Scalar.Platform.Windows
                 ScalarConstants.WindowsPlatform.ScalarSpecialFolderName);
         }
 
-        public override string GetCommonAppDataRootForScalarComponent(string componentName)
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalar(), componentName);
-        }
-
         public override string GetSecureDataRootForScalar()
         {
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolderOption.Create),
                 ScalarConstants.WindowsPlatform.ScalarSpecialFolderName,
                 "ProgramData");
-        }
-
-        public override string GetSecureDataRootForScalarComponent(string componentName)
-        {
-            return Path.Combine(this.GetSecureDataRootForScalar(), componentName);
-        }
-
-        public override string GetLogsDirectoryForGVFSComponent(string componentName)
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
         }
 
         public override void StartBackgroundScalarProcess(ITracer tracer, string programName, string[] args)

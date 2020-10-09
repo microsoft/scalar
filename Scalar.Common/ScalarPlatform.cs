@@ -64,10 +64,24 @@ namespace Scalar.Common
 
         public abstract string GetOSVersionInformation();
         public abstract string GetCommonAppDataRootForScalar();
-        public abstract string GetCommonAppDataRootForScalarComponent(string componentName);
+
+        public string GetCommonAppDataRootForScalarComponent(string componentName)
+        {
+            return Path.Combine(this.GetCommonAppDataRootForScalar(), componentName);
+        }
+
         public abstract string GetSecureDataRootForScalar();
-        public abstract string GetSecureDataRootForScalarComponent(string componentName);
-        public abstract string GetLogsDirectoryForGVFSComponent(string componentName);
+
+        public string GetSecureDataRootForScalarComponent(string componentName)
+        {
+            return Path.Combine(this.GetSecureDataRootForScalar(), componentName);
+        }
+
+        public string GetLogsDirectoryForGVFSComponent(string componentName)
+        {
+            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
+        }
+
         public abstract void InitializeEnlistmentACLs(string enlistmentPath);
         public abstract bool IsElevated();
         public abstract string GetCurrentUser();
