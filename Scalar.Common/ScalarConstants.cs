@@ -123,6 +123,11 @@ namespace Scalar.Common
             public static readonly string LocalScalarDataPath = Path.Combine("Library", "Application Support", "Scalar");
         }
 
+        public static class WindowsPlatform
+        {
+            public const string ScalarSpecialFolderName = "Scalar";
+        }
+
         public static class DotGit
         {
             public const string Root = ".git";

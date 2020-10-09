@@ -150,7 +150,7 @@ namespace Scalar.Platform.Windows
         {
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.Create),
-                "Scalar");
+                ScalarConstants.WindowsPlatform.ScalarSpecialFolderName);
         }
 
         public override string GetCommonAppDataRootForScalarComponent(string componentName)
@@ -162,7 +162,7 @@ namespace Scalar.Platform.Windows
         {
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolderOption.Create),
-                "Scalar",
+                ScalarConstants.WindowsPlatform.ScalarSpecialFolderName,
                 "ProgramData");
         }
 
@@ -490,7 +490,7 @@ namespace Scalar.Platform.Windows
 
             public override string ScalarBinDirectoryName
             {
-                get { return "Scalar"; }
+                get { return ScalarConstants.WindowsPlatform.ScalarSpecialFolderName; }
             }
 
             public override string ScalarExecutableName
