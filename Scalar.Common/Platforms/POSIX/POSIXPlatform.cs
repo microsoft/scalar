@@ -189,12 +189,12 @@ namespace Scalar.Platform.POSIX
 
         public override string GetUpgradeLogDirectoryParentDirectory()
         {
-            return this.GetUpgradeNonProtectedDirectory();
+            return Path.Combine(this.GetCommonAppDataRootForScalar(), ProductUpgraderInfo.UpgradeDirectoryName);
         }
 
         public override string GetUpgradeHighestAvailableVersionDirectory()
         {
-            return this.GetUpgradeNonProtectedDirectory();
+            throw new NotImplementedException();
         }
 
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly)
@@ -390,11 +390,6 @@ namespace Scalar.Platform.POSIX
 
             error = null;
             return true;
-        }
-
-        private string GetUpgradeNonProtectedDirectory()
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalar(), ProductUpgraderInfo.UpgradeDirectoryName);
         }
 
         private static class NativeMethods
