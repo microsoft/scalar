@@ -216,12 +216,6 @@ namespace Scalar.Platform.POSIX
             return this.GetCommonAppDataRootForScalarComponent(serviceName) + ".pipe";
         }
 
-        public override bool IsConsoleOutputRedirectedToFile()
-        {
-            // TODO(#1355): Implement proper check
-            return false;
-        }
-
         public override bool IsElevated()
         {
             int euid = GetEuid();

@@ -105,11 +105,6 @@ namespace Scalar.UnitTests.Mock.Common
             throw new NotSupportedException();
         }
 
-        public override bool IsConsoleOutputRedirectedToFile()
-        {
-            throw new NotSupportedException();
-        }
-
         public override bool IsElevated()
         {
             throw new NotSupportedException();

@@ -113,8 +113,6 @@ namespace Scalar.Common
 
         public abstract Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly);
 
-        public abstract bool IsConsoleOutputRedirectedToFile();
-
         public abstract bool TryKillProcessTree(int processId, out int exitCode, out string error);
 
         public abstract bool TryGetDefaultLocalCacheRoot(string enlistmentRoot, out string localCacheRoot, out string localCacheRootError);

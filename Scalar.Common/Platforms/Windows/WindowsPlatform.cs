@@ -12,7 +12,6 @@ using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Management.Automation;
-using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.ServiceProcess;
@@ -27,22 +26,6 @@ namespace Scalar.Platform.Windows
         private const string BuildLabExRegistryValue = "BuildLabEx";
 
         private const int StillActive = 259; /* from Win32 STILL_ACTIVE */
-
-        private enum StdHandle
-        {
-            Stdin = -10,
-            Stdout = -11,
-            Stderr = -12
-        }
-
-        private enum FileType : uint
-        {
-            Unknown = 0x0000,
-            Disk = 0x0001,
-            Char = 0x0002,
-            Pipe = 0x0003,
-            Remote = 0x8000,
-        }
 
         public WindowsPlatform() : base(underConstruction: new UnderConstructionFlags())
         {
@@ -356,11 +339,6 @@ namespace Scalar.Platform.Windows
 
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly) => WindowsPhysicalDiskInfo.GetPhysicalDiskInfo(path, sizeStatsOnly);
 
-        public override bool IsConsoleOutputRedirectedToFile()
-        {
-            return FileType.Disk == GetFileType(GetStdHandle(StdHandle.Stdout));
-        }
-
         public override FileBasedLock CreateFileBasedLock(
             PhysicalFileSystem fileSystem,
             ITracer tracer,
@@ -442,12 +420,6 @@ namespace Scalar.Platform.Windows
             object value = localKeySub == null ? null : localKeySub.GetValue(valueName);
             return value;
         }
-
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr GetStdHandle(StdHandle std);
-
-        [DllImport("kernel32.dll")]
-        private static extern FileType GetFileType(IntPtr hdl);
 
         public class WindowsPlatformConstants : ScalarPlatformConstants
         {
