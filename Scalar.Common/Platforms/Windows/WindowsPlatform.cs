@@ -1,5 +1,4 @@
 using Microsoft.Win32;
-using Microsoft.Win32.SafeHandles;
 using Scalar.Common;
 using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
@@ -24,8 +23,6 @@ namespace Scalar.Platform.Windows
         private const string WindowsVersionRegistryKey = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
         private const string BuildLabRegistryValue = "BuildLab";
         private const string BuildLabExRegistryValue = "BuildLabEx";
-
-        private const int StillActive = 259; /* from Win32 STILL_ACTIVE */
 
         public WindowsPlatform() : base(underConstruction: new UnderConstructionFlags())
         {
@@ -200,37 +197,6 @@ namespace Scalar.Platform.Windows
             using (WindowsIdentity id = WindowsIdentity.GetCurrent())
             {
                 return new WindowsPrincipal(id).IsInRole(WindowsBuiltInRole.Administrator);
-            }
-        }
-
-        public override bool IsProcessActive(int processId)
-        {
-            using (SafeFileHandle process = NativeMethods.OpenProcess(NativeMethods.ProcessAccessFlags.QueryLimitedInformation, false, processId))
-            {
-                if (!process.IsInvalid)
-                {
-                    uint exitCode;
-                    if (NativeMethods.GetExitCodeProcess(process, out exitCode) && exitCode == StillActive)
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    // The process.IsInvalid may be true when the process doesn't have access to call
-                    // OpenProcess for the specified processId. Fallback to slow way of finding process.
-                    try
-                    {
-                        Process.GetProcessById(processId);
-                        return true;
-                    }
-                    catch (ArgumentException)
-                    {
-                        return false;
-                    }
-                }
-
-                return false;
             }
         }
 

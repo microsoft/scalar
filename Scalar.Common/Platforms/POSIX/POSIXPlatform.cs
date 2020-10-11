@@ -45,20 +45,6 @@ namespace Scalar.Platform.POSIX
             throw new NotImplementedException();
         }
 
-        public override bool IsProcessActive(int processId)
-        {
-            try
-            {
-                Process process = Process.GetProcessById(processId);
-            }
-            catch (ArgumentException)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
         {
             throw new NotImplementedException();

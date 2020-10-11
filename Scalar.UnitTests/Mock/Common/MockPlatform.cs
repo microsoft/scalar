@@ -30,8 +30,6 @@ namespace Scalar.UnitTests.Mock.Common
 
         public override ScalarPlatformConstants Constants { get; } = new MockPlatformConstants();
 
-        public HashSet<int> ActiveProcesses { get; } = new HashSet<int>();
-
         public override void ConfigureVisualStudio(string gitBinPath, ITracer tracer)
         {
             throw new NotSupportedException();
@@ -108,11 +106,6 @@ namespace Scalar.UnitTests.Mock.Common
         public override bool IsElevated()
         {
             throw new NotSupportedException();
-        }
-
-        public override bool IsProcessActive(int processId)
-        {
-            return this.ActiveProcesses.Contains(processId);
         }
 
         public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
