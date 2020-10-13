@@ -1,4 +1,5 @@
 using Scalar.Common;
+using Scalar.Common.FileSystem;
 using Scalar.Common.Git;
 using Scalar.Common.Tracing;
 using System;
@@ -13,7 +14,7 @@ using System.Security;
 
 namespace Scalar.Platform.POSIX
 {
-    public abstract partial class POSIXPlatform : ScalarPlatform
+    public abstract class POSIXPlatform : ScalarPlatform
     {
         private const int StdInFileNo = 0;  // STDIN_FILENO  -> standard input file descriptor
         private const int StdOutFileNo = 1; // STDOUT_FILENO -> standard output file descriptor
@@ -22,7 +23,7 @@ namespace Scalar.Platform.POSIX
         protected POSIXPlatform() : this(
             underConstruction: new UnderConstructionFlags(
                 usesCustomUpgrader: false,
-                supportsScalarConfig: false,
+                supportsScalarConfig: true,
                 supportsNuGetEncryption: false,
                 supportsNuGetVerification: false))
         {
@@ -42,11 +43,6 @@ namespace Scalar.Platform.POSIX
         public override bool TryVerifyAuthenticodeSignature(string path, out string subject, out string issuer, out string error)
         {
             throw new NotImplementedException();
-        }
-
-        public override bool IsProcessActive(int processId)
-        {
-            return POSIXPlatform.IsProcessActiveImplementation(processId);
         }
 
         public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
@@ -142,6 +138,25 @@ namespace Scalar.Platform.POSIX
             return pipe;
         }
 
+        public override string GetCommonAppDataRootForScalar()
+        {
+            string localDataRoot;
+            string localDataRootError;
+
+            if (!this.TryGetDefaultLocalDataRoot(out localDataRoot, out localDataRootError))
+            {
+                throw new ArgumentException(localDataRootError);
+            }
+
+            return localDataRoot;
+        }
+
+        public override string GetSecureDataRootForScalar()
+        {
+            // SecureDataRoot is Windows only. On POSIX, it is the same as CommonAppDataRoot
+            return this.GetCommonAppDataRootForScalar();
+        }
+
         public override string GetCurrentUser()
         {
             return Getuid().ToString();
@@ -151,6 +166,21 @@ namespace Scalar.Platform.POSIX
         {
             // There are no separate User and Session Ids on POSIX platforms.
             return sessionId.ToString();
+        }
+
+        public override string GetUpgradeProtectedDataDirectory()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetUpgradeLogDirectoryParentDirectory()
+        {
+            return Path.Combine(this.GetCommonAppDataRootForScalar(), ProductUpgraderInfo.UpgradeDirectoryName);
+        }
+
+        public override string GetUpgradeHighestAvailableVersionDirectory()
+        {
+            throw new NotImplementedException();
         }
 
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly)
@@ -172,14 +202,10 @@ namespace Scalar.Platform.POSIX
             return this.GetCommonAppDataRootForScalarComponent(serviceName) + ".pipe";
         }
 
-        public override bool IsConsoleOutputRedirectedToFile()
-        {
-            return POSIXPlatform.IsConsoleOutputRedirectedToFileImplementation();
-        }
-
         public override bool IsElevated()
         {
-            return POSIXPlatform.IsElevatedImplementation();
+            int euid = GetEuid();
+            return euid == 0;
         }
 
         public override bool TryKillProcessTree(int processId, out int exitCode, out string error)
@@ -190,8 +216,35 @@ namespace Scalar.Platform.POSIX
             return result.ExitCode == 0;
         }
 
+        public override ProductUpgraderPlatformStrategy CreateProductUpgraderPlatformInteractions(
+            PhysicalFileSystem fileSystem,
+            ITracer tracer)
+        {
+            return new POSIXProductUpgraderPlatformStrategy(fileSystem, tracer);
+        }
+
+        public override string GetTemplateHooksDirectory()
+        {
+            string gitExecPath = GitInstallation.GetInstalledGitBinPath();
+
+            // Resolve symlinks
+            string resolvedExecPath = NativeMethods.ResolveSymlink(gitExecPath, this.MaxPathLength);
+
+            // Get the containing bin directory
+            string gitBinDir = Path.GetDirectoryName(resolvedExecPath);
+
+            // Compute the base installation path (../)
+            string installBaseDir = Path.GetDirectoryName(gitBinDir);
+            installBaseDir = Path.GetFullPath(installBaseDir);
+
+            return Path.Combine(installBaseDir, ScalarConstants.InstalledGit.HookTemplateDir);
+        }
+
         [DllImport("libc", EntryPoint = "getuid", SetLastError = true)]
         private static extern uint Getuid();
+
+        [DllImport("libc", EntryPoint = "geteuid", SetLastError = true)]
+        private static extern int GetEuid();
 
         [DllImport("libc", EntryPoint = "setsid", SetLastError = true)]
         private static extern int SetSid();
@@ -205,11 +258,20 @@ namespace Scalar.Platform.POSIX
         [DllImport("libc", EntryPoint = "dup2", SetLastError = true)]
         private static extern int Dup2(int oldfd, int newfd);
 
+        // stdlib.h
+        [DllImport("libc", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr realpath([In] IntPtr file_name, [In, Out] IntPtr resolved_name);
+
         public abstract class POSIXPlatformConstants : ScalarPlatformConstants
         {
             public override string ExecutableExtension
             {
                 get { return string.Empty; }
+            }
+
+            public override string ScalarBinDirectoryName
+            {
+                get { return "scalar"; }
             }
 
             public override string ScalarExecutableName
@@ -229,6 +291,8 @@ namespace Scalar.Platform.POSIX
 
             public override bool SupportsUpgradeWhileRunning => true;
         }
+
+        protected abstract int MaxPathLength { get; }
 
         protected class EnvironmentVariableBasePath
         {
@@ -251,6 +315,8 @@ namespace Scalar.Platform.POSIX
                 get { return subFolder; }
             }
         }
+
+        protected abstract bool TryGetDefaultLocalDataRoot(out string localDataRoot, out string localDataRootError);
 
         protected static bool TryGetEnvironmentVariableBasePath(EnvironmentVariableBasePath[] environmentVariableBasePaths, out string path, out string error)
         {
@@ -304,6 +370,35 @@ namespace Scalar.Platform.POSIX
 
             error = null;
             return true;
+        }
+
+        private static class NativeMethods
+        {
+            public static string ResolveSymlink(string path, int maxPathLength)
+            {
+                IntPtr pathBuf = IntPtr.Zero;
+                IntPtr resolvedBuf = IntPtr.Zero;
+
+                try
+                {
+                    pathBuf = Marshal.StringToHGlobalAuto(path);
+                    resolvedBuf = Marshal.AllocHGlobal(maxPathLength + 1);
+                    IntPtr result = realpath(pathBuf, resolvedBuf);
+
+                    if (result == IntPtr.Zero)
+                    {
+                        // Failed!
+                        return null;
+                    }
+
+                    return Marshal.PtrToStringUTF8(resolvedBuf);
+                }
+                finally
+                {
+                    if (pathBuf != IntPtr.Zero) Marshal.FreeHGlobal(pathBuf);
+                    if (resolvedBuf != IntPtr.Zero) Marshal.FreeHGlobal(resolvedBuf);
+                }
+            }
         }
     }
 }

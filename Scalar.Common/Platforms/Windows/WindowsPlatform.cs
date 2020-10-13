@@ -18,7 +18,7 @@ using System.Text;
 
 namespace Scalar.Platform.Windows
 {
-    public partial class WindowsPlatform : ScalarPlatform
+    public class WindowsPlatform : ScalarPlatform
     {
         private const string WindowsVersionRegistryKey = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
         private const string BuildLabRegistryValue = "BuildLab";
@@ -128,27 +128,17 @@ namespace Scalar.Platform.Windows
 
         public override string GetCommonAppDataRootForScalar()
         {
-            return WindowsPlatform.GetCommonAppDataRootForScalarImplementation();
-        }
-
-        public override string GetCommonAppDataRootForScalarComponent(string componentName)
-        {
-            return WindowsPlatform.GetCommonAppDataRootForScalarComponentImplementation(componentName);
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.Create),
+                ScalarConstants.WindowsPlatform.ScalarSpecialFolderName);
         }
 
         public override string GetSecureDataRootForScalar()
         {
-            return WindowsPlatform.GetSecureDataRootForScalarImplementation();
-        }
-
-        public override string GetSecureDataRootForScalarComponent(string componentName)
-        {
-            return WindowsPlatform.GetSecureDataRootForScalarComponentImplementation(componentName);
-        }
-
-        public override string GetLogsDirectoryForGVFSComponent(string componentName)
-        {
-            return WindowsPlatform.GetLogsDirectoryForGVFSComponentImplementation(componentName);
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolderOption.Create),
+                ScalarConstants.WindowsPlatform.ScalarSpecialFolderName,
+                "ProgramData");
         }
 
         public override void StartBackgroundScalarProcess(ITracer tracer, string programName, string[] args)
@@ -204,12 +194,10 @@ namespace Scalar.Platform.Windows
 
         public override bool IsElevated()
         {
-            return WindowsPlatform.IsElevatedImplementation();
-        }
-
-        public override bool IsProcessActive(int processId)
-        {
-            return WindowsPlatform.IsProcessActiveImplementation(processId, tryGetProcessById: true);
+            using (WindowsIdentity id = WindowsIdentity.GetCurrent())
+            {
+                return new WindowsPrincipal(id).IsInRole(WindowsBuiltInRole.Administrator);
+            }
         }
 
         public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
@@ -300,6 +288,11 @@ namespace Scalar.Platform.Windows
             }
         }
 
+        public override string GetUpgradeProtectedDataDirectory()
+        {
+            return Path.Combine(this.GetCommonAppDataRootForScalar(), ProductUpgraderInfo.UpgradeDirectoryName);
+        }
+
         public override string GetUpgradeLogDirectoryParentDirectory()
         {
             return this.GetUpgradeProtectedDataDirectory();
@@ -310,17 +303,7 @@ namespace Scalar.Platform.Windows
             return this.GetUpgradeProtectedDataDirectory();
         }
 
-        public override string GetUpgradeProtectedDataDirectory()
-        {
-            return GetUpgradeProtectedDataDirectoryImplementation();
-        }
-
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly) => WindowsPhysicalDiskInfo.GetPhysicalDiskInfo(path, sizeStatsOnly);
-
-        public override bool IsConsoleOutputRedirectedToFile()
-        {
-            return WindowsPlatform.IsConsoleOutputRedirectedToFileImplementation();
-        }
 
         public override FileBasedLock CreateFileBasedLock(
             PhysicalFileSystem fileSystem,
@@ -430,7 +413,7 @@ namespace Scalar.Platform.Windows
 
             public override string ScalarBinDirectoryName
             {
-                get { return "Scalar"; }
+                get { return ScalarConstants.WindowsPlatform.ScalarSpecialFolderName; }
             }
 
             public override string ScalarExecutableName

@@ -13,27 +13,18 @@ using System.Xml.XPath;
 
 namespace Scalar.Platform.Mac
 {
-    public partial class MacPlatform : POSIXPlatform
+    public class MacPlatform : POSIXPlatform
     {
         private static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseCachePaths = new[] {
             new EnvironmentVariableBasePath(
                 ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
                 ScalarConstants.DefaultScalarCacheFolderName),
         };
-        protected static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseDataPaths = new[] {
+        private static readonly EnvironmentVariableBasePath[] EnvironmentVariableBaseDataPaths = new[] {
             new EnvironmentVariableBasePath(
                 ScalarConstants.POSIXPlatform.EnvironmentVariables.LocalUserFolder,
                 ScalarConstants.MacPlatform.LocalScalarDataPath),
         };
-
-        public MacPlatform() : base(
-             underConstruction: new UnderConstructionFlags(
-                usesCustomUpgrader: false,
-                supportsScalarConfig: true,
-                supportsNuGetEncryption: false,
-                supportsNuGetVerification: false))
-        {
-        }
 
         public override string Name { get => "macOS"; }
         public override ScalarPlatformConstants Constants { get; } = new MacPlatformConstants();
@@ -53,59 +44,12 @@ namespace Scalar.Platform.Mac
             return string.IsNullOrWhiteSpace(result.Output) ? result.Errors : result.Output;
         }
 
-        public override string GetCommonAppDataRootForScalar()
-        {
-            return MacPlatform.GetDataRootForScalarImplementation();
-        }
-
-        public override string GetCommonAppDataRootForScalarComponent(string componentName)
-        {
-            return MacPlatform.GetDataRootForScalarComponentImplementation(componentName);
-        }
-
-        public override string GetSecureDataRootForScalar()
-        {
-            // SecureDataRoot is Windows only. On the Mac, it is the same as CommoAppDataRoot
-            return this.GetCommonAppDataRootForScalar();
-        }
-
-        public override string GetSecureDataRootForScalarComponent(string componentName)
-        {
-            // SecureDataRoot is Windows only. On the Mac, it is the same as CommoAppDataRoot
-            return this.GetCommonAppDataRootForScalarComponent(componentName);
-        }
-
-        public override string GetLogsDirectoryForGVFSComponent(string componentName)
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
-        }
-
         public override FileBasedLock CreateFileBasedLock(
             PhysicalFileSystem fileSystem,
             ITracer tracer,
             string lockPath)
         {
             return new MacFileBasedLock(fileSystem, tracer, lockPath);
-        }
-
-        public override string GetUpgradeProtectedDataDirectory()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string GetUpgradeHighestAvailableVersionDirectory()
-        {
-            return GetUpgradeHighestAvailableVersionDirectoryImplementation();
-        }
-
-        /// <summary>
-        /// This is the directory in which the upgradelogs directory should go.
-        /// There can be multiple logs directories, so here we return the containing
-        /// directory.
-        /// </summary>
-        public override string GetUpgradeLogDirectoryParentDirectory()
-        {
-            return this.GetUpgradeNonProtectedDataDirectory();
         }
 
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly)
@@ -139,13 +83,6 @@ namespace Scalar.Platform.Mac
             return TryGetEnvironmentVariableBasePath(EnvironmentVariableBaseCachePaths, out localCacheRoot, out localCacheRootError);
         }
 
-        public override ProductUpgraderPlatformStrategy CreateProductUpgraderPlatformInteractions(
-            PhysicalFileSystem fileSystem,
-            ITracer tracer)
-        {
-            return new MacProductUpgraderPlatformStrategy(fileSystem, tracer);
-        }
-
         public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
         {
             string currentUser = this.GetCurrentUser();
@@ -162,23 +99,6 @@ namespace Scalar.Platform.Mac
             running = installed && scalarService.IsRunning;
         }
 
-        public override string GetTemplateHooksDirectory()
-        {
-            string gitExecPath = GitInstallation.GetInstalledGitBinPath();
-
-            // Resolve symlinks
-            string resolvedExecPath = NativeMethods.ResolveSymlink(gitExecPath);
-
-            // Get the containing bin directory
-            string gitBinDir = Path.GetDirectoryName(resolvedExecPath);
-
-            // Compute the base installation path (../)
-            string installBaseDir = Path.GetDirectoryName(gitBinDir);
-            installBaseDir = Path.GetFullPath(installBaseDir);
-
-            return Path.Combine(installBaseDir, ScalarConstants.InstalledGit.HookTemplateDir);
-        }
-
         public class MacPlatformConstants : POSIXPlatformConstants
         {
             public override string InstallerExtension
@@ -191,54 +111,19 @@ namespace Scalar.Platform.Mac
                 get { return Path.Combine("/usr", "local", this.ScalarBinDirectoryName); }
             }
 
-            public override string ScalarBinDirectoryName
-            {
-                get { return "scalar"; }
-            }
-
             // Documented here (in the addressing section): https://www.unix.com/man-page/mojave/4/unix/
             public override int MaxPipePathLength => 104;
 
             public override bool CaseSensitiveFileSystem => false;
         }
 
-        private static class NativeMethods
+        // Defined in
+        // /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/syslimits.h
+        protected override int MaxPathLength => 1024;
+
+        protected override bool TryGetDefaultLocalDataRoot(out string localDataRoot, out string localDataRootError)
         {
-            // Definitions from
-            // /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
-
-            // stdlib.h
-            [DllImport("libc", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-            private static extern IntPtr realpath([In] IntPtr file_name, [In, Out] IntPtr resolved_name);
-
-            public static string ResolveSymlink(string path)
-            {
-                // Defined in sys/syslimits.h
-                const int PATH_MAX = 1024;
-
-                IntPtr pathBuf = IntPtr.Zero;
-                IntPtr resolvedBuf = IntPtr.Zero;
-
-                try
-                {
-                    pathBuf = Marshal.StringToHGlobalAuto(path);
-                    resolvedBuf = Marshal.AllocHGlobal(PATH_MAX + 1);
-                    IntPtr result = realpath(pathBuf, resolvedBuf);
-
-                    if (result == IntPtr.Zero)
-                    {
-                        // Failed!
-                        return null;
-                    }
-
-                    return Marshal.PtrToStringUTF8(resolvedBuf);
-                }
-                finally
-                {
-                    if (pathBuf != IntPtr.Zero) Marshal.FreeHGlobal(pathBuf);
-                    if (resolvedBuf != IntPtr.Zero) Marshal.FreeHGlobal(resolvedBuf);
-                }
-            }
+            return TryGetEnvironmentVariableBasePath(EnvironmentVariableBaseDataPaths, out localDataRoot, out localDataRootError);
         }
     }
 }

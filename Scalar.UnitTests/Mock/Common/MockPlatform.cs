@@ -30,8 +30,6 @@ namespace Scalar.UnitTests.Mock.Common
 
         public override ScalarPlatformConstants Constants { get; } = new MockPlatformConstants();
 
-        public HashSet<int> ActiveProcesses { get; } = new HashSet<int>();
-
         public override void ConfigureVisualStudio(string gitBinPath, ITracer tracer)
         {
             throw new NotSupportedException();
@@ -75,24 +73,9 @@ namespace Scalar.UnitTests.Mock.Common
                 "Scalar");
         }
 
-        public override string GetCommonAppDataRootForScalarComponent(string componentName)
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalar(), componentName);
-        }
-
         public override string GetSecureDataRootForScalar()
         {
             return this.GetCommonAppDataRootForScalar();
-        }
-
-        public override string GetSecureDataRootForScalarComponent(string componentName)
-        {
-            return this.GetCommonAppDataRootForScalarComponent(componentName);
-        }
-
-        public override string GetLogsDirectoryForGVFSComponent(string componentName)
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
         }
 
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly)
@@ -120,19 +103,9 @@ namespace Scalar.UnitTests.Mock.Common
             throw new NotSupportedException();
         }
 
-        public override bool IsConsoleOutputRedirectedToFile()
-        {
-            throw new NotSupportedException();
-        }
-
         public override bool IsElevated()
         {
             throw new NotSupportedException();
-        }
-
-        public override bool IsProcessActive(int processId)
-        {
-            return this.ActiveProcesses.Contains(processId);
         }
 
         public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)

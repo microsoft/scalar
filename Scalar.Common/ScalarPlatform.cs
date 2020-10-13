@@ -57,17 +57,30 @@ namespace Scalar.Common
         /// </exception>
         public abstract void PrepareProcessToRunInBackground();
 
-        public abstract bool IsProcessActive(int processId);
         public abstract void IsServiceInstalledAndRunning(string name, out bool installed, out bool running);
         public abstract string GetScalarServiceNamedPipeName(string serviceName);
         public abstract NamedPipeServerStream CreatePipeByName(string pipeName);
 
         public abstract string GetOSVersionInformation();
         public abstract string GetCommonAppDataRootForScalar();
-        public abstract string GetCommonAppDataRootForScalarComponent(string componentName);
+
+        public string GetCommonAppDataRootForScalarComponent(string componentName)
+        {
+            return Path.Combine(this.GetCommonAppDataRootForScalar(), componentName);
+        }
+
         public abstract string GetSecureDataRootForScalar();
-        public abstract string GetSecureDataRootForScalarComponent(string componentName);
-        public abstract string GetLogsDirectoryForGVFSComponent(string componentName);
+
+        public string GetSecureDataRootForScalarComponent(string componentName)
+        {
+            return Path.Combine(this.GetSecureDataRootForScalar(), componentName);
+        }
+
+        public string GetLogsDirectoryForGVFSComponent(string componentName)
+        {
+            return Path.Combine(this.GetCommonAppDataRootForScalarComponent(componentName), "Logs");
+        }
+
         public abstract void InitializeEnlistmentACLs(string enlistmentPath);
         public abstract bool IsElevated();
         public abstract string GetCurrentUser();
@@ -98,8 +111,6 @@ namespace Scalar.Common
         public abstract bool TryVerifyAuthenticodeSignature(string path, out string subject, out string issuer, out string error);
 
         public abstract Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly);
-
-        public abstract bool IsConsoleOutputRedirectedToFile();
 
         public abstract bool TryKillProcessTree(int processId, out int exitCode, out string error);
 
