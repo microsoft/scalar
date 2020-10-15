@@ -604,6 +604,63 @@ namespace Scalar.Common.Git
             return this.InvokeGitAgainstDotGitFolder("remote add " + remoteName + " " + url);
         }
 
+        public bool TryGetRemoteDefaultBranch(string remoteName, out string defaultBranch, out string error)
+        {
+            defaultBranch = null;
+            error = null;
+
+            Result lsRemoteResult = this.InvokeGitAgainstDotGitFolder("ls-remote --symref origin HEAD");
+            if (lsRemoteResult.ExitCodeIsFailure)
+            {
+                error = "Failed to call ls-remote to determine remote HEAD";
+                return false;
+            }
+
+            string output = lsRemoteResult.Output;
+
+            const string refPrefix = "ref: ";
+            const string headsPrefix = "ref: refs/heads/";
+            const string suffix = "\tHEAD";
+
+            var cmp = StringComparison.Ordinal;
+            foreach (string line in output.Split('\n'))
+            {
+                int suffixStart = line.IndexOf(suffix, cmp);
+                if (line.StartsWith(refPrefix, cmp) && suffixStart > -1)
+                {
+                    // HEAD is a branch
+                    if (line.StartsWith(headsPrefix, cmp))
+                    {
+                        defaultBranch = line.Substring(headsPrefix.Length, suffixStart - headsPrefix.Length);
+                        return true;
+                    }
+
+                    error = "HEAD is not a branch";
+                    return false;
+                }
+            }
+
+            defaultBranch = null;
+            error = $"HEAD not found in ls-remote output: {output}";
+            return false;
+        }
+
+        public bool TryGetSymbolicRef(string name, bool shortName, out string branch, out string error)
+        {
+            branch = null;
+            error = null;
+
+            Result result = this.InvokeGitAgainstDotGitFolder($"symbolic-ref {(shortName ? "--short" : string.Empty)} HEAD");
+            if (result.ExitCodeIsSuccess)
+            {
+                branch = result.Output.Trim();
+                return true;
+            }
+
+            error = $"Failed to read symbolic ref '{name}': {result.Errors}";
+            return false;
+        }
+
         public Result PrunePacked(string gitObjectDirectory)
         {
             return this.InvokeGitAgainstDotGitFolder(

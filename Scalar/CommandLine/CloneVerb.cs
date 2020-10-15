@@ -339,10 +339,6 @@ namespace Scalar.CommandLine
             git.SetInLocalConfig("remote.origin.promisor", "true");
             git.SetInLocalConfig("remote.origin.partialCloneFilter", "blob:none");
 
-            string branch = this.Branch ?? "master";
-            git.SetInLocalConfig($"branch.{branch}.remote", "origin");
-            git.SetInLocalConfig($"branch.{branch}.merge", $"refs/heads/{branch}");
-
             if (!this.FullClone)
             {
                 GitProcess.SparseCheckoutInit(this.enlistment);
@@ -393,8 +389,25 @@ namespace Scalar.CommandLine
                 return new Result($"Failed to complete regular clone: {fetchResult?.Errors}");
             }
 
-            GitProcess.Result checkoutResult = null;
+            // Configure the specified branch, or the default branch on the remote if not specified
+            string branch = this.Branch;
+            if (branch is null && !git.TryGetRemoteDefaultBranch("origin", out branch, out string defaultBranchError))
+            {
+                // Failed to get the remote's default branch name - ask Git for the prefered local default branch
+                // instead, and show a warning message.
+                this.Output.WriteLine($"warning: failed to get default branch name from remote; using local default: {defaultBranchError}");
 
+                if (!git.TryGetSymbolicRef("HEAD", shortName: true, out branch, out string localDefaultError))
+                {
+                    return new Result($"Failed to determine local default branch name: {localDefaultError}");
+                }
+            }
+
+            git.SetInLocalConfig($"branch.{branch}.remote", "origin");
+            git.SetInLocalConfig($"branch.{branch}.merge", $"refs/heads/{branch}");
+
+            // Checkout the branch
+            GitProcess.Result checkoutResult = null;
             if (!this.ShowStatusWhileRunning(() =>
                     {
                         using (ITracer activity = this.tracer.StartActivity("git-checkout", EventLevel.LogAlways))
