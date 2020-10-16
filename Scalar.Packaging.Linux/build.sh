@@ -32,7 +32,7 @@ CONFIGURATION="${CONFIGURATION:=Debug}"
 # Directories
 THISDIR="$( cd "$(dirname "$0")" ; pwd -P )"
 ROOT="$( cd "$THISDIR"/../.. ; pwd -P )"
-SRC="$ROOT/src"
+SRC="$( cd "$THISDIR"/.. ; pwd -P )"
 OUT="$ROOT/out"
 SCALAR_SRC="$SRC/Scalar"
 PROJ_OUT="$OUT/Scalar.Packaging.Linux"
