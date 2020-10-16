@@ -117,7 +117,7 @@ namespace Scalar.CommandLine
                         switch (this.MaintenanceTask)
                         {
                             case ScalarConstants.VerbParameters.Maintenance.AllTasksName:
-                                steps.Add(new ConfigStep(context));
+                                steps.Add(new ConfigStep(context, gitFeatures: gitFeatures));
                                 this.InitializeServerConnection(tracer, enlistment, cacheServerUrl, out objectRequestor, out cacheServer);
                                 gitObjects = new GitObjects(tracer, enlistment, objectRequestor, fileSystem);
                                 steps.Add(new FetchStep(context, gitObjects, requireCacheLock: false, forceRun: !this.StartedByService));
@@ -159,7 +159,7 @@ namespace Scalar.CommandLine
 
                             case ScalarConstants.VerbParameters.Maintenance.ConfigTaskName:
                                 this.FailIfBatchSizeSet(tracer);
-                                steps.Add(new ConfigStep(context));
+                                steps.Add(new ConfigStep(context, gitFeatures: gitFeatures));
                                 break;
 
                             default:
