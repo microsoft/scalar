@@ -2,9 +2,9 @@ name: Build Installers
 
 on:
   push:
-    branches: [ main, release/* ]
+    branches: [ main, releases/* ]
   pull_request:
-    branches: [ main, release/* ]
+    branches: [ main, releases/* ]
 
 jobs:
   linux:
