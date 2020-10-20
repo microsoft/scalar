@@ -114,18 +114,3 @@ jobs:
       - template: templates/osx/functional-test.yml
         parameters:
           useWatchman: false
-
-  - job: osx_functionaltest_watchman
-    displayName: macOS Functional Test (with Watchman)
-    variables:
-      configuration: Release
-    timeoutInMinutes: 30
-    pool:
-      vmImage: $(osxImage)
-    dependsOn: osx_build_step5
-    condition: succeeded()
-    steps:
-      - checkout: none
-      - template: templates/osx/functional-test.yml
-        parameters:
-          useWatchman: true
