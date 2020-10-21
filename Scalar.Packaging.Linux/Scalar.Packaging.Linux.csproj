@@ -20,6 +20,7 @@
              Targets="Publish"
              Properties="
              Configuration=$(Configuration);
+             ScalarVersion=$(ScalarVersion);
              RuntimeIdentifier=$(RuntimeIdentifier);"
              BuildInParallel="true" />
 
