@@ -82,7 +82,8 @@ dotnet publish "$SCALAR_SRC" \
     --framework="$FRAMEWORK" \
     --runtime="$RUNTIME" \
     --self-contained=true \
-    "/p:PublishSingleFile=True" \
+    -p:ScalarVersion=$VERSION \
+    -p:PublishSingleFile=True \
     --output="$(make_absolute "$PAYLOAD")" || exit 1
 
 # Collect symbols
