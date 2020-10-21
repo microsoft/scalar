@@ -25,15 +25,21 @@ jobs:
     - name: Compute Scalar Version
       run: |
         BRANCH=$(git branch --show-current)
+        echo $BRANCH
         if [ "${BRANCH:0:9}" = "releases/" ]; then
           SCALARVERSION="${BRANCH:9}".0
+          echo $SCALARVERSION
         else
           SCALARVERSION=0.3.132.0
+          echo $SCALARVERSION
         fi
+        echo $SCALARVERSION
         export SCALARVERSION
 
     - name: Build Linux packages
-      run: dotnet publish -c Release -p:ScalarVersion=$SCALARVERSION 'Scalar.Packaging.Linux/Scalar.Packaging.Linux.csproj'
+      run: |
+        echo $SCALARVERSION
+        dotnet publish -c Release -p:ScalarVersion=$SCALARVERSION 'Scalar.Packaging.Linux/Scalar.Packaging.Linux.csproj'
 
       # Because the actions/upload-artifact action does not allow you to specify
       # relative file paths we must first use a shell script to copy the
