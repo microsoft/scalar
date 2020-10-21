@@ -12,12 +12,10 @@
     <FilesToSign Include="
       $(OutDir)\pe\scalar.dll;
       $(OutDir)\pe\scalar.common.dll;
-      $(OutDir)\pe\scalar.service.dll;
-      $(OutDir)\pe\scalar.upgrader.dll;" />
+      $(OutDir)\pe\scalar.service.dll;" />
     <MacFilesToSign Include="
       $(OutDir)\macho\scalar;
       $(OutDir)\macho\scalar.service;
-      $(OutDir)\macho\scalar.upgrader;
       $(OutDir)\macho\Scalar.app;" />
   </ItemGroup>
 
