@@ -22,22 +22,14 @@ jobs:
     - name: Install dependencies
       run: dotnet restore --force
 
-    - name: Compute Scalar Version
-      run: |
-        BRANCH=$(git branch --show-current)
-        echo $BRANCH
-        if [ "${BRANCH:0:9}" = "releases/" ]; then
-          SCALARVERSION="${BRANCH:9}".0
-          echo $SCALARVERSION
-        else
-          SCALARVERSION=0.3.132.0
-          echo $SCALARVERSION
-        fi
-        echo $SCALARVERSION
-        export SCALARVERSION
-
     - name: Build Linux packages
       run: |
+        BRANCH=$(git branch --show-current)
+        if [ "${BRANCH:0:9}" = "releases/" ]; then
+          SCALARVERSION="${BRANCH:9}".0
+        else
+          SCALARVERSION=0.3.132.0
+        fi
         echo $SCALARVERSION
         dotnet publish -c Release -p:ScalarVersion=$SCALARVERSION 'Scalar.Packaging.Linux/Scalar.Packaging.Linux.csproj'
 
