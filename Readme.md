@@ -83,13 +83,14 @@ that can be installed after downloading from the GitHub releases pages. The
 latest releases can be downloaded and installed as follows:
 
 ```sh
-# Install microsoft/git
+# Install git-vfs, a custom fork of Git
 wget https://github.com/microsoft/git/releases/download/v2.29.0.vfs.0.0/git-vfs_2.29.0.vfs.0.0.deb
 sudo dpkg -i git-vfs_2.29.0.vfs.0.0.deb
 
 # Install GCM Core
 wget https://github.com/microsoft/Git-Credential-Manager-Core/releases/download/v2.0.252-beta/gcmcore-linux_amd64.2.0.252.766.deb
 sudo dpkg -i gcmcore-linux_amd64.2.0.252.766.deb
+git-credential-manager-core configure
 
 # Install Scalar
 wget https://github.com/microsoft/scalar/releases/download/v20.10.178.6/scalar-azrepos-linux_amd64.20.10.178.0.deb
@@ -111,8 +112,9 @@ take advantage of the feature without the custom fork.
 We are working to provide a package via `apt-get` to make this installation
 easier and better for automatically upgrading.
 
-While the current installation via `.deb` package only works on Debian-based
-Linux distributions, users can install [`microsoft/git`](https://github.com/microsoft/git)
+The current installation via `.deb` package only works on Debian-based
+Linux distributions. The software has only been compiled and tested with x86_64/amd64
+architectures. Motivated users can install [`microsoft/git`](https://github.com/microsoft/git)
 and Scalar from source. See [the `InstallFromSource.sh` script](https://github.com/microsoft/scalar/blob/2dc48243c50763024b048c5f36d5f50835943dda/Scripts/Linux/InstallFromSource.sh#L62-L76)
 for assistance installing Scalar from source.
 
