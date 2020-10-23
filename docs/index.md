@@ -93,12 +93,17 @@ latest releases can be downloaded and installed as follows:
 wget https://github.com/microsoft/git/releases/download/v2.29.0.vfs.0.0/git-vfs_2.29.0.vfs.0.0.deb
 sudo dpkg -i git-vfs_2.29.0.vfs.0.0.deb
 
+# Install GCM Core
+wget https://github.com/microsoft/Git-Credential-Manager-Core/releases/download/v2.0.252-beta/gcmcore-linux_amd64.2.0.252.766.deb
+sudo dpkg -i gcmcore-linux_amd64.2.0.252.766.deb
+
 # Install Scalar
 wget https://github.com/microsoft/scalar/releases/download/v20.10.178.6/scalar-azrepos-linux_amd64.20.10.178.0.deb
 sudo dpkg -i scalar-azrepos-linux_amd64.20.10.178.0.deb
 
 # Test installation
 git version
+git-credential-manager-core version
 scalar version
 ```
 
