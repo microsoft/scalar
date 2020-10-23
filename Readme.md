@@ -75,6 +75,42 @@ install process be as simple as the `brew` process on macOS. See
 [#433](https://github.com/microsoft/scalar/issues/433) for progress on
 this feature._
 
+Installing on Linux
+-------------------
+
+Currently, we package a custom version of Git and Scalar as `.deb` packages
+that can be installed after downloading from the GitHub releases pages. The
+latest releases can be downloaded and installed as follows:
+
+```sh
+# Install microsoft/git
+wget https://github.com/microsoft/git/releases/download/v2.29.0.vfs.0.0/git-vfs_2.29.0.vfs.0.0.deb
+sudo dpkg -i git-vfs_2.29.0.vfs.0.0.deb
+
+# Install Scalar
+wget https://github.com/microsoft/scalar/releases/download/v20.10.178.6/scalar-azrepos-linux_amd64.20.10.178.0.deb
+sudo dpkg -i scalar-azrepos-linux_amd64.20.10.178.0.deb
+
+# Test installation
+git version
+scalar version
+```
+
+> Note: If you don't have `wget`, then try `sudo apt-get install wget` first.
+
+At this point, you must install our custom version of Git in order to get
+background maintenance as part of `scalar clone` or `scalar register`. As
+that feature is accepted and merged into the core Git client, then you can
+take advantage of the feature without the custom fork.
+
+We are working to provide a package via `apt-get` to make this installation
+easier and better for automatically upgrading.
+
+While the current installation via `.deb` package only works on Debian-based
+Linux distributions, users can install [`microsoft/git`](https://github.com/microsoft/git)
+and Scalar from source. See [the `InstallFromSource.sh` script](https://github.com/microsoft/scalar/blob/2dc48243c50763024b048c5f36d5f50835943dda/Scripts/Linux/InstallFromSource.sh#L62-L76)
+for assistance installing Scalar from source.
+
 ### Basic Scalar Use
 
 To create a new local repository from a remote repository, run
