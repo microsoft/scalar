@@ -79,8 +79,15 @@ Installing on Linux
 -------------------
 
 Currently, we package a custom version of Git and Scalar as `.deb` packages
-that can be installed after downloading from the GitHub releases pages. The
-latest releases can be downloaded and installed as follows:
+that can be installed after downloading from the GitHub releases pages.
+At this point, you must install our custom version of Git in order to get
+background maintenance as part of `scalar clone` or `scalar register`. As
+that feature is accepted and merged into the core Git client, then you can
+take advantage of the feature without the custom fork.
+
+The latest releases can be downloaded and installed as follows:
+
+> Note: If you don't have `wget`, then try `sudo apt-get install wget` first.
 
 ```sh
 # Install git-vfs, a custom fork of Git
@@ -101,13 +108,6 @@ git version
 git-credential-manager-core version
 scalar version
 ```
-
-> Note: If you don't have `wget`, then try `sudo apt-get install wget` first.
-
-At this point, you must install our custom version of Git in order to get
-background maintenance as part of `scalar clone` or `scalar register`. As
-that feature is accepted and merged into the core Git client, then you can
-take advantage of the feature without the custom fork.
 
 We are working to provide a package via `apt-get` to make this installation
 easier and better for automatically upgrading.
