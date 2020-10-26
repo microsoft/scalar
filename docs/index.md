@@ -32,15 +32,42 @@ higher throughput. The cache servers also reduce load on the central server.
 Installing on macOS
 ------------------
 
-To install Scalar on macOS,
-[download the `Installers_macOS_Release.zip` from the releases page](https://github.com/microsoft/scalar/releases).
-Extract the `Installers_macOS_Release` folder, `cd` into it, and run `./InstallScalar.sh` in a Terminal window.
-The script may prompt for your password as it installs the following components:
+Scalar is installed and updated on macOS via [Homebrew](https://brew.sh/).
 
-* [Git](https://github.com/microsoft/git) (with custom patches)
-* [Git Credential Manager Core](https://github.com/microsoft/Git-Credential-Manager-Core)
-* Scalar
-* [Watchman](https://github.com/facebook/watchman), unless you use the `--no-watchman` argument.
+```sh
+brew tap microsoft/git
+brew cask install scalar
+```
+
+If you wish to use the [GVFS Protocol][gvfs-protocol], then you will
+instead need the cask that uses [our custom fork of Git][microsoft-git]:
+
+```sh
+brew tap microsoft/git
+brew cask install scalar-azrepos
+```
+
+When new versions of Scalar are available, you can upgrade in a few
+different ways. First, you can use `brew`:
+
+```sh
+brew update
+
+# Use only one of the following, depending on which you have installed:
+brew upgrade --cask scalar
+brew upgrade --cask scalar-azrepos
+```
+
+Alternatively, you can run `scalar upgrade` and it will run the necessary
+`brew` commands on your behalf.
+
+If your repository has many files in the working directory, then you might
+want to install [Watchman](https://github.com/facebook/watchman), which
+Scalar will detect and configure with Git's File System Monitor feature.
+
+```sh
+brew install watchman
+```
 
 Installing on Windows
 --------------------
@@ -53,6 +80,50 @@ run `InstallScalar.bat`. This will install the following components:
 * [Git for Windows](https://github.com/microsoft/git) (with custom patches)
 * Scalar
 * [Watchman](https://github.com/facebook/watchman), if you use the `--watchman` argument.
+
+Installing on Linux
+-------------------
+
+Currently, we package a custom version of Git and Scalar as `.deb` packages
+that can be installed after downloading from the GitHub releases pages.
+At this point, you must install our custom version of Git in order to get
+background maintenance as part of `scalar clone` or `scalar register`. As
+that feature is accepted and merged into the core Git client, then you can
+take advantage of the feature without the custom fork.
+
+The latest releases can be downloaded and installed as follows:
+
+> Note: If you don't have `wget`, then try `sudo apt-get install wget` first.
+
+```sh
+# Install git-vfs, a custom fork of Git
+wget https://github.com/microsoft/git/releases/download/v2.29.0.vfs.0.0/git-vfs_2.29.0.vfs.0.0.deb
+sudo dpkg -i git-vfs_2.29.0.vfs.0.0.deb
+
+# Install GCM Core
+wget https://github.com/microsoft/Git-Credential-Manager-Core/releases/download/v2.0.252-beta/gcmcore-linux_amd64.2.0.252.766.deb
+sudo dpkg -i gcmcore-linux_amd64.2.0.252.766.deb
+git-credential-manager-core configure
+
+# Install Scalar
+wget https://github.com/microsoft/scalar/releases/download/v20.10.178.6/scalar-azrepos-linux_amd64.20.10.178.0.deb
+sudo dpkg -i scalar-azrepos-linux_amd64.20.10.178.0.deb
+
+# Test installation
+git version
+git-credential-manager-core version
+scalar version
+```
+
+We are working to provide a package via `apt-get` to make this installation
+easier and better for automatically upgrading.
+
+The current installation via `.deb` package only works on Debian-based
+Linux distributions. The software has only been compiled and tested with x86_64/amd64
+architectures. Motivated users can install [`microsoft/git`](https://github.com/microsoft/git)
+and Scalar from source. See [the `InstallFromSource.sh` script](https://github.com/microsoft/scalar/blob/2dc48243c50763024b048c5f36d5f50835943dda/Scripts/Linux/InstallFromSource.sh#L62-L76)
+for assistance installing Scalar from source.
+
 Documentation
 -------------
 
@@ -60,7 +131,7 @@ Documentation
   Includes `scalar register`, `scalar unregister`, `scalar clone`, and
   `scalar delete`.
 
-* [Advanced Features](advanced.md): 
+* [Advanced Features](advanced.md):
   For expert users who want full control of Scalar's activity. Includes
   `scalar run <task>`, `scalar pause`, `scalar resume`.
 
