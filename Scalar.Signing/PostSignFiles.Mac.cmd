@@ -14,7 +14,4 @@ echo Copying signed files...
 
 xcopy "%SIGNDIR%\pe\scalar.dll"          "%LAYOUTDIR%\usr\local\scalar\" /k/h/y
 xcopy "%SIGNDIR%\pe\scalar.common.dll"   "%LAYOUTDIR%\usr\local\scalar\" /k/h/y
-xcopy "%SIGNDIR%\pe\scalar.service.dll"  "%LAYOUTDIR%\usr\local\scalar\" /k/h/y
 xcopy "%SIGNDIR%\macho\scalar"           "%LAYOUTDIR%\usr\local\scalar\" /k/h/y
-xcopy "%SIGNDIR%\macho\scalar.service"   "%LAYOUTDIR%\usr\local\scalar\" /k/h/y
-xcopy "%SIGNDIR%\macho\Scalar.app"      "%LAYOUTDIR%\Library\Application Support\Scalar\Scalar.app\" /s/h/e/k/f/c/y
