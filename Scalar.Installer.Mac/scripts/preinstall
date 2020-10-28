@@ -1,0 +1,23 @@
+#!/bin/bash
+
+function stopService()
+{
+	guid=$1
+	service=$2
+        if (/bin/launchctl print $guid/$service | grep --quiet $service); then
+                stop="/bin/launchctl unload /Library/LaunchAgents/$service.plist"
+                echo "Stopping Service: '$service'"
+                eval $stop || exit 1
+        else
+                echo "Service '$service' not running"
+        fi
+}
+
+for uid in $(ps -Ac -o uid,command | grep -iw "Finder" | awk '{print $1}'); do
+        stopService "gui/$uid" "org.scalar.usernotification"
+        stopService "gui/$uid" "org.scalar.service"
+done
+
+for pid in $(ps -Ac -o pid,command | grep Scalar | awk '{print $1}'); do
+       kill "$pid"
+done
