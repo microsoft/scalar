@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Get the current user
+currentUser=$(echo "show State:/Users/ConsoleUser" | scutil | awk '/Name :/ { print $3 }')
+
+# List their registered repositories
+for repo in $(sudo -u "$currentUser" /usr/local/bin/scalar list); do
+        (
+                cd "$repo"
+
+                # add /usr/local/bin to the PATH to get our version of Git, if available.
+                PATH="/usr/local/bin:$PATH"
+                export PATH
+                /usr/local/bin/scalar run config
+        )
+done
