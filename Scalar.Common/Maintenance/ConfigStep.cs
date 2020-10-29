@@ -303,7 +303,7 @@ namespace Scalar.Common.Maintenance
                 return true;
             }
 
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 // We still use Scalar.Service on this platform
                 error = null;

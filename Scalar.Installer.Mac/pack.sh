@@ -50,7 +50,7 @@ function CreateScalarInstaller()
     mkdirOutDir="mkdir -p \"${OUT_DIR}\" \"${COMPONENTS_DIR}\""
     eval $mkdirOutDir || exit 1
 
-    pkgBuildCommand="/usr/bin/pkgbuild --identifier $INSTALLER_PACKAGE_ID --component-plist \"${COMPONENTSPLIST_PATH}\" --scripts \"${SCRIPTS_DIR}\" --root \"${LAYOUT_DIR}\" \"${COMPONENTS_DIR}/${COMPONENT_PACKAGE_NAME}\""
+    pkgBuildCommand="/usr/bin/pkgbuild --identifier $INSTALLER_PACKAGE_ID --scripts \"${SCRIPTS_DIR}\" --root \"${LAYOUT_DIR}\" \"${COMPONENTS_DIR}/${COMPONENT_PACKAGE_NAME}\""
     echo $pkgBuildCommand
     eval $pkgBuildCommand || exit 1
 }
