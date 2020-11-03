@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   release:
     types: [released]
+  pull_request:
+    branches: [ main ] # TODO: remove after testing
 
 jobs:
   build:
