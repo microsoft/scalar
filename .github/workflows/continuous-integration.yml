@@ -125,7 +125,7 @@ jobs:
         Copy-Item -Path 'watchman\watchman-*-windows\bin\*' -Destination 'C:\Program Files\Watchman'
         $ENV:PATH="$ENV:PATH;C:\Program Files\Watchman"
         & watchman --version
-        echo "::add-path::C:\Program Files\Watchman"
+        echo "PATH=$ENV:PATH" >>$env:GITHUB_ENV
 
     - name: Functional test
       shell: bash
