@@ -43,17 +43,17 @@ jobs:
 
     - name: Setup platform (Linux)
       if: runner.os == 'Linux'
-      run: echo "::set-env name=BUILD_PLATFORM::${{ runner.os }}"
+      run: echo "BUILD_PLATFORM=${{ runner.os }}" >>$GITHUB_ENV
 
     - name: Setup platform (Mac)
       if: runner.os == 'macOS'
-      run: echo '::set-env name=BUILD_PLATFORM::Mac'
+      run: echo 'BUILD_PLATFORM=Mac' >>$GITHUB_ENV
 
     - name: Setup platform (Windows)
       if: runner.os == 'Windows'
       run: |
-        echo "::set-env name=BUILD_PLATFORM::${{ runner.os }}"
-        echo '::set-env name=BUILD_FILE_EXT::.exe'
+        echo "BUILD_PLATFORM=${{ runner.os }}" >>$env:GITHUB_ENV
+        echo 'BUILD_FILE_EXT=.exe' >>$env:GITHUB_ENV
 
     - name: Setup Git installer
       shell: bash
@@ -125,7 +125,7 @@ jobs:
         Copy-Item -Path 'watchman\watchman-*-windows\bin\*' -Destination 'C:\Program Files\Watchman'
         $ENV:PATH="$ENV:PATH;C:\Program Files\Watchman"
         & watchman --version
-        echo "::add-path::C:\Program Files\Watchman"
+        echo "PATH=$ENV:PATH" >>$env:GITHUB_ENV
 
     - name: Functional test
       shell: bash
