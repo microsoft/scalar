@@ -482,14 +482,12 @@ namespace Scalar.Common.Git
 
         public Result ForegroundFetch(string remote)
         {
-            // By using "--refmap", we override the configured refspec,
-            // ignoring the normal "+refs/heads/*:refs/remotes/<remote>/*".
-            // The user will see their remote refs update
-            // normally when they do a foreground fetch.
+            // It is criticcal that we allow the user to interact so
+	    // they can authenticate.
             return this.InvokeGitInWorkingDirectoryRoot(
-                $"-c credential.interactive=never fetch {remote} --quiet",
+                $"fetch {remote} --quiet",
                 fetchMissingObjects: true,
-                userInteractive: false);
+                userInteractive: true);
         }
 
         public Result BackgroundFetch(string remote)
