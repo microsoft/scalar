@@ -33,7 +33,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             RepositoryHelpers.DeleteTestDirectory(this.CommitGraphsRoot);
 
-            this.Enlistment.RunVerb("commit-graph");
+            this.RunCommitGraphTask();
 
             this.fileSystem
                 .FileExists(this.CommitGraphsChain)
@@ -62,10 +62,23 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             this.fileSystem.CreateEmptyFile(graphLockPath);
 
-            this.Enlistment.RunVerb("commit-graph");
+            this.RunCommitGraphTask();
 
-            this.fileSystem.FileExists(graphLockPath).ShouldBeFalse(nameof(graphLockPath));
+            this.fileSystem.FileExists(graphLockPath)
+                           .ShouldEqual(this.maintenanceMode == Settings.MaintenanceMode.Git, nameof(graphLockPath));
             this.fileSystem.FileExists(this.CommitGraphsChain).ShouldBeTrue(nameof(this.CommitGraphsChain));
+        }
+
+        private void RunCommitGraphTask()
+        {
+            if (this.maintenanceMode == Settings.MaintenanceMode.Scalar)
+            {
+                this.Enlistment.RunVerb("commit-graph");
+            }
+            else if (this.maintenanceMode == Settings.MaintenanceMode.Git)
+            {
+                this.Enlistment.RunMaintenanceTask("commit-graph");
+            }
         }
     }
 }
