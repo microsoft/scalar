@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System.Collections.Generic;
@@ -9,18 +10,21 @@ using System.Text.RegularExpressions;
 
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
-    [TestFixture]
+    [TestFixtureSource(typeof(TestsWithEnlistmentPerFixture), nameof(TestsWithEnlistmentPerFixture.MaintenanceMode))]
+    [Category(Categories.Maintenance)]
     public class LooseObjectStepTests : TestsWithEnlistmentPerFixture
     {
         private const string TempPackFolder = "tempPacks";
         private FileSystemRunner fileSystem;
+        private Settings.MaintenanceMode maintenanceMode;
 
         // Set forcePerRepoObjectCache to true to avoid any of the tests inadvertently corrupting
         // the cache
-        public LooseObjectStepTests()
+        public LooseObjectStepTests(Settings.MaintenanceMode maintenanceMode)
             : base(forcePerRepoObjectCache: true, skipFetchCommitsAndTreesDuringClone: false, fullClone: false)
         {
             this.fileSystem = new SystemIORunner();
+            this.maintenanceMode = maintenanceMode;
         }
 
         private string GitObjectRoot => ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot);

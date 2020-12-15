@@ -1,26 +1,29 @@
 using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
-    [TestFixture]
+    [TestFixtureSource(typeof(TestsWithEnlistmentPerFixture), nameof(TestsWithEnlistmentPerFixture.MaintenanceMode))]
+    [Category(Categories.Maintenance)]
     public class PackfileMaintenanceStepTests : TestsWithEnlistmentPerFixture
     {
         private const long BatchSizeForNoRepack = 1024 * 1024 * 1024L;
         private FileSystemRunner fileSystem;
+        private Settings.MaintenanceMode maintenanceMode;
 
         // Set forcePerRepoObjectCache to true to avoid any of the tests inadvertently corrupting
         // the cache
-        public PackfileMaintenanceStepTests()
+        public PackfileMaintenanceStepTests(Settings.MaintenanceMode maintenanceMode)
             : base(forcePerRepoObjectCache: true)
         {
             this.fileSystem = new SystemIORunner();
+            this.maintenanceMode = maintenanceMode;
         }
 
         private string GitObjectRoot => ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot);

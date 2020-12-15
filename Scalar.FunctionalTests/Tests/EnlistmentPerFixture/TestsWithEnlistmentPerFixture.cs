@@ -17,6 +17,14 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.fullClone = fullClone;
         }
 
+        public static object[] MaintenanceMode
+        {
+            get
+            {
+                return ScalarTestConfig.MaintenanceMode;
+            }
+        }
+
         public ScalarFunctionalTestEnlistment Enlistment
         {
             get; private set;
