@@ -54,6 +54,8 @@ namespace Scalar.FunctionalTests
 
         public static object[] GitRepoTestsValidateWorkTree { get; set; }
 
+        public static object[] MaintenanceMode { get; set; }
+
         public static bool TestGitOnPath { get; set; }
 
         public static string PathToGit

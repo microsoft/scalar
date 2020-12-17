@@ -13,6 +13,12 @@ namespace Scalar.FunctionalTests.Properties
             SparseMode = 2,
         }
 
+        public enum MaintenanceMode
+        {
+            Scalar = 0,
+            Git = 1,
+        }
+
         public static class Default
         {
             public static string CurrentDirectory { get; private set; }

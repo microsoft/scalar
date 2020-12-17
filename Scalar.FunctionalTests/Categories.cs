@@ -3,6 +3,7 @@ namespace Scalar.FunctionalTests
     public static class Categories
     {
         public const string GitCommands = "GitCommands";
+        public const string Maintenance = "Maintenance";
 
         public const string WindowsOnly = "WindowsOnly";
         public const string POSIXOnly = "POSIXOnly";

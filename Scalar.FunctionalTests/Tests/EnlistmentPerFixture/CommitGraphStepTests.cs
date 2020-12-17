@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System;
@@ -7,17 +8,20 @@ using System.IO;
 
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
-    [TestFixture]
+    [TestFixtureSource(typeof(TestsWithEnlistmentPerFixture), nameof(TestsWithEnlistmentPerFixture.MaintenanceMode))]
+    [Category(Categories.Maintenance)]
     public class CommitGraphStepTests : TestsWithEnlistmentPerFixture
     {
         private FileSystemRunner fileSystem;
+        private Settings.MaintenanceMode maintenanceMode;
 
         // Set forcePerRepoObjectCache to true to avoid any of the tests inadvertently corrupting
         // the cache
-        public CommitGraphStepTests()
+        public CommitGraphStepTests(Settings.MaintenanceMode maintenanceMode)
             : base(forcePerRepoObjectCache: true, fullClone: false)
         {
             this.fileSystem = new SystemIORunner();
+            this.maintenanceMode = maintenanceMode;
         }
 
         private string GitObjectRoot => ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot);
@@ -29,7 +33,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         {
             RepositoryHelpers.DeleteTestDirectory(this.CommitGraphsRoot);
 
-            this.Enlistment.RunVerb("commit-graph");
+            this.RunCommitGraphTask();
 
             this.fileSystem
                 .FileExists(this.CommitGraphsChain)
@@ -58,10 +62,23 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             this.fileSystem.CreateEmptyFile(graphLockPath);
 
-            this.Enlistment.RunVerb("commit-graph");
+            this.RunCommitGraphTask();
 
-            this.fileSystem.FileExists(graphLockPath).ShouldBeFalse(nameof(graphLockPath));
+            this.fileSystem.FileExists(graphLockPath)
+                           .ShouldEqual(this.maintenanceMode == Settings.MaintenanceMode.Git, nameof(graphLockPath));
             this.fileSystem.FileExists(this.CommitGraphsChain).ShouldBeTrue(nameof(this.CommitGraphsChain));
+        }
+
+        private void RunCommitGraphTask()
+        {
+            if (this.maintenanceMode == Settings.MaintenanceMode.Scalar)
+            {
+                this.Enlistment.RunVerb("commit-graph");
+            }
+            else if (this.maintenanceMode == Settings.MaintenanceMode.Git)
+            {
+                this.Enlistment.RunMaintenanceTask("commit-graph");
+            }
         }
     }
 }

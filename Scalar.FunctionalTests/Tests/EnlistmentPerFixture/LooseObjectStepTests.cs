@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System.Collections.Generic;
@@ -9,18 +10,21 @@ using System.Text.RegularExpressions;
 
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
-    [TestFixture]
+    [TestFixtureSource(typeof(TestsWithEnlistmentPerFixture), nameof(TestsWithEnlistmentPerFixture.MaintenanceMode))]
+    [Category(Categories.Maintenance)]
     public class LooseObjectStepTests : TestsWithEnlistmentPerFixture
     {
         private const string TempPackFolder = "tempPacks";
         private FileSystemRunner fileSystem;
+        private Settings.MaintenanceMode maintenanceMode;
 
         // Set forcePerRepoObjectCache to true to avoid any of the tests inadvertently corrupting
         // the cache
-        public LooseObjectStepTests()
+        public LooseObjectStepTests(Settings.MaintenanceMode maintenanceMode)
             : base(forcePerRepoObjectCache: true, skipFetchCommitsAndTreesDuringClone: false, fullClone: false)
         {
             this.fileSystem = new SystemIORunner();
+            this.maintenanceMode = maintenanceMode;
         }
 
         private string GitObjectRoot => ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot);
@@ -38,7 +42,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.GetLooseObjectFiles().Count.ShouldEqual(0);
             int startingPackFileCount = this.CountPackFiles();
 
-            this.Enlistment.RunVerb("loose-objects");
+            this.RunLooseObjectsTask();
 
             this.GetLooseObjectFiles().Count.ShouldEqual(0);
             this.CountPackFiles().ShouldEqual(startingPackFileCount);
@@ -56,7 +60,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.CountPackFiles().ShouldEqual(1);
 
             // Cleanup should delete all loose objects, since they are in the packfile
-            this.Enlistment.RunVerb("loose-objects");
+            this.RunLooseObjectsTask();
 
             this.GetLooseObjectFiles().Count.ShouldEqual(0);
             this.CountPackFiles().ShouldEqual(1);
@@ -76,13 +80,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             looseObjectCount.ShouldBeAtLeast(1);
 
             // This step should put the loose objects into a packfile
-            this.Enlistment.RunVerb("loose-objects");
+            this.RunLooseObjectsTask();
 
             this.GetLooseObjectFiles().Count.ShouldEqual(looseObjectCount);
             this.CountPackFiles().ShouldEqual(1);
 
             // Running the step a second time should remove the loose obects and keep the pack file
-            this.Enlistment.RunVerb("loose-objects");
+            this.RunLooseObjectsTask();
 
             this.GetLooseObjectFiles().Count.ShouldEqual(0);
             this.CountPackFiles().ShouldEqual(1);
@@ -110,7 +114,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // This step should fail to place the objects, but
             // succeed in deleting the given file.
-            this.Enlistment.RunVerb("loose-objects");
+            this.RunLooseObjectsTask();
 
             this.fileSystem.FileExists(fakeBlob).ShouldBeFalse(
                    "Step failed to delete corrupt blob");
@@ -120,15 +124,27 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 "unexpected number of loose objects after step");
 
             // This step should create a pack.
-            this.Enlistment.RunVerb("loose-objects");
+            this.RunLooseObjectsTask();
 
             this.CountPackFiles().ShouldEqual(1, "Incorrect number of packs after second loose object step");
             this.GetLooseObjectFiles().Count.ShouldEqual(looseObjectCount);
 
             // This step should delete the loose objects
-            this.Enlistment.RunVerb("loose-objects");
+            this.RunLooseObjectsTask();
 
             this.GetLooseObjectFiles().Count.ShouldEqual(0, "Incorrect number of loose objects after third loose object step");
+        }
+
+        private void RunLooseObjectsTask()
+        {
+            if (this.maintenanceMode == Settings.MaintenanceMode.Scalar)
+            {
+                this.Enlistment.RunVerb("loose-objects");
+            }
+            else if (this.maintenanceMode == Settings.MaintenanceMode.Git)
+            {
+                this.Enlistment.RunMaintenanceTask("loose-objects", "-c pack.window=0 -c pack.depth=0 ");
+            }
         }
 
         private void ClearAllObjects()

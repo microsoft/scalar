@@ -1,26 +1,29 @@
 using NUnit.Framework;
 using Scalar.FunctionalTests.FileSystemRunners;
+using Scalar.FunctionalTests.Properties;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
-    [TestFixture]
+    [TestFixtureSource(typeof(TestsWithEnlistmentPerFixture), nameof(TestsWithEnlistmentPerFixture.MaintenanceMode))]
+    [Category(Categories.Maintenance)]
     public class PackfileMaintenanceStepTests : TestsWithEnlistmentPerFixture
     {
         private const long BatchSizeForNoRepack = 1024 * 1024 * 1024L;
         private FileSystemRunner fileSystem;
+        private Settings.MaintenanceMode maintenanceMode;
 
         // Set forcePerRepoObjectCache to true to avoid any of the tests inadvertently corrupting
         // the cache
-        public PackfileMaintenanceStepTests()
+        public PackfileMaintenanceStepTests(Settings.MaintenanceMode maintenanceMode)
             : base(forcePerRepoObjectCache: true)
         {
             this.fileSystem = new SystemIORunner();
+            this.maintenanceMode = maintenanceMode;
         }
 
         private string GitObjectRoot => ScalarHelpers.GetObjectsRootFromGitConfig(this.Enlistment.RepoRoot);
@@ -46,7 +49,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // Run the step to ensure we don't have any packs that will be expired during the repack step.
             // Use a non-standard, but large batchSize to avoid logic that resizes the batchSize.
-            this.Enlistment.RunVerb("pack-files", batchSize: BatchSizeForNoRepack);
+            this.RunPackFileTask();
 
             this.GetPackSizes(out int afterPrefetchPackCount, out maxSize, out minSize, out totalSize);
 
@@ -68,12 +71,24 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             // We should expire all packs except the one we just created,
             // and the prefetch pack which is marked as ".keep"
-            this.Enlistment.RunVerb("pack-files", batchSize: BatchSizeForNoRepack);
+            this.RunPackFileTask();
 
             List<string> packsAfter = this.GetPackfiles();
 
             packsAfter.Count.ShouldEqual(2, $"incorrect number of packs after final expire step: {packsAfter.Count}");
             packsAfter.Contains(prefetchPack).ShouldBeTrue($"packsAfter does not contain prefetch pack ({prefetchPack})");
+        }
+
+        private void RunPackFileTask()
+        {
+            if (this.maintenanceMode == Settings.MaintenanceMode.Scalar)
+            {
+                this.Enlistment.RunVerb("pack-files", batchSize: BatchSizeForNoRepack);
+            }
+            else if (this.maintenanceMode == Settings.MaintenanceMode.Git)
+            {
+                this.Enlistment.RunMaintenanceTask("incremental-repack");
+            }
         }
 
         private List<string> GetPackfiles()

@@ -54,6 +54,14 @@ namespace Scalar.FunctionalTests
                         new object[] { Settings.ValidateWorkingTreeMode.SparseMode },
                 };
 
+            // Run maintenance tests in both `scalar run` and `git maintenance run` modes
+            ScalarTestConfig.MaintenanceMode =
+                new object[]
+                {
+                    new object[] { Settings.MaintenanceMode.Scalar },
+                    new object[] { Settings.MaintenanceMode.Git },
+                };
+
             if (runner.HasCustomArg("--full-suite"))
             {
                 Console.WriteLine("Running the full suite of tests");

@@ -193,6 +193,11 @@ namespace Scalar.FunctionalTests.Tools
             return this.scalarProcess.RunVerb(task, batchSize, failOnError, asService);
         }
 
+        public string RunMaintenanceTask(string task, string config = null)
+        {
+            return GitProcess.Invoke(this.RepoRoot, $"{config}maintenance run --task={task}");
+        }
+
         public void Unregister()
         {
             this.scalarProcess.Unregister(this.EnlistmentRoot);
