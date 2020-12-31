@@ -98,28 +98,6 @@ namespace Scalar.CommandLine
                         string commonAppDataRoot = ScalarPlatform.Instance.GetCommonAppDataRootForScalar();
                         string secureDataRoot = ScalarPlatform.Instance.GetSecureDataRootForScalar();
 
-                        this.CopyAllFiles(
-                            commonAppDataRoot,
-                            archiveFolderPath,
-                            this.ServiceName,
-                            copySubFolders: true);
-
-                        if (!commonAppDataRoot.Equals(secureDataRoot))
-                        {
-                            this.CopyAllFiles(
-                                secureDataRoot,
-                                archiveFolderPath,
-                                this.ServiceName,
-                                copySubFolders: true);
-                        }
-
-                        // service ui
-                        this.CopyAllFiles(
-                            ScalarPlatform.Instance.GetCommonAppDataRootForScalar(),
-                            archiveFolderPath,
-                            ScalarConstants.Service.UIName,
-                            copySubFolders: true);
-
                         if (ScalarPlatform.Instance.UnderConstruction.UsesCustomUpgrader)
                         {
                             // upgrader

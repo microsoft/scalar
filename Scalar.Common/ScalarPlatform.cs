@@ -57,8 +57,6 @@ namespace Scalar.Common
         /// </exception>
         public abstract void PrepareProcessToRunInBackground();
 
-        public abstract void IsServiceInstalledAndRunning(string name, out bool installed, out bool running);
-        public abstract string GetScalarServiceNamedPipeName(string serviceName);
         public abstract NamedPipeServerStream CreatePipeByName(string pipeName);
 
         public abstract string GetOSVersionInformation();

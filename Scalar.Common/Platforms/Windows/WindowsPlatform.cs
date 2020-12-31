@@ -200,19 +200,6 @@ namespace Scalar.Platform.Windows
             }
         }
 
-        public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
-        {
-            ServiceController service = ServiceController.GetServices().FirstOrDefault(s => s.ServiceName.Equals(name, StringComparison.Ordinal));
-
-            installed = service != null;
-            running = service != null ? service.Status == ServiceControllerStatus.Running : false;
-        }
-
-        public override string GetScalarServiceNamedPipeName(string serviceName)
-        {
-            return serviceName + ".pipe";
-        }
-
         public override void ConfigureVisualStudio(string gitBinPath, ITracer tracer)
         {
             try

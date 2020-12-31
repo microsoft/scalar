@@ -122,10 +122,6 @@ namespace Scalar.FunctionalTests
 
         private static void RunBeforeAnyTests()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                ScalarServiceProcess.InstallService();
-            }
         }
     }
 }

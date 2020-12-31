@@ -87,13 +87,6 @@ namespace Scalar.Upgrader
             return true;
         }
 
-        protected virtual bool IsServiceInstalledAndNotRunning()
-        {
-            ScalarPlatform.Instance.IsServiceInstalledAndRunning(ScalarConstants.Service.ServiceName, out bool isInstalled, out bool isRunning);
-
-            return isInstalled && !isRunning;
-        }
-
         protected virtual bool IsUnattended()
         {
             return ScalarEnlistment.IsUnattended(this.tracer);
@@ -167,17 +160,6 @@ namespace Scalar.Upgrader
                     $"{ScalarConstants.UpgradeVerbMessages.ScalarUpgrade} is only supported after the \"Windows Projected File System\" optional feature has been enabled by a manual installation of Scalar, and only on versions of Windows that support this feature.",
                     "Check your team's documentation for how to upgrade.");
                 this.tracer.RelatedWarning(metadata: null, message: $"{nameof(this.IsScalarUpgradeAllowed)}: Upgrade is not installable. {consoleError}", keywords: Keywords.Telemetry);
-                return false;
-            }
-
-            if (this.IsServiceInstalledAndNotRunning())
-            {
-                adviceText = isConfirmed ? $"Run `sc start Scalar.Service` and run {this.CommandToRerun} again from an elevated command prompt." : $"To install, run `sc start Scalar.Service` and run {ScalarConstants.UpgradeVerbMessages.ScalarUpgradeConfirm} from an elevated command prompt.";
-                consoleError = string.Join(
-                    Environment.NewLine,
-                    "Scalar Service is not running.",
-                    adviceText);
-                this.tracer.RelatedWarning($"{nameof(this.IsScalarUpgradeAllowed)}: Upgrade is not installable. {consoleError}");
                 return false;
             }
 

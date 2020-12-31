@@ -23,8 +23,6 @@ namespace Scalar.CommandLine
             this.Output = Console.Out;
             this.ReturnCode = ReturnCode.Success;
             this.validateOriginURL = validateOrigin;
-            this.ServiceName = ScalarConstants.Service.ServiceName;
-            this.StartedByService = false;
             this.Unattended = ScalarEnlistment.IsUnattended(tracer: null);
 
             this.InitializeDefaultParameterValues();
@@ -32,47 +30,7 @@ namespace Scalar.CommandLine
 
         public abstract string EnlistmentRootPathParameter { get; set; }
 
-        [Option(
-            ScalarConstants.VerbParameters.InternalUseOnly,
-            Required = false,
-            HelpText = "This parameter is reserved for internal use.")]
-        public string InternalParameters
-        {
-            set
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    try
-                    {
-                        InternalVerbParameters internalParams = InternalVerbParameters.FromJson(value);
-                        if (!string.IsNullOrEmpty(internalParams.ServiceName))
-                        {
-                            this.ServiceName = internalParams.ServiceName;
-                        }
-
-                        this.StartedByService = internalParams.StartedByService;
-                    }
-                    catch (JsonReaderException e)
-                    {
-                        this.ReportErrorAndExit("Failed to parse InternalParameters: {0}.\n {1}", value, e);
-                    }
-                }
-            }
-        }
-
-        public string ServiceName { get; set; }
-
-        public bool StartedByService { get; set; }
-
         public bool Unattended { get; private set; }
-
-        public string ServicePipeName
-        {
-            get
-            {
-                return ScalarPlatform.Instance.GetScalarServiceNamedPipeName(this.ServiceName);
-            }
-        }
 
         public TextWriter Output { get; set; }
 
@@ -93,7 +51,6 @@ namespace Scalar.CommandLine
         {
             TVerb verb = new TVerb();
             verb.EnlistmentRootPathParameter = enlistmentRootPath;
-            verb.ServiceName = this.ServiceName;
             verb.Unattended = this.Unattended;
 
             if (configureVerb != null)
@@ -124,7 +81,6 @@ namespace Scalar.CommandLine
         {
             TVerb verb = new TVerb();
             verb.EnlistmentRootPathParameter = enlistment.EnlistmentRoot;
-            verb.ServiceName = this.ServiceName;
             verb.Unattended = this.Unattended;
 
             if (configureVerb != null)

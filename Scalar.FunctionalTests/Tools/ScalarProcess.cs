@@ -46,15 +46,10 @@ namespace Scalar.FunctionalTests.Tools
                                     ? string.Empty
                                     : $"--batch-size={batchSize}";
 
-            string serviceArg = asService
-                                    ? "{\"StartedByService\":\"true\"}"
-                                    : null;
-
             return this.CallScalar(
                 $"run {task} \"{this.enlistmentRoot}\" {batchArg}",
                 failOnError ? SuccessExitCode : DoNotCheckExitCode,
-                standardInput: null,
-                internalParameter: serviceArg);
+                standardInput: null);
         }
 
         public void Repair(bool confirm)
@@ -134,12 +129,7 @@ namespace Scalar.FunctionalTests.Tools
         {
             ProcessStartInfo processInfo = new ProcessStartInfo(this.pathToScalar);
 
-            if (internalParameter == null)
-            {
-                internalParameter = ScalarHelpers.GetInternalParameter();
-            }
-
-            processInfo.Arguments = args + " " + TestConstants.InternalUseOnlyFlag + " " + internalParameter;
+            processInfo.Arguments = args;
 
             if (!string.IsNullOrEmpty(workingDirectory))
             {

@@ -40,11 +40,6 @@ namespace Scalar.UnitTests.Mock.Common
             throw new NotImplementedException();
         }
 
-        public override string GetScalarServiceNamedPipeName(string serviceName)
-        {
-            return Path.Combine("Scalar_Mock_ServicePipeName", serviceName);
-        }
-
         public override NamedPipeServerStream CreatePipeByName(string pipeName)
         {
             throw new NotSupportedException();
@@ -104,11 +99,6 @@ namespace Scalar.UnitTests.Mock.Common
         }
 
         public override bool IsElevated()
-        {
-            throw new NotSupportedException();
-        }
-
-        public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
         {
             throw new NotSupportedException();
         }

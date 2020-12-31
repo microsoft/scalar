@@ -45,11 +45,6 @@ namespace Scalar.Platform.POSIX
             throw new NotImplementedException();
         }
 
-        public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void StartBackgroundScalarProcess(ITracer tracer, string programName, string[] args)
         {
             string programArguments = string.Empty;
@@ -193,13 +188,6 @@ namespace Scalar.Platform.POSIX
 
         public override void InitializeEnlistmentACLs(string enlistmentPath)
         {
-        }
-
-        public override string GetScalarServiceNamedPipeName(string serviceName)
-        {
-            // Pipes are stored as files on POSIX, use a rooted pipe name
-            // in the same location as the service to keep full control of the location of the file
-            return this.GetCommonAppDataRootForScalarComponent(serviceName) + ".pipe";
         }
 
         public override bool IsElevated()

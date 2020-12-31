@@ -86,12 +86,6 @@ namespace Scalar.Platform.Linux
             return TryGetEnvironmentVariableBasePath(EnvironmentVariableBaseCachePaths, out localCacheRoot, out localCacheRootError);
         }
 
-        public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
-        {
-            installed = false;
-            running = false;
-        }
-
         public class LinuxPlatformConstants : POSIXPlatformConstants
         {
             public override string InstallerExtension

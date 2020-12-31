@@ -226,7 +226,6 @@ namespace Scalar.Common
 
         public static class VerbParameters
         {
-            public const string InternalUseOnly = "internal_use_only";
 
             public static class Maintenance
             {

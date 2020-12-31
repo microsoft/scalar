@@ -22,7 +22,6 @@ namespace Scalar.UnitTests.Mock.Upgrader
             IsElevated = 0x2,
             BlockingProcessesRunning = 0x4,
             UnattendedMode = 0x8,
-            IsServiceInstalledAndNotRunning = 0x40,
         }
 
         public void SetReturnFalseOnCheck(FailOnCheckType prerunCheck)
@@ -41,17 +40,11 @@ namespace Scalar.UnitTests.Mock.Upgrader
 
             this.SetReturnFalseOnCheck(MockInstallerPrerunChecker.FailOnCheckType.UnattendedMode);
             this.SetReturnFalseOnCheck(MockInstallerPrerunChecker.FailOnCheckType.BlockingProcessesRunning);
-            this.SetReturnFalseOnCheck(MockInstallerPrerunChecker.FailOnCheckType.IsServiceInstalledAndNotRunning);
         }
 
         public void SetCommandToRerun(string command)
         {
             this.CommandToRerun = command;
-        }
-
-        protected override bool IsServiceInstalledAndNotRunning()
-        {
-            return this.FakedResultOfCheck(FailOnCheckType.IsServiceInstalledAndNotRunning);
         }
 
         protected override bool IsElevated()

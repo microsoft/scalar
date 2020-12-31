@@ -74,28 +74,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.WriteNugetConfig(feedUrl, feedName);
         }
 
-        [TestCase]
-        public void UpgradeTimerScheduledOnServiceStart()
-        {
-            this.RestartService();
-
-            bool timerScheduled = false;
-
-            // Service starts upgrade checks after 60 seconds.
-            Thread.Sleep(TimeSpan.FromSeconds(60));
-            for (int trialCount = 0; trialCount < 30; trialCount++)
-            {
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-                if (this.ServiceLogContainsUpgradeMessaging())
-                {
-                    timerScheduled = true;
-                    break;
-                }
-            }
-
-            timerScheduled.ShouldBeTrue();
-        }
-
         private void ReadNugetConfig(out string feedUrl, out string feedName)
         {
             ScalarProcess scalar = new ScalarProcess(ScalarTestConfig.PathToScalar, enlistmentRoot: null, localCacheRoot: null);
@@ -126,39 +104,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             {
                 scalar.WriteConfig(NugetFeedPackageNameKey, feedName);
             }
-        }
-
-        private bool ServiceLogContainsUpgradeMessaging()
-        {
-            // This test checks for the upgrade timer start message in the Service log
-            // file. Scalar.Service should schedule the timer as it starts.
-            string expectedTimerMessage = "Checking for product upgrades. (Start)";
-            string serviceLogFolder = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                "Scalar",
-                ScalarServiceProcess.TestServiceName,
-                "Logs");
-            DirectoryInfo logsDirectory = new DirectoryInfo(serviceLogFolder);
-            FileInfo logFile = logsDirectory.GetFiles()
-                .OrderByDescending(f => f.LastWriteTime)
-                .FirstOrDefault();
-
-            if (logFile != null)
-            {
-                using (StreamReader fileStream = new StreamReader(File.Open(logFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
-                {
-                    string nextLine = null;
-                    while ((nextLine = fileStream.ReadLine()) != null)
-                    {
-                        if (nextLine.Contains(expectedTimerMessage))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            return false;
         }
 
         private void EmptyDownloadDirectory()
@@ -203,12 +148,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             return result.Output;
         }
 
-        private void RestartService()
-        {
-            ScalarServiceProcess.StopService();
-            ScalarServiceProcess.StartService();
-        }
-
         private bool ReminderMessagingEnabled()
         {
             Dictionary<string, string> environmentVariables = new Dictionary<string, string>();
@@ -232,7 +171,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             this.CreateUpgradeAvailableMarkerFile();
             this.ReminderMessagingEnabled().ShouldBeTrue("Upgrade marker file did not trigger reminder messaging");
             this.SetUpgradeRing(AlwaysUpToDateRing);
-            this.RestartService();
 
             // Wait for sometime so service can detect product is up-to-date and delete left over downloads
             TimeSpan timeToWait = TimeSpan.FromMinutes(1);

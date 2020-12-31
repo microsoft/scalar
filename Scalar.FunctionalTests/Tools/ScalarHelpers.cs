@@ -13,11 +13,5 @@ namespace Scalar.FunctionalTests.Tools
             string.IsNullOrWhiteSpace(result.Output).ShouldBeFalse($"{ScalarHelpers.GitConfigObjectCache} should be set");
             return result.Output.TrimEnd('\n');
         }
-
-        public static string GetInternalParameter()
-        {
-            return $"\"{{\\\"ServiceName\\\":\\\"{ScalarServiceProcess.TestServiceName}\\\"," +
-                    "\\\"StartedByService\\\":false}\"";
-        }
     }
 }
