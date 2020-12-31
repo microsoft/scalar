@@ -14,8 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Scalar\Scalar.csproj" />
-    <ProjectReference Include="..\Scalar.Service\Scalar.Service.csproj" />
-    <ProjectReference Include="..\Scalar.Service.UI\Scalar.Service.UI.csproj" />
     <ProjectReference Include="..\Scalar.Upgrader\Scalar.Upgrader.csproj" />
   </ItemGroup>
 

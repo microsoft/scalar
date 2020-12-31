@@ -16,8 +16,6 @@ namespace Scalar.CommandLine
 {
     public abstract class ScalarVerb
     {
-        protected const string StartServiceInstructions = "Run 'sc start Scalar.Service' from an elevated command prompt to ensure it is running.";
-
         private readonly bool validateOriginURL;
 
         public ScalarVerb(bool validateOrigin = true)

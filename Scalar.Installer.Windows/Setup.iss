@@ -57,9 +57,6 @@ Type: files; Name: "{app}\ucrtbase.dll"
 ; Include all files (recursively) from the layout directory
 DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Source:"{#LayoutPath}\*";
 
-[Icons]
-Name: "{commonstartmenu}\{#ServiceUIName}"; Filename: "{app}\Scalar.Service.UI.exe"; AppUserModelID: "Scalar"
-
 [UninstallDelete]
 ; Deletes the entire installation directory, including files and subdirectories
 Type: filesandordirs; Name: "{app}";
@@ -174,55 +171,6 @@ begin
     end;
 end;
 
-procedure InstallScalarService();
-var
-  ResultCode: integer;
-  StatusText: string;
-  InstallSuccessful: Boolean;
-begin
-  InstallSuccessful := False;
-
-  StatusText := WizardForm.StatusLabel.Caption;
-  WizardForm.StatusLabel.Caption := 'Installing Scalar.Service.';
-  WizardForm.ProgressGauge.Style := npbstMarquee;
-
-  try
-    if Exec(ExpandConstant('{sys}\SC.EXE'), ExpandConstant('create Scalar.Service binPath="{app}\Scalar.Service.exe" start=auto'), '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0) then
-      begin
-        if Exec(ExpandConstant('{sys}\SC.EXE'), 'failure Scalar.Service reset= 30 actions= restart/10/restart/5000//1', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-          begin
-            if Exec(ExpandConstant('{sys}\SC.EXE'), 'start Scalar.Service', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-              begin
-                InstallSuccessful := True;
-              end;
-          end;
-      end;
-
-  finally
-    WizardForm.StatusLabel.Caption := StatusText;
-    WizardForm.ProgressGauge.Style := npbstNormal;
-  end;
-
-  if InstallSuccessful = False then
-    begin
-      RaiseException('Fatal: An error occured while installing Scalar.Service.');
-    end;
-end;
-
-procedure StartScalarServiceUI();
-var
-  ResultCode: integer;
-begin
-  if ExecAsOriginalUser(ExpandConstant('{app}\Scalar.Service.UI.exe'), '', '', SW_HIDE, ewNoWait, ResultCode) then
-    begin
-      Log('StartGVFSServiceUI: Successfully launched Scalar.Service.UI');
-    end
-  else
-    begin
-      Log('StartGVFSServiceUI: Failed to launch Scalar.Service.UI');
-    end;
-end;
-
 procedure StopScalarServiceUI();
 var
   ResultCode: integer;
@@ -269,15 +217,6 @@ begin
       LoadStringFromFile(TempFilename, ResultString);
     end;
   DeleteFile(TempFilename);
-end;
-
-procedure StopMaintenanceTasks();
-var
-  ResultCode: integer;
-begin
-  // TODO: #185 Instead of calling --help, use the correct action for stopping the
-  // maintenance task
-  Exec('scalar.exe', '--help', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
 function EnsureScalarNotRunning(): Boolean;
@@ -327,10 +266,6 @@ begin
     ssInstall:
       begin
         UninstallService('Scalar.Service', True);
-      end;
-    ssPostInstall:
-      begin
-        InstallScalarService();
       end;
     end;
 end;

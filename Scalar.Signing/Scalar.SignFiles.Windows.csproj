@@ -12,10 +12,6 @@
       $(OutDir)\scalar.dll;
       $(OutDir)\scalar.exe;
       $(OutDir)\scalar.common.dll;
-      $(OutDir)\scalar.service.dll;
-      $(OutDir)\scalar.service.exe;
-      $(OutDir)\scalar.service.ui.dll;
-      $(OutDir)\scalar.service.ui.exe;
       $(OutDir)\scalar.upgrader.dll;
       $(OutDir)\scalar.upgrader.exe;" />
   </ItemGroup>

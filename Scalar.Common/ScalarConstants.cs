@@ -48,9 +48,7 @@ namespace Scalar.Common
 
         public static class Service
         {
-            public const string ServiceName = "Scalar.Service";
             public const string LogDirectory = "Logs";
-            public const string UIName = "Scalar.Service.UI";
         }
 
         public static class RepoRegistry
