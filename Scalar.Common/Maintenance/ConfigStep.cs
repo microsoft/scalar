@@ -303,13 +303,6 @@ namespace Scalar.Common.Maintenance
                 return true;
             }
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                // We still use Scalar.Service on this platform
-                error = null;
-                return true;
-            }
-
             GitProcess.Result result = this.RunGitCommand(process => process.MaintenanceStart(), nameof(GitProcess.MaintenanceStart));
             error = result.Errors;
             return result.ExitCodeIsSuccess;
