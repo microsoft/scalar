@@ -9,12 +9,6 @@ steps:
     displayName: Delete previous build outputs
     continueOnError: true
 
-  - task: InstallAppleCertificate@2
-    displayName: 'Install Apple certificate'
-    inputs:	
-      certSecureFile: '$(Apple.Certificate.FileName)'
-      certPwd: '$(Apple.Certificate.Password)'
-
   - script: Scripts/Mac/BuildScalarForMac.sh $(configuration) $(majorAndMinorVersion).$(revision)
     displayName: Build Scalar ($(configuration))
 
