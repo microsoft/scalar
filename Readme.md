@@ -80,16 +80,16 @@ Installing on Linux
 
 Currently, we package a custom version of Git and Scalar as `.deb` packages
 that can be installed after downloading from the GitHub releases pages.
-At this point, you must install our custom version of Git in order to get
-background maintenance as part of `scalar clone` or `scalar register`. As
-that feature is accepted and merged into the core Git client, then you can
-take advantage of the feature without the custom fork.
+In order to get background maintenance as part of `scalar clone` or
+`scalar register`, you need to be running Git 2.30.0 or higher.
+Alternatively, you can install our custom version of Git.
 
 The latest releases can be downloaded and installed as follows:
 
 > Note: If you don't have `wget`, then try `sudo apt-get install wget` first.
 
 ```sh
+# (Optional, if running Git below 2.30.0)
 # Install git-vfs, a custom fork of Git
 wget https://github.com/microsoft/git/releases/download/v2.29.0.vfs.0.0/git-vfs_2.29.0.vfs.0.0.deb
 sudo dpkg -i git-vfs_2.29.0.vfs.0.0.deb
