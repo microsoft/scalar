@@ -118,7 +118,10 @@ namespace Scalar.Common.Git
 
         public static Result SparseCheckoutInit(Enlistment enlistment)
         {
-            return new GitProcess(enlistment).InvokeGitInWorkingDirectoryRoot("sparse-checkout init --cone", fetchMissingObjects: true);
+            GitProcess process = new GitProcess(enlistment);
+            Result result = process.InvokeGitInWorkingDirectoryRoot("sparse-checkout init --cone", fetchMissingObjects: true);
+            process.InvokeGitInWorkingDirectoryRoot("sparse-checkout sparse-index enable", fetchMissingObjects: true);
+            return result;
         }
 
         public static ConfigResult GetFromGlobalConfig(string gitBinPath, string settingName)
