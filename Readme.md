@@ -89,7 +89,7 @@ The latest releases can be downloaded and installed as follows:
 > Note: If you don't have `wget`, then try `sudo apt-get install wget` first.
 
 ```sh
-# (Optional, if running Git below 2.30.0)
+# (Optional if running Git 2.30.0 or above)
 # Install git-vfs, a custom fork of Git
 wget https://github.com/microsoft/git/releases/download/v2.29.0.vfs.0.0/git-vfs_2.29.0.vfs.0.0.deb
 sudo dpkg -i git-vfs_2.29.0.vfs.0.0.deb
