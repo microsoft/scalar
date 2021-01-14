@@ -83,6 +83,8 @@ that can be installed after downloading from the GitHub releases pages.
 In order to get background maintenance as part of `scalar clone` or
 `scalar register`, you need to be running Git 2.30.0 or higher.
 Alternatively, you can install our custom version of Git.
+(The custom Git version is also required if you want GVFS protocol support
+on Azure Repos.)
 
 The latest releases can be downloaded and installed as follows:
 
