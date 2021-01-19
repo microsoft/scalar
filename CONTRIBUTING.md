@@ -63,8 +63,7 @@ Be sure to also install the latest Git for Windows installer at `<repo root>\..\
   ```
   cd Scripts/Mac
   ./BuildScalarForMac.sh
-  ./CreateScalarDistribution.sh
-  cd ../../../out/Scalar.Distribution.Mac/dist/(Debug|Release)/
+  cd ../../../out/Scalar.Installer.Mac/dist/(Debug|Release)/
   ./InstallScalar.sh
   ```
 
