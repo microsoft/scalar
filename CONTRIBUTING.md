@@ -33,7 +33,7 @@ If you'd like to build your own Scalar Windows installer:
     * .NET Core cross-platform development
   * Include the following additional components:
     * .NET Core runtime
-* Install the .NET Core 3.0 SDK (https://dotnet.microsoft.com/download/dotnet-core/3.0)
+* Install the .NET Core 3.1 SDK (https://dotnet.microsoft.com/download/dotnet-core/3.1)
 * Clone using `git clone https://github.com/microsoft/scalar scalar/src`. The `src` directory
   will be the "repo root" and some sibling directories are created in the build process.
 * Run `Scripts\BuildScalarForWindows.bat`
@@ -51,8 +51,8 @@ Be sure to also install the latest Git for Windows installer at `<repo root>\..\
 
 * Install [Visual Studio for Mac ](https://visualstudio.microsoft.com/vs/mac). (This will also install the `dotnet` CLI).
 
-* If you still do not have the `dotnet` cli `>= v3.0` installed, then
-  [manually install it](https://dotnet.microsoft.com/download/dotnet-core/3.0).
+* If you still do not have the `dotnet` cli `>= v3.1` installed, then
+  [manually install it](https://dotnet.microsoft.com/download/dotnet-core/3.1).
   You can check what version you have with `dotnet --version`.
 
 * Clone using `git clone https://github.com/microsoft/scalar scalar/src`. The `src` directory
@@ -63,8 +63,7 @@ Be sure to also install the latest Git for Windows installer at `<repo root>\..\
   ```
   cd Scripts/Mac
   ./BuildScalarForMac.sh
-  ./CreateScalarDistribution.sh
-  cd ../../../out/Scalar.Distribution.Mac/dist/(Debug|Release)/
+  cd ../../../out/Scalar.Installer.Mac/dist/(Debug|Release)/
   ./InstallScalar.sh
   ```
 
