@@ -109,10 +109,18 @@ if [ $INSTALL_WATCHMAN -eq 1 ]; then
     echo "=============================="
     echo "Installing watchman as: $CURRENT_USER"
 
+    # Remove any 2to3 binary or symlink that would prevent watchman's python3
+    # dependency from being linked correctly.
+    if [ -e /usr/local/bin/2to3 ]; then
+        sudo rm /usr/local/bin/2to3
+    fi
+
     sudo chown -R $CURRENT_USER /usr/local/Cellar
+    sudo chown -R $CURRENT_USER /usr/local/Homebrew
+    sudo chown -R $CURRENT_USER /usr/local/var/homebrew
     sudo -u $CURRENT_USER brew update
     sudo -u $CURRENT_USER brew unlink python@2 || echo "Python 2 was not installed"
-    sudo -u $CURRENT_USER brew install watchman
+    sudo -u $CURRENT_USER brew install --force watchman
 else
     echo ""
     echo "=============================="
