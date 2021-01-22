@@ -43,17 +43,22 @@ jobs:
 
     - name: Setup platform (Linux)
       if: runner.os == 'Linux'
-      run: echo "BUILD_PLATFORM=${{ runner.os }}" >>$GITHUB_ENV
+      run: |
+        echo "BUILD_PLATFORM=${{ runner.os }}" >>$GITHUB_ENV
+        echo "TRACE2_BASENAME=Trace2.${{ github.run_id }}__${{ github.run_number }}__${{ matrix.os }}__${{ matrix.watchman }}" >>$GITHUB_ENV
 
     - name: Setup platform (Mac)
       if: runner.os == 'macOS'
-      run: echo 'BUILD_PLATFORM=Mac' >>$GITHUB_ENV
+      run: |
+        echo 'BUILD_PLATFORM=Mac' >>$GITHUB_ENV
+        echo "TRACE2_BASENAME=Trace2.${{ github.run_id }}__${{ github.run_number }}__${{ matrix.os }}__${{ matrix.watchman }}" >>$GITHUB_ENV
 
     - name: Setup platform (Windows)
       if: runner.os == 'Windows'
       run: |
         echo "BUILD_PLATFORM=${{ runner.os }}" >>$env:GITHUB_ENV
         echo 'BUILD_FILE_EXT=.exe' >>$env:GITHUB_ENV
+        echo "TRACE2_BASENAME=Trace2.${{ github.run_id }}__${{ github.run_number }}__${{ matrix.os }}__${{ matrix.watchman }}" >>$env:GITHUB_ENV
 
     - name: Setup Git installer
       shell: bash
@@ -127,9 +132,37 @@ jobs:
         & watchman --version
         echo "PATH=$ENV:PATH" >>$env:GITHUB_ENV
 
-    - name: Functional test
+    - id: functional_test
+      name: Functional test
       shell: bash
       run: |
+        export GIT_TRACE2_EVENT="$PWD/$TRACE2_BASENAME/Event"
+        export GIT_TRACE2_PERF="$PWD/$TRACE2_BASENAME/Perf"
+        export GIT_TRACE2_EVENT_BRIEF=true
+        export GIT_TRACE2_PERF_BRIEF=true
+        mkdir -p "$TRACE2_BASENAME"
+        mkdir -p "$TRACE2_BASENAME/Event"
+        mkdir -p "$TRACE2_BASENAME/Perf"
+        git version --build-options
         cd ../out
         PATH="$PWD/Scalar/$BUILD_FRAGMENT:$PWD/Scalar.Service/$BUILD_FRAGMENT:$PATH"
         Scalar.FunctionalTests/$BUILD_FRAGMENT/Scalar.FunctionalTests$BUILD_FILE_EXT --test-scalar-on-path --full-suite
+
+    - id: trace2_zip_unix
+      if: runner.os != 'Windows' && ( success() || failure() ) && ( steps.functional_test.conclusion == 'success' || steps.functional_test.conclusion == 'failure' )
+      name: Zip Trace2 Logs (Unix)
+      shell: bash
+      run: zip -q -r $TRACE2_BASENAME.zip $TRACE2_BASENAME/
+
+    - id: trace2_zip_windows
+      if: runner.os == 'Windows' && ( success() || failure() ) && ( steps.functional_test.conclusion == 'success' || steps.functional_test.conclusion == 'failure' )
+      name: Zip Trace2 Logs (Windows)
+      run: Compress-Archive -DestinationPath ${{ env.TRACE2_BASENAME }}.zip -Path ${{ env.TRACE2_BASENAME }}
+
+    - name: Archive Trace2 Logs
+      if: ( success() || failure() ) && ( steps.trace2_zip_unix.conclusion == 'success' || steps.trace2_zip_windows.conclusion == 'success' )
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.TRACE2_BASENAME }}.zip
+        path: ${{ env.TRACE2_BASENAME }}.zip
+        retention-days: 3
