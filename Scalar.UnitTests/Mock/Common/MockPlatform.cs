@@ -40,11 +40,6 @@ namespace Scalar.UnitTests.Mock.Common
             throw new NotImplementedException();
         }
 
-        public override NamedPipeServerStream CreatePipeByName(string pipeName)
-        {
-            throw new NotSupportedException();
-        }
-
         public override string GetCurrentUser()
         {
             return this.MockCurrentUser;

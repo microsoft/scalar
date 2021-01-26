@@ -57,8 +57,6 @@ namespace Scalar.Common
         /// </exception>
         public abstract void PrepareProcessToRunInBackground();
 
-        public abstract NamedPipeServerStream CreatePipeByName(string pipeName);
-
         public abstract string GetOSVersionInformation();
         public abstract string GetCommonAppDataRootForScalar();
 

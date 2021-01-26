@@ -118,20 +118,6 @@ namespace Scalar.Platform.POSIX
             }
         }
 
-        public override NamedPipeServerStream CreatePipeByName(string pipeName)
-        {
-            NamedPipeServerStream pipe = new NamedPipeServerStream(
-                pipeName,
-                PipeDirection.InOut,
-                NamedPipeServerStream.MaxAllowedServerInstances,
-                PipeTransmissionMode.Byte,
-                PipeOptions.WriteThrough | PipeOptions.Asynchronous,
-                0,  // default inBufferSize
-                0); // default outBufferSize)
-
-            return pipe;
-        }
-
         public override string GetCommonAppDataRootForScalar()
         {
             string localDataRoot;
