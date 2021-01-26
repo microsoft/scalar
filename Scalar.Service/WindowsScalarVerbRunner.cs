@@ -8,14 +8,10 @@ namespace Scalar.Service
     public class WindowsScalarVerbRunner : IScalarVerbRunner
     {
         private readonly ITracer tracer;
-        private readonly string internalVerbJson;
 
         public WindowsScalarVerbRunner(ITracer tracer)
         {
             this.tracer = tracer;
-
-            InternalVerbParameters internalParams = new InternalVerbParameters(startedByService: true);
-            this.internalVerbJson = internalParams.ToJson();
         }
 
         public bool CallMaintenance(MaintenanceTasks.Task task, string repoRoot, int sessionId)
@@ -38,7 +34,7 @@ namespace Scalar.Service
 
             return currentUser.RunAs(
                 Configuration.Instance.ScalarLocation,
-                $"run {taskVerbName} \"{repoRoot}\" --{ScalarConstants.VerbParameters.InternalUseOnly} {this.internalVerbJson}",
+                $"run {taskVerbName} \"{repoRoot}\"",
                 wait: true);
         }
     }

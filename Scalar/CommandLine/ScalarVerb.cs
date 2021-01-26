@@ -34,34 +34,6 @@ namespace Scalar.CommandLine
 
         public abstract string EnlistmentRootPathParameter { get; set; }
 
-        [Option(
-            ScalarConstants.VerbParameters.InternalUseOnly,
-            Required = false,
-            HelpText = "This parameter is reserved for internal use.")]
-        public string InternalParameters
-        {
-            set
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    try
-                    {
-                        InternalVerbParameters internalParams = InternalVerbParameters.FromJson(value);
-                        if (!string.IsNullOrEmpty(internalParams.ServiceName))
-                        {
-                            this.ServiceName = internalParams.ServiceName;
-                        }
-
-                        this.StartedByService = internalParams.StartedByService;
-                    }
-                    catch (JsonReaderException e)
-                    {
-                        this.ReportErrorAndExit("Failed to parse InternalParameters: {0}.\n {1}", value, e);
-                    }
-                }
-            }
-        }
-
         public string ServiceName { get; set; }
 
         public bool StartedByService { get; set; }
