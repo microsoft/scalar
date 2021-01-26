@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Scalar.CommandLine
 {
-    [Verb(RegisterVerb.RegisterVerbName, HelpText = "Register a repo with the Scalar service")]
+    [Verb(RegisterVerb.RegisterVerbName, HelpText = "Register a repo with Scalar")]
     public class RegisterVerb : ScalarVerb
     {
         private const string RegisterVerbName = "register";

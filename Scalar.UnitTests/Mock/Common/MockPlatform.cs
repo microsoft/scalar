@@ -40,11 +40,6 @@ namespace Scalar.UnitTests.Mock.Common
             throw new NotImplementedException();
         }
 
-        public override string GetScalarServiceNamedPipeName(string serviceName)
-        {
-            return Path.Combine("Scalar_Mock_ServicePipeName", serviceName);
-        }
-
         public override NamedPipeServerStream CreatePipeByName(string pipeName)
         {
             throw new NotSupportedException();
@@ -53,11 +48,6 @@ namespace Scalar.UnitTests.Mock.Common
         public override string GetCurrentUser()
         {
             return this.MockCurrentUser;
-        }
-
-        public override string GetUserIdFromLoginSessionId(int sessionId, ITracer tracer)
-        {
-            return sessionId.ToString();
         }
 
         public override string GetOSVersionInformation()
@@ -83,32 +73,12 @@ namespace Scalar.UnitTests.Mock.Common
             return new Dictionary<string, string>();
         }
 
-        public override string GetUpgradeProtectedDataDirectory()
-        {
-            return this.GetCommonAppDataRootForScalarComponent(ProductUpgraderInfo.UpgradeDirectoryName);
-        }
-
-        public override string GetUpgradeLogDirectoryParentDirectory()
-        {
-            return this.GetUpgradeProtectedDataDirectory();
-        }
-
-        public override string GetUpgradeHighestAvailableVersionDirectory()
-        {
-            return this.GetUpgradeProtectedDataDirectory();
-        }
-
         public override void InitializeEnlistmentACLs(string enlistmentPath)
         {
             throw new NotSupportedException();
         }
 
         public override bool IsElevated()
-        {
-            throw new NotSupportedException();
-        }
-
-        public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
         {
             throw new NotSupportedException();
         }
@@ -131,13 +101,6 @@ namespace Scalar.UnitTests.Mock.Common
         public override FileBasedLock CreateFileBasedLock(PhysicalFileSystem fileSystem, ITracer tracer, string lockPath)
         {
             return new MockFileBasedLock(fileSystem, tracer, lockPath);
-        }
-
-        public override ProductUpgraderPlatformStrategy CreateProductUpgraderPlatformInteractions(
-            PhysicalFileSystem fileSystem,
-            ITracer tracer)
-        {
-            return new MockProductUpgraderPlatformStrategy(fileSystem, tracer);
         }
 
         public override bool TryKillProcessTree(int processId, out int exitCode, out string error)
@@ -183,13 +146,6 @@ namespace Scalar.UnitTests.Mock.Common
             {
                 get { return "MockWhere"; }
             }
-
-            public override HashSet<string> UpgradeBlockingProcesses
-            {
-                get { return new HashSet<string>(this.PathComparer) { "Scalar", "git", "wish", "bash" }; }
-            }
-
-            public override bool SupportsUpgradeWhileRunning => false;
 
             public override int MaxPipePathLength => 250;
 

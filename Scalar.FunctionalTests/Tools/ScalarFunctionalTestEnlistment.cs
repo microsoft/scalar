@@ -188,9 +188,9 @@ namespace Scalar.FunctionalTests.Tools
             this.InitializeConfig();
         }
 
-        public string RunVerb(string task, long? batchSize = null, bool failOnError = true, bool asService = false)
+        public string RunVerb(string task, long? batchSize = null, bool failOnError = true)
         {
-            return this.scalarProcess.RunVerb(task, batchSize, failOnError, asService);
+            return this.scalarProcess.RunVerb(task, batchSize, failOnError);
         }
 
         public string RunMaintenanceTask(string task, string config = null)

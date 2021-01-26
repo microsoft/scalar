@@ -7,10 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Scalar.Common\Scalar.Common.csproj" />
-    <ProjectReference Include="..\Scalar.Service\Scalar.Service.csproj" />
-    <ProjectReference Include="..\Scalar.Service.UI\Scalar.Service.UI.csproj" />
     <ProjectReference Include="..\Scalar.TestInfrastructure\Scalar.TestInfrastructure.csproj" />
-    <ProjectReference Include="..\Scalar.Upgrader\Scalar.Upgrader.csproj" />
     <ProjectReference Include="..\Scalar\Scalar.csproj" />
   </ItemGroup>
 

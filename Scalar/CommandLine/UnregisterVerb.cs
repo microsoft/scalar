@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Scalar.CommandLine
 {
-    [Verb(UnregisterVerb.UnregisterVerbName, HelpText = "Unregister a repo with the Scalar service to stop background maintenance")]
+    [Verb(UnregisterVerb.UnregisterVerbName, HelpText = "Unregister a repo with Scalar")]
     public class UnregisterVerb : ScalarVerb
     {
         private const string UnregisterVerbName = "unregister";

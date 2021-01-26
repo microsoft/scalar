@@ -8,7 +8,6 @@
 #define MyAppPublisherURL "http://www.microsoft.com"
 #define MyAppURL "https://github.com/microsoft/Scalar"
 #define MyAppExeName "Scalar.exe"
-#define ServiceUIName "Scalar"
 #define EnvironmentKey "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
 
 [Setup]
@@ -57,13 +56,9 @@ Type: files; Name: "{app}\ucrtbase.dll"
 ; Include all files (recursively) from the layout directory
 DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Source:"{#LayoutPath}\*";
 
-[Icons]
-Name: "{commonstartmenu}\{#ServiceUIName}"; Filename: "{app}\Scalar.Service.UI.exe"; AppUserModelID: "Scalar"
-
 [UninstallDelete]
 ; Deletes the entire installation directory, including files and subdirectories
 Type: filesandordirs; Name: "{app}";
-Type: filesandordirs; Name: "{commonappdata}\Scalar\Scalar.Upgrade";
 
 [Registry]
 Root: HKLM; Subkey: "{#EnvironmentKey}"; \
@@ -130,11 +125,7 @@ var
   ResultCode: integer;
 begin
   Log('StopService: stopping: ' + ServiceName);
-  // ErrorCode 1060 means service not installed, 1062 means service not started
-  if not Exec(ExpandConstant('{sys}\SC.EXE'), 'stop ' + ServiceName, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode <> 1060) and (ResultCode <> 1062) then
-    begin
-      RaiseException('Fatal: Could not stop service: ' + ServiceName);
-    end;
+  Exec(ExpandConstant('{sys}\SC.EXE'), 'stop ' + ServiceName, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
 procedure UninstallService(ServiceName: string; ShowProgress: boolean);
@@ -153,11 +144,7 @@ begin
       try
         StopService(ServiceName);
 
-        if not Exec(ExpandConstant('{sys}\SC.EXE'), 'delete ' + ServiceName, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) or (ResultCode <> 0) then
-          begin
-            Log('UninstallService: Could not uninstall service: ' + ServiceName);
-            RaiseException('Fatal: Could not uninstall service: ' + ServiceName);
-          end;
+        Exec(ExpandConstant('{sys}\SC.EXE'), 'delete ' + ServiceName, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 
         if (ShowProgress) then
           begin
@@ -174,67 +161,11 @@ begin
     end;
 end;
 
-procedure InstallScalarService();
-var
-  ResultCode: integer;
-  StatusText: string;
-  InstallSuccessful: Boolean;
-begin
-  InstallSuccessful := False;
-
-  StatusText := WizardForm.StatusLabel.Caption;
-  WizardForm.StatusLabel.Caption := 'Installing Scalar.Service.';
-  WizardForm.ProgressGauge.Style := npbstMarquee;
-
-  try
-    if Exec(ExpandConstant('{sys}\SC.EXE'), ExpandConstant('create Scalar.Service binPath="{app}\Scalar.Service.exe" start=auto'), '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0) then
-      begin
-        if Exec(ExpandConstant('{sys}\SC.EXE'), 'failure Scalar.Service reset= 30 actions= restart/10/restart/5000//1', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-          begin
-            if Exec(ExpandConstant('{sys}\SC.EXE'), 'start Scalar.Service', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-              begin
-                InstallSuccessful := True;
-              end;
-          end;
-      end;
-
-  finally
-    WizardForm.StatusLabel.Caption := StatusText;
-    WizardForm.ProgressGauge.Style := npbstNormal;
-  end;
-
-  if InstallSuccessful = False then
-    begin
-      RaiseException('Fatal: An error occured while installing Scalar.Service.');
-    end;
-end;
-
-procedure StartScalarServiceUI();
-var
-  ResultCode: integer;
-begin
-  if ExecAsOriginalUser(ExpandConstant('{app}\Scalar.Service.UI.exe'), '', '', SW_HIDE, ewNoWait, ResultCode) then
-    begin
-      Log('StartGVFSServiceUI: Successfully launched Scalar.Service.UI');
-    end
-  else
-    begin
-      Log('StartGVFSServiceUI: Failed to launch Scalar.Service.UI');
-    end;
-end;
-
 procedure StopScalarServiceUI();
 var
   ResultCode: integer;
 begin
-  if Exec('powershell.exe', '-NoProfile "Stop-Process -Name Scalar.Service.UI"', '', SW_HIDE, ewNoWait, ResultCode) then
-    begin
-      Log('StopGVFSServiceUI: Successfully stopped Scalar.Service.UI');
-    end
-  else
-    begin
-      RaiseException('Fatal: Could not stop process: Scalar.Service.UI');
-    end;
+  Exec('powershell.exe', '-NoProfile "Stop-Process -Name Scalar.Service.UI"', '', SW_HIDE, ewNoWait, ResultCode);
 end;
 
 function IsScalarRunning(): Boolean;
@@ -330,7 +261,6 @@ begin
       end;
     ssPostInstall:
       begin
-        InstallScalarService();
       end;
     end;
 end;

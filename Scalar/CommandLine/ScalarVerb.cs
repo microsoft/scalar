@@ -16,8 +16,6 @@ namespace Scalar.CommandLine
 {
     public abstract class ScalarVerb
     {
-        protected const string StartServiceInstructions = "Run 'sc start Scalar.Service' from an elevated command prompt to ensure it is running.";
-
         private readonly bool validateOriginURL;
 
         public ScalarVerb(bool validateOrigin = true)
@@ -25,8 +23,6 @@ namespace Scalar.CommandLine
             this.Output = Console.Out;
             this.ReturnCode = ReturnCode.Success;
             this.validateOriginURL = validateOrigin;
-            this.ServiceName = ScalarConstants.Service.ServiceName;
-            this.StartedByService = false;
             this.Unattended = ScalarEnlistment.IsUnattended(tracer: null);
 
             this.InitializeDefaultParameterValues();
@@ -34,19 +30,7 @@ namespace Scalar.CommandLine
 
         public abstract string EnlistmentRootPathParameter { get; set; }
 
-        public string ServiceName { get; set; }
-
-        public bool StartedByService { get; set; }
-
         public bool Unattended { get; private set; }
-
-        public string ServicePipeName
-        {
-            get
-            {
-                return ScalarPlatform.Instance.GetScalarServiceNamedPipeName(this.ServiceName);
-            }
-        }
 
         public TextWriter Output { get; set; }
 
@@ -67,7 +51,6 @@ namespace Scalar.CommandLine
         {
             TVerb verb = new TVerb();
             verb.EnlistmentRootPathParameter = enlistmentRootPath;
-            verb.ServiceName = this.ServiceName;
             verb.Unattended = this.Unattended;
 
             if (configureVerb != null)
@@ -98,7 +81,6 @@ namespace Scalar.CommandLine
         {
             TVerb verb = new TVerb();
             verb.EnlistmentRootPathParameter = enlistment.EnlistmentRoot;
-            verb.ServiceName = this.ServiceName;
             verb.Unattended = this.Unattended;
 
             if (configureVerb != null)

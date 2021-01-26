@@ -18,37 +18,6 @@ namespace Scalar.Common.NamedPipes
             Failure
         }
 
-        public static class Notification
-        {
-            public class Request
-            {
-                public const string Header = nameof(Notification);
-
-                public enum Identifier
-                {
-                    UpgradeAvailable
-                }
-
-                public Identifier Id { get; set; }
-
-                public string Title { get; set; }
-
-                public string Message { get; set; }
-
-                public string NewVersion { get; set; }
-
-                public static Request FromMessage(Message message)
-                {
-                    return JsonConvert.DeserializeObject<Request>(message.Body);
-                }
-
-                public Message ToMessage()
-                {
-                    return new Message(Header, JsonConvert.SerializeObject(this));
-                }
-            }
-        }
-
         public class Message
         {
             public Message(string header, string body)

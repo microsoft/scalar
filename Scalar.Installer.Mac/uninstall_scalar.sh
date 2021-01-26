@@ -10,7 +10,7 @@ UNINSTALLERCOMMANDPATH="/usr/local/bin/uninstall_scalar.sh"
 INSTALLERPACKAGEID="com.scalar.pkg"
 
 function UnInstallScalar()
-{           
+{
     if [ -f "${LAUNCHDAEMONDIRECTORY}/$LOGDAEMONLAUNCHDFILENAME" ]; then
         rmCmd="sudo /bin/rm -Rf ${LAUNCHDAEMONDIRECTORY}/$LOGDAEMONLAUNCHDFILENAME"
         echo "$rmCmd..."

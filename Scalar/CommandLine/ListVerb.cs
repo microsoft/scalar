@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Scalar.CommandLine
 {
-    [Verb(ListVerb.ListVerbName, HelpText = "List repos registered with the Scalar service")]
+    [Verb(ListVerb.ListVerbName, HelpText = "List repos registered with Scalar")]
     public class ListVerb : ScalarVerb.ForNoEnlistment
     {
         private const string ListVerbName = "list";

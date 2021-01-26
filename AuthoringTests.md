@@ -21,11 +21,11 @@ The functional tests are built on NUnit 3, which is available as a set of NuGet 
     **Option 2:** Run `Scripts\BuildScalarForWindows.bat` from the command line
 
 2. Run the Scalar installer that was built in step 2.  This will ensure that Scalar will be able to find the correct version of the pre/post-command hooks. The installer will be placed in `BuildOutput\Scalar.Installer.Windows\bin\x64\<Debug or Release>`
-3. Run the tests **with elevation**.  Elevation is required because the functional tests create and delete a test service.
+3. Run the tests, without elevation!
 
-   **Option 1:** Run the `Scalar.FunctionalTests` project from inside Visual Studio launched as Administrator.
+   **Option 1:** Run the `Scalar.FunctionalTests` project from inside Visual Studio.
    
-   **Option 2:** Run `Scripts\RunFunctionalTests.bat` from CMD launched as Administrator.
+   **Option 2:** Run `Scripts\RunFunctionalTests.bat` from CMD.
 
 #### Selecting Which Tests are Run
 

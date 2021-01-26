@@ -164,26 +164,6 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             this.Enlistment.RunVerb("all");
         }
 
-        [TestCase]
-        [Order(6)]
-        [Category(Categories.WindowsOnly)]
-        public void ServiceLogFallback()
-        {
-            string logsRoot = Path.Combine(this.Enlistment.RepoRoot, ".git", "logs");
-            string serviceLogFile = Path.Combine(logsRoot, "scalar_maintenance_service.log");
-
-            using (Stream stream = File.OpenWrite(serviceLogFile))
-            {
-                int numLogsBefore = Directory.GetFiles(logsRoot, "*.log").Length;
-
-                this.Enlistment.RunVerb("config", asService: true);
-
-                int numLogsAfter = Directory.GetFiles(logsRoot, "*.log").Length;
-
-                numLogsAfter.ShouldEqual(numLogsBefore + 1, $"`scalar run config` should have created new log file");
-            }
-        }
-
         private List<string> GetPackfiles()
         {
             return Directory.GetFiles(this.PackRoot, "*.pack").ToList();

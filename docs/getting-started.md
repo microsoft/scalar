@@ -9,7 +9,7 @@ If `<path>` is not provided, then the "current repository" is discovered from
 the working directory by scanning the parent paths for a path containing a `.git`
 folder, possibly inside a `src` folder.
 
-To see which repositories are currently tracked by the service, run
+To see which repositories are currently registered with Scalar, run
 `scalar list`.
 
 Run `scalar unregister [<path>]` to remove the repo from this list.

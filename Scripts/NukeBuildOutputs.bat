@@ -22,5 +22,3 @@ IF EXIST %SCALAR_OUTPUTDIR% (
 ) ELSE (
     ECHO no build outputs found
 )
-
-call %SCALAR_SCRIPTSDIR%\StopAllServices.bat

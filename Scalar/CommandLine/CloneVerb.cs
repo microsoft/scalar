@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace Scalar.CommandLine
 {
-    [Verb(CloneVerb.CloneVerbName, HelpText = "Clone a git repo and register it with the service as a Scalar repo")]
+    [Verb(CloneVerb.CloneVerbName, HelpText = "Clone a git repo and register it as a Scalar repo")]
     public class CloneVerb : ScalarVerb
     {
         private const string CloneVerbName = "clone";

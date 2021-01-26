@@ -1,14 +1,6 @@
 Troubleshooting
 ===============
 
-Upgrade
--------
-
-The Scalar service checks for new versions of Scalar daily and will prompt you
-for upgrade using a notification. To check yourself, run `scalar upgrade` to
-see if an upgrade is available. Run `scalar upgrade --confirm` to actually
-perform the upgrade, if you wish.
-
 Diagnosing Issues
 -----------------
 
@@ -20,8 +12,6 @@ files for that repository. This includes:
 
 * All log files from `scalar` commands run in the enlistment, including
   maintenance steps.
-
-* Log files from the Scalar service.
 
 * Configuration files from your `.git` folder, such as the `config` file,
   `index`, `hooks`, and `refs`.

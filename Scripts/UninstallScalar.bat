@@ -6,8 +6,6 @@ taskkill /F /T /FI "IMAGENAME eq Scalar.exe"
 
 if not exist "C:\Program Files\Scalar" goto :end
 
-call %SCALAR_SCRIPTSDIR%\StopAllServices.bat
-
 REM Find the latest uninstaller file by date and run it. Goto the next step after a single execution.
 for /F "delims=" %%f in ('dir "C:\Program Files\Scalar\unins*.exe" /B /S /O:-D') do %%f /VERYSILENT /SUPPRESSMSGBOXES /NORESTART & goto :deleteScalar
 

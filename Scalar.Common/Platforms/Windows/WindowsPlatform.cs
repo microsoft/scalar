@@ -200,19 +200,6 @@ namespace Scalar.Platform.Windows
             }
         }
 
-        public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
-        {
-            ServiceController service = ServiceController.GetServices().FirstOrDefault(s => s.ServiceName.Equals(name, StringComparison.Ordinal));
-
-            installed = service != null;
-            running = service != null ? service.Status == ServiceControllerStatus.Running : false;
-        }
-
-        public override string GetScalarServiceNamedPipeName(string serviceName)
-        {
-            return serviceName + ".pipe";
-        }
-
         public override void ConfigureVisualStudio(string gitBinPath, ITracer tracer)
         {
             try
@@ -280,29 +267,6 @@ namespace Scalar.Platform.Windows
             return identity.User.Value;
         }
 
-        public override string GetUserIdFromLoginSessionId(int sessionId, ITracer tracer)
-        {
-            using (CurrentUser currentUser = new CurrentUser(tracer, sessionId))
-            {
-                return currentUser.Identity.User.Value;
-            }
-        }
-
-        public override string GetUpgradeProtectedDataDirectory()
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalar(), ProductUpgraderInfo.UpgradeDirectoryName);
-        }
-
-        public override string GetUpgradeLogDirectoryParentDirectory()
-        {
-            return this.GetUpgradeProtectedDataDirectory();
-        }
-
-        public override string GetUpgradeHighestAvailableVersionDirectory()
-        {
-            return this.GetUpgradeProtectedDataDirectory();
-        }
-
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly) => WindowsPhysicalDiskInfo.GetPhysicalDiskInfo(path, sizeStatsOnly);
 
         public override FileBasedLock CreateFileBasedLock(
@@ -311,13 +275,6 @@ namespace Scalar.Platform.Windows
             string lockPath)
         {
             return new WindowsFileBasedLock(fileSystem, tracer, lockPath);
-        }
-
-        public override ProductUpgraderPlatformStrategy CreateProductUpgraderPlatformInteractions(
-            PhysicalFileSystem fileSystem,
-            ITracer tracer)
-        {
-            return new WindowsProductUpgraderPlatformStrategy(fileSystem, tracer);
         }
 
         public override string GetTemplateHooksDirectory()
@@ -399,8 +356,6 @@ namespace Scalar.Platform.Windows
                 get { return ".exe"; }
             }
 
-            public override bool SupportsUpgradeWhileRunning => false;
-
             public override string ScalarBinDirectoryPath
             {
                 get
@@ -424,11 +379,6 @@ namespace Scalar.Platform.Windows
             public override string ProgramLocaterCommand
             {
                 get { return "where"; }
-            }
-
-            public override HashSet<string> UpgradeBlockingProcesses
-            {
-                get { return new HashSet<string>(ScalarPlatform.Instance.Constants.PathComparer) { "Scalar", "git", "ssh-agent", "wish", "bash" }; }
             }
 
             // Tests show that 250 is the max supported pipe name length

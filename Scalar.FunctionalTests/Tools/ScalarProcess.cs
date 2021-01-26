@@ -40,21 +40,17 @@ namespace Scalar.FunctionalTests.Tools
             this.CallScalar(args, expectedExitCode: SuccessExitCode);
         }
 
-        public string RunVerb(string task, long? batchSize = null, bool failOnError = true, bool asService = false)
+        public string RunVerb(string task, long? batchSize = null, bool failOnError = true)
         {
             string batchArg = batchSize == null
                                     ? string.Empty
                                     : $"--batch-size={batchSize}";
 
-            string serviceArg = asService
-                                    ? "{\"StartedByService\":\"true\"}"
-                                    : null;
 
             return this.CallScalar(
                 $"run {task} \"{this.enlistmentRoot}\" {batchArg}",
                 failOnError ? SuccessExitCode : DoNotCheckExitCode,
-                standardInput: null,
-                internalParameter: serviceArg);
+                standardInput: null);
         }
 
         public void Repair(bool confirm)
@@ -129,17 +125,11 @@ namespace Scalar.FunctionalTests.Tools
                             int expectedExitCode = DoNotCheckExitCode,
                             string trace = null,
                             string standardInput = null,
-                            string internalParameter = null,
                             string workingDirectory = null)
         {
             ProcessStartInfo processInfo = new ProcessStartInfo(this.pathToScalar);
 
-            if (internalParameter == null)
-            {
-                internalParameter = ScalarHelpers.GetInternalParameter();
-            }
-
-            processInfo.Arguments = args + " " + TestConstants.InternalUseOnlyFlag + " " + internalParameter;
+            processInfo.Arguments = args + " " + TestConstants.InternalUseOnlyFlag;
 
             if (!string.IsNullOrEmpty(workingDirectory))
             {

@@ -77,8 +77,6 @@ namespace Scalar.Common.Git
                 {
                     // If the standard input for a console is redirected / not available,
                     // then we might not be able to set the InputEncoding here.
-                    // In practice, this can happen if we attempt to run a GitProcess from within a Service,
-                    // such as Scalar.Service.
                     // Record that we failed to set the encoding, but do not quite the process.
                     // This means that git commands that use stdin will not work, but
                     // for our scenarios, we do not expect these calls at this this time.

@@ -22,7 +22,6 @@ namespace Scalar.Platform.POSIX
 
         protected POSIXPlatform() : this(
             underConstruction: new UnderConstructionFlags(
-                usesCustomUpgrader: false,
                 supportsScalarConfig: true,
                 supportsNuGetEncryption: false,
                 supportsNuGetVerification: false))
@@ -41,11 +40,6 @@ namespace Scalar.Platform.POSIX
         }
 
         public override bool TryVerifyAuthenticodeSignature(string path, out string subject, out string issuer, out string error)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void IsServiceInstalledAndRunning(string name, out bool installed, out bool running)
         {
             throw new NotImplementedException();
         }
@@ -162,27 +156,6 @@ namespace Scalar.Platform.POSIX
             return Getuid().ToString();
         }
 
-        public override string GetUserIdFromLoginSessionId(int sessionId, ITracer tracer)
-        {
-            // There are no separate User and Session Ids on POSIX platforms.
-            return sessionId.ToString();
-        }
-
-        public override string GetUpgradeProtectedDataDirectory()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string GetUpgradeLogDirectoryParentDirectory()
-        {
-            return Path.Combine(this.GetCommonAppDataRootForScalar(), ProductUpgraderInfo.UpgradeDirectoryName);
-        }
-
-        public override string GetUpgradeHighestAvailableVersionDirectory()
-        {
-            throw new NotImplementedException();
-        }
-
         public override Dictionary<string, string> GetPhysicalDiskInfo(string path, bool sizeStatsOnly)
         {
             // TODO(#1356): Collect disk information
@@ -193,13 +166,6 @@ namespace Scalar.Platform.POSIX
 
         public override void InitializeEnlistmentACLs(string enlistmentPath)
         {
-        }
-
-        public override string GetScalarServiceNamedPipeName(string serviceName)
-        {
-            // Pipes are stored as files on POSIX, use a rooted pipe name
-            // in the same location as the service to keep full control of the location of the file
-            return this.GetCommonAppDataRootForScalarComponent(serviceName) + ".pipe";
         }
 
         public override bool IsElevated()
@@ -214,13 +180,6 @@ namespace Scalar.Platform.POSIX
             error = result.Errors;
             exitCode = result.ExitCode;
             return result.ExitCode == 0;
-        }
-
-        public override ProductUpgraderPlatformStrategy CreateProductUpgraderPlatformInteractions(
-            PhysicalFileSystem fileSystem,
-            ITracer tracer)
-        {
-            return new POSIXProductUpgraderPlatformStrategy(fileSystem, tracer);
         }
 
         public override string GetTemplateHooksDirectory()
@@ -283,13 +242,6 @@ namespace Scalar.Platform.POSIX
             {
                 get { return "which"; }
             }
-
-            public override HashSet<string> UpgradeBlockingProcesses
-            {
-                get { return new HashSet<string>(ScalarPlatform.Instance.Constants.PathComparer) { "git", "wish" }; }
-            }
-
-            public override bool SupportsUpgradeWhileRunning => true;
         }
 
         protected abstract int MaxPathLength { get; }

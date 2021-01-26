@@ -38,21 +38,6 @@ namespace Scalar.Common
             public const string UseGvfsHelper = "core.useGvfsHelper";
         }
 
-        public static class LocalScalarConfig
-        {
-            public const string UpgradeRing = "upgrade.ring";
-            public const string UpgradeFeedPackageName = "upgrade.feedpackagename";
-            public const string UpgradeFeedUrl = "upgrade.feedurl";
-            public const string OrgInfoServerUrl = "upgrade.orgInfoServerUrl";
-        }
-
-        public static class Service
-        {
-            public const string ServiceName = "Scalar.Service";
-            public const string LogDirectory = "Logs";
-            public const string UIName = "Scalar.Service.UI";
-        }
-
         public static class RepoRegistry
         {
             public const string RegistryDirectoryName = "Scalar.RepoRegistry";
@@ -83,15 +68,10 @@ namespace Scalar.Common
 
         public static class LogFileTypes
         {
-            public const string UpgradePrefix = "productupgrade";
 
             public const string Clone = "clone";
             public const string Maintenance = "maintenance";
             public const string Repair = "repair";
-            public const string Service = "service";
-            public const string ServiceUI = "service_ui";
-            public const string UpgradeVerb = UpgradePrefix + "_verb";
-            public const string UpgradeProcess = UpgradePrefix + "_process";
         }
 
         public static class POSIXPlatform
@@ -241,20 +221,6 @@ namespace Scalar.Common
 
                 public const string BatchSizeOptionName = "batch-size";
             }
-        }
-
-        public static class UpgradeVerbMessages
-        {
-            public const string ScalarUpgrade = "`scalar upgrade`";
-            public const string ScalarUpgradeConfirm = "`scalar upgrade --confirm`";
-            public const string ScalarUpgradeDryRun = "`scalar upgrade --dry-run`";
-            public const string NoUpgradeCheckPerformed = "No upgrade check was performed.";
-            public const string NoneRingConsoleAlert = "Upgrade ring set to \"None\". " + NoUpgradeCheckPerformed;
-            public const string NoRingConfigConsoleAlert = "Upgrade ring is not set. " + NoUpgradeCheckPerformed;
-            public const string InvalidRingConsoleAlert = "Upgrade ring set to unknown value. " + NoUpgradeCheckPerformed;
-            public const string SetUpgradeRingCommand = "To set or change upgrade ring, run `scalar config " + LocalScalarConfig.UpgradeRing + " [\"Fast\"|\"Slow\"|\"None\"]` from a command prompt.";
-            public const string ReminderNotification = "A new version of Scalar is available. Run " + UpgradeVerbMessages.ScalarUpgradeConfirm + " from an elevated command prompt to upgrade.";
-            public const string UpgradeInstallAdvice = "When ready, run " + UpgradeVerbMessages.ScalarUpgradeConfirm + " from an elevated command prompt.";
         }
 
         public static class HomebrewCasks

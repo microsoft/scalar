@@ -57,8 +57,6 @@ namespace Scalar.Common
         /// </exception>
         public abstract void PrepareProcessToRunInBackground();
 
-        public abstract void IsServiceInstalledAndRunning(string name, out bool installed, out bool running);
-        public abstract string GetScalarServiceNamedPipeName(string serviceName);
         public abstract NamedPipeServerStream CreatePipeByName(string pipeName);
 
         public abstract string GetOSVersionInformation();
@@ -84,27 +82,6 @@ namespace Scalar.Common
         public abstract void InitializeEnlistmentACLs(string enlistmentPath);
         public abstract bool IsElevated();
         public abstract string GetCurrentUser();
-        public abstract string GetUserIdFromLoginSessionId(int sessionId, ITracer tracer);
-
-        /// <summary>
-        /// Get the directory for upgrades that is permissioned to
-        /// require elevated privileges to modify. This can be used for
-        /// data that we don't want normal user accounts to modify.
-        /// </summary>
-        public abstract string GetUpgradeProtectedDataDirectory();
-
-        /// <summary>
-        /// Directory that upgrader log directory should be placed
-        /// in. There can be multiple log directories, so this is the
-        /// containing directory to place them in.
-        /// </summary>
-        public abstract string GetUpgradeLogDirectoryParentDirectory();
-
-        /// <summary>
-        /// Directory that contains the file indicating that a new
-        /// version is available.
-        /// </summary>
-        public abstract string GetUpgradeHighestAvailableVersionDirectory();
 
         public abstract void ConfigureVisualStudio(string gitBinPath, ITracer tracer);
 
@@ -120,11 +97,6 @@ namespace Scalar.Common
             PhysicalFileSystem fileSystem,
             ITracer tracer,
             string lockPath);
-
-        public abstract ProductUpgraderPlatformStrategy CreateProductUpgraderPlatformInteractions(
-            PhysicalFileSystem fileSystem,
-            ITracer tracer);
-
         public abstract string GetTemplateHooksDirectory();
 
         public bool TryGetNormalizedPathRoot(string path, out string pathRoot, out string errorMessage)
@@ -171,12 +143,6 @@ namespace Scalar.Common
             public abstract string ExecutableExtension { get; }
             public abstract string InstallerExtension { get; }
 
-            /// <summary>
-            /// Indicates whether the platform supports running the upgrade application while
-            /// the upgrade verb is running.
-            /// </summary>
-            public abstract bool SupportsUpgradeWhileRunning { get; }
-
             public abstract string ScalarBinDirectoryPath { get; }
 
             public abstract string ScalarBinDirectoryName { get; }
@@ -184,18 +150,6 @@ namespace Scalar.Common
             public abstract string ScalarExecutableName { get; }
 
             public abstract string ProgramLocaterCommand { get; }
-
-            /// <summary>
-            /// Different platforms can have different requirements
-            /// around which processes can block upgrade. For example,
-            /// on Windows, we will block upgrade if any Scalar commands
-            /// are running, but on POSIX platforms, we relax this
-            /// constraint to allow upgrade to run while the upgrade
-            /// command is running. Another example is that
-            /// Non-windows platforms do not block upgrade when bash
-            /// is running.
-            /// </summary>
-            public abstract HashSet<string> UpgradeBlockingProcesses { get; }
 
             public abstract bool CaseSensitiveFileSystem { get; }
 
@@ -218,28 +172,20 @@ namespace Scalar.Common
                         StringComparer.OrdinalIgnoreCase;
                 }
             }
-
-            public string ScalarUpgraderExecutableName
-            {
-                get { return "Scalar.Upgrader" + this.ExecutableExtension; }
-            }
         }
 
         public class UnderConstructionFlags
         {
             public UnderConstructionFlags(
-                bool usesCustomUpgrader = true,
                 bool supportsScalarConfig = true,
                 bool supportsNuGetEncryption = true,
                 bool supportsNuGetVerification = true)
             {
-                this.UsesCustomUpgrader = usesCustomUpgrader;
                 this.SupportsScalarConfig = supportsScalarConfig;
                 this.SupportsNuGetEncryption = supportsNuGetEncryption;
                 this.SupportsNuGetVerification = supportsNuGetVerification;
             }
 
-            public bool UsesCustomUpgrader { get; }
             public bool SupportsScalarConfig { get; }
             public bool SupportsNuGetEncryption { get; }
             public bool SupportsNuGetVerification { get; }

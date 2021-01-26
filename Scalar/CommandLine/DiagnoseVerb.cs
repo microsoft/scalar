@@ -16,7 +16,6 @@ namespace Scalar.CommandLine
     public class DiagnoseVerb : ScalarVerb.ForExistingEnlistment
     {
         private const string DiagnoseVerbName = "diagnose";
-        private const string DeprecatedUpgradeLogsDirectory = "Logs";
 
         private TextWriter diagnosticLogFileWriter;
         private PhysicalFileSystem fileSystem;
@@ -93,56 +92,6 @@ namespace Scalar.CommandLine
 
                         // local cache
                         this.CopyLocalCacheData(archiveFolderPath, gitObjectsRoot);
-
-                        // service
-                        string commonAppDataRoot = ScalarPlatform.Instance.GetCommonAppDataRootForScalar();
-                        string secureDataRoot = ScalarPlatform.Instance.GetSecureDataRootForScalar();
-
-                        this.CopyAllFiles(
-                            commonAppDataRoot,
-                            archiveFolderPath,
-                            this.ServiceName,
-                            copySubFolders: true);
-
-                        if (!commonAppDataRoot.Equals(secureDataRoot))
-                        {
-                            this.CopyAllFiles(
-                                secureDataRoot,
-                                archiveFolderPath,
-                                this.ServiceName,
-                                copySubFolders: true);
-                        }
-
-                        // service ui
-                        this.CopyAllFiles(
-                            ScalarPlatform.Instance.GetCommonAppDataRootForScalar(),
-                            archiveFolderPath,
-                            ScalarConstants.Service.UIName,
-                            copySubFolders: true);
-
-                        if (ScalarPlatform.Instance.UnderConstruction.UsesCustomUpgrader)
-                        {
-                            // upgrader
-                            this.CopyAllFiles(
-                                ProductUpgraderInfo.GetParentLogDirectoryPath(),
-                                archiveFolderPath,
-                                DeprecatedUpgradeLogsDirectory,
-                                copySubFolders: true,
-                                targetFolderName: Path.Combine(ProductUpgraderInfo.UpgradeDirectoryName, DeprecatedUpgradeLogsDirectory));
-
-                            this.CopyAllFiles(
-                                ProductUpgraderInfo.GetParentLogDirectoryPath(),
-                                archiveFolderPath,
-                                ProductUpgraderInfo.LogDirectory,
-                                copySubFolders: true,
-                                targetFolderName: Path.Combine(ProductUpgraderInfo.UpgradeDirectoryName, ProductUpgraderInfo.LogDirectory));
-
-                            this.LogDirectoryEnumeration(
-                                ProductUpgraderInfo.GetUpgradeProtectedDataDirectory(),
-                                Path.Combine(archiveFolderPath, ProductUpgraderInfo.UpgradeDirectoryName),
-                                ProductUpgraderInfo.DownloadDirectory,
-                                "downloaded-assets.txt");
-                        }
 
                         if (ScalarPlatform.Instance.UnderConstruction.SupportsScalarConfig)
                         {
