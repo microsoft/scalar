@@ -129,7 +129,7 @@ namespace Scalar.FunctionalTests.Tools
         {
             ProcessStartInfo processInfo = new ProcessStartInfo(this.pathToScalar);
 
-            processInfo.Arguments = args + " " + TestConstants.InternalUseOnlyFlag;
+            processInfo.Arguments = args;
 
             if (!string.IsNullOrEmpty(workingDirectory))
             {
