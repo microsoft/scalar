@@ -66,6 +66,7 @@ namespace Scalar.Common.Maintenance
         }
 
         private bool? UseGvfsProtocol = true;
+        private Dictionary<string, GitConfigSetting> existingConfigSettings = null;
 
         public ConfigStep(ScalarContext context, bool? useGvfsProtocol = null, GitFeatureFlags gitFeatures = GitFeatureFlags.None)
             : base(context, requireObjectCacheLock: false, gitFeatures: gitFeatures)
@@ -216,17 +217,33 @@ namespace Scalar.Common.Maintenance
             this.TrySetConfig(out _);
         }
 
-        private bool TrySetConfig(Dictionary<string, string> configSettings, bool isRequired, out string error, bool add = false)
+        private Dictionary<string, GitConfigSetting> GetConfigSettings()
         {
-            Dictionary<string, GitConfigSetting> existingConfigSettings = null;
+            if (this.existingConfigSettings != null)
+            {
+                return this.existingConfigSettings;
+            }
 
             GitProcess.Result getConfigResult = this.RunGitCommand(
-                process => process.TryGetAllConfig(localOnly: isRequired, configSettings: out existingConfigSettings),
+                process => process.TryGetAllConfig(localOnly: true, configSettings: out this.existingConfigSettings),
                 nameof(GitProcess.TryGetAllConfig));
+
+            if (getConfigResult.ExitCodeIsFailure)
+            {
+                this.existingConfigSettings = null;
+                return null;
+            }
+
+            return this.existingConfigSettings;
+        }
+
+        private bool TrySetConfig(Dictionary<string, string> configSettings, bool isRequired, out string error, bool add = false)
+        {
+            Dictionary<string, GitConfigSetting> existingConfigSettings = this.GetConfigSettings();
 
             // If the settings are required, then only check local config settings, because we don't want to depend on
             // global settings that can then change independent of this repo.
-            if (getConfigResult.ExitCodeIsFailure)
+            if (existingConfigSettings == null)
             {
                 error = "Failed to get all config entries";
                 return false;
