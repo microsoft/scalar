@@ -209,7 +209,52 @@ namespace Scalar.Common.Maintenance
                 return false;
             }
 
-            return this.ConfigureWatchmanIntegration(out error);
+            this.GetConfigSettings();
+
+            if (this.existingConfigSettings == null)
+            {
+                return this.ConfigureWatchmanIntegration(out error);
+            }
+
+            GitProcess.ConfigResult config = null;
+            GitProcess.Result getResult = this.RunGitCommand(
+                process => {
+                    config = process.GetFromLocalConfig("feature.scalar");
+                    return null;
+                },
+                nameof(GitProcess.GetFromLocalConfig)
+            );
+            GitFeatureFlags flags = GitVersion.GetAvailableGitFeatures(this.Context.Tracer);
+            config.TryParseAsString(out string scalar, out error, defaultValue: "true");
+
+            if (scalar.Equals("false"))
+            {
+                GitProcess.Result deleteResult = this.RunGitCommand(
+                    process => process.DeleteFromLocalConfig("core.fsmonitor"),
+                    nameof(GitProcess.DeleteFromLocalConfig)
+                );
+
+                return deleteResult.ExitCodeIsSuccess;
+            }
+            else if (scalar.Equals("experimental")
+                     // Make sure Git supports builtin FS Monitor
+                     && flags.HasFlag(GitFeatureFlags.BuiltinFSMonitor)
+                     // For now, this doesn't work on Linux
+                     && !RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                // ":internal:" is a custom value to specify the builtin
+                // FS Monitor feature.
+                GitProcess.Result setResult = this.RunGitCommand(
+                    process => process.SetInLocalConfig("core.fsmonitor", ":internal:"),
+                    nameof(GitProcess.SetInLocalConfig)
+                );
+
+                return setResult.ExitCodeIsSuccess;
+            }
+            else
+            {
+                return this.ConfigureWatchmanIntegration(out error);
+            }
         }
 
         protected override void PerformMaintenance()

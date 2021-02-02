@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using Scalar.Common.Tracing;
 
 namespace Scalar.Common.Git
 {
@@ -164,7 +165,7 @@ namespace Scalar.Common.Git
             }
 
             if (numComponents > 6) {
-                extra = parsedComponents[6];
+                extra = parsedComponents[6].Trim();
             }
 
             version = new GitVersion(major, minor, build, platform, revision, minorRevision, rc, extra);
@@ -219,6 +220,10 @@ namespace Scalar.Common.Git
             if (!string.IsNullOrWhiteSpace(this.Platform))
             {
                 sb.AppendFormat(".{0}.{1}.{2}", this.Platform, this.Revision, this.MinorRevision);
+            }
+
+            if (this.Extra != null) {
+                sb.Append($".{this.Extra}");
             }
 
             return sb.ToString();
