@@ -171,6 +171,25 @@ namespace Scalar.Common.Git
             return true;
         }
 
+        public static GitFeatureFlags GetAvailableGitFeatures(ITracer tracer)
+        {
+            // Determine what features of Git we have available to guide how we init/clone the repository
+            var gitFeatures = GitFeatureFlags.None;
+            string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+            tracer?.RelatedInfo("Attempting to determine Git version for installation '{0}'", gitBinPath);
+            if (GitProcess.TryGetVersion(gitBinPath, out var gitVersion, out string gitVersionError))
+            {
+                tracer?.RelatedInfo("Git installation '{0}' has version '{1}", gitBinPath, gitVersion);
+                gitFeatures = gitVersion.GetFeatures();
+            }
+            else
+            {
+                tracer?.RelatedWarning("Unable to detect Git features for installation '{0}'. Failed to get Git version: '{1}", gitBinPath, gitVersionError);
+            }
+
+            return gitFeatures;
+        }
+
         public bool IsEqualTo(GitVersion other)
         {
             if (this.Platform != other.Platform)

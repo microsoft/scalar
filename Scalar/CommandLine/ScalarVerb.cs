@@ -492,26 +492,6 @@ You can specify a URL, a name of a configured cache server, or the special names
             }
         }
 
-        protected GitFeatureFlags GetAvailableGitFeatures(ITracer tracer)
-        {
-            // Determine what features of Git we have available to guide how we init/clone the repository
-            var gitFeatures = GitFeatureFlags.None;
-            string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
-            tracer.RelatedInfo("Attempting to determine Git version for installation '{0}'", gitBinPath);
-            if (GitProcess.TryGetVersion(gitBinPath, out var gitVersion, out string gitVersionError))
-            {
-                tracer.RelatedInfo("Git installation '{0}' has version '{1}", gitBinPath, gitVersion);
-                gitFeatures = gitVersion.GetFeatures();
-            }
-            else
-            {
-                tracer.RelatedWarning("Unable to detect Git features for installation '{0}'. Failed to get Git version: '{1}", gitBinPath, gitVersionError);
-                this.Output.WriteLine("Warning: unable to detect Git features: {0}", gitVersionError);
-            }
-
-            return gitFeatures;
-        }
-
         private string GetAlternatesPath(ScalarEnlistment enlistment)
         {
             return Path.Combine(enlistment.WorkingDirectoryRoot, ScalarConstants.DotGit.Objects.Info.Alternates);

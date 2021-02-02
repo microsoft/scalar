@@ -113,7 +113,7 @@ namespace Scalar.CommandLine
                         GitObjectsHttpRequestor objectRequestor = null;
                         CacheServerInfo cacheServer;
                         GitObjects gitObjects;
-                        GitFeatureFlags gitFeatures = this.GetAvailableGitFeatures(tracer);
+                        GitFeatureFlags gitFeatures = GitVersion.GetAvailableGitFeatures(tracer);
 
                         switch (this.MaintenanceTask)
                         {
