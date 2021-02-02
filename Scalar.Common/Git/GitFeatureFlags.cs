@@ -22,5 +22,10 @@ namespace Scalar.Common.Git
         /// * Subcommands: run, register, unregister, start, stop
         /// </summary>
         MaintenanceBuiltin = 1 << 1,
+
+        /// <summary>
+        /// Supports the builtin FS Monitor
+        /// </summary>
+        BuiltinFSMonitor = 1 << 2,
     }
 }

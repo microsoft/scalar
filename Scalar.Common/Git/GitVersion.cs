@@ -5,7 +5,7 @@ namespace Scalar.Common.Git
 {
     public class GitVersion
     {
-        public GitVersion(int major, int minor, int build, string platform = null, int revision = 0, int minorRevision = 0, int? rc = null)
+        public GitVersion(int major, int minor, int build, string platform = null, int revision = 0, int minorRevision = 0, int? rc = null, string extra = null)
         {
             this.Major = major;
             this.Minor = minor;
@@ -14,6 +14,7 @@ namespace Scalar.Common.Git
             this.Platform = platform;
             this.Revision = revision;
             this.MinorRevision = minorRevision;
+            this.Extra = extra;
         }
 
         public int Major { get; private set; }
@@ -23,6 +24,7 @@ namespace Scalar.Common.Git
         public string Platform { get; private set; }
         public int Revision { get; private set; }
         public int MinorRevision { get; private set; }
+        public string Extra { get; private set; }
 
         /// <summary>
         /// Determine the set of Git features that are supported in this version of Git.
@@ -41,6 +43,11 @@ namespace Scalar.Common.Git
                 this.Minor > 28 || (this.Minor == 28 && this.Revision > 0))
             {
                 flags |= GitFeatureFlags.MaintenanceBuiltin;
+            }
+
+            if (this.Extra != null && this.Extra.Equals("exp"))
+            {
+                flags |= GitFeatureFlags.BuiltinFSMonitor;
             }
 
             return flags;
@@ -88,6 +95,7 @@ namespace Scalar.Common.Git
             int major, minor, build, revision = 0, minorRevision = 0;
             int? rc = null;
             string platform = null;
+            string extra = null;
 
             if (string.IsNullOrWhiteSpace(input))
             {
@@ -155,7 +163,11 @@ namespace Scalar.Common.Git
                 minorRevision = 0;
             }
 
-            version = new GitVersion(major, minor, build, platform, revision, minorRevision, rc);
+            if (numComponents > 6) {
+                extra = parsedComponents[6];
+            }
+
+            version = new GitVersion(major, minor, build, platform, revision, minorRevision, rc, extra);
             return true;
         }
 

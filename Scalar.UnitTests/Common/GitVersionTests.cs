@@ -68,6 +68,36 @@ namespace Scalar.UnitTests.Common
         }
 
         [TestCase]
+        public void GetFeatureFlags_BuiltinFSMonitor()
+        {
+            var notSupportedVerisons = new List<GitVersion>
+            {
+                new GitVersion(2, 30, 0),
+                new GitVersion(2, 29, 0, "windows"),
+                new GitVersion(2, 30, 0, "vfs", 0, 0),
+            };
+
+            foreach (GitVersion version in notSupportedVerisons)
+            {
+                GitFeatureFlags gitGitFeatures = version.GetFeatures();
+                gitGitFeatures.HasFlag(GitFeatureFlags.BuiltinFSMonitor).ShouldBeFalse($"Incorrect for version {version}");
+            }
+
+            var supportedVerisons = new List<GitVersion>
+            {
+                new GitVersion(2, 28, 0, "vfs", 1, 0, extra: "exp"),
+                new GitVersion(2, 29, 0, "vfs", 0, 0, extra: "exp"),
+                new GitVersion(2, 30, 0, "vfs", 0, 0, extra: "exp"),
+            };
+
+            foreach (GitVersion version in supportedVerisons)
+            {
+                GitFeatureFlags gitGitFeatures = version.GetFeatures();
+                gitGitFeatures.HasFlag(GitFeatureFlags.BuiltinFSMonitor).ShouldBeTrue($"Incorrect for version {version}");
+            }
+        }
+
+        [TestCase]
         public void TryParseInstallerName()
         {
             this.ParseAndValidateInstallerVersion("Git-1.2.3.scalar.4.5.gb16030b-64-bit" + ScalarPlatform.Instance.Constants.InstallerExtension);
