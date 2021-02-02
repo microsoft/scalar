@@ -27,7 +27,7 @@ Scalar is installed and updated on macOS via [Homebrew](https://brew.sh/).
 
 ```sh
 brew tap microsoft/git
-brew cask install scalar
+brew install --cask scalar
 ```
 
 If you wish to use the [GVFS Protocol][gvfs-protocol], then you will
@@ -35,7 +35,7 @@ instead need the cask that uses [our custom fork of Git][microsoft-git]:
 
 ```sh
 brew tap microsoft/git
-brew cask install scalar-azrepos
+brew install --cask scalar-azrepos
 ```
 
 When new versions of Scalar are available, you can upgrade in a few
@@ -80,16 +80,18 @@ Installing on Linux
 
 Currently, we package a custom version of Git and Scalar as `.deb` packages
 that can be installed after downloading from the GitHub releases pages.
-At this point, you must install our custom version of Git in order to get
-background maintenance as part of `scalar clone` or `scalar register`. As
-that feature is accepted and merged into the core Git client, then you can
-take advantage of the feature without the custom fork.
+In order to get background maintenance as part of `scalar clone` or
+`scalar register`, you need to be running Git 2.30.0 or higher.
+Alternatively, you can install our custom version of Git.
+(The custom Git version is also required if you want GVFS protocol support
+on Azure Repos.)
 
 The latest releases can be downloaded and installed as follows:
 
 > Note: If you don't have `wget`, then try `sudo apt-get install wget` first.
 
 ```sh
+# (Optional if running Git 2.30.0 or above)
 # Install git-vfs, a custom fork of Git
 wget https://github.com/microsoft/git/releases/download/v2.29.0.vfs.0.0/git-vfs_2.29.0.vfs.0.0.deb
 sudo dpkg -i git-vfs_2.29.0.vfs.0.0.deb
