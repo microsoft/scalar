@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using Scalar.Common.Tracing;
 
@@ -16,6 +17,7 @@ namespace Scalar.Common.Git
             this.Revision = revision;
             this.MinorRevision = minorRevision;
             this.Extra = extra;
+            this.Features = new HashSet<string>();
         }
 
         public int Major { get; private set; }
@@ -26,6 +28,7 @@ namespace Scalar.Common.Git
         public int Revision { get; private set; }
         public int MinorRevision { get; private set; }
         public string Extra { get; private set; }
+        public HashSet<string> Features { get; private set; }
 
         /// <summary>
         /// Determine the set of Git features that are supported in this version of Git.
@@ -46,7 +49,7 @@ namespace Scalar.Common.Git
                 flags |= GitFeatureFlags.MaintenanceBuiltin;
             }
 
-            if (this.Extra != null && this.Extra.Equals("exp"))
+            if (this.Features.Contains("fsmonitor--daemon"))
             {
                 flags |= GitFeatureFlags.BuiltinFSMonitor;
             }
@@ -224,6 +227,16 @@ namespace Scalar.Common.Git
 
             if (this.Extra != null) {
                 sb.Append($".{this.Extra}");
+            }
+
+            if (this.Features.Count > 0)
+            {
+                sb.Append(" (");
+                foreach (string feature in this.Features)
+                {
+                    sb.Append($" {feature} ");
+                }
+                sb.Append(")");
             }
 
             return sb.ToString();
