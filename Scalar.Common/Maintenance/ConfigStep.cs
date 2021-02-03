@@ -209,13 +209,6 @@ namespace Scalar.Common.Maintenance
                 return false;
             }
 
-            this.GetConfigSettings();
-
-            if (this.existingConfigSettings == null)
-            {
-                return this.ConfigureWatchmanIntegration(out error);
-            }
-
             GitProcess.ConfigResult config = null;
             GitProcess.Result getResult = this.RunGitCommand(
                 process => {
@@ -272,12 +265,6 @@ namespace Scalar.Common.Maintenance
             GitProcess.Result getConfigResult = this.RunGitCommand(
                 process => process.TryGetAllConfig(localOnly: true, configSettings: out this.existingConfigSettings),
                 nameof(GitProcess.TryGetAllConfig));
-
-            if (getConfigResult.ExitCodeIsFailure)
-            {
-                this.existingConfigSettings = null;
-                return null;
-            }
 
             return this.existingConfigSettings;
         }
