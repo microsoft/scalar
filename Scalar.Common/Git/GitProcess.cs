@@ -164,10 +164,9 @@ namespace Scalar.Common.Git
             {
                 yield break;
             }
-
+            const string prefix = "feature: ";
             foreach (string line in result.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries))
             {
-                string prefix = "feature: ";
                 string trimmed = line.Trim();
 
                 if (trimmed.StartsWith(prefix))
