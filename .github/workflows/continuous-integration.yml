@@ -115,7 +115,7 @@ jobs:
 
     - name: Install Watchman (Mac)
       if: runner.os == 'macOS' && matrix.watchman
-      run: brew install watchman
+      run: brew update && brew install watchman
 
     - name: Install Watchman (Windows)
       if: runner.os == 'Windows' && matrix.watchman
