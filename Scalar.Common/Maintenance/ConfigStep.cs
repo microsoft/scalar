@@ -218,7 +218,15 @@ namespace Scalar.Common.Maintenance
                 nameof(GitProcess.GetFromLocalConfig)
             );
             GitFeatureFlags flags = GitVersion.GetAvailableGitFeatures(this.Context.Tracer);
-            config.TryParseAsString(out string scalar, out error, defaultValue: "true");
+            if (!config.TryParseAsString(out string scalar, out error, defaultValue: "true"))
+            {
+                string envVar = Environment.GetEnvironmentVariable("SCALAR_FUNCTIONAL_TEST_EXPERIMENTAL");
+
+                if (bool.TryParse(envVar, out bool result) && result)
+                {
+                    scalar = "experimental";
+                }
+            }
 
             if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "false"))
             {
