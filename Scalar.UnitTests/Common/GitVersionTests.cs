@@ -68,6 +68,22 @@ namespace Scalar.UnitTests.Common
         }
 
         [TestCase]
+        public void GetFeatureFlags_BuiltinFSMonitor()
+        {
+            GitVersion version = new GitVersion(2, 30, 0, "vfs", 0, 0);
+            GitFeatureFlags gitFeatures = version.GetFeatures();
+            gitFeatures.HasFlag(GitFeatureFlags.BuiltinFSMonitor).ShouldBeFalse($"Incorrect for version {version}");
+
+            version.Features.Add("bogus");
+            gitFeatures = version.GetFeatures();
+            gitFeatures.HasFlag(GitFeatureFlags.BuiltinFSMonitor).ShouldBeFalse($"Incorrect for version {version}");
+
+            version.Features.Add("fsmonitor--daemon");
+            gitFeatures = version.GetFeatures();
+            gitFeatures.HasFlag(GitFeatureFlags.BuiltinFSMonitor).ShouldBeTrue($"Incorrect for version {version}");
+        }
+
+        [TestCase]
         public void TryParseInstallerName()
         {
             this.ParseAndValidateInstallerVersion("Git-1.2.3.scalar.4.5.gb16030b-64-bit" + ScalarPlatform.Instance.Constants.InstallerExtension);

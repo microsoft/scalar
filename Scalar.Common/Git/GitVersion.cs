@@ -1,11 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
+using Scalar.Common.Tracing;
 
 namespace Scalar.Common.Git
 {
     public class GitVersion
     {
-        public GitVersion(int major, int minor, int build, string platform = null, int revision = 0, int minorRevision = 0, int? rc = null)
+        public GitVersion(int major, int minor, int build, string platform = null, int revision = 0, int minorRevision = 0, int? rc = null, string extra = null)
         {
             this.Major = major;
             this.Minor = minor;
@@ -14,6 +16,8 @@ namespace Scalar.Common.Git
             this.Platform = platform;
             this.Revision = revision;
             this.MinorRevision = minorRevision;
+            this.Extra = extra;
+            this.Features = new HashSet<string>();
         }
 
         public int Major { get; private set; }
@@ -23,6 +27,8 @@ namespace Scalar.Common.Git
         public string Platform { get; private set; }
         public int Revision { get; private set; }
         public int MinorRevision { get; private set; }
+        public string Extra { get; private set; }
+        public HashSet<string> Features { get; private set; }
 
         /// <summary>
         /// Determine the set of Git features that are supported in this version of Git.
@@ -41,6 +47,11 @@ namespace Scalar.Common.Git
                 this.Minor > 28 || (this.Minor == 28 && this.Revision > 0))
             {
                 flags |= GitFeatureFlags.MaintenanceBuiltin;
+            }
+
+            if (this.Features.Contains("fsmonitor--daemon"))
+            {
+                flags |= GitFeatureFlags.BuiltinFSMonitor;
             }
 
             return flags;
@@ -88,6 +99,7 @@ namespace Scalar.Common.Git
             int major, minor, build, revision = 0, minorRevision = 0;
             int? rc = null;
             string platform = null;
+            string extra = null;
 
             if (string.IsNullOrWhiteSpace(input))
             {
@@ -155,8 +167,31 @@ namespace Scalar.Common.Git
                 minorRevision = 0;
             }
 
-            version = new GitVersion(major, minor, build, platform, revision, minorRevision, rc);
+            if (numComponents > 6) {
+                extra = parsedComponents[6].Trim();
+            }
+
+            version = new GitVersion(major, minor, build, platform, revision, minorRevision, rc, extra);
             return true;
+        }
+
+        public static GitFeatureFlags GetAvailableGitFeatures(ITracer tracer)
+        {
+            // Determine what features of Git we have available to guide how we init/clone the repository
+            var gitFeatures = GitFeatureFlags.None;
+            string gitBinPath = ScalarPlatform.Instance.GitInstallation.GetInstalledGitBinPath();
+            tracer?.RelatedInfo("Attempting to determine Git version for installation '{0}'", gitBinPath);
+            if (GitProcess.TryGetVersion(gitBinPath, out var gitVersion, out string gitVersionError))
+            {
+                tracer?.RelatedInfo("Git installation '{0}' has version '{1}", gitBinPath, gitVersion);
+                gitFeatures = gitVersion.GetFeatures();
+            }
+            else
+            {
+                tracer?.RelatedWarning("Unable to detect Git features for installation '{0}'. Failed to get Git version: '{1}", gitBinPath, gitVersionError);
+            }
+
+            return gitFeatures;
         }
 
         public bool IsEqualTo(GitVersion other)
@@ -188,6 +223,20 @@ namespace Scalar.Common.Git
             if (!string.IsNullOrWhiteSpace(this.Platform))
             {
                 sb.AppendFormat(".{0}.{1}.{2}", this.Platform, this.Revision, this.MinorRevision);
+            }
+
+            if (this.Extra != null) {
+                sb.Append($".{this.Extra}");
+            }
+
+            if (this.Features.Count > 0)
+            {
+                sb.Append(" (");
+                foreach (string feature in this.Features)
+                {
+                    sb.Append($" {feature} ");
+                }
+                sb.Append(")");
             }
 
             return sb.ToString();

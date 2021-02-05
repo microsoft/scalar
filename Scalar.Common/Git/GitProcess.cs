@@ -148,8 +148,32 @@ namespace Scalar.Common.Git
                 return false;
             }
 
+            gitVersion.Features.UnionWith(GetAdvertisedFeatures(gitBinPath));
+
             error = null;
             return true;
+        }
+
+        public static IEnumerable<string> GetAdvertisedFeatures(string gitBinPath)
+        {
+            GitProcess gitProcess = new GitProcess(gitBinPath, null);
+            Result result = gitProcess.InvokeGitOutsideEnlistment("version --build-options");
+            string version = result.Output;
+
+            if (result.ExitCodeIsFailure)
+            {
+                yield break;
+            }
+            const string prefix = "feature: ";
+            foreach (string line in result.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+            {
+                string trimmed = line.Trim();
+
+                if (trimmed.StartsWith(prefix))
+                {
+                    yield return line.Substring(prefix.Length);
+                }
+            }
         }
 
         /// <summary>

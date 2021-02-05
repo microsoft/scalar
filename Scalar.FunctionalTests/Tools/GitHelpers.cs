@@ -94,7 +94,8 @@ namespace Scalar.FunctionalTests.Tools
         {
             return data
                     .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Where(s => !string.IsNullOrWhiteSpace(s));
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Where(s => !s.Contains("gvfs-helper error: '(curl"));
         }
 
         private static bool LinesAreEqual(string actualLine, string expectedLine)

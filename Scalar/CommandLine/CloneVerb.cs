@@ -211,7 +211,7 @@ namespace Scalar.CommandLine
                 resolvedLocalCacheRoot = Path.GetFullPath(this.LocalCacheRoot);
             }
 
-            GitFeatureFlags gitFeatures = this.GetAvailableGitFeatures(this.tracer);
+            GitFeatureFlags gitFeatures = GitVersion.GetAvailableGitFeatures(this.tracer);
 
             // Do not try GVFS authentication on SSH URLs or when we don't have Git support for the GVFS protocol
             bool isHttpsRemote = this.enlistment.RepoUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);

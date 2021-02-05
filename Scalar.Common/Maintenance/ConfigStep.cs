@@ -66,6 +66,7 @@ namespace Scalar.Common.Maintenance
         }
 
         private bool? UseGvfsProtocol = true;
+        private Dictionary<string, GitConfigSetting> existingConfigSettings = null;
 
         public ConfigStep(ScalarContext context, bool? useGvfsProtocol = null, GitFeatureFlags gitFeatures = GitFeatureFlags.None)
             : base(context, requireObjectCacheLock: false, gitFeatures: gitFeatures)
@@ -208,7 +209,43 @@ namespace Scalar.Common.Maintenance
                 return false;
             }
 
-            return this.ConfigureWatchmanIntegration(out error);
+            GitProcess.ConfigResult config = null;
+            GitProcess.Result getResult = this.RunGitCommand(
+                process => {
+                    config = process.GetFromLocalConfig("feature.scalar");
+                    return null;
+                },
+                nameof(GitProcess.GetFromLocalConfig)
+            );
+            GitFeatureFlags flags = GitVersion.GetAvailableGitFeatures(this.Context.Tracer);
+            config.TryParseAsString(out string scalar, out error, defaultValue: "true");
+
+            if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "false"))
+            {
+                GitProcess.Result deleteResult = this.RunGitCommand(
+                    process => process.DeleteFromLocalConfig("core.fsmonitor"),
+                    nameof(GitProcess.DeleteFromLocalConfig)
+                );
+
+                return deleteResult.ExitCodeIsSuccess;
+            }
+            else if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "experimental")
+                     // Make sure Git supports builtin FS Monitor
+                     && flags.HasFlag(GitFeatureFlags.BuiltinFSMonitor))
+            {
+                // ":internal:" is a custom value to specify the builtin
+                // FS Monitor feature.
+                GitProcess.Result setResult = this.RunGitCommand(
+                    process => process.SetInLocalConfig("core.fsmonitor", ":internal:"),
+                    nameof(GitProcess.SetInLocalConfig)
+                );
+
+                return setResult.ExitCodeIsSuccess;
+            }
+            else
+            {
+                return this.ConfigureWatchmanIntegration(out error);
+            }
         }
 
         protected override void PerformMaintenance()
@@ -216,17 +253,27 @@ namespace Scalar.Common.Maintenance
             this.TrySetConfig(out _);
         }
 
-        private bool TrySetConfig(Dictionary<string, string> configSettings, bool isRequired, out string error, bool add = false)
+        private Dictionary<string, GitConfigSetting> GetConfigSettings()
         {
-            Dictionary<string, GitConfigSetting> existingConfigSettings = null;
+            if (this.existingConfigSettings != null)
+            {
+                return this.existingConfigSettings;
+            }
 
             GitProcess.Result getConfigResult = this.RunGitCommand(
-                process => process.TryGetAllConfig(localOnly: isRequired, configSettings: out existingConfigSettings),
+                process => process.TryGetAllConfig(localOnly: true, configSettings: out this.existingConfigSettings),
                 nameof(GitProcess.TryGetAllConfig));
+
+            return this.existingConfigSettings;
+        }
+
+        private bool TrySetConfig(Dictionary<string, string> configSettings, bool isRequired, out string error, bool add = false)
+        {
+            Dictionary<string, GitConfigSetting> existingConfigSettings = this.GetConfigSettings();
 
             // If the settings are required, then only check local config settings, because we don't want to depend on
             // global settings that can then change independent of this repo.
-            if (getConfigResult.ExitCodeIsFailure)
+            if (existingConfigSettings == null)
             {
                 error = "Failed to get all config entries";
                 return false;
