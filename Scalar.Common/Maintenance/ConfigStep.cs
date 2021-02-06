@@ -239,7 +239,9 @@ namespace Scalar.Common.Maintenance
             }
             else if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "experimental")
                      // Make sure Git supports builtin FS Monitor
-                     && flags.HasFlag(GitFeatureFlags.BuiltinFSMonitor))
+                     && flags.HasFlag(GitFeatureFlags.BuiltinFSMonitor)
+                     // but not on Linux yet
+                      && !RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 // ":internal:" is a custom value to specify the builtin
                 // FS Monitor feature.
