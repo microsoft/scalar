@@ -70,17 +70,29 @@ namespace Scalar.UnitTests.Common
         [TestCase]
         public void GetFeatureFlags_BuiltinFSMonitor()
         {
-            GitVersion version = new GitVersion(2, 30, 0, "vfs", 0, 0);
-            GitFeatureFlags gitFeatures = version.GetFeatures();
-            gitFeatures.HasFlag(GitFeatureFlags.BuiltinFSMonitor).ShouldBeFalse($"Incorrect for version {version}");
+            var notSupportedVerisons = new List<GitVersion>
+            {
+                new GitVersion(2, 31, 0),
+                new GitVersion(2, 29, 0, "windows"),
+                new GitVersion(2, 30, 0, "vfs", 0, 1),
+            };
 
-            version.Features.Add("bogus");
-            gitFeatures = version.GetFeatures();
-            gitFeatures.HasFlag(GitFeatureFlags.BuiltinFSMonitor).ShouldBeFalse($"Incorrect for version {version}");
+            foreach (GitVersion version in notSupportedVerisons)
+            {
+                GitFeatureFlags gitGitFeatures = version.GetFeatures();
+                gitGitFeatures.HasFlag(GitFeatureFlags.BuiltinFSMonitor).ShouldBeFalse($"Incorrect for version {version}");
+            }
 
-            version.Features.Add("fsmonitor--daemon");
-            gitFeatures = version.GetFeatures();
-            gitFeatures.HasFlag(GitFeatureFlags.BuiltinFSMonitor).ShouldBeTrue($"Incorrect for version {version}");
+            var supportedVerisons = new List<GitVersion>
+            {
+                new GitVersion(2, 30, 0, "vfs", 0, 0, extra: "exp"),
+            };
+
+            foreach (GitVersion version in supportedVerisons)
+            {
+                GitFeatureFlags gitGitFeatures = version.GetFeatures();
+                gitGitFeatures.HasFlag(GitFeatureFlags.BuiltinFSMonitor).ShouldBeTrue($"Incorrect for version {version}");
+            }
         }
 
         [TestCase]

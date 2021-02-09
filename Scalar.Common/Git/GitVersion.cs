@@ -49,7 +49,7 @@ namespace Scalar.Common.Git
                 flags |= GitFeatureFlags.MaintenanceBuiltin;
             }
 
-            if (this.Features.Contains("fsmonitor--daemon"))
+            if (this.Extra?.Equals("exp") == true)
             {
                 flags |= GitFeatureFlags.BuiltinFSMonitor;
             }

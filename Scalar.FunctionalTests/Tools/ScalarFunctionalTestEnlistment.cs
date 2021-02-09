@@ -157,17 +157,11 @@ namespace Scalar.FunctionalTests.Tools
 
         public void DeleteEnlistment()
         {
-            string watchmanLocation = ProcessHelper.GetProgramLocation("watchman");
-            if (!string.IsNullOrEmpty(watchmanLocation))
+            string envVar = Environment.GetEnvironmentVariable("SCALAR_FUNCTIONAL_TEST_EXPERIMENTAL");
+
+            if (bool.TryParse(envVar, out bool result) && result)
             {
-                try
-                {
-                    ProcessHelper.Run(Path.Combine(watchmanLocation, "watchman"), $"watch-del {this.RepoRoot}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Failed to delete watch on {this.RepoRoot}. {ex.ToString()}");
-                }
+                GitProcess.InvokeProcess(this.RepoRoot, "fsmonitor--daemon --stop");
             }
 
             TestResultsHelper.OutputScalarLogs(this);

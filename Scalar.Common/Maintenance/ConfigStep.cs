@@ -219,6 +219,16 @@ namespace Scalar.Common.Maintenance
             );
             GitFeatureFlags flags = GitVersion.GetAvailableGitFeatures(this.Context.Tracer);
             config.TryParseAsString(out string scalar, out error, defaultValue: "true");
+            this.Context.Tracer.RelatedInfo($"feature.scalar={scalar}");
+
+            string envVar = Environment.GetEnvironmentVariable("SCALAR_FUNCTIONAL_TEST_EXPERIMENTAL");
+
+            if (bool.TryParse(envVar, out bool result) && result)
+            {
+                scalar = "experimental";
+            }
+
+            this.Context.Tracer.RelatedInfo($"feature.scalar={scalar}, SCALAR_FUNCTIONAL_TEST_EXPERIMENTAL={envVar}");
 
             if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "false"))
             {
@@ -231,7 +241,9 @@ namespace Scalar.Common.Maintenance
             }
             else if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "experimental")
                      // Make sure Git supports builtin FS Monitor
-                     && flags.HasFlag(GitFeatureFlags.BuiltinFSMonitor))
+                     && flags.HasFlag(GitFeatureFlags.BuiltinFSMonitor)
+                     // but not on Linux yet
+                      && !RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 // ":internal:" is a custom value to specify the builtin
                 // FS Monitor feature.

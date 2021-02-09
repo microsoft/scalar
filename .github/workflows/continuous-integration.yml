@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, windows-2019, macos-10.15]
-        watchman: [false, true]
+        experimental: [false, true]
 
     env:
       BUILD_FRAGMENT: bin/Release/netcoreapp3.1
@@ -45,20 +45,20 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         echo "BUILD_PLATFORM=${{ runner.os }}" >>$GITHUB_ENV
-        echo "TRACE2_BASENAME=Trace2.${{ github.run_id }}__${{ github.run_number }}__${{ matrix.os }}__${{ matrix.watchman }}" >>$GITHUB_ENV
+        echo "TRACE2_BASENAME=Trace2.${{ github.run_id }}__${{ github.run_number }}__${{ matrix.os }}__${{ matrix.experimental }}" >>$GITHUB_ENV
 
     - name: Setup platform (Mac)
       if: runner.os == 'macOS'
       run: |
         echo 'BUILD_PLATFORM=Mac' >>$GITHUB_ENV
-        echo "TRACE2_BASENAME=Trace2.${{ github.run_id }}__${{ github.run_number }}__${{ matrix.os }}__${{ matrix.watchman }}" >>$GITHUB_ENV
+        echo "TRACE2_BASENAME=Trace2.${{ github.run_id }}__${{ github.run_number }}__${{ matrix.os }}__${{ matrix.experimental }}" >>$GITHUB_ENV
 
     - name: Setup platform (Windows)
       if: runner.os == 'Windows'
       run: |
         echo "BUILD_PLATFORM=${{ runner.os }}" >>$env:GITHUB_ENV
         echo 'BUILD_FILE_EXT=.exe' >>$env:GITHUB_ENV
-        echo "TRACE2_BASENAME=Trace2.${{ github.run_id }}__${{ github.run_number }}__${{ matrix.os }}__${{ matrix.watchman }}" >>$env:GITHUB_ENV
+        echo "TRACE2_BASENAME=Trace2.${{ github.run_id }}__${{ github.run_number }}__${{ matrix.os }}__${{ matrix.experimental }}" >>$env:GITHUB_ENV
 
     - name: Setup Git installer
       shell: bash
@@ -98,39 +98,9 @@ jobs:
         Wait-Process $files[0].Basename
         Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\GitForWindows'
 
-    - name: Install Watchman (Linux)
-      if: runner.os == 'Linux' && matrix.watchman
-      run: |
-        cd ..
-        git clone https://github.com/facebook/watchman.git -b v4.9.0 --depth 1
-        cd watchman
-        ./autogen.sh
-        GCC_VERSION=$(gcc -dumpversion | cut -d. -f1)
-        if [ "$GCC_VERSION" -ge 7 ]; then CPPFLAGS="-Wno-error=format-truncation"; fi
-        if [ "$GCC_VERSION" -ge 8 ]; then CPPFLAGS="$CPPFLAGS -Wno-error=class-memaccess"; fi
-        export CPPFLAGS
-        ./configure --without-python
-        make
-        sudo make install
-
-    - name: Install Watchman (Mac)
-      if: runner.os == 'macOS' && matrix.watchman
-      run: brew install watchman
-
-    - name: Install Watchman (Windows)
-      if: runner.os == 'Windows' && matrix.watchman
-      run: |
-        Write-Host 'Downloading Watchman ...'
-        $Uri = (Select-Xml -Path Directory.Build.props -XPath /Project/PropertyGroup/WatchmanPackageUrl).Node.'#text'
-        Set-Location -Path ..
-        Invoke-WebRequest -Uri $Uri -OutFile watchman.zip
-        Expand-Archive watchman.zip
-        Write-Host 'Installing Watchman ...'
-        New-Item -Path 'C:\Program Files' -Name Watchman -ItemType Directory | Out-Null
-        Copy-Item -Path 'watchman\watchman-*-windows\bin\*' -Destination 'C:\Program Files\Watchman'
-        $ENV:PATH="$ENV:PATH;C:\Program Files\Watchman"
-        & watchman --version
-        echo "PATH=$ENV:PATH" >>$env:GITHUB_ENV
+    - name: Configure Experimental
+      if: matrix.experimental
+      run: git config --global feature.scalar experimental
 
     - id: functional_test
       name: Functional test
@@ -140,6 +110,7 @@ jobs:
         export GIT_TRACE2_PERF="$PWD/$TRACE2_BASENAME/Perf"
         export GIT_TRACE2_EVENT_BRIEF=true
         export GIT_TRACE2_PERF_BRIEF=true
+        export SCALAR_FUNCTIONAL_TEST_EXPERIMENTAL=${{ matrix.experimental }}
         mkdir -p "$TRACE2_BASENAME"
         mkdir -p "$TRACE2_BASENAME/Event"
         mkdir -p "$TRACE2_BASENAME/Perf"
