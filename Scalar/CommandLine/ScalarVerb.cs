@@ -42,23 +42,6 @@ namespace Scalar.CommandLine
         {
             set
             {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    try
-                    {
-                        InternalVerbParameters internalParams = InternalVerbParameters.FromJson(value);
-                        if (!string.IsNullOrEmpty(internalParams.ServiceName))
-                        {
-                            this.ServiceName = internalParams.ServiceName;
-                        }
-
-                        this.StartedByService = internalParams.StartedByService;
-                    }
-                    catch (JsonReaderException e)
-                    {
-                        this.ReportErrorAndExit("Failed to parse InternalParameters: {0}.\n {1}", value, e);
-                    }
-                }
             }
         }
 
