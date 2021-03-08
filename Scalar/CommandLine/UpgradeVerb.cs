@@ -174,7 +174,7 @@ namespace Scalar.CommandLine
         {
             string output;
             string stderr;
-            if (!this.TryGetBrewOutput("cask list", out output, out stderr))
+            if (!this.TryGetBrewOutput("list --cask", out output, out stderr))
             {
                 error = $"Failed to check 'brew' casks: '{stderr}' Is brew installed?";
                 return false;
