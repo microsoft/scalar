@@ -36,7 +36,7 @@ Scalar is installed and updated on macOS via [Homebrew](https://brew.sh/).
 
 ```sh
 brew tap microsoft/git
-brew cask install scalar
+brew install --cask scalar
 ```
 
 If you wish to use the [GVFS Protocol][gvfs-protocol], then you will
@@ -44,7 +44,7 @@ instead need the cask that uses [our custom fork of Git][microsoft-git]:
 
 ```sh
 brew tap microsoft/git
-brew cask install scalar-azrepos
+brew install --cask scalar-azrepos
 ```
 
 When new versions of Scalar are available, you can upgrade in a few
