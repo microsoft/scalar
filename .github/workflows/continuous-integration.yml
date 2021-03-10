@@ -68,7 +68,7 @@ jobs:
         dotnet new classlib -n Scalar.GitInstaller
         cd Scalar.GitInstaller
         cp ../../scalar/nuget.config .
-        dotnet add Scalar.GitInstaller.csproj package "GitFor${BUILD_PLATFORM}.GVFS.Installer" --package-directory . --version "$GIT_VERSION"
+        dotnet add Scalar.GitInstaller.csproj package "GitFor${BUILD_PLATFORM}.GVFS.Installer" --package-directory . --version "$GIT_VERSION" --source "https://pkgs.dev.azure.com/gvfs/ci/_packaging/Dependencies/nuget/v3/index.json"
 
     - name: Install Git (Linux)
       if: runner.os == 'Linux'
