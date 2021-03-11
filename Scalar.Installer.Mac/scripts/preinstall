@@ -7,7 +7,7 @@ function stopService()
         if (/bin/launchctl print $guid/$service | grep --quiet $service); then
                 stop="/bin/launchctl unload /Library/LaunchAgents/$service.plist"
                 echo "Stopping Service: '$service'"
-                eval $stop || exit 1
+                eval $stop
         else
                 echo "Service '$service' not running"
         fi
