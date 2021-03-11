@@ -16,10 +16,6 @@
     <ProjectReference Include="..\Scalar\Scalar.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="GitForMac.GVFS.Installer" />
-  </ItemGroup>
-
   <!-- Only create the installer when running on macOS -->
   <Target Name="BuildInstaller" AfterTargets="Publish" Condition="'$(OSPlatform)' == 'osx'" >
     <!-- Ensure all projects have been published with the correct runtime identifier and configuration -->

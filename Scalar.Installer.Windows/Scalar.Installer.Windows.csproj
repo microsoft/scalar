@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitForWindows.GVFS.Installer" />
     <PackageReference Include="Tools.InnoSetup" />
   </ItemGroup>
 
