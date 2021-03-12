@@ -30,7 +30,7 @@ files for that repository. This includes:
   and the names and sizes of pack-files.
 
 As the `diagnose` command completes, it provides the path of the resulting
-zip file. This zip can be sent to the support team for investigation.
+zip file. This zip can be sent to [the support team](mailto:git-client@github.com) for investigation.
 
 Modifying Configuration Values
 ------------------------------
