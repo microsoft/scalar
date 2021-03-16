@@ -222,28 +222,35 @@ namespace Scalar.Common.Maintenance
 
             if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "false"))
             {
-                GitProcess.Result deleteResult = this.RunGitCommand(
-                    process => process.DeleteFromLocalConfig("core.fsmonitor"),
-                    nameof(GitProcess.DeleteFromLocalConfig)
-                );
+                // We don't know which config setting is set (if any), so we try to unset
+                // both of them.  Git throws an error when unsetting a config setting
+                // it doesn't have a value for, so we always ignore the results.
 
-                return deleteResult.ExitCodeIsSuccess;
-            }
-            else if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "experimental")
-                     // Make sure Git supports builtin FS Monitor
-                     && flags.HasFlag(GitFeatureFlags.BuiltinFSMonitor))
-            {
-                // ":internal:" is a custom value to specify the builtin
-                // FS Monitor feature.
-                GitProcess.Result setResult = this.RunGitCommand(
-                    process => process.SetInLocalConfig("core.fsmonitor", ":internal:"),
-                    nameof(GitProcess.SetInLocalConfig)
-                );
+                DisableWatchmanIntegration();
+                DisableBuiltinFSMonitorIntegration();
 
-                return setResult.ExitCodeIsSuccess;
+                return true;
             }
-            else
+            else if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "experimental"))
             {
+                if (flags.HasFlag(GitFeatureFlags.BuiltinFSMonitor))
+                {
+                    DisableWatchmanIntegration();
+
+                    return ConfigureBuiltinFSMonitorIntegration();
+                }
+
+                // TODO Insert other experimental features here.
+
+                return true;
+            }
+            else // assume "features.scalar" == "true"
+            {
+                // Since "core.useBuiltinFSMonitor" overrides "core.fsmonitor", we have
+                // to unset the former so that Git will see the latter.
+
+                DisableBuiltinFSMonitorIntegration();
+
                 return this.ConfigureWatchmanIntegration(out error);
             }
         }
@@ -416,6 +423,36 @@ namespace Scalar.Common.Maintenance
                 this.Context.Tracer.RelatedError(metadata, error);
                 return false;
             }
+        }
+
+        private bool DisableWatchmanIntegration()
+        {
+            GitProcess.Result deleteResult = this.RunGitCommand(
+                process => process.DeleteFromLocalConfig("core.fsmonitor"),
+                nameof(GitProcess.DeleteFromLocalConfig)
+            );
+
+            return deleteResult.ExitCodeIsSuccess;
+        }
+
+        private bool ConfigureBuiltinFSMonitorIntegration()
+        {
+            GitProcess.Result setResult = this.RunGitCommand(
+                process => process.SetInLocalConfig("core.useBuiltinFSMonitor", "true"),
+                nameof(GitProcess.SetInLocalConfig)
+            );
+
+            return setResult.ExitCodeIsSuccess;
+        }
+
+        private bool DisableBuiltinFSMonitorIntegration()
+        {
+            GitProcess.Result deleteResult = this.RunGitCommand(
+                process => process.DeleteFromLocalConfig("core.useBuiltinFSMonitor"),
+                nameof(GitProcess.DeleteFromLocalConfig)
+            );
+
+            return deleteResult.ExitCodeIsSuccess;
         }
     }
 }
