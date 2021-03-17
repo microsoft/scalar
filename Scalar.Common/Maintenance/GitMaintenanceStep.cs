@@ -180,7 +180,7 @@ namespace Scalar.Common.Maintenance
         /// </summary>
         protected abstract void PerformMaintenance();
 
-        protected GitProcess.Result RunGitCommand(Func<GitProcess, GitProcess.Result> work, string gitCommand)
+        protected GitProcess.Result RunGitCommand(Func<GitProcess, GitProcess.Result> work, string gitCommand, bool quiet = false)
         {
             EventMetadata metadata = this.CreateEventMetadata();
             metadata.Add("gitCommand", gitCommand);
@@ -208,7 +208,7 @@ namespace Scalar.Common.Maintenance
                     throw new StoppingException();
                 }
 
-                if (result?.ExitCodeIsFailure == true)
+                if (result?.ExitCodeIsFailure == true && !quiet)
                 {
                     string errorMessage = result?.Errors == null ? string.Empty : result.Errors;
                     if (errorMessage.Length > 1000)
