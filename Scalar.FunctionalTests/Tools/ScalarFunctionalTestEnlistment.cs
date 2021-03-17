@@ -157,6 +157,11 @@ namespace Scalar.FunctionalTests.Tools
 
         public void DeleteEnlistment()
         {
+            // Technically, we no longer try to start Watchman in the Functional Test Suite.
+            // However, on Linux (which doesn't currently support the Builtin FSMonitor), we
+            // allow the test startup to fallback and use Watchman (rather than failing the
+            // whole test).  So for now, we keep this code to unregister.
+            //
             string watchmanLocation = ProcessHelper.GetProgramLocation("watchman");
             if (!string.IsNullOrEmpty(watchmanLocation))
             {
@@ -169,6 +174,13 @@ namespace Scalar.FunctionalTests.Tools
                     Console.WriteLine($"Failed to delete watch on {this.RepoRoot}. {ex.ToString()}");
                 }
             }
+
+            // Shutdown the Builtin FSMonitor, if present.  We don't know if the daemon is running
+            // at all -- or whether test suite explicitly started -- or if it was implicitly started
+            // by one of the Git commands that we invoked during test.  So just try to stop it and
+            // ignore any errors.
+            //
+            GitProcess.InvokeProcess(this.RepoRoot, "fsmonitor--daemon --stop");
 
             TestResultsHelper.OutputScalarLogs(this);
             RepositoryHelpers.DeleteTestDirectory(this.EnlistmentRoot);
