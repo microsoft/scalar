@@ -209,43 +209,68 @@ namespace Scalar.Common.Maintenance
                 return false;
             }
 
+            // `feature.scalar` is a meta-variable which might control many
+            //    individual config settings.
+
             GitProcess.ConfigResult config = null;
             GitProcess.Result getResult = this.RunGitCommand(
                 process => {
-                    config = process.GetFromLocalConfig("feature.scalar");
+                    config = process.GetFromConfig("feature.scalar");
                     return null;
                 },
-                nameof(GitProcess.GetFromLocalConfig)
+                nameof(GitProcess.GetFromConfig)
             );
+            config.TryParseAsString(out string scalar, out error, defaultValue: "false");
+
+            if (!SelectFSMonitorFromFeatureScalar(scalar))
+                return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Use the value of "feature.scalar" to decide which, if any, FSMonitor
+        /// solution to enable.
+        /// </summary>
+        /// <param name="scalar">When "false", disable FSMonitor completely.
+        /// When "true", use Watchman.  When "experimental", try to use the
+        /// builtin FSMonitor if available on the platform, use Watchman otherwise.
+        /// </param>
+        /// <returns>success or failure</returns>
+        private bool SelectFSMonitorFromFeatureScalar(string scalar)
+        {
             GitFeatureFlags flags = GitVersion.GetAvailableGitFeatures(this.Context.Tracer);
-            config.TryParseAsString(out string scalar, out error, defaultValue: "true");
+            bool hasBuiltin = flags.HasFlag(GitFeatureFlags.BuiltinFSMonitor);
 
             if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "false"))
             {
-                GitProcess.Result deleteResult = this.RunGitCommand(
-                    process => process.DeleteFromLocalConfig("core.fsmonitor"),
-                    nameof(GitProcess.DeleteFromLocalConfig)
-                );
+                DisableWatchmanIntegration();
+                DisableBuiltinFSMonitorIntegration();
 
-                return deleteResult.ExitCodeIsSuccess;
+                return true;
             }
-            else if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "experimental")
-                     // Make sure Git supports builtin FS Monitor
-                     && flags.HasFlag(GitFeatureFlags.BuiltinFSMonitor))
-            {
-                // ":internal:" is a custom value to specify the builtin
-                // FS Monitor feature.
-                GitProcess.Result setResult = this.RunGitCommand(
-                    process => process.SetInLocalConfig("core.fsmonitor", ":internal:"),
-                    nameof(GitProcess.SetInLocalConfig)
-                );
 
-                return setResult.ExitCodeIsSuccess;
-            }
-            else
+            if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "true"))
             {
-                return this.ConfigureWatchmanIntegration(out error);
+                DisableBuiltinFSMonitorIntegration();
+                return this.ConfigureWatchmanIntegration(out _);
             }
+
+            if (StringComparer.OrdinalIgnoreCase.Equals(scalar, "experimental"))
+            {
+                if (hasBuiltin)
+                {
+                    DisableWatchmanIntegration();
+                    return ConfigureBuiltinFSMonitorIntegration();
+                }
+                else
+                {
+                    this.Context.Tracer.RelatedWarning($"Builtin FSMonitor not supported by this version of Git, trying Watchman");
+                    return this.ConfigureWatchmanIntegration(out _);
+                }
+            }
+
+            this.Context.Tracer.RelatedError($"Invalid value for 'feature.scalar': {scalar}");
+            return false;
         }
 
         protected override void PerformMaintenance()
@@ -416,6 +441,39 @@ namespace Scalar.Common.Maintenance
                 this.Context.Tracer.RelatedError(metadata, error);
                 return false;
             }
+        }
+
+        private void DisableWatchmanIntegration()
+        {
+            this.RunGitCommand(
+                process => process.DeleteFromLocalConfig("core.fsmonitor"),
+                nameof(GitProcess.DeleteFromLocalConfig),
+                quiet: true
+            );
+        }
+
+        private bool ConfigureBuiltinFSMonitorIntegration()
+        {
+            GitProcess.Result setResult = this.RunGitCommand(
+                process => process.SetInLocalConfig("core.useBuiltinFSMonitor", "true"),
+                nameof(GitProcess.SetInLocalConfig)
+            );
+
+            if (setResult.ExitCodeIsSuccess)
+            {
+                this.Context.Tracer.RelatedInfo("Builtin FSMonitor configured");
+            }
+
+            return setResult.ExitCodeIsSuccess;
+        }
+
+        private void DisableBuiltinFSMonitorIntegration()
+        {
+            this.RunGitCommand(
+                process => process.DeleteFromLocalConfig("core.useBuiltinFSMonitor"),
+                nameof(GitProcess.DeleteFromLocalConfig),
+                quiet: true
+            );
         }
     }
 }
