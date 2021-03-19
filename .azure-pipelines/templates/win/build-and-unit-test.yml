@@ -15,6 +15,9 @@ steps:
     displayName: Delete previous build outputs
     continueOnError: true
 
+  - script: $(Build.Repository.LocalPath)\.azure-pipelines\templates\win\install-git-package.bat
+    displayName: Setup Git installer
+
   - script: $(Build.Repository.LocalPath)\Scripts\BuildScalarForWindows.bat $(configuration) $(majorAndMinorVersion).$(revision)
     displayName: Build Scalar ($(configuration))
 

@@ -6,8 +6,8 @@ if [ -z "${SCALAR_PKG}" ]; then
   exit 1
 fi
 
-GIT_PKG=$2
-if [ -z "${GIT_PKG}" ]; then
+GIT_PKG_VERSION=$2
+if [ -z "${GIT_PKG_VERSION}" ]; then
   echo "Error: Git installer package not specified"
   exit 1
 fi
@@ -46,14 +46,14 @@ function CopyScalar()
 function CopyGit()
 {
     GIT_DESTINATION="${OUT_DIR}/Git"
-
-    if [ ! -f "${GIT_PKG}" ] ; then
-        echo "Error: Could not find Git for Mac package at ${GIT_PKG}."
-        exit 1
-    fi
-
-    mkdir -p "${GIT_DESTINATION}" || exit 1
-    cp -Rf "${GIT_PKG}" "${GIT_DESTINATION}" || exit 1
+    nuget install GitForMac.GVFS.Installer -DependencyVersion "$GIT_PKG_VERISON" -Source "https://pkgs.dev.azure.com/gvfs/ci/_packaging/Dependencies/nuget/v3/index.json" -OutputDirectory "${OUT_DIR}"
+    unzip "${OUT_DIR}/GitForMac.GVFS.Installer.$GIT_PKG_VERSION/GitForMac.GVFS.Installer.$GIT_PKG_VERSION.nupkg"
+    rm -rf "$GIT_DESTINATION"
+    mv -v "${OUT_DIR}/GitForMac.GVFS.Installer.$GIT_PKG_VERSION/tools/" "$GIT_DESTINATION/"
+    rm "$GIT_DESTINATION/*dmg"
+    GIT_PKG="$GIT_DESTINATION/*pkg"
+    rm -rf "${OUT_DIR}/GitForMac.GVFS.Installer.$GIT_PKG_VERSION/"
+    ls -alR "${OUT_DIR}"
 }
 
 function CopyGcmCore()

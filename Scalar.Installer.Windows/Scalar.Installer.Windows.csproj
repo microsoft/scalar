@@ -66,7 +66,7 @@
     <!-- Build the distribution script -->
     <ItemGroup>
       <ScalarPackage Include="$(InstallerOutputPath)\*.exe" LinkBase="Scalar" />
-      <GitPackage    Include="$(PkgGitForWindows_GVFS_Installer)\tools\*.exe" LinkBase="Git" />
+      <GitPackage    Include="..\..\out\Scalar.GitInstaller\gitforwindows.gvfs.installer\2*\tools\*.exe" LinkBase="Git" />
     </ItemGroup>
     <Copy SourceFiles="@(ScalarPackage);@(GitPackage)"
           DestinationFolder="$(DistributionOutputPath)%(LinkBase)"
