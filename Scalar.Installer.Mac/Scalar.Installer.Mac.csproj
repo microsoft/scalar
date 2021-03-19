@@ -35,6 +35,7 @@
     <ItemGroup>
       <ScriptTemplate Include="$(MSBuildThisFileDirectory)InstallScalar.template.sh" />
       <ScalarPackage  Include="$(PackageOutputPath)*.pkg" />
+      <GitPackage    Include="..\..\out\Scalar.GitInstaller\gitformac.gvfs.installer\2*\tools\*.pkg" LinkBase="Git" />
     </ItemGroup>
 
     <!-- Build the distribution script -->
