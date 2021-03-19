@@ -15,6 +15,15 @@ steps:
     displayName: Delete previous build outputs
     continueOnError: true
 
+  - bash: |
+      GIT_VERSION=$(grep '<GitPackageVersion>' Directory.Build.props | grep -Eo '[0-9.]+(-\w+)*')
+      cd ../out
+      dotnet new classlib -n Scalar.GitInstaller
+      cd Scalar.GitInstaller
+      cp ../../scalar/nuget.config .
+      dotnet add Scalar.GitInstaller.csproj package "GitForWindows.GVFS.Installer" --package-directory . --version "$GIT_VERSION" --source "https://pkgs.dev.azure.com/gvfs/ci/_packaging/Dependencies/nuget/v3/index.json"
+    displayName: Setup Git installer
+
   - script: $(Build.Repository.LocalPath)\Scripts\BuildScalarForWindows.bat $(configuration) $(majorAndMinorVersion).$(revision)
     displayName: Build Scalar ($(configuration))
 
