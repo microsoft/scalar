@@ -154,6 +154,7 @@ namespace Scalar.Common.Maintenance
             Dictionary<string, string> optionalSettings = new Dictionary<string, string>
             {
                 { "status.aheadbehind", "false" },
+                { "commitGraph.generationVersion", "1" },
                 { "core.autocrlf", "false" },
                 { "core.safecrlf", "false" },
                 { "core.repositoryFormatVersion", "1" },
