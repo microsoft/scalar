@@ -17,7 +17,8 @@ steps:
 
   - script: |
       GCMURL=$(xmllint --xpath '//Project/PropertyGroup/GcmCoreOSXPackageUrl/text()' Directory.Build.props) || exit 1
-      Scalar.Installer.Mac/dist.sh "$(Build.ArtifactStagingDirectory)/package"/Scalar*.pkg "$(Build.ArtifactStagingDirectory)/gitformacpkg"/*.pkg "$GCMURL" "Scalar.Installer.Mac/InstallScalar.template.sh" "$(Build.ArtifactStagingDirectory)/dist"
+      GIT_VERSION=$(grep '<GitPackageVersion>' Directory.Build.props | grep -Eo '[0-9.]+(-\w+)*')
+      Scalar.Installer.Mac/dist.sh "$(Build.ArtifactStagingDirectory)/package"/Scalar*.pkg "$GIT_VERSION" "$GCMURL" "Scalar.Installer.Mac/InstallScalar.template.sh" "$(Build.ArtifactStagingDirectory)/dist"
     displayName: Create distribution script
 
   - task: PublishPipelineArtifact@1
