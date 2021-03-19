@@ -46,14 +46,14 @@ function CopyScalar()
 function CopyGit()
 {
     GIT_DESTINATION="${OUT_DIR}/Git"
-
-    mkdir -p "${GIT_DESTINATION}" || exit 1
-
-    nuget install GitForMac.GVFS.Installer -DependencyVersion "$GIT_PKG_VERISON" -Source "https://pkgs.dev.azure.com/gvfs/ci/_packaging/Dependencies/nuget/v3/index.json" -OutputDirectory "$GIT_DESTINATION"
-    unzip "$GIT_DESTINATION/GitForMac.GVFS.Installer.$GIT_PKG_VERSION/GitForMac.GVFS.Installer.$GIT_PKG_VERSION.nupkg"
-    mv "$GIT_DESTINATION/GitForMac.GVFS.Installer.$GIT_PKG_VERSION/GitForMac.GVFS.Installer.$GIT_PKG_VERSION/tools" "$GIT_DESTINATION/tools"
-    GIT_PKG="$GIT_DESTINATION/tools/*pkg"
-    rm -rf "$GIT_DESTINATION/GitForMac.GVFS.Installer.$GIT_PKG_VERSION/"
+    nuget install GitForMac.GVFS.Installer -DependencyVersion "$GIT_PKG_VERISON" -Source "https://pkgs.dev.azure.com/gvfs/ci/_packaging/Dependencies/nuget/v3/index.json" -OutputDirectory "${OUT_DIR}"
+    unzip "${OUT_DIR}/GitForMac.GVFS.Installer.$GIT_PKG_VERSION/GitForMac.GVFS.Installer.$GIT_PKG_VERSION.nupkg"
+    rm -rf "$GIT_DESTINATION"
+    mv -v "${OUT_DIR}/GitForMac.GVFS.Installer.$GIT_PKG_VERSION/tools/" "$GIT_DESTINATION/"
+    rm "$GIT_DESTINATION/*dmg"
+    GIT_PKG="$GIT_DESTINATION/*pkg"
+    rm -rf "${OUT_DIR}/GitForMac.GVFS.Installer.$GIT_PKG_VERSION/"
+    ls -alR "${OUT_DIR}"
 }
 
 function CopyGcmCore()

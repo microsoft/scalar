@@ -35,11 +35,14 @@
     <ItemGroup>
       <ScriptTemplate Include="$(MSBuildThisFileDirectory)InstallScalar.template.sh" />
       <ScalarPackage  Include="$(PackageOutputPath)*.pkg" />
-      <GitPackage    Include="..\..\out\Scalar.GitInstaller\gitformac.gvfs.installer\2*\tools\*.pkg" LinkBase="Git" />
     </ItemGroup>
 
     <!-- Build the distribution script -->
     <Exec Command="$(MSBuildProjectDirectory)/dist.sh '@(ScalarPackage)' '$(GitPackageVersion)' '$(GcmCoreOSXPackageUrl)' '@(ScriptTemplate)' '$(DistributionOutputPath)'"/>
+
+    <ItemGroup>
+    <GitPackage     Include="../../out/Scalar.Installer.Mac/dist/$(Configuration)/Git/*.pkg" LinkBase="Git" />
+    </ItemGroup>
   </Target>
 
   <Target Name="_Clean" AfterTargets="Clean">
