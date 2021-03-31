@@ -43,8 +43,10 @@ namespace Scalar.Common.Git
                 flags |= GitFeatureFlags.GvfsProtocol;
             }
 
-            if ((flags & GitFeatureFlags.GvfsProtocol) != 0 &&
-                this.Minor > 28 || (this.Minor == 28 && this.Revision > 0))
+            // Background maintenance was generally available in v2.31.0.
+            if (this.Minor > 30 ||
+                ((flags & GitFeatureFlags.GvfsProtocol) != 0 &&
+                 this.Minor > 28 || (this.Minor == 28 && this.Revision > 0)))
             {
                 flags |= GitFeatureFlags.MaintenanceBuiltin;
             }
