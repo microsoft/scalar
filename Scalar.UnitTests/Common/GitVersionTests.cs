@@ -42,6 +42,7 @@ namespace Scalar.UnitTests.Common
                 new GitVersion(2, 28, 0, "windows"),
                 new GitVersion(2, 28, 1, "windows"),
                 new GitVersion(2, 29, 0, "windows"),
+                new GitVersion(2, 30, 0),
                 new GitVersion(2, 27, 0, "vfs", 1, 1),
                 new GitVersion(2, 28, 0, "vfs", 0, 0),
                 new GitVersion(2, 28, 0, "vfs", 0, 1),
@@ -58,6 +59,8 @@ namespace Scalar.UnitTests.Common
                 new GitVersion(2, 28, 0, "vfs", 1, 0),
                 new GitVersion(2, 29, 0, "vfs", 0, 0),
                 new GitVersion(2, 30, 0, "vfs", 0, 0),
+                new GitVersion(2, 31, 0),
+                new GitVersion(2, 31, 1),
             };
 
             foreach (GitVersion version in supportedVerisons)
