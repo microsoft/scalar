@@ -114,8 +114,7 @@ jobs:
         mkdir -p "$TRACE2_BASENAME/Perf"
         git version --build-options
         cd ../out
-        PATH="$PWD/Scalar/$BUILD_FRAGMENT:$PWD/Scalar.Service/$BUILD_FRAGMENT:$PATH"
-        Scalar.FunctionalTests/$BUILD_FRAGMENT/Scalar.FunctionalTests$BUILD_FILE_EXT --test-scalar-on-path --full-suite
+        Scalar.FunctionalTests/$BUILD_FRAGMENT/Scalar.FunctionalTests$BUILD_FILE_EXT --full-suite
 
     - id: trace2_zip_unix
       if: runner.os != 'Windows' && ( success() || failure() ) && ( steps.functional_test.conclusion == 'success' || steps.functional_test.conclusion == 'failure' )
