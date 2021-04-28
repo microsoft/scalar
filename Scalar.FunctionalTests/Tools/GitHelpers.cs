@@ -61,6 +61,11 @@ namespace Scalar.FunctionalTests.Tools
             string command,
             params object[] args)
         {
+            bool isStatus = command.StartsWith("status");
+            // Avoid sparse-checkout percentage in "status" calls.
+            if (isStatus) {
+                command = command + " --porcelain=v2";
+            }
             command = string.Format(command, args);
             string controlRepoRoot = controlGitRepo.RootPath;
             string scalarRepoRoot = enlistment.RepoRoot;
@@ -77,7 +82,7 @@ namespace Scalar.FunctionalTests.Tools
             LinesShouldMatch(command + " Errors Lines", expectedResult.Errors, actualResult.Errors);
             LinesShouldMatch(command + " Output Lines", expectedResult.Output, actualResult.Output);
 
-            if (command != "status")
+            if (!isStatus)
             {
                 ValidateGitCommand(enlistment, controlGitRepo, "status");
             }
