@@ -113,6 +113,7 @@ namespace Scalar.Common.Maintenance
                 { "credential.validate", "false" },
                 { "gc.auto", "0" },
                 { "gui.gcwarning", "false" },
+                { "index.sparse", "true" },
                 { "index.threads", "true" },
                 { "index.version", "4" },
                 { "merge.stat", "false" },
