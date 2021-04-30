@@ -31,7 +31,6 @@ namespace Scalar.FunctionalTests.Properties
             public static string ControlGitRepoRoot { get; set; }
             public static string EnlistmentRoot { get; set; }
             public static string PathToGitRoot { get; set; }
-            public static string PathToScalarService { get; set; }
             public static string BinaryFileNameExtension { get; set; }
 
             public static void Initialize()
@@ -50,7 +49,6 @@ namespace Scalar.FunctionalTests.Properties
                     PathToBash = @"C:\Program Files\Git\bin\bash.exe";
 
                     ControlGitRepoRoot = @"C:\Repos\ScalarFunctionalTests\ControlRepo";
-                    PathToScalarService = @"Scalar.Service.exe";
                     BinaryFileNameExtension = ".exe";
                 }
                 else

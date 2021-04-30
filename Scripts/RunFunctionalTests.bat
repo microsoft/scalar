@@ -16,8 +16,6 @@ ECHO PATH:
 ECHO %PATH%
 ECHO Scalar location:
 where scalar
-ECHO Scalar.Service location:
-where scalar.service
 ECHO Git location:
 where git
 
@@ -26,6 +24,5 @@ where git
 
 :endTests
 SET error=%errorlevel%
-CALL %SCALAR_SCRIPTSDIR%\StopAllServices.bat
 
 EXIT /b %error%

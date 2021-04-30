@@ -18,23 +18,6 @@ namespace Scalar.FunctionalTests
         [OneTimeTearDown]
         public void RunAfterAllTests()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                string serviceLogFolder = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                    "Scalar",
-                    ScalarServiceProcess.TestServiceName,
-                    "Logs");
-
-                Console.WriteLine("Scalar.Service logs at '{0}' attached below.\n\n", serviceLogFolder);
-                foreach (string filename in TestResultsHelper.GetAllFilesInDirectory(serviceLogFolder))
-                {
-                    TestResultsHelper.OutputFileContents(filename);
-                }
-
-                ScalarServiceProcess.UninstallService();
-            }
-
             PrintTestCaseStats.PrintRunTimeStats();
         }
     }
