@@ -5,8 +5,6 @@ namespace Scalar.FunctionalTests.Tools
     public static class TestConstants
     {
         public const char GitPathSeparator = '/';
-        public const string InternalUseOnlyFlag = "--internal_use_only";
-
         public const string DefaultScalarCacheFolderName = ".scalarCache";
 
         public static class POSIXPlatform

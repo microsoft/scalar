@@ -40,21 +40,16 @@ namespace Scalar.FunctionalTests.Tools
             this.CallScalar(args, expectedExitCode: SuccessExitCode);
         }
 
-        public string RunVerb(string task, long? batchSize = null, bool failOnError = true, bool asService = false)
+        public string RunVerb(string task, long? batchSize = null, bool failOnError = true)
         {
             string batchArg = batchSize == null
                                     ? string.Empty
                                     : $"--batch-size={batchSize}";
 
-            string serviceArg = asService
-                                    ? "{\"StartedByService\":\"true\"}"
-                                    : null;
-
             return this.CallScalar(
                 $"run {task} \"{this.enlistmentRoot}\" {batchArg}",
                 failOnError ? SuccessExitCode : DoNotCheckExitCode,
-                standardInput: null,
-                internalParameter: serviceArg);
+                standardInput: null);
         }
 
         public void Repair(bool confirm)
@@ -122,24 +117,17 @@ namespace Scalar.FunctionalTests.Tools
         /// </param>
         /// <param name="trace">What to set the GIT_TRACE environment variable to</param>
         /// <param name="standardInput">What to write to the standard input stream</param>
-        /// <param name="internalParameter">The internal parameter to set in the arguments</param>
         /// <returns></returns>
         private string CallScalar(
                             string args,
                             int expectedExitCode = DoNotCheckExitCode,
                             string trace = null,
                             string standardInput = null,
-                            string internalParameter = null,
                             string workingDirectory = null)
         {
             ProcessStartInfo processInfo = new ProcessStartInfo(this.pathToScalar);
 
-            if (internalParameter == null)
-            {
-                internalParameter = ScalarHelpers.GetInternalParameter();
-            }
-
-            processInfo.Arguments = args + " " + TestConstants.InternalUseOnlyFlag + " " + internalParameter;
+            processInfo.Arguments = args;
 
             if (!string.IsNullOrEmpty(workingDirectory))
             {
