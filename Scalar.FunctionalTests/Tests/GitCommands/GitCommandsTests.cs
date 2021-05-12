@@ -1010,7 +1010,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
         [TestCase]
         public void UseAlias()
         {
-            this.ValidateGitCommand("config --local alias.potato status");
+            this.ValidateGitCommand("config --local alias.potato \"status --porcelain=v2\"");
             this.ValidateGitCommand("potato");
         }
 
