@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, releases/* ]
 
+env:
+  SCALAR_TEST_SKIP_VSTS_INFO: true
+
 jobs:
   validate_scalar:
     name: "CI"
