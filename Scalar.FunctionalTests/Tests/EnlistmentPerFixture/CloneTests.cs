@@ -24,7 +24,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
                 newEnlistmentRoot,
                 $"--local-cache-path {localCachePath}");
             result.ExitCode.ShouldEqual(ScalarGenericError);
-            result.Output.ShouldContain("'--local-cache-path' cannot be inside the src folder");
 
             localCachePath = Path.Combine(newEnlistmentRoot, "SRC", ".scalarCache");
 
@@ -39,7 +38,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             else
             {
                 result.ExitCode.ShouldEqual(ScalarGenericError);
-                result.Output.ShouldContain("'--local-cache-path' cannot be inside the src folder");
             }
 
             RepositoryHelpers.DeleteTestDirectory(newEnlistmentRoot);
