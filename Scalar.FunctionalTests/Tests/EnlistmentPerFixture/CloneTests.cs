@@ -15,37 +15,6 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         private const int ScalarGenericError = 3;
 
         [TestCase]
-        public void CloneInsideExistingEnlistment()
-        {
-            ProcessResult result = this.RunCloneCommand(
-                this.Enlistment.EnlistmentRoot,
-                Path.Combine("src", "scalar", "test1"));
-            result.ExitCode.ShouldEqual(ScalarGenericError);
-            result.Output.ShouldContain("You can't clone inside an existing Scalar repo");
-        }
-
-        [TestCase]
-        public void CloneInNonEmptyDirectory()
-        {
-            string newEnlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
-            string newEnlistmentFilePath = Path.Combine(newEnlistmentRoot, "test2");
-
-            FileSystemRunner fileSystem = FileSystemRunner.DefaultRunner;
-            fileSystem.CreateDirectory(newEnlistmentRoot);
-            newEnlistmentRoot.ShouldBeADirectory(fileSystem);
-            fileSystem.CreateEmptyFile(newEnlistmentFilePath);
-            newEnlistmentFilePath.ShouldBeAFile(fileSystem);
-
-            ProcessResult result = this.RunCloneCommand(
-                Path.GetDirectoryName(this.Enlistment.EnlistmentRoot),
-                newEnlistmentRoot);
-            result.ExitCode.ShouldEqual(ScalarGenericError);
-            result.Output.ShouldContain("exists and is not empty");
-
-            RepositoryHelpers.DeleteTestDirectory(newEnlistmentRoot);
-        }
-
-        [TestCase]
         public void CloneWithLocalCachePathWithinSrc()
         {
             string newEnlistmentRoot = ScalarFunctionalTestEnlistment.GetUniqueEnlistmentRoot();
