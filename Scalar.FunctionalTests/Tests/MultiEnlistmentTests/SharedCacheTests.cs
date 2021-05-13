@@ -79,7 +79,9 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 
             RepositoryHelpers.DeleteTestDirectory(objectsRoot);
 
-            ScalarHelpers.GetObjectsRootFromGitConfig(enlistment.RepoRoot).ShouldEqual(objectsRoot);
+            ScalarHelpers.GetObjectsRootFromGitConfig(enlistment.RepoRoot)
+                         .Trim()
+                         .ShouldEqual(objectsRoot.Trim());
 
             // Downloading objects should recreate the objects directory
             this.LoadBlobsViaGit(enlistment);
@@ -124,7 +126,7 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
         {
             string objectsRoot = ScalarHelpers.GetObjectsRootFromGitConfig(enlistment.RepoRoot);
             string alternatesFileContents = Path.Combine(enlistment.RepoRoot, ".git", "objects", "info", "alternates").ShouldBeAFile(this.fileSystem).WithContents();
-            alternatesFileContents.ShouldEqual(objectsRoot);
+            alternatesFileContents.Trim().ShouldEqual(objectsRoot.Trim());
         }
 
         private void LoadBlobsViaGit(ScalarFunctionalTestEnlistment enlistment)
