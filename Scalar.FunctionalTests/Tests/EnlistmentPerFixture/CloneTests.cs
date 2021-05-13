@@ -12,7 +12,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
     [TestFixture]
     public class CloneTests : TestsWithEnlistmentPerFixture
     {
-        private const int ScalarGenericError = 3;
+        private const int ScalarGenericError = 128;
 
         [TestCase]
         public void CloneWithLocalCachePathWithinSrc()
