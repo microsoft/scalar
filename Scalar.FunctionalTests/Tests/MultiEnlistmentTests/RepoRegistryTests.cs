@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Scalar.FunctionalTests.Tools;
 using Scalar.Tests.Should;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
 {
@@ -50,6 +51,12 @@ namespace Scalar.FunctionalTests.Tests.MultiEnlistmentTests
                 localCacheRoot: null);
 
             string result = scalarProcess.ListRepos();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                !result.Contains('\\') &&
+                expectedRepoRoots.Length > 0 &&
+                !expectedRepoRoots[0].Contains('/')) {
+                result = result.Replace('/', '\\');
+            }
             result.ShouldContain(expectedRepoRoots);
 
             if (unexpectedRepoRoots != null)
