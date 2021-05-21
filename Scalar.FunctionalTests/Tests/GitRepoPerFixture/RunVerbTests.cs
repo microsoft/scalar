@@ -119,7 +119,7 @@ namespace Scalar.FunctionalTests.Tests.GitRepoPerFixture
             string refsHeads = Path.Combine(refsRoot, "heads");
             string refsRemotesOrigin = Path.Combine(refsRoot, "remotes", "origin");
             string refsPrefetch = Path.Combine(refsRoot, "prefetch");
-            string refsPrefetchOriginFake = Path.Combine(refsPrefetch, "origin", "fake");
+            string refsPrefetchOriginFake = Path.Combine(refsPrefetch, "remotes", "origin", "fake");
             string packedRefs = Path.Combine(this.Enlistment.RepoRoot, ".git", "packed-refs");
 
             // Removing refs makes the next fetch need to download a new pack
