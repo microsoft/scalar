@@ -180,7 +180,7 @@ namespace Scalar.FunctionalTests.Tools
             // by one of the Git commands that we invoked during test.  So just try to stop it and
             // ignore any errors.
             //
-            GitProcess.InvokeProcess(this.RepoRoot, "fsmonitor--daemon --stop");
+            GitProcess.InvokeProcess(this.RepoRoot, "fsmonitor--daemon stop");
 
             TestResultsHelper.OutputScalarLogs(this);
             RepositoryHelpers.DeleteTestDirectory(this.EnlistmentRoot);
