@@ -97,7 +97,7 @@ jobs:
         Remove-Item 'C:\Program Files\Git' -Recurse -Force
         Write-Host 'Installing GitForWindows ...'
         $files = Get-ChildItem . -Recurse -File -Include 'Git-*.vfs.*.exe'
-        & $files[0].Fullname /DIR="C:\Program Files\Git" /NOICONS /COMPONENTS="ext,ext\shellhere,ext\guihere,assoc,assoc_sh" /GROUP="Git" /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ALLOWDOWNGRADE=1 /LOG=install.log
+        & $files[0].Fullname /DIR="C:\Program Files\Git" /NOICONS /COMPONENTS="ext,ext\shellhere,ext\guihere,assoc,assoc_sh,scalar" /GROUP="Git" /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ALLOWDOWNGRADE=1 /LOG=install.log
         Wait-Process $files[0].Basename
         Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\GitForWindows'
 
