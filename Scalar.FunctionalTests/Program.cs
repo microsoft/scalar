@@ -102,24 +102,6 @@ namespace Scalar.FunctionalTests
             RunBeforeAnyTests();
             Environment.ExitCode = runner.RunTests(includeCategories, excludeCategories);
 
-            try
-            {
-                // Shutdown the watchman server now that the tests are complete.
-                // Allows deleting the unwatched directories.
-                //
-                // Technically, we no longer try to start Watchman in the Functional Test Suite.
-                // However, on Linux (which doesn't currently support the Builtin FSMonitor), we
-                // allow the test startup to fallback and use Watchman (rather than failing the
-                // whole test).  So for now, we keep this code to shutdown the server and ignore
-                // any errors.
-                //
-                ProcessHelper.Run("watchman", "shutdown-server");
-            }
-            catch (Exception)
-            {
-                // This is non-critical, and watchman may not be installed.
-            }
-
             if (Debugger.IsAttached)
             {
                 Console.WriteLine("Tests completed. Press Enter to exit.");
