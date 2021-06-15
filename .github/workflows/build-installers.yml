@@ -1,0 +1,51 @@
+name: Build Installers
+
+on:
+  push:
+    branches: [ main, releases/* ]
+  pull_request:
+    branches: [ main, releases/* ]
+
+jobs:
+  linux:
+    name: "Linux"
+
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.302
+
+    - name: Install dependencies
+      run: dotnet restore --force
+
+    - name: Build Linux packages
+      run: |
+        BRANCH=$(git branch --show-current)
+        if [ "${BRANCH:0:9}" = "releases/" ]; then
+          SCALARVERSION="${BRANCH:9}".0
+        else
+          SCALARVERSION=0.3.132.0
+        fi
+        echo $SCALARVERSION
+        dotnet publish -c Release -p:ScalarVersion=$SCALARVERSION 'Scalar.Packaging.Linux/Scalar.Packaging.Linux.csproj'
+
+      # Because the actions/upload-artifact action does not allow you to specify
+      # relative file paths we must first use a shell script to copy the
+      # artifacts to a different directory.
+    - name: Collect packages
+      shell: bash
+      run: |
+        rm -rf to_upload
+        mkdir to_upload
+        cp ../out/Scalar.Packaging.Linux/deb/Release/*.deb    to_upload
+        cp ../out/Scalar.Packaging.Linux/tar/Release/*.tar.gz to_upload
+
+    - name: Upload packages
+      uses: actions/upload-artifact@v2
+      with:
+        name: Linux
+        path: to_upload/*
