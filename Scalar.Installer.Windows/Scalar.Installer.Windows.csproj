@@ -16,7 +16,6 @@
     <ProjectReference Include="..\Scalar\Scalar.csproj" />
     <ProjectReference Include="..\Scalar.Service\Scalar.Service.csproj" />
     <ProjectReference Include="..\Scalar.Service.UI\Scalar.Service.UI.csproj" />
-    <ProjectReference Include="..\Scalar.Upgrader\Scalar.Upgrader.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,17 +31,12 @@
   </PropertyGroup>
 
   <!-- Only create the installer when running on Windows -->
-  <Target Name="BuildInstaller" AfterTargets="Publish" DependsOnTargets="$(BuildInstallerDependsOn)" Condition="'$(OSPlatform)' == 'windows'" >
+  <Target Name="BuildInstaller" AfterTargets="Publish" DependsOnTargets="$(BuildInstallerDependsOn)" Condition="'$(OSPlatform)' == 'windows'">
   </Target>
 
-  <Target Name="BuildInstallerPhase1" Condition="'$(OSPlatform)' == 'windows'" >
+  <Target Name="BuildInstallerPhase1" Condition="'$(OSPlatform)' == 'windows'">
     <!-- Ensure all projects have been published with the correct runtime identifier and configuration -->
-    <MSBuild Projects="@(ProjectReference)"
-             Targets="Publish"
-             Properties="
-             Configuration=$(Configuration);
-             RuntimeIdentifier=$(RuntimeIdentifier);"
-             BuildInParallel="true" />
+    <MSBuild Projects="@(ProjectReference)" Targets="Publish" Properties="&#xA;             Configuration=$(Configuration);&#xA;             RuntimeIdentifier=$(RuntimeIdentifier);" BuildInParallel="true" />
 
     <!-- Bring together all published binaries -->
     <PropertyGroup>
@@ -51,35 +45,27 @@
     <ItemGroup>
       <_PublishFiles Include="$(RepoOutPath)%(ProjectReference.Filename)\$(PublishPathFragment)\**\*" />
     </ItemGroup>
-    <Copy SourceFiles="@(_PublishFiles)"
-          DestinationFolder="$(LayoutPath)\%(RecursiveDir)"
-          SkipUnchangedFiles="true"
-          OverwriteReadOnlyFiles="true"/>
+    <Copy SourceFiles="@(_PublishFiles)" DestinationFolder="$(LayoutPath)\%(RecursiveDir)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
   </Target>
 
-  <Target Name="BuildInstallerPhase2" Condition="'$(OSPlatform)' == 'windows'" >
+  <Target Name="BuildInstallerPhase2" Condition="'$(OSPlatform)' == 'windows'">
     <!-- Run the Inno setup tool to build the installer -->
-    <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe /DLayoutPath=$(LayoutPath) /DScalarVersion=$(ScalarVersion) Setup.iss /O$(InstallerOutputPath)"/>
+    <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe /DLayoutPath=$(LayoutPath) /DScalarVersion=$(ScalarVersion) Setup.iss /O$(InstallerOutputPath)" />
   </Target>
 
-  <Target Name="BuildInstallerPhase3" Condition="'$(OSPlatform)' == 'windows'" >
+  <Target Name="BuildInstallerPhase3" Condition="'$(OSPlatform)' == 'windows'">
     <!-- Build the distribution script -->
     <ItemGroup>
       <ScalarPackage Include="$(InstallerOutputPath)\*.exe" LinkBase="Scalar" />
-      <GitPackage    Include="..\..\out\Scalar.GitInstaller\gitforwindows.gvfs.installer\2*\tools\*.exe" LinkBase="Git" />
+      <GitPackage Include="..\..\out\Scalar.GitInstaller\gitforwindows.gvfs.installer\2*\tools\*.exe" LinkBase="Git" />
     </ItemGroup>
-    <Copy SourceFiles="@(ScalarPackage);@(GitPackage)"
-          DestinationFolder="$(DistributionOutputPath)%(LinkBase)"
-          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ScalarPackage);@(GitPackage)" DestinationFolder="$(DistributionOutputPath)%(LinkBase)" SkipUnchangedFiles="true" />
     <PropertyGroup>
       <ScalarPackageFilename>%(ScalarPackage.Filename)%(ScalarPackage.Extension)</ScalarPackageFilename>
       <GitPackageFilename>%(GitPackage.Filename)%(GitPackage.Extension)</GitPackageFilename>
     </PropertyGroup>
     <ItemGroup>
-      <ScriptTemplate Include="InstallScalar.template.bat" TargetPath="InstallScalar.bat"
-                      Properties="##SCALAR_INSTALLER_EXE_PLACEHOLDER##=$(ScalarPackageFilename);
-                                  ##GIT_INSTALLER_EXE_PLACEHOLDER##=$(GitPackageFilename);
-                                  ##WATCHMAN_CI_URL_PLACEHOLDER##=$(WatchmanPackageUrl);" />
+      <ScriptTemplate Include="InstallScalar.template.bat" TargetPath="InstallScalar.bat" Properties="##SCALAR_INSTALLER_EXE_PLACEHOLDER##=$(ScalarPackageFilename);&#xA;                                  ##GIT_INSTALLER_EXE_PLACEHOLDER##=$(GitPackageFilename);&#xA;                                  ##WATCHMAN_CI_URL_PLACEHOLDER##=$(WatchmanPackageUrl);" />
     </ItemGroup>
     <CompileTemplatedFile Template="@(ScriptTemplate)" OutputFile="$(DistributionOutputPath)\%(TargetPath)" />
   </Target>
