@@ -21,9 +21,6 @@ steps:
   - script: $(Build.Repository.LocalPath)\Scripts\BuildScalarForWindows.bat $(configuration) $(majorAndMinorVersion).$(revision)
     displayName: Build Scalar ($(configuration))
 
-  - script: $(Build.Repository.LocalPath)\Scripts\RunUnitTests.bat $(configuration) $(Common.TestResultsDirectory)
-    displayName: Run unit tests ($(configuration))
-
   - task: PublishTestResults@2
     displayName: Publish unit test results
     inputs:

@@ -21,9 +21,6 @@ steps:
   - script: Scripts/Mac/BuildScalarForMac.sh $(configuration) $(majorAndMinorVersion).$(revision)
     displayName: Build Scalar ($(configuration))
 
-  - script: Scripts/Mac/RunUnitTests.sh $(configuration) $(Common.TestResultsDirectory)
-    displayName: Run unit tests ($(configuration))
-
   - task: PublishTestResults@2
     displayName: Publish test results
     inputs:
