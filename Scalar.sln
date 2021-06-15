@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar", "Scalar\Scalar.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Common", "Scalar.Common\Scalar.Common.csproj", "{179EAE33-265B-4698-BBC7-130F28F6D768}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scalar.Service", "Scalar.Service\Scalar.Service.csproj", "{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EB9427BB-456A-4319-8916-E782E0F5F6D3}"
 	ProjectSection(SolutionItems) = preProject
 		Dependencies.props = Dependencies.props
@@ -37,10 +35,6 @@ Global
 		{179EAE33-265B-4698-BBC7-130F28F6D768}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{179EAE33-265B-4698-BBC7-130F28F6D768}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{179EAE33-265B-4698-BBC7-130F28F6D768}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E75C4E5C-4446-43A3-BDE0-C9C4297485FA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C7E08779-6F45-4025-89E1-31346C9B234F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C7E08779-6F45-4025-89E1-31346C9B234F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7E08779-6F45-4025-89E1-31346C9B234F}.Release|Any CPU.ActiveCfg = Release|Any CPU
