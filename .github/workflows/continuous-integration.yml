@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, releases/* ]
 
+env:
+  SCALAR_TEST_SKIP_VSTS_INFO: true
+
 jobs:
   validate_scalar:
     name: "CI"
@@ -15,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, windows-2019, macos-10.15]
-        features: [false, experimental]
+        features: [ignored]
 
     env:
       BUILD_FRAGMENT: bin/Release/netcoreapp3.1
@@ -94,7 +97,7 @@ jobs:
         Remove-Item 'C:\Program Files\Git' -Recurse -Force
         Write-Host 'Installing GitForWindows ...'
         $files = Get-ChildItem . -Recurse -File -Include 'Git-*.vfs.*.exe'
-        & $files[0].Fullname /DIR="C:\Program Files\Git" /NOICONS /COMPONENTS="ext,ext\shellhere,ext\guihere,assoc,assoc_sh" /GROUP="Git" /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ALLOWDOWNGRADE=1 /LOG=install.log
+        & $files[0].Fullname /DIR="C:\Program Files\Git" /NOICONS /COMPONENTS="ext,ext\shellhere,ext\guihere,assoc,assoc_sh,scalar" /GROUP="Git" /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ALLOWDOWNGRADE=1 /LOG=install.log
         Wait-Process $files[0].Basename
         Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\GitForWindows'
 
@@ -114,8 +117,7 @@ jobs:
         mkdir -p "$TRACE2_BASENAME/Perf"
         git version --build-options
         cd ../out
-        PATH="$PWD/Scalar/$BUILD_FRAGMENT:$PWD/Scalar.Service/$BUILD_FRAGMENT:$PATH"
-        Scalar.FunctionalTests/$BUILD_FRAGMENT/Scalar.FunctionalTests$BUILD_FILE_EXT --test-scalar-on-path --full-suite
+        Scalar.FunctionalTests/$BUILD_FRAGMENT/Scalar.FunctionalTests$BUILD_FILE_EXT --full-suite
 
     - id: trace2_zip_unix
       if: runner.os != 'Windows' && ( success() || failure() ) && ( steps.functional_test.conclusion == 'success' || steps.functional_test.conclusion == 'failure' )

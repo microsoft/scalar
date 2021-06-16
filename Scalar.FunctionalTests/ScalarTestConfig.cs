@@ -76,10 +76,7 @@ namespace Scalar.FunctionalTests
         {
             get
             {
-                return
-                    TestScalarOnPath ?
-                    Properties.Settings.Default.PathToScalar :
-                    Path.Combine(Properties.Settings.Default.CurrentDirectory, Properties.Settings.Default.PathToScalar);
+                return Properties.Settings.Default.PathToScalar;
             }
         }
     }

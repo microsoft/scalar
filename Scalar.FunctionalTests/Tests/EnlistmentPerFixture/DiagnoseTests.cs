@@ -3,6 +3,7 @@ using Scalar.Tests.Should;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 {
@@ -22,6 +23,9 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             string zipFilePath = files.First();
 
             zipFilePath.EndsWith(".zip").ShouldEqual(true);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                !output.Contains(zipFilePath))
+                zipFilePath = zipFilePath.Replace('\\', '/');
             output.Contains(zipFilePath).ShouldEqual(true);
         }
     }

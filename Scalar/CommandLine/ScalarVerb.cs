@@ -34,17 +34,6 @@ namespace Scalar.CommandLine
 
         public abstract string EnlistmentRootPathParameter { get; set; }
 
-        [Option(
-            ScalarConstants.VerbParameters.InternalUseOnly,
-            Required = false,
-            HelpText = "This parameter is reserved for internal use.")]
-        public string InternalParameters
-        {
-            set
-            {
-            }
-        }
-
         public string ServiceName { get; set; }
 
         public bool StartedByService { get; set; }
