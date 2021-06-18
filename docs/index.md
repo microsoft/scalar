@@ -1,6 +1,12 @@
 Scalar: Enabling Git at Scale
 =============================
 
+> **Note: Scalar has moved!** It is now part of [the `microsoft/git` fork][microsoft-git]
+> and thus this document has [a new version in that repository][git-index].
+
+[microsoft-git]: https://github.com/microsoft/git
+[git-index]: https://github.com/microsoft/git/blob/HEAD/contrib/scalar/docs/index.md
+
 Scalar is a tool that helps Git scale to some of the largest Git repositories.
 It achieves this by enabling some advanced Git features, such as:
 

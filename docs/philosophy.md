@@ -1,6 +1,12 @@
 The Philosophy of Scalar
 ========================
 
+> **Note: Scalar has moved!** It is now part of [the `microsoft/git` fork][microsoft-git]
+> and thus this document has [a new version in that repository][git-philosophy].
+
+[microsoft-git]: https://github.com/microsoft/git
+[git-philosophy]: https://github.com/microsoft/git/blob/HEAD/contrib/scalar/docs/philosophy.md
+
 The team building Scalar has **opinions** about Git performance. Scalar
 takes out the guesswork by automatically configuring your Git repositories
 to take advantage of the latest and greatest features. It is difficult to
