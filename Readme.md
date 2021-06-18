@@ -1,4 +1,4 @@
-![Scalar](Scalar/Images/scalar-card.png)
+![Scalar](Images/scalar-card.png)
 
 ## What is Scalar?
 
