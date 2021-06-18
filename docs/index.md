@@ -131,10 +131,6 @@ Documentation
   Includes `scalar register`, `scalar unregister`, `scalar clone`, and
   `scalar delete`.
 
-* [Advanced Features](advanced.md):
-  For expert users who want full control of Scalar's activity. Includes
-  `scalar run <task>`, `scalar pause`, `scalar resume`.
-
 * [Troubleshooting](troubleshooting.md):
   Collect diagnostic information or update custom settings. Includes
   `scalar diagnose`, `scalar config`, `scalar upgrade`, and `scalar cache-server`.
