@@ -350,6 +350,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             string conflictTargetBranch = "FunctionalTests/20170206_Conflict_Target";
             GitProcess.Invoke(this.Enlistment.RepoRoot, $"checkout {conflictTargetBranch}");
             GitProcess.Invoke(this.Enlistment.RepoRoot, $"checkout {conflictSourceBranch}");
+            GitProcess.InvokeProcess(this.Enlistment.RepoRoot, $"reset --hard");
 
             ProcessResult checkoutResult = GitProcess.InvokeProcess(this.Enlistment.RepoRoot, $"merge {conflictTargetBranch}");
             checkoutResult.Output.ShouldContain("Merge conflict");
