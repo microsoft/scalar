@@ -480,7 +480,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
             Path.Combine(scalarFolderPath, filename).ShouldBeAFile(this.FileSystem).WithContents(testFileContents);
 
             this.ValidateGitCommand("status");
-            this.ValidateGitCommand("add .");
+            this.ValidateGitCommand("add --sparse .");
             this.RunGitCommand("commit -m \"Change for MoveFolderFromOutsideRepoToInsideRepoAndAdd\"");
             this.ValidateGitCommand("checkout " + this.ControlGitRepo.Commitish);
         }
