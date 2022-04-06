@@ -146,10 +146,12 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             // Contents before 'set'
             this.VerifyContentsForSparseSetFileAlreadyExists();
 
-            // If a file already exists that would conflict with a sparse checkout, the 'set' will partially succeed.
+            // If a file already exists that would conflict with a sparse checkout, the 'set' still succeeds
+            // because the on-disk file was already "de-sparsified" (see Git, af6a51875a (repo_read_index:
+            // clear SKIP_WORKTREE bit from files present in worktree, 2022-01-14))
             this.currentFolderList.Add(FolderEnumerateAndReadTestFiles);
             string result = this.SparseSet();
-            result.ShouldContain(SetOverwriteMessage);
+            result.ShouldBeEmpty();
 
             // Should now have multiple files under EnumerateAndReadTestFiles
             Directory.GetFiles(folderEnumerateDirectory).Length.ShouldEqual(18);
@@ -212,7 +214,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
         public void SparseSetWithOneFolderConflict()
         {
             // Create a conflict file Test_EPF_MoveRenameFileTests_2/_a
-            // Add Test_EPF_MoveRenameFileTests / Test_EPF_MoveRenameFileTests_2, this should fail since Test_EPF_MoveRenameFileTests_2 has a conflict
+            // Add Test_EPF_MoveRenameFileTests / Test_EPF_MoveRenameFileTests_2, this will not fail despite the "conflict" (see below)
             // Checkout out a new branch and attempt to go back to the previous branch.
             // Deleting the conflict file will allow you to switch back to the branch and Test_EPF_MoveRenameFileTests / Test_EPF_MoveRenameFileTests_2 will be populated
             string folderRenameDirectory = this.Enlistment.GetSourcePath(FolderTest_MoveRenameFileTests);
@@ -224,10 +226,13 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
 
             this.VerifyContentsSparseSetWithOneFolderConflict();
 
+            // If a file already exists that would conflict with a sparse checkout, the 'set' still succeeds
+            // because the on-disk file was already "de-sparsified" (see Git, af6a51875a (repo_read_index:
+            // clear SKIP_WORKTREE bit from files present in worktree, 2022-01-14))
             this.currentFolderList.Add(FolderTest_MoveRenameFileTests);
             this.currentFolderList.Add(FolderTest_MoveRenameFileTests2);
             string result = this.SparseSet();
-            result.ShouldContain(SetOverwriteMessage);
+            result.ShouldBeEmpty();
 
             // Checkout new_branch
             GitProcess.Invoke(this.Enlistment.RepoRoot, "checkout -b new_branch");
