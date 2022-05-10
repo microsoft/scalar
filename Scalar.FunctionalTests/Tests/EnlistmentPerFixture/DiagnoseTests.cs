@@ -26,7 +26,7 @@ namespace Scalar.FunctionalTests.Tests.EnlistmentPerFixture
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                 !output.Contains(zipFilePath))
                 zipFilePath = zipFilePath.Replace('\\', '/');
-            output.Contains(zipFilePath).ShouldEqual(true);
+            output.ShouldContain(zipFilePath);
         }
     }
 }
