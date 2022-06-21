@@ -137,6 +137,8 @@ namespace Scalar.FunctionalTests.Tools
             processInfo.WindowStyle = ProcessWindowStyle.Hidden;
             processInfo.UseShellExecute = false;
             processInfo.RedirectStandardOutput = true;
+            processInfo.RedirectStandardError = true;
+
             if (standardInput != null)
             {
                 processInfo.RedirectStandardInput = true;
@@ -161,6 +163,7 @@ namespace Scalar.FunctionalTests.Tools
                 }
 
                 string result = process.StandardOutput.ReadToEnd();
+                result += process.StandardError.ReadToEnd();
                 process.WaitForExit();
 
                 if (expectedExitCode >= SuccessExitCode)
