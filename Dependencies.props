@@ -3,8 +3,6 @@
   <ItemGroup>
     <!-- Product dependencies -->
     <PackageReference Update="CommandLineParser"               Version="2.6.0"  />
-    <PackageReference Update="Microsoft.PowerShell.SDK"        Version="6.2.2"  />
-    <PackageReference Update="Microsoft.Windows.Compatibility" Version="2.1.1"  />
     <PackageReference Update="Newtonsoft.Json"                 Version="13.0.1" />
     <PackageReference Update="NuGet.CommandLine"               Version="5.4.0"  />
     <PackageReference Update="NuGet.Commands"                  Version="5.4.0"  />
