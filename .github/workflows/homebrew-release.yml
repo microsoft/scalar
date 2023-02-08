@@ -10,7 +10,7 @@ jobs:
     - id: version
       name: Compute version number
       run: |
-        echo "::set-output name=result::$(echo $GITHUB_REF | sed -e "s/^refs\/tags\/v//")"
+        echo "result=$(echo $GITHUB_REF | sed -e "s/^refs\/tags\/v//")" >> $GITHUB_OUTPUT
     - id: hash
       name: Compute release asset hash
       uses: mjcheetham/asset-hash@v1
