@@ -276,6 +276,7 @@ namespace Scalar.FunctionalTests.Tools
             GitProcess.Invoke(this.RepoRoot, "checkout " + this.Commitish);
             GitProcess.Invoke(this.RepoRoot, "branch --unset-upstream");
             GitProcess.Invoke(this.RepoRoot, "config core.abbrev 40");
+            GitProcess.Invoke(this.RepoRoot, "config advice.sparseIndexExpanded false");
             GitProcess.Invoke(this.RepoRoot, "config user.name \"Functional Test User\"");
             GitProcess.Invoke(this.RepoRoot, "config user.email \"functional@test.com\"");
         }
