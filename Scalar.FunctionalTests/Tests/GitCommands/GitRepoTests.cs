@@ -199,6 +199,7 @@ namespace Scalar.FunctionalTests.Tests.GitCommands
                                                                 fullClone: this.validateWorkingTree != Settings.ValidateWorkingTreeMode.SparseMode);
             GitProcess.Invoke(this.Enlistment.RepoRoot, "config core.editor true");
             GitProcess.Invoke(this.Enlistment.RepoRoot, "config advice.statusUoption false");
+            GitProcess.Invoke(this.Enlistment.RepoRoot, "config advice.sparseIndexExpanded false");
             this.ControlGitRepo = ControlGitRepo.Create(commitish);
             this.ControlGitRepo.Initialize();
 
